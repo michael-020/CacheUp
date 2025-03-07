@@ -18,9 +18,9 @@ app.use(express.urlencoded({ extended: false}))
 
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")))
 
-app.use("/api/v2/user", userRouter)
-app.use("/api/v2/admin", adminRouter)
-app.use("/api/v2/post", postRouter)
+app.use("/api/v1/user", userRouter)
+app.use("/api/v1/admin", adminRouter)
+app.use("/api/v1/post", postRouter)
 
 
 
