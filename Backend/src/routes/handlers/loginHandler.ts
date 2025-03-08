@@ -45,11 +45,7 @@ export const loginHandler: RequestHandler = async (req: Request, res: Response) 
                 msg: "Incorrect Password"
             })
         }
-
-        // const token = jwt.sign({
-        //     userId: user._id
-        // }, JWT_SECRET as string)
-
+        
         generateToken(new mongoose.Types.ObjectId(user._id as string), res);
 
         res.status(200).json({

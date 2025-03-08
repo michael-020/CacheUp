@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { authAction, authState } from "./types";
-import { AxiosInstance } from "../../lib/axios";
+import { axiosInstance } from "../../lib/axios";
+import { AxiosError } from "axios";
+import toast from "react-hot-toast";
 
 
 export const useAuthStore = create<authState & authAction>((set) => ({
@@ -8,22 +10,57 @@ export const useAuthStore = create<authState & authAction>((set) => ({
     isSigningUp: false,
     isSigningIn: false,
     isLoggingOut: false,
+    isCheckingAuth: false,
 
     signup: async (data) => {
         set({isSigningUp: true})
         try {
-            const res = await AxiosInstance.post("/user/signup", data)
+            // await new Promise(r => setTimeout(r, 2000))
+            const res = await axiosInstance.post("/user/complete-signup", data)
             set({authUser: res.data})
+            toast.success("Account created Successfully")
         } catch (error) {
-            
+            if (error instanceof AxiosError && error.response?.data?.msg) {
+                toast.error(error.response.data.msg as string);
+            } else {
+                toast.error("An unexpected error occurred.");
+            }
         } finally {
             set({isSigningUp: false})
         }
     },
     signin: async (data) => {
-
+        set({isSigningIn: true})
+        try {
+            // await new Promise(r => setTimeout(r, 2000))
+            const res = await axiosInstance.post("/user/signin", data)
+            set({authUser: res.data})
+            toast.success("Signed In Successfully")
+        } catch (error) {
+            if (error instanceof AxiosError && error.response?.data?.msg) {
+                toast.error(error.response.data.msg as string);
+            } else {
+                toast.error("An unexpected error occurred.");
+            }
+        } finally {
+            set({isSigningIn: false})
+        }
     },
     logout: async () => {
 
     },
+
+    checkAuth: async () => {
+        try {
+            // await new Promise(r => setTimeout(r, 2000))
+            const res = await axiosInstance.get("/users/check")
+            set({authUser: res.data})
+        } catch (error) {
+            console.error("Error in check auth")
+            set({authUser: null})
+        }
+        finally {
+            set({isCheckingAuth: false})
+        }
+    }
 }))

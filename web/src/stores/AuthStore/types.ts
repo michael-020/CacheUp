@@ -5,10 +5,12 @@ export type authState = {
     isSigningUp: boolean
     isSigningIn: boolean
     isLoggingOut: boolean
+    isCheckingAuth: boolean
 }
 
 export type authAction = {
-    signup: (data: {email: string, password: string, username: string, department: string, graduationYear: string}) => void;
+    signup: (data: {name: string, email: string, password: string, username: string, department: string, graduationYear: number}) => void;
     signin: (data: {email: string, password: string}) => void;
     logout: () => void;
+    checkAuth: () => void;
 }

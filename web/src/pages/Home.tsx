@@ -2,8 +2,8 @@
 
 export const Home = () => {
   return (
-    <div>
-        
+    <div className="h-screen flex items-center justify-center">
+        Home page
     </div>
   )
 }
