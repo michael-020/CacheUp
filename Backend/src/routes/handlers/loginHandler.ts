@@ -39,13 +39,13 @@ export const loginHandler: RequestHandler = async (req: Request, res: Response) 
             return;
         }
 
-        const checkPassword = bcrypt.compare(password, user.password);
+        const checkPassword = await bcrypt.compare(password, user.password);
         if(!checkPassword){
             res.status(411).json({
                 msg: "Incorrect Password"
             })
         }
-        
+
         generateToken(new mongoose.Types.ObjectId(user._id as string), res);
 
         res.status(200).json({
