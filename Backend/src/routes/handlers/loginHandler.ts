@@ -63,7 +63,8 @@ export const loginHandler: RequestHandler = async (req: Request, res: Response) 
     catch (e) {
         console.error("Error while signing in")
         res.status(500).json({
-            msg: "Error while signing in"
+            msg: "Error while signing in",
+            error: e
         })
         return;
     }
