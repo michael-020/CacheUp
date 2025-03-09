@@ -4,7 +4,7 @@ import { userModel } from "../../models/db";
 
 export const checkAuth = async (req: Request, res: Response) => {
     try {   
-        res.status(400).json(req.user)
+        res.status(200).json(req.user)
         
     } catch (error) {
         console.error("Error while checking auth")
