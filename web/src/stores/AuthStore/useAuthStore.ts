@@ -11,6 +11,10 @@ export const useAuthStore = create<authState & authAction>((set) => ({
     isSigningIn: false,
     isLoggingOut: false,
     isCheckingAuth: false,
+    isVerifying: false,
+    inputEmail: null,
+    sendingEmail: false,
+
 
     signup: async (data) => {
         set({isSigningUp: true})
@@ -61,6 +65,40 @@ export const useAuthStore = create<authState & authAction>((set) => ({
         }
         finally {
             set({isCheckingAuth: false})
+        }
+    },
+
+    sentEmail: async (data) => {
+        set({sendingEmail: true})
+        try {
+            await axiosInstance.post("/user/initiate-signup", data)
+            set({inputEmail: data.email})
+            toast.success("Email is sent to your account")
+        }catch(error){
+            if (error instanceof AxiosError && error.response?.data?.msg) {
+                toast.error(error.response.data.msg as string);
+            } else {
+                toast.error("An unexpected error occurred.");
+            }
+        }finally{
+            set({sendingEmail: false})
+        }
+
+    },
+    verifyEmail: async (data) => {
+        set({isVerifying: true})
+        try {
+            await axiosInstance.post("/user/verify-otp", data)
+            toast.success("Please enter your details")
+        }catch (error){
+            if (error instanceof AxiosError && error.response?.data?.msg) {
+                toast.error(error.response.data.msg as string);
+            } else {
+                toast.error("An unexpected error occurred.");
+            }
+        }
+        finally{
+            set({isVerifying: false})
         }
     }
 }))
