@@ -9,6 +9,7 @@ import { Signin } from './pages/Signin'
 import { useAuthStore } from './stores/AuthStore/useAuthStore'
 import { useEffect } from 'react'
 import { Toaster } from 'react-hot-toast'
+import { EmailVerify } from './pages/EmailVerify'
 
 function App() {
   const { authUser, checkAuth } = useAuthStore()
@@ -26,6 +27,7 @@ function App() {
         <Route path="/" element={ authUser ? <Home /> : <Navigate to="/signin" />} />
         <Route path='/profile' element={<Profile />} />
         <Route path='/messages' element={<Messages />} />
+        <Route path='verify-email' element={<EmailVerify />} />
       </Routes>
     </div>
   )

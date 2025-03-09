@@ -7,7 +7,6 @@ import { Eye, EyeOff } from "lucide-react"
 
 export const Signup = () => {
     const [name, setName] = useState("")
-    const email = "parth@pvppcoe.ac.in"
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -15,12 +14,12 @@ export const Signup = () => {
     const [graduationYear, setGraduationYear] = useState(0)
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPasword, setShowConfirmPassword] =useState(false)
-    const { signup, isSigningUp } = useAuthStore()
+    const { signup, isSigningUp, inputEmail } = useAuthStore()
 
     async function onClickHandler(e: MouseEvent<HTMLButtonElement>){
         e.preventDefault();
         if(password === confirmPassword){
-            signup({name, email, password, username, department, graduationYear})
+            signup({name, email: inputEmail, password, username, department, graduationYear})
         }
         else {
             toast.error("Passwords do not match")
@@ -32,7 +31,7 @@ export const Signup = () => {
             <div className="flex flex-col justify-center w-[30%] h-screen border-white">
                 <div className="bg-yellow-400 p-4 rounded-lg">
                 <InputBox label="Name" placeholder="Enter Your Full Name" type="text" onChange={(e => setName(e.target.value))} />    
-                <InputBox label="Email" placeholder="Enter Your College Mail" type="email" value={email}  />
+                <InputBox label="Email" placeholder="Enter Your College Mail" type="email" value={inputEmail}  />
                 <InputBox label="Username" placeholder="Enter Your Username" type="text" onChange={(e => setUsername(e.target.value))} />
                 <div className="relative">
                     <InputBox label="Password" placeholder="Enter Password" type={showPassword ? "text" : "password"} onChange={(e) => setPassword(e.target.value)} />
