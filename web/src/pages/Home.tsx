@@ -1,9 +1,12 @@
-
+import {Feed} from '../components/feeds/Feed'
 
 export const Home = () => {
   return (
-    <div className="h-screen flex items-center justify-center">
-        Home page
+    <div>
+      {/* <Navbar/> */}
+      <div className="absolute lg:ml-[21rem] md:top-20">
+        <Feed />
+      </div>
     </div>
-  )
-}
+  );
+};
