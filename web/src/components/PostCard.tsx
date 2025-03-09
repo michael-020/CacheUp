@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import HeartIcon from "../icons/HeartIcon";
 import MessageIcon from "../icons/MessageIcon";
 import SaveIcon from "../icons/SaveIcon";
-import { Post } from "../stores/postStore";
-import { usePostStore } from "../stores/postStore";
+import { Post } from "../stores/PostStore/usePostStore";
+import { usePostStore } from "../stores/PostStore/usePostStore";
 import Threedot from "../icons/Threedot";
 
 interface PostCardProps {

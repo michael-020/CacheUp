@@ -1,7 +1,7 @@
 import { FiSend } from "react-icons/fi";
 import { GrGallery } from "react-icons/gr";
-import { useShareStore } from "../stores/ShareStore";
-import { usePostStore } from "../stores/postStore";
+import { useShareStore } from "../stores/ShareStore/useShareStore";
+import { usePostStore } from "../stores/PostStore/usePostStore";
 
 export default function Share() {
   const {
@@ -53,8 +53,7 @@ export default function Share() {
 
         <div className="flex items-center justify-between mt-4">
           <label className="flex items-center space-x-2 cursor-pointer">
-            {/* <GrGallery className="text-gray-500" size={20} /> */}
-            <span className="text-sm text-gray-600">Upload Photo</span>
+            <span className="text-sm text-gray-600"><GrGallery size={20} color="black" /></span>
             <input
               type="file"
               accept="image/*"

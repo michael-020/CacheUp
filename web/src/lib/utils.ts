@@ -20,3 +20,33 @@ export interface IPost {
     image: string,
     caption: string
 }
+
+export interface Comment {
+  _id: string;
+  author: string;
+  content: string;
+  createdAt: Date;
+}
+
+export interface Post {
+  _id: string;
+  content?: string;
+  image?: string;
+  // author: string;
+  username: string;
+  likesCount: number;
+  comments: Comment[];
+  isLiked: boolean;
+  isSaved: boolean;
+  createdAt: Date;
+}
+
+// Posts type:
+    // postedBy: userId,
+    // username: user.username,
+    // userImagePath: user.profileImagePath,
+    // postsImagePath: imagePath, 
+    // text,
+    // likes: [],
+    // reportedBy: [],
+    // comments: []
