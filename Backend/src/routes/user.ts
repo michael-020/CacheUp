@@ -10,6 +10,7 @@ import { initiateSignUpHandler } from "../handlers/initiateSignupHandler";
 import { verifyOtpHandler } from "../handlers/verifyOTPHandler";
 import { authMiddleware } from "../middlewares/auth";
 import { checkAuth } from "../handlers/checkAuthHandler";
+import { logOutHandler } from "../handlers/logOutHandler";
 
 const userRouter: Router = Router();
 
@@ -30,6 +31,9 @@ userRouter.use(authMiddleware)
 
 // check auth of user
 userRouter.get("/check", checkAuth)
+
+// logout
+userRouter.post("/logout", logOutHandler)
 
 // view own profile
 userRouter.use("/viewProfile", viewProfileHanler)

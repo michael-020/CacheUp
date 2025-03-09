@@ -3,8 +3,11 @@ import MessageIcon from "../icons/MessageIcon";
 import SettingsIcon from "../icons/SettingsIcon";
 import UserIcon from "../icons/UserIcon";
 import vite from "../../public/vite.svg";
+import { useAuthStore } from "../stores/AuthStore/useAuthStore";
 
 export const Navbar = () => {
+  const { logout } = useAuthStore()
+
   return (
     <div className="h-60">
       <div>
@@ -34,7 +37,10 @@ export const Navbar = () => {
             <button className="p-2 hover:bg-gray-100 rounded-full">
               <img src={vite} alt="Profile" className="w-6 h-6 rounded-full" />
             </button>
-            <button className="px-4 py-2 hover:bg-gray-100 rounded-lg text-sm font-medium">
+            <button 
+              onClick={logout}
+              className="px-4 py-2 hover:bg-gray-100 rounded-lg text-sm font-medium"
+            >
               Logout
             </button>
           </div>

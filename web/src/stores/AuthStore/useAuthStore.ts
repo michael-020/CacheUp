@@ -48,11 +48,26 @@ export const useAuthStore = create<authState & authAction>((set) => ({
             set({isSigningIn: false})
         }
     },
-    logout: async () => {
 
+    logout: async () => {
+        set({isLoggingOut: true})
+        try {
+            // await new Promise(r => setTimeout(r, 2000))
+            await axiosInstance.post("/user/logout")
+            set({authUser: null})
+            toast.success("Logged out successfully")
+        } catch (error) {
+            console.error("Error in check auth")
+            toast.error("Logging out failed")
+            // set({authUser: null})
+        }
+        finally {
+            set({isLoggingOut: false})
+        }
     },
 
     checkAuth: async () => {
+        set({isCheckingAuth: true})
         try {
             // await new Promise(r => setTimeout(r, 2000))
             const res = await axiosInstance.get("/user/check")
