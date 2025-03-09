@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { postModel, userModel } from "../../models/db";
+import { postModel, userModel } from "../models/db";
 
 
 export const uploadPostsHandler = async (req: Request, res: Response) => {

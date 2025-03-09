@@ -1,5 +1,5 @@
 import { Request, Response } from "express"
-import { adminModel, userModel } from "../../models/db"
+import { adminModel, userModel } from "../models/db"
 
 
 export const adminInfoHandler =  async (req: Request, res: Response) => {

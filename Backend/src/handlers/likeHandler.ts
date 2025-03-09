@@ -1,5 +1,5 @@
 import {  Router, Request, Response } from "express";
-import { postModel, userModel } from "../../models/db";
+import { postModel, userModel } from "../models/db";
 import { mongo } from "mongoose";
 
 const likeHandler: Router = Router();

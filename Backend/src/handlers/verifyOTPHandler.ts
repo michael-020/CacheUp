@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { z } from "zod";
-import { otpModel } from "../../models/db";
+import { otpModel } from "../models/db";
 
 
 export const verifyOtpHandler = async (req: Request, res: Response) => {

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { userModel } from "../../models/db";
+import { userModel } from "../models/db";
 
 
 export const checkAuth = async (req: Request, res: Response) => {

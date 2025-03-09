@@ -1,8 +1,8 @@
 import { z } from "zod";
 import bcrypt from "bcrypt"
 import { Request, RequestHandler, Response } from "express";
-import { userModel } from "../../models/db";
-import { generateToken } from "../../lib/utils";
+import { userModel } from "../models/db";
+import { generateToken } from "../lib/utils";
 import mongoose, { Mongoose, ObjectId } from "mongoose";
 
 export const signupHandler: RequestHandler =  async (req: Request, res: Response) => {
@@ -23,7 +23,7 @@ export const signupHandler: RequestHandler =  async (req: Request, res: Response
         graduationYear: z.number().int().min(2000).max(2100),
       }).strict({
         message: "Extra fields are not allowed"
-      });
+    });
     
     const response = mySchema.safeParse(req.body);
 

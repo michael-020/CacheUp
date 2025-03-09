@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
-import { postModel, userModel } from "../../models/db";
-import { upload } from "../../middlewares/upload";
+import { postModel, userModel } from "../models/db";
+import { upload } from "../middlewares/upload";
 import path from 'path';
 import fs from 'fs';
 

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { z } from "zod";
-import { otpModel, userModel } from "../../models/db";
-import { generateOTP, sendOTP } from "../../emailService";
+import { otpModel, userModel } from "../models/db";
+import { generateOTP, sendOTP } from "../emailService";
 
 export const initiateSignUpHandler = async (req: Request, res: Response) => {
   

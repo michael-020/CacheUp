@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { postModel } from "../../models/db";
+import { postModel } from "../models/db";
 import { mongo } from "mongoose";
 
 

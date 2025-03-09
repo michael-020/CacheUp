@@ -1,16 +1,16 @@
 import { Router } from "express";
-import reportPostHandler from "./handlers/reportPostHandler";
-import viewPostHandler from "./handlers/viewPostHandler";
+import reportPostHandler from "../handlers/reportPostHandler";
+import viewPostHandler from "../handlers/viewPostHandler";
 import postRouter from "./posts";
-import viewProfileHanler from "./handlers/viewProfileHandler";
-import { createAdminHandler } from "./handlers/createAdminHandler";
-import { adminLoginHandler } from "./handlers/adminLoginHandler";
+import viewProfileHanler from "../handlers/viewProfileHandler";
+import { createAdminHandler } from "../handlers/createAdminHandler";
+import { adminLoginHandler } from "../handlers/adminLoginHandler";
 import { authMiddleware } from "../middlewares/auth";
-import { adminDeletePostHandler } from "./handlers/deletePostHandler";
-import { viewUsersHandler } from "./handlers/viewUsersHnalder";
-import { getCommentHandler } from "./handlers/getCommentHandler";
-import { adminDeleteCommentHandler } from "./handlers/deleteCommentHandler";
-import { adminInfoHandler } from "./handlers/adminInfoHandlert";
+import { adminDeletePostHandler } from "../handlers/deletePostHandler";
+import { viewUsersHandler } from "../handlers/viewUsersHnalder";
+import { getCommentHandler } from "../handlers/getCommentHandler";
+import { adminDeleteCommentHandler } from "../handlers/deleteCommentHandler";
+import { adminInfoHandler } from "../handlers/adminInfoHandlert";
 
 const adminRouter: Router = Router();
 

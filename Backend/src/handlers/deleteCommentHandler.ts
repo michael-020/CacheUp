@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { postModel } from "../../models/db";
+import { postModel } from "../models/db";
 
 export const deleteCommentHandler = async (req: Request, res: Response) => {
     try{

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import mongoose, { ObjectId } from 'mongoose';
-import { postModel, userModel } from '../../models/db';
-import { IPost, IUser, Comment } from '../../models/db';
+import { postModel, userModel } from '../models/db';
+import { IPost, IUser, Comment } from '../models/db';
 import { mongo } from 'mongoose';
 
 // Define a type for processed comments

@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
 import bcrypt from "bcrypt"
-import { adminModel } from "../../models/db"
+import { adminModel } from "../models/db"
 
 export const createAdminHandler = async (req: Request, res: Response) => {
     try {

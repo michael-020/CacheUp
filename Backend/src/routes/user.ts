@@ -1,15 +1,15 @@
 import { Router } from "express";
-import viewProfileHanler from "./handlers/viewProfileHandler";
-import friendHanler from "./handlers/friendHandler";
-import userBioHanler from "./handlers/userBioHandler";
-import PfpHanler from "./handlers/profilePicHandler";
-import { signupHandler } from "./handlers/signupHandler";
-import { loginHandler } from "./handlers/loginHandler";
-import viewBioHandler from "./handlers/viewBioHandlers";
-import { initiateSignUpHandler } from "./handlers/initiateSignupHandler";
-import { verifyOtpHandler } from "./handlers/verifyOTPHandler";
+import viewProfileHanler from "../handlers/viewProfileHandler";
+import friendHanler from "../handlers/friendHandler";
+import userBioHanler from "../handlers/userBioHandler";
+import PfpHanler from "../handlers/profilePicHandler";
+import { signupHandler } from "../handlers/signupHandler";
+import { loginHandler } from "../handlers/loginHandler";
+import viewBioHandler from "../handlers/viewBioHandlers";
+import { initiateSignUpHandler } from "../handlers/initiateSignupHandler";
+import { verifyOtpHandler } from "../handlers/verifyOTPHandler";
 import { authMiddleware } from "../middlewares/auth";
-import { checkAuth } from "./handlers/checkAuthHandler";
+import { checkAuth } from "../handlers/checkAuthHandler";
 
 const userRouter: Router = Router();
 

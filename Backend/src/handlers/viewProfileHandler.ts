@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { userModel } from "../../models/db";
+import { userModel } from "../models/db";
 
 const viewProfileHanler: Router = Router();
 

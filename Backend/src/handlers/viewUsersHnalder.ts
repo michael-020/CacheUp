@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { userModel } from "../../models/db";
+import { userModel } from "../models/db";
 
 
 export const viewUsersHandler = async (req: Request, res: Response) => {

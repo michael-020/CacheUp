@@ -2,10 +2,10 @@ import { z } from "zod";
 import bcrypt from "bcrypt"
 import { Request, RequestHandler, Response } from "express";
 import jwt from "jsonwebtoken";
-import { userModel } from "../../models/db";
-import JWT_SECRET from "../../config";
+import { userModel } from "../models/db";
+import JWT_SECRET from "../config";
 import mongoose from "mongoose";
-import { generateToken } from "../../lib/utils";
+import { generateToken } from "../lib/utils";
 
 export const loginHandler: RequestHandler = async (req: Request, res: Response) => {
     const mySchema = z.object({

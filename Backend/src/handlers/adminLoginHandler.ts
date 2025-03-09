@@ -1,9 +1,9 @@
 import { Request, Response } from "express"
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
-import { adminModel } from "../../models/db"
-import JWT_SECRET from "../../config"
-import { generateToken } from "../../lib/utils"
+import { adminModel } from "../models/db"
+import JWT_SECRET from "../config"
+import { generateToken } from "../lib/utils"
 import mongoose from "mongoose"
 
 
