@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import HeartIcon from "../icons/HeartIcon";
 import MessageIcon from "../icons/MessageIcon";
 import SaveIcon from "../icons/SaveIcon";
-import { Post } from "../stores/PostStore/usePostStore";
 import { usePostStore } from "../stores/PostStore/usePostStore";
 import Threedot from "../icons/Threedot";
+import { Post } from "../lib/utils";
 
 interface PostCardProps {
   post: Post;
@@ -18,7 +18,7 @@ export default function PostCard({ post }: PostCardProps) {
 
   const handleCommentSubmit = () => {
     if (commentText.trim()) {
-      addComment(post.id, commentText);
+      addComment(post._id, commentText);
       setCommentText("");
       setShowCommentInput(false);
     }
@@ -55,7 +55,7 @@ export default function PostCard({ post }: PostCardProps) {
         </div>
         <div className="flex flex-col">
           <span className="font-semibold text-gray-800 text-base">
-            {post.author}
+            {post.username}
           </span>
           <span className="text-xs text-gray-500 font-medium">
             {post.username}
@@ -78,7 +78,7 @@ export default function PostCard({ post }: PostCardProps) {
               <button
                 onClick={() => {
                   // Add your report logic here
-                  console.log("Reported post:", post.id);
+                  console.log("Reported post:", post._id);
                   setShowReport(false);
                 }}
                 className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
@@ -115,7 +115,7 @@ export default function PostCard({ post }: PostCardProps) {
       <div className="flex items-center text-gray-500 text-sm border-t border-gray-100 pt-3">
         <button
           className="flex items-center mr-6 hover:text-red-500 transition-colors"
-          onClick={() => toggleLike(post.id)}
+          onClick={() => toggleLike(post._id)}
         >
           <HeartIcon
             filled={post.isLiked}
@@ -137,7 +137,7 @@ export default function PostCard({ post }: PostCardProps) {
 
         <button
           className="ml-auto hover:text-blue-500 transition-colors"
-          onClick={() => toggleSave(post.id)}
+          onClick={() => toggleSave(post._id)}
         >
           <SaveIcon
             filled={post.isSaved}
@@ -177,7 +177,7 @@ export default function PostCard({ post }: PostCardProps) {
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-3">
               {post.comments.map((comment) => (
                 <div
-                  key={comment.id}
+                  key={comment._id}
                   className="bg-white p-3 rounded-md border border-gray-100"
                 >
                   <div className="flex items-center text-xs text-gray-500 mb-1">
