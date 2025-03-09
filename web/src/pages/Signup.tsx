@@ -5,6 +5,7 @@ import { Eye, EyeOff } from "lucide-react"
 import { z } from "zod"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Link } from "react-router-dom"
 
 const VALID_DEPARTMENTS = ["IT", "CS", "AI", "MT"];
 const VALID_GRADUATION_YEARS = [2025, 2026, 2027, 2028];
@@ -25,12 +26,12 @@ const schema = z.object({
     confirmPassowrd: z.string(),
     department: z.string()
     .refine(val => VALID_DEPARTMENTS.includes(val), {
-      message: "Please select a valid department"
+      message: "Please select a valid Department"
     }),
   graduationYear: z.string()
     .transform((val) => parseInt(val, 10))
     .refine(val => VALID_GRADUATION_YEARS.includes(val), {
-      message: "Please select a valid graduation year"
+      message: "Please select a valid Year of Passing"
     }),
   }).refine((data) => data.password === data.confirmPassowrd, {
     message: "Passwords do not match",
@@ -69,18 +70,10 @@ export const Signup = () => {
         }
     }
 
-    if (errors.department) {
-        toast.error(errors.department.message as string);
-    }
-    
-    if (errors.graduationYear) {
-        toast.error(errors.graduationYear.message as string);
-    }
-
-    return <form onSubmit={handleSubmit(onSubmit)}> 
-        <div className="flex justify-center">
-            <div className="flex flex-col justify-center w-[30%] h-screen border-white">
-                <div className="bg-gray-900 p-4 rounded-lg">
+    return <div>
+        <div className="flex justify-center items-center h-screen">
+            <div className="w-[30%] p-4 rounded-lg bg-gray-900 flex flex-col">
+                <form onSubmit={handleSubmit(onSubmit)}>
                     <div>
                         <label className="block mb-2 text-xs font-medium text-gray-900 dark:text-white">Name</label>
                         <input 
@@ -89,7 +82,7 @@ export const Signup = () => {
                             placeholder="Enter Your Full Name" 
                             {...register("name")}
                         />
-                        {errors.name && <div className="text-red-600 -translate-y-2 text-sm">{errors.name.message}</div>}
+                        {errors.name && <div className="text-red-600 -translate-y-3 text-sm">{errors.name.message}</div>}
                     </div>
                     <div>
                         <label className="block mb-2 text-xs font-medium text-gray-900 dark:text-white">Email</label>
@@ -99,7 +92,7 @@ export const Signup = () => {
                             placeholder="Enter Your College Mail" 
                             {...register("email")}
                         />
-                        {errors.email && <div className="text-red-600 -translate-y-2 text-sm">{errors.email.message}</div>}
+                        {errors.email && <div className="text-red-600 -translate-y-3 text-sm">{errors.email.message}</div>}
                     </div>
         
                     <div>
@@ -110,7 +103,7 @@ export const Signup = () => {
                             placeholder="Enter Your Username" 
                             {...register("username")}
                         />
-                        {errors.username && <div className="text-red-600 -translate-y-2 text-sm">{errors.username.message}</div>}
+                        {errors.username && <div className="text-red-600 -translate-y-3 text-sm">{errors.username.message}</div>}
                     </div>
         
                     <div className="relative">
@@ -121,7 +114,7 @@ export const Signup = () => {
                             placeholder="Enter Password" 
                             {...register("password")}
                         />
-                        {errors.password && <div className="text-red-600 -translate-y-2 text-sm">{errors.password.message}</div>}
+                        {errors.password && <div className="text-red-600 -translate-y-3 text-sm">{errors.password.message}</div>}
                         <div className="absolute right-3 top-8 cursor-pointer text-gray-800" onClick={() => setShowPassword(!showPassword)}>
                         {showPassword ? <EyeOff size={21} /> : <Eye size={21} />}
                         </div>
@@ -135,36 +128,36 @@ export const Signup = () => {
                             placeholder="Enter Confirm Password" 
                             {...register("confirmPassowrd")}
                         />
-                        {errors.confirmPassowrd && <div className="text-red-600 -translate-y-2 text-sm">{errors.confirmPassowrd.message}</div>}
+                        {errors.confirmPassowrd && <div className="text-red-600 -translate-y-3 text-sm">{errors.confirmPassowrd.message}</div>}
                         <div className="absolute right-3 top-8 cursor-pointer text-gray-800" onClick={() => setShowConfirmPassword(!showConfirmPasword)}>
                         {showConfirmPasword ? <EyeOff size={21} /> : <Eye size={21} />}
                         </div>
                     </div>
             
-                    <div className="max-w-full flex justify-between">
-                        <div>
-                            <label className="mb-2 text-xs font-medium text-gray-900 dark:text-white">Your Department</label>
-                            <select {...register("department")} className="bg-gray-50 max-w-fit border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                <option selected>Select Your Department</option>
-                                <option value="IT">Information Technology</option>
-                                <option value="CS">Computer</option>
-                                <option value="AI">Artificial Intelligence</option>
-                                <option value="MT">Mechatronics</option>
-                            </select>
-                            {errors.department && <div className="text-red-600 text-xs">{errors.department.message}</div>}
-                        </div>
-                        <div>
-                            <label className="mb-2 text-xs font-medium text-gray-900 dark:text-white">Year of Passing</label>
-                            <select {...register("graduationYear")} className="bg-gray-50 max-w-fit border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                <option selected className="text-center">Year of Passing</option>
-                                <option value={2025}>{2025}</option>
-                                <option value={2026}>{2026}</option>
-                                <option value={2027}>{2027}</option>
-                                <option value={2028}>{2028}</option>
-                            </select>
-                            {errors.graduationYear && <div className="text-red-600 text-xs">{errors.graduationYear.message}</div>}
-                        </div>
+                    <div>
+                    <label className="block mb-2 text-xs font-medium text-gray-900 dark:text-white">Department</label>
+                        <select {...register("department")} className="bg-gray-50 mb-4 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                            <option selected>Select Your Department</option>
+                            <option value="IT">Information Technology</option>
+                            <option value="CS">Computer</option>
+                            <option value="AI">Artificial Intelligence</option>
+                            <option value="MT">Mechatronics</option>
+                        </select>
+                        {errors.department && <div className="text-red-600 text-sm -translate-y-3">{errors.department.message}</div>}
                     </div>
+
+                    <div>
+                        <label className="mb-2 block  text-xs font-medium text-gray-900 dark:text-white">Year of Passing</label>
+                        <select {...register("graduationYear")} className="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                            <option selected>Year of Passing</option>
+                            <option value={2025}>{2025}</option>
+                            <option value={2026}>{2026}</option>
+                            <option value={2027}>{2027}</option>
+                            <option value={2028}>{2028}</option>
+                        </select>
+                        {errors.graduationYear && <div className="text-red-600 text-sm translate-y-1">{errors.graduationYear.message}</div>}
+                    </div>
+
             
                     <div className="self-center">
                         <button 
@@ -175,8 +168,16 @@ export const Signup = () => {
                             Submit
                         </button>
                     </div>
+                </form>
+                <div className="text-white flex gap-1 mx-auto">
+                    <span>
+                        Already have an Account?
+                    </span>
+                    <Link to={"/signin"} className="text-yellow-400 hover:underline hover:text-blue-500">
+                        Signin
+                    </Link>
                 </div>
             </div>
         </div>
-  </form>
+    </div>
 }
