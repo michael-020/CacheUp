@@ -31,9 +31,19 @@ export const EmailVerify = () => {
                     <Button label="Send OTP" onClick={onClickHandler} active={sendingEmail}/>
                 </div>
             </div>
-            {
-            spanInput && <> <InputBox type="text" label="OTP" placeholder="Enter the OTP" onChange={(e) => setOtp((e.target.value))} /> <Button label="Submit OTP" active={isVerifying} onClick={otpHandler} /> </>
-            }
+            { spanInput && <> 
+                <InputBox 
+                    type="text" 
+                    label="OTP" 
+                    placeholder="Enter the OTP" 
+                    onChange={(e) => setOtp((e.target.value))} 
+                /> 
+                <Button 
+                    label="Submit OTP" 
+                    active={isVerifying} 
+                    onClick={otpHandler} 
+                /> 
+            </> }
         </div>
         </div>
         
