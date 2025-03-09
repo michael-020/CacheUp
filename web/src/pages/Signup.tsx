@@ -46,7 +46,7 @@ export const Signup = () => {
                         {showConfirmPasword ? <EyeOff size={21} /> : <Eye size={21} />}
                     </div>
                 </div>
-                <div className="max-w-full flex gap-4">
+                <div className="max-w-full flex justify-between">
                     <div>
                         <label className="mb-2 text-xs font-medium text-gray-900 dark:text-white">Your Department</label>
                             <select onChange={(e => setDepartment(e.target.value))} className="bg-gray-50 max-w-fit border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
