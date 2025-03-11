@@ -20,9 +20,9 @@ const graduationYearOptions = [
   
 const departmentOptions = [
     { value: "IT", label: "Information Technology" },
-    { value: "CS", label: "Computer Science" },
-    { value: "AI", label: "Artificial Intelligence" },
-    { value: "MT", label: "Mechanical Technology" },
+    { value: "CS", label: "Computer Engineering" },
+    { value: "AI", label: "Artificial Intelligence and Data Science" },
+    { value: "MT", label: "Mechatronics" },
 ];
 
 const schema = z.object({
@@ -90,7 +90,7 @@ export const Signup = () => {
             <div className="w-[30%] p-4 rounded-lg bg-gray-900 flex flex-col">
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <div>
-                        <label className="block mb-2 text-xs font-medium text-gray-900 dark:text-white">Name</label>
+                        <label className="block mb-2 text-xs font-medium text-gray-300 dark:text-white">Name</label>
                         <input 
                             type="text" 
                             className="mb-4 bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
@@ -100,7 +100,7 @@ export const Signup = () => {
                         {errors.name && <div className="text-red-600 -translate-y-3 text-sm">{errors.name.message}</div>}
                     </div>
                     <div>
-                        <label className="block mb-2 text-xs font-medium text-gray-900 dark:text-white">Email</label>
+                        <label className="block mb-2 text-xs font-medium text-gray-300 dark:text-white">Email</label>
                         <input 
                             type="email" 
                             className="mb-4 bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
@@ -111,7 +111,7 @@ export const Signup = () => {
                     </div>
         
                     <div>
-                        <label className="block mb-2 text-xs font-medium text-gray-900 dark:text-white">Username</label>
+                        <label className="block mb-2 text-xs font-medium text-gray-300 dark:text-white">Username</label>
                         <input 
                             type="text" 
                             className="mb-4 bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
@@ -122,7 +122,7 @@ export const Signup = () => {
                     </div>
         
                     <div className="relative">
-                        <label className="block mb-2 text-xs font-medium text-gray-900 dark:text-white">Password</label>
+                        <label className="block mb-2 text-xs font-medium text-gray-300 dark:text-white">Password</label>
                         <input 
                             type={showPassword ? "text" : "password"} 
                             className="mb-4 bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
@@ -136,7 +136,7 @@ export const Signup = () => {
                     </div>
             
                     <div className="relative">
-                        <label className="block mb-2 text-xs font-medium text-gray-900 dark:text-white">Confirm Password</label>
+                        <label className="block mb-2 text-xs font-medium text-gray-300 dark:text-white">Confirm Password</label>
                         <input 
                             type={showConfirmPasword ? "text" : "password"} 
                             className="mb-4 bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
@@ -150,19 +150,19 @@ export const Signup = () => {
                     </div>
             
                     <div>
-                    <label className="block mb-2 text-xs font-medium text-gray-900 dark:text-white">Department</label>
-                    <Controller
-                        control={control}
-                        name="department"
-                        render={({ field }) => (
-                        <Combobox options={departmentOptions} {...field} placeholder="Select Department..." />
-                        )}
-                    />
+                        <label className="block mb-2 text-xs font-medium text-gray-300 dark:text-white">Department</label>
+                        <Controller
+                            control={control}
+                            name="department"
+                            render={({ field }) => (
+                            <Combobox options={departmentOptions} {...field} placeholder="Select Department" />
+                            )}
+                        />
                         {errors.department && <div className="text-red-600 text-sm translate-y-1">{errors.department.message}</div>}
                     </div>
 
-                    <div>
-                        <label className="mb-2 block  text-xs font-medium text-gray-900 dark:text-white">Year of Passing</label>
+                    <div className="translate-y-2">
+                        <label className="mb-2 block text-xs font-medium text-gray-300 dark:text-white">Year of Passing</label>
                         <Controller
                             control={control}
                             name="graduationYear"
