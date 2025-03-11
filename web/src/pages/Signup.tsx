@@ -9,7 +9,7 @@ import { Link } from "react-router-dom"
 import { Combobox } from "@/components/ui/combobox"
 
 const VALID_DEPARTMENTS = ["IT", "CS", "AI", "MT"];
-const VALID_GRADUATION_YEARS = [2025, 2026, 2027, 2028];
+const VALID_GRADUATION_YEARS = ["2025", "2026", "2027", "2028"];
 
 const graduationYearOptions = [
     { value: "2025", label: "2025" },
@@ -44,7 +44,6 @@ const schema = z.object({
       message: "Please select a valid Department"
     }),
   graduationYear: z.string()
-    .transform((val) => parseInt(val, 10))
     .refine(val => VALID_GRADUATION_YEARS.includes(val), {
         message: "Please select a valid Year of Passing"
     }),
