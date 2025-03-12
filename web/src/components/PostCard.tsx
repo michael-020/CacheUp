@@ -48,16 +48,13 @@ export default function PostCard({ post }: PostCardProps) {
       <div className="flex items-center mb-4">
         <div className="h-12 w-12 rounded-full border-2 border-white shadow-sm overflow-hidden mr-3">
           <img
-            src="/api/v1/"
+            src={post.userImagePath}
             alt="Profile"
             className="w-full h-full object-cover bg-gray-100"
           />
         </div>
         <div className="flex flex-col">
           <span className="font-semibold text-gray-800 text-base">
-            {post.username}
-          </span>
-          <span className="text-xs text-gray-500 font-medium">
             {post.username}
           </span>
         </div>
@@ -67,17 +64,15 @@ export default function PostCard({ post }: PostCardProps) {
             onClick={() => setShowReport(!showReport)}
             className="text-gray-500 hover:text-gray-700 transition-colors"
           >
-            <div className="ml-[500px]">
+            <div className="ml-[520px]">
               <Threedot />
             </div>
           </button>
 
-          {/* Report dropdown */}
           {showReport && (
-            <div className="absolute right-0 mt-2 w-32 mr-10 bg-white rounded-md shadow-lg border border-gray-200">
+            <div className="absolute right-0 mt-2 w-32 mr-96 bg-white rounded-md shadow-lg border border-gray-200">
               <button
                 onClick={() => {
-                  // Add your report logic here
                   console.log("Reported post:", post._id);
                   setShowReport(false);
                 }}
@@ -90,18 +85,18 @@ export default function PostCard({ post }: PostCardProps) {
         </div>
       </div>
 
-      {/* Content */}
-      {post.content && (
+      {/* Text Content */}
+      {post.text && (
         <div className="mb-4 text-gray-800 text-[15px] leading-relaxed">
-          {post.content}
+          {post.text}
         </div>
       )}
 
-      {/* Image */}
-      {post.image && (
+      {/* Post Image */}
+      {post.postsImagePath && (
         <div className="rounded-xl overflow-hidden mb-4 border border-gray-100">
           <img
-            src={post.image}
+            src={post.postsImagePath}
             alt="Post content"
             className="w-full h-auto aspect-video object-cover"
             onError={(e) => {
@@ -121,7 +116,7 @@ export default function PostCard({ post }: PostCardProps) {
             filled={post.isLiked}
             className={post.isLiked ? "text-red-600" : "text-gray-500"}
           />
-          <span className="ml-2 font-medium">{post.likesCount}</span>
+          <span className="ml-2 font-medium">{post.likes.length}</span>
         </button>
 
         <button
@@ -146,10 +141,9 @@ export default function PostCard({ post }: PostCardProps) {
         </button>
       </div>
 
-      {/* Comment Section Container */}
+      {/* Comment Section */}
       {showCommentInput && (
         <div className="mt-4 space-y-4" data-comment-section>
-          {/* Comment Input */}
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
             <textarea
               value={commentText}
@@ -172,7 +166,6 @@ export default function PostCard({ post }: PostCardProps) {
             </div>
           </div>
 
-          {/* Comments List */}
           {post.comments.length > 0 && (
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-3">
               {post.comments.map((comment) => (
@@ -182,11 +175,11 @@ export default function PostCard({ post }: PostCardProps) {
                 >
                   <div className="flex items-center text-xs text-gray-500 mb-1">
                     <span className="font-semibold text-gray-700">
-                      {comment.author}
+                      {comment.user.username} {/* Assume populated user */}
                     </span>
                     <span className="mx-2">•</span>
                     <span className="text-xs">
-                      {new Date(comment.createdAt).toLocaleDateString()}
+                      {new Date(comment.date).toLocaleDateString()}
                     </span>
                   </div>
                   <p className="text-sm text-gray-800 leading-snug">

@@ -1,30 +1,37 @@
 import { FiSend } from "react-icons/fi";
 import { GrGallery } from "react-icons/gr";
 import { useShareStore } from "../stores/ShareStore/useShareStore";
-import { usePostStore } from "../stores/PostStore/usePostStore";
 
 export default function Share() {
   const {
     content,
     imagePreview,
     error,
+    isLoading,
     setContent,
     setSelectedFile,
-    validatePost,
+    submitPost,
     clearForm,
   } = useShareStore();
 
-  const { createPost } = usePostStore();
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedFile(e.target.files?.[0] || null);
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        alert('Please upload an image file');
+        return;
+      }
+      await setSelectedFile(file);
+    }
   };
 
-  const handleShare = () => {
-    if (!validatePost()) return;
-
-    createPost(content, imagePreview || undefined);
-    clearForm();
+  const handleShare = async () => {
+    try {
+      await submitPost();
+      clearForm();
+    } catch (error) {
+      // Error handling is already done in the store
+    }
   };
 
   return (
@@ -37,38 +44,63 @@ export default function Share() {
             rows={3}
             value={content}
             onChange={(e) => setContent(e.target.value)}
+            maxLength={200}
           />
+          <div className="text-right text-xs text-gray-500 mt-1">
+            {content.length}/200
+          </div>
         </div>
 
         {imagePreview && (
-          <div className="my-4">
+          <div className="my-4 relative">
             <img
               src={imagePreview}
               alt="Preview"
               className="max-h-60 w-full object-cover rounded-lg"
             />
+            <button
+              className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-sm hover:bg-gray-100"
+              onClick={() => setSelectedFile(null)}
+            >
+              ×
+            </button>
           </div>
         )}
-        {error && <div className="text-red-500 text-sm mb-2">{error}</div>}
+
+        {error && (
+          <div className="text-red-500 text-sm mb-2 p-2 bg-red-50 rounded">
+            {error}
+          </div>
+        )}
 
         <div className="flex items-center justify-between mt-4">
           <label className="flex items-center space-x-2 cursor-pointer">
-            <span className="text-sm text-gray-600"><GrGallery size={20} color="black" /></span>
+            <GrGallery size={20} className="text-gray-600" />
             <input
               type="file"
-              accept="image/*"
+              accept="image/png, image/jpeg, image/gif"
               onChange={handleFileChange}
               className="hidden"
+              disabled={isLoading}
             />
           </label>
 
           <button
-            className="px-4 py-2 bg-yellow-400 text-black rounded-md font-semibold flex items-center space-x-2 hover:bg-yellow-300 transition duration-300 disabled:opacity-50"
+            className="px-4 py-2 bg-yellow-400 text-black rounded-md font-semibold flex items-center space-x-2 hover:bg-yellow-300 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={handleShare}
-            //disabled={!content && !imagePreview}
+            //disabled={isLoading || (!content.trim() && !imagePreview)}
           >
-            <FiSend />
-            <span>Post</span>
+            {isLoading ? (
+              <div className="flex items-center">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Posting...
+              </div>
+            ) : (
+              <>
+                <FiSend className="inline-block" />
+                <span>Post</span>
+              </>
+            )}
           </button>
         </div>
       </div>
