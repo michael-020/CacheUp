@@ -20,7 +20,7 @@ export const signupHandler: RequestHandler =  async (req: Request, res: Response
           .regex(/[0-9]/, "Password must contain at least 1 number")
           .regex(/[^A-Za-z0-9]/, "Password must contain at least 1 special character"),
         department: z.string().min(1, "Department is required"),
-        graduationYear: z.number().int().min(2000).max(2100),
+        graduationYear: z.string(),
       }).strict({
         message: "Extra fields are not allowed"
     });

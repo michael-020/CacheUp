@@ -3,12 +3,27 @@ import { useAuthStore } from "../stores/AuthStore/useAuthStore"
 import toast from "react-hot-toast"
 import { Eye, EyeOff } from "lucide-react"
 import { z } from "zod"
-import { SubmitHandler, useForm } from "react-hook-form"
+import { Controller, SubmitHandler, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "react-router-dom"
+import { Combobox } from "@/components/ui/combobox"
 
 const VALID_DEPARTMENTS = ["IT", "CS", "AI", "MT"];
-const VALID_GRADUATION_YEARS = [2025, 2026, 2027, 2028];
+const VALID_GRADUATION_YEARS = ["2025", "2026", "2027", "2028"];
+
+const graduationYearOptions = [
+    { value: "2025", label: "2025" },
+    { value: "2026", label: "2026" },
+    { value: "2027", label: "2027" },
+    { value: "2028", label: "2028" },
+];
+  
+const departmentOptions = [
+    { value: "IT", label: "Information Technology" },
+    { value: "CS", label: "Computer Engineering" },
+    { value: "AI", label: "Artificial Intelligence and Data Science" },
+    { value: "MT", label: "Mechatronics" },
+];
 
 const schema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -29,9 +44,8 @@ const schema = z.object({
       message: "Please select a valid Department"
     }),
   graduationYear: z.string()
-    .transform((val) => parseInt(val, 10))
     .refine(val => VALID_GRADUATION_YEARS.includes(val), {
-      message: "Please select a valid Year of Passing"
+        message: "Please select a valid Year of Passing"
     }),
   }).refine((data) => data.password === data.confirmPassowrd, {
     message: "Passwords do not match",
@@ -48,6 +62,7 @@ export const Signup = () => {
         register,
         handleSubmit,
         setError,
+        control,
         formState: {errors}
     } = useForm<FormFields>({
         defaultValues: {
@@ -75,7 +90,7 @@ export const Signup = () => {
             <div className="w-[30%] p-4 rounded-lg bg-gray-900 flex flex-col">
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <div>
-                        <label className="block mb-2 text-xs font-medium text-gray-900 dark:text-white">Name</label>
+                        <label className="block mb-2 text-xs font-medium text-gray-300 dark:text-white">Name</label>
                         <input 
                             type="text" 
                             className="mb-4 bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
@@ -85,7 +100,7 @@ export const Signup = () => {
                         {errors.name && <div className="text-red-600 -translate-y-3 text-sm">{errors.name.message}</div>}
                     </div>
                     <div>
-                        <label className="block mb-2 text-xs font-medium text-gray-900 dark:text-white">Email</label>
+                        <label className="block mb-2 text-xs font-medium text-gray-300 dark:text-white">Email</label>
                         <input 
                             type="email" 
                             className="mb-4 bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
@@ -96,7 +111,7 @@ export const Signup = () => {
                     </div>
         
                     <div>
-                        <label className="block mb-2 text-xs font-medium text-gray-900 dark:text-white">Username</label>
+                        <label className="block mb-2 text-xs font-medium text-gray-300 dark:text-white">Username</label>
                         <input 
                             type="text" 
                             className="mb-4 bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
@@ -107,7 +122,7 @@ export const Signup = () => {
                     </div>
         
                     <div className="relative">
-                        <label className="block mb-2 text-xs font-medium text-gray-900 dark:text-white">Password</label>
+                        <label className="block mb-2 text-xs font-medium text-gray-300 dark:text-white">Password</label>
                         <input 
                             type={showPassword ? "text" : "password"} 
                             className="mb-4 bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
@@ -121,7 +136,7 @@ export const Signup = () => {
                     </div>
             
                     <div className="relative">
-                        <label className="block mb-2 text-xs font-medium text-gray-900 dark:text-white">Confirm Password</label>
+                        <label className="block mb-2 text-xs font-medium text-gray-300 dark:text-white">Confirm Password</label>
                         <input 
                             type={showConfirmPasword ? "text" : "password"} 
                             className="mb-4 bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
@@ -135,26 +150,31 @@ export const Signup = () => {
                     </div>
             
                     <div>
-                    <label className="block mb-2 text-xs font-medium text-gray-900 dark:text-white">Department</label>
-                        <select {...register("department")} className="bg-gray-50 mb-4 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                            <option selected>Select Your Department</option>
-                            <option value="IT">Information Technology</option>
-                            <option value="CS">Computer</option>
-                            <option value="AI">Artificial Intelligence</option>
-                            <option value="MT">Mechatronics</option>
-                        </select>
-                        {errors.department && <div className="text-red-600 text-sm -translate-y-3">{errors.department.message}</div>}
+                        <label className="block mb-2 text-xs font-medium text-gray-300 dark:text-white">Department</label>
+                        <Controller
+                            control={control}
+                            name="department"
+                            render={({ field }) => (
+                            <Combobox options={departmentOptions} {...field} placeholder="Select Department" />
+                            )}
+                        />
+                        {errors.department && <div className="text-red-600 text-sm translate-y-1">{errors.department.message}</div>}
                     </div>
 
-                    <div>
-                        <label className="mb-2 block  text-xs font-medium text-gray-900 dark:text-white">Year of Passing</label>
-                        <select {...register("graduationYear")} className="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                            <option selected>Year of Passing</option>
-                            <option value={2025}>{2025}</option>
-                            <option value={2026}>{2026}</option>
-                            <option value={2027}>{2027}</option>
-                            <option value={2028}>{2028}</option>
-                        </select>
+                    <div className="translate-y-2">
+                        <label className="mb-2 block text-xs font-medium text-gray-300 dark:text-white">Year of Passing</label>
+                        <Controller
+                            control={control}
+                            name="graduationYear"
+                            render={({ field }) => (
+                                <Combobox
+                                    options={graduationYearOptions}
+                                    value={field.value} 
+                                    onChange={(val) => field.onChange(val)} 
+                                    placeholder="Select Year of Passing"
+                                />
+                            )}
+                        />
                         {errors.graduationYear && <div className="text-red-600 text-sm translate-y-1">{errors.graduationYear.message}</div>}
                     </div>
 
