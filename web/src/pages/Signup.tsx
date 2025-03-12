@@ -4,7 +4,7 @@ import toast from "react-hot-toast"
 import { Eye, EyeOff } from "lucide-react"
 import { z } from "zod"
 import { Controller, SubmitHandler, useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod";
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Link } from "react-router-dom"
 import { Combobox } from "@/components/ui/combobox"
 
@@ -28,8 +28,8 @@ const departmentOptions = [
 const schema = z.object({
     name: z.string().min(1, "Name is required"),
     username: z.string().min(1, "Username is required"),
-    email: z.string().email().refine((val) => val.endsWith('@pvppcoe.ac.in'), {
-      message: "Only Emails ending with @pvppcoe.ac.in can register"
+    email: z.string().email("Valid email is required").refine((val) => val.endsWith('@pvppcoe.ac.in'), {
+      message: "Only emails ending with @pvppcoe.ac.in can register"
     }),
     password: z.string()
       .min(8, "Password should be at least 8 characters")
@@ -38,25 +38,25 @@ const schema = z.object({
       .regex(/[A-Z]/, "Password must contain at least 1 uppercase letter")
       .regex(/[0-9]/, "Password must contain at least 1 number")
       .regex(/[^A-Za-z0-9]/, "Password must contain at least 1 special character"),
-    confirmPassowrd: z.string(),
+    confirmPassword: z.string(),
     department: z.string()
-    .refine(val => VALID_DEPARTMENTS.includes(val), {
-      message: "Please select a valid Department"
-    }),
-  graduationYear: z.string()
-    .refine(val => VALID_GRADUATION_YEARS.includes(val), {
+      .refine(val => VALID_DEPARTMENTS.includes(val), {
+        message: "Please select a valid Department"
+      }),
+    graduationYear: z.string()
+      .refine(val => VALID_GRADUATION_YEARS.includes(val), {
         message: "Please select a valid Year of Passing"
-    }),
-  }).refine((data) => data.password === data.confirmPassowrd, {
+      }),
+  }).refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
-    path: ["confirmPassowrd"]
+    path: ["confirmPassword"]
 });
 
 type FormFields = z.infer<typeof schema>
 
 export const Signup = () => {
     const [showPassword, setShowPassword] = useState(false)
-    const [showConfirmPasword, setShowConfirmPassword] =useState(false)
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const { signup, isSigningUp, inputEmail } = useAuthStore()
     const {
         register,
@@ -66,138 +66,171 @@ export const Signup = () => {
         formState: {errors}
     } = useForm<FormFields>({
         defaultValues: {
-            email: JSON.stringify(Math.random()) + "@pvppcoe.ac.in" // todo: add inputEmail here
+            email: inputEmail || ""
         },
         resolver: zodResolver(schema)
     })
 
     const onSubmit: SubmitHandler<FormFields> = async (data) => {
         try {
-            const {name, email: inputEmail, password, username, department, graduationYear} = data;
-            signup({name, email: inputEmail, password, username, department, graduationYear})
+            const {name, email, password, username, department, graduationYear} = data;
+            await signup({name, email, password, username, department, graduationYear})
             console.log(data)
         } catch (error) {
             setError("root", {
-                message: errors.root?.message
+                message: "Registration failed"
             })
-            console.log(errors.root?.message)
-            toast.error(JSON.stringify(errors.root?.message))
+            toast.error("Registration failed")
         }
     }
 
-    return <div>
-        <div className="flex justify-center items-center h-screen">
-            <div className="w-[30%] p-4 rounded-lg bg-gray-900 flex flex-col">
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <div>
-                        <label className="block mb-2 text-xs font-medium text-gray-300 dark:text-white">Name</label>
-                        <input 
-                            type="text" 
-                            className="mb-4 bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                            placeholder="Enter Your Full Name" 
-                            {...register("name")}
-                        />
-                        {errors.name && <div className="text-red-600 -translate-y-3 text-sm">{errors.name.message}</div>}
-                    </div>
-                    <div>
-                        <label className="block mb-2 text-xs font-medium text-gray-300 dark:text-white">Email</label>
-                        <input 
-                            type="email" 
-                            className="mb-4 bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                            placeholder="Enter Your College Mail" 
-                            {...register("email")}
-                        />
-                        {errors.email && <div className="text-red-600 -translate-y-3 text-sm">{errors.email.message}</div>}
-                    </div>
-        
-                    <div>
-                        <label className="block mb-2 text-xs font-medium text-gray-300 dark:text-white">Username</label>
-                        <input 
-                            type="text" 
-                            className="mb-4 bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                            placeholder="Enter Your Username" 
-                            {...register("username")}
-                        />
-                        {errors.username && <div className="text-red-600 -translate-y-3 text-sm">{errors.username.message}</div>}
-                    </div>
-        
-                    <div className="relative">
-                        <label className="block mb-2 text-xs font-medium text-gray-300 dark:text-white">Password</label>
-                        <input 
-                            type={showPassword ? "text" : "password"} 
-                            className="mb-4 bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                            placeholder="Enter Password" 
-                            {...register("password")}
-                        />
-                        {errors.password && <div className="text-red-600 -translate-y-3 text-sm">{errors.password.message}</div>}
-                        <div className="absolute right-3 top-8 cursor-pointer text-gray-800" onClick={() => setShowPassword(!showPassword)}>
-                        {showPassword ? <EyeOff size={21} /> : <Eye size={21} />}
+    return (
+        <div className="py-8 flex items-center justify-center bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 p-4">
+            <div className="w-full max-w-2xl bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl p-6 border border-white/20">
+                <div className="text-center mb-6">
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Sign Up</h1>
+                    <p className="text-gray-600 mt-2">Join the PVPPCOE Campus Network</p>
+                </div>
+                
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        {/* Full Name */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                            <input
+                                type="text"
+                                {...register("name")}
+                                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                placeholder="Enter your name"
+                            />
+                            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
                         </div>
-                    </div>
-            
-                    <div className="relative">
-                        <label className="block mb-2 text-xs font-medium text-gray-300 dark:text-white">Confirm Password</label>
-                        <input 
-                            type={showConfirmPasword ? "text" : "password"} 
-                            className="mb-4 bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                            placeholder="Enter Confirm Password" 
-                            {...register("confirmPassowrd")}
-                        />
-                        {errors.confirmPassowrd && <div className="text-red-600 -translate-y-3 text-sm">{errors.confirmPassowrd.message}</div>}
-                        <div className="absolute right-3 top-8 cursor-pointer text-gray-800" onClick={() => setShowConfirmPassword(!showConfirmPasword)}>
-                        {showConfirmPasword ? <EyeOff size={21} /> : <Eye size={21} />}
+    
+                        {/* Username */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                            <input
+                                type="text"
+                                {...register("username")}
+                                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                placeholder="Choose a username"
+                            />
+                            {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username.message}</p>}
                         </div>
-                    </div>
-            
-                    <div>
-                        <label className="block mb-2 text-xs font-medium text-gray-300 dark:text-white">Department</label>
-                        <Controller
-                            control={control}
-                            name="department"
-                            render={({ field }) => (
-                            <Combobox options={departmentOptions} {...field} placeholder="Select Department" />
-                            )}
-                        />
-                        {errors.department && <div className="text-red-600 text-sm translate-y-1">{errors.department.message}</div>}
-                    </div>
-
-                    <div className="translate-y-2">
-                        <label className="mb-2 block text-xs font-medium text-gray-300 dark:text-white">Year of Passing</label>
-                        <Controller
-                            control={control}
-                            name="graduationYear"
-                            render={({ field }) => (
-                                <Combobox
-                                    options={graduationYearOptions}
-                                    value={field.value} 
-                                    onChange={(val) => field.onChange(val)} 
-                                    placeholder="Select Year of Passing"
+    
+                        {/* Email */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">College Email</label>
+                            <input
+                                type="email"
+                                {...register("email")}
+                                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                placeholder="you@pvppcoe.ac.in"
+                            />
+                            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
+                        </div>
+    
+                        {/* Department */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                            <div className="w-full border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-transparent transition-all">
+                                <Controller
+                                    control={control}
+                                    name="department"
+                                    render={({ field }) => (
+                                        <Combobox 
+                                            options={departmentOptions} 
+                                            {...field} 
+                                            placeholder="Select Department"
+                                        />
+                                    )}
                                 />
-                            )}
-                        />
-                        {errors.graduationYear && <div className="text-red-600 text-sm translate-y-1">{errors.graduationYear.message}</div>}
+                            </div>
+                            {errors.department && <p className="text-red-500 text-xs mt-1">{errors.department.message}</p>}
+                        </div>
+    
+                        {/* Password */}
+                        <div className="relative">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                            <div className="relative">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    {...register("password")}
+                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                    placeholder="Create password"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-2.5 text-gray-500 hover:text-gray-700 transition-colors"
+                                >
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+                            </div>
+                            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
+                        </div>
+    
+                        {/* Graduation Year */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Graduation Year</label>
+                            <div className="w-full border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-transparent transition-all">
+                                <Controller
+                                    control={control}
+                                    name="graduationYear"
+                                    render={({ field }) => (
+                                        <Combobox 
+                                            options={graduationYearOptions} 
+                                            {...field} 
+                                            placeholder="Select Year of Passing"
+                                        />
+                                    )}
+                                />
+                            </div>
+                            {errors.graduationYear && <p className="text-red-500 text-xs mt-1">{errors.graduationYear.message}</p>}
+                        </div>
+    
+                        {/* Confirm Password */}
+                        <div className="relative">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                            <div className="relative">
+                                <input
+                                    type={showConfirmPassword ? "text" : "password"}
+                                    {...register("confirmPassword")}
+                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                    placeholder="Confirm password"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    className="absolute right-3 top-2.5 text-gray-500 hover:text-gray-700 transition-colors"
+                                >
+                                    {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+                            </div>
+                            {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword.message}</p>}
+                        </div>
                     </div>
-
-            
-                    <div className="self-center">
-                        <button 
-                            type="submit" 
+    
+                    <div className="pt-3">
+                        <button
+                            type="submit"
                             disabled={isSigningUp}
-                            className="w-full mt-5 flex justify-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                            className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all shadow-lg transform hover:-translate-y-0.5 active:translate-y-0"
                         >
-                            Submit
+                            {isSigningUp ? 'Creating Account...' : 'Create Account'}
                         </button>
                     </div>
+    
+                    <div className="text-center pt-2">
+                        <p className="text-gray-600">
+                            Already have an account?{" "}
+                            <Link to="/signin" className="text-indigo-600 hover:text-indigo-800 font-medium transition-colors">
+                                Sign In
+                            </Link>
+                        </p>
+                    </div>
                 </form>
-                <div className="text-white flex gap-1 mx-auto">
-                    <span>
-                        Already have an Account?
-                    </span>
-                    <Link to={"/signin"} className="text-yellow-400 hover:underline hover:text-blue-500">
-                        Signin
-                    </Link>
-                </div>
             </div>
         </div>
-    </div>
+    )
 }
