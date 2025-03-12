@@ -41,9 +41,10 @@ export const loginHandler: RequestHandler = async (req: Request, res: Response) 
 
         const checkPassword = await bcrypt.compare(password, user.password);
         if(!checkPassword){
-            res.status(411).json({
+            res.status(403).json({
                 msg: "Incorrect Password"
             })
+            return
         }
 
         generateToken(new mongoose.Types.ObjectId(user._id as string), res);
