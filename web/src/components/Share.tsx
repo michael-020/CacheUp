@@ -52,11 +52,11 @@ export default function Share() {
         </div>
 
         {imagePreview && (
-          <div className="my-4 relative">
+          <div className="my-4 static">
             <img
               src={imagePreview}
               alt="Preview"
-              className="max-h-60 w-full object-cover rounded-lg"
+              className="max-h-30 w-full object-cover rounded-lg"
             />
             <button
               className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-sm hover:bg-gray-100"
