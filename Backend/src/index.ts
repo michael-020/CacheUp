@@ -35,6 +35,6 @@ async function main() {
         console.error("Error while connecting to DB", e);
     }
 
-    app.listen(3000);
+    app.listen(8000);
 }
 main()
