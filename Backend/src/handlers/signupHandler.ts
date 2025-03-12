@@ -40,13 +40,13 @@ export const signupHandler: RequestHandler =  async (req: Request, res: Response
     try{
         const existingUser = await userModel.findOne({ $or: [{email}, {username}] })
         if(existingUser) {
-            if(existingUser.email === "email"){
+            if(existingUser.email === email){
                 res.status(500).json({
                     msg: "Email is already registered, Please Login"
                 })
                 return;
             }
-            if(existingUser.username === "username"){
+            if(existingUser.username === username){
                 res.status(500).json({
                     msg: "Username already exists"
                 })
