@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const HTTP_URL="http://localhost:8000/api/v1"
+export const HTTP_URL="http://localhost:3000/api/v1"
 
 export interface IUser {
     _id: string
@@ -28,25 +28,44 @@ export interface IPost {
     caption: string
 }
 
-export interface Comment {
-  _id: string;
-  author: string;
-  content: string;
-  createdAt: Date;
-}
-
 export interface Post {
   _id: string;
-  content?: string;
-  image?: string;
-  // author: string;
-  username: string;
-  likesCount: number;
-  comments: Comment[];
-  isLiked: boolean;
-  isSaved: boolean;
-  createdAt: Date;
+  text?: string;          
+  postsImagePath?: string; 
+  username: string;       
+  userImagePath: string;  
+  likes: string[];        
+  comments: Comment[];    
+  isLiked: boolean;           
+  isSaved: boolean;      
+  createdAt: Date;        
+  postedBy?: string;      
+  reportedBy?: string[]; 
 }
+
+export interface Comment {
+  _id: string;
+  content: string;       
+  user: {               
+    _id: string;
+    username: string;   
+    userImagePath?: string;
+  };
+  date: Date;          
+}
+
+// export interface Post {
+//   _id: string;
+//   content?: string;
+//   image?: string;
+//   // author: string;
+//   username: string;
+//   likesCount: number;
+//   comments: Comment[];
+//   isLiked: boolean;
+//   isSaved: boolean;
+//   createdAt: Date;
+// }
 
 // Posts type:
     // postedBy: userId,
