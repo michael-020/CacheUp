@@ -5,12 +5,14 @@ import SaveIcon from "../icons/SaveIcon";
 import { usePostStore } from "../stores/PostStore/usePostStore";
 import Threedot from "../icons/Threedot";
 import { Post } from "../lib/utils";
+import avatar from "web/public/avatar.png"
 
 interface PostCardProps {
   post: Post;
+  isAdmin?: boolean
 }
 
-export default function PostCard({ post }: PostCardProps) {
+export default function PostCard({ post, isAdmin }: PostCardProps) {
   const { toggleLike, toggleSave, addComment } = usePostStore();
   const [showCommentInput, setShowCommentInput] = useState(false);
   const [commentText, setCommentText] = useState("");
@@ -46,9 +48,9 @@ export default function PostCard({ post }: PostCardProps) {
     >
       {/* Profile Section */}
       <div className="flex items-center mb-4">
-        <div className="h-12 w-12 rounded-full border-2 border-white shadow-sm overflow-hidden mr-3">
+        <div className="size-12 rounded-full border-2 border-white shadow-sm overflow-hidden mr-3">
           <img
-            src={post.userImagePath}
+            src={post.userImagePath ? post.userImagePath : "/avatar.png"}
             alt="Profile"
             className="w-full h-full object-cover bg-gray-100"
           />
@@ -69,7 +71,7 @@ export default function PostCard({ post }: PostCardProps) {
             </div>
           </button>
 
-          {showReport && (
+          {showReport && !isAdmin && (
             <div className="absolute right-0 mt-2 w-32 mr-96 bg-white rounded-md shadow-lg border border-gray-200">
               <button
                 onClick={() => {

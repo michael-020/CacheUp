@@ -5,7 +5,7 @@ import UserIcon from "../icons/UserIcon";
 import { useAuthStore } from "../stores/AuthStore/useAuthStore";
 
 export const Navbar = () => {
-  const { logout } = useAuthStore()
+  const { logout, authUser } = useAuthStore()
 
   return (
     <div className="h-16"> 
@@ -32,8 +32,8 @@ export const Navbar = () => {
         </div>
 
         <div className="w-1/4 flex items-center justify-end space-x-4">
-          <button className="p-2 hover:bg-gray-100 rounded-full">
-            <img src="api/v1" alt="Profile" className="w-6 h-6 rounded-full" />
+          <button className="p-2 hover:bg-gray-100 rounded-full size-10">
+            <img src={authUser?.profileImagePath ? authUser.profileImagePath : "/avatar.png"} alt="Profile" className="w-6 h-6 rounded-full" />
           </button>
           <button 
             onClick={logout}

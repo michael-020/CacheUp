@@ -9,7 +9,7 @@ export const useAdminStore = create<AdminStates & AdminActions>((set) => ({
     authAdmin: null,
     isAdminSigninIn: false,
     isAdminCheckingAuth: false,
-    posts: null,
+    posts: [],
     isDeletingPost: false,
 
     signin: async (data) => {
@@ -32,9 +32,8 @@ export const useAdminStore = create<AdminStates & AdminActions>((set) => ({
     checkAdminAuth: async () => {
         set({isAdminCheckingAuth: true})
         try {
-            const res = await axiosInstance.post("/admin/check", );
+            const res = await axiosInstance.get("/admin/check");
             set({authAdmin: res.data})
-            toast.success("Admin Signed In Successfully")
         } catch (error) {
             if (error instanceof AxiosError && error.response?.data?.msg) {
                 toast.error(error.response.data.msg as string);
@@ -49,7 +48,8 @@ export const useAdminStore = create<AdminStates & AdminActions>((set) => ({
 
     getPosts: async () => {
         try {
-            
+            const res = await axiosInstance.get("/admin/view-posts")
+            set({posts: res.data})
         } catch (error) {
             if (error instanceof AxiosError && error.response?.data?.msg) {
                 toast.error(error.response.data.msg as string);

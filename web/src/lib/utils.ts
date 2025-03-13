@@ -56,6 +56,7 @@ export interface Comment {
 
 export interface IAdmin {
   _id: string;
+  name: string;
   adminId: string;
 }
 

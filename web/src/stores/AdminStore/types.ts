@@ -1,10 +1,10 @@
-import { IAdmin, IPost } from "@/lib/utils";
+import { IAdmin, Post } from "@/lib/utils";
 
 export type AdminStates = {
     authAdmin: IAdmin | null;
     isAdminSigninIn: boolean;
     isAdminCheckingAuth: boolean;
-    posts: IPost[] | null;
+    posts: Post[];
     isDeletingPost: boolean;
 }
 

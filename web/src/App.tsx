@@ -19,7 +19,6 @@ function App() {
   const { authAdmin, checkAdminAuth } = useAdminStore()
 
   useEffect(() => {
-    console.log("check Auth")
     checkAuth()
   }, [checkAuth])
 
@@ -43,7 +42,7 @@ function App() {
         <Route path='verify-email' element={<EmailVerify />} />
 
         {/* Admin Routes */}
-        <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to="/admin/signin" /> } />
+        <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to="/admin/home" /> } />
         <Route path="/admin/home" element={ authAdmin ? <AdminHome /> : <Navigate to="/admin/signin" />} />
       </Routes>
     </div>
