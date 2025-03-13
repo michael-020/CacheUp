@@ -10,28 +10,48 @@ import { useEffect } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { EmailVerify } from './pages/EmailVerify'
 import { Navbar } from './components/Navbar'
+import AdminHome from './pages/admin/AdminHome'
+import { AdminSignin } from './pages/admin/AdminSignin'
+import { useAdminStore } from './stores/AdminStore/useAdminStore'
+import { AdminNavbar } from './components/admin/AdminNavbar'
+import UserList from './pages/admin/UserList'
+import ReportedPosts from './pages/admin/ReportedPosts'
 
 function App() {
   const { authUser, checkAuth } = useAuthStore()
+  const { authAdmin, checkAdminAuth } = useAdminStore()
 
   useEffect(() => {
-    console.log("check Auth")
     checkAuth()
   }, [checkAuth])
 
+  useEffect(() => {
+    checkAdminAuth()
+  }, [checkAdminAuth])
+
   return (
     <div className='bg-red-300 h-screen'>
-      {authUser && <div className='fixed top-0 w-screen'>
+      {(authUser) && <div className='fixed top-0 w-screen'>
         <Navbar />
+      </div>}
+      {authAdmin && <div className='fixed top-0 w-screen'>
+          <AdminNavbar />
       </div>}
       <Toaster />
       <Routes>
+        {/* User Routes */}
         <Route path="/signup" element={!authUser ? <Signup /> : <Navigate to="/" /> } />
         <Route path="/signin" element={!authUser ? <Signin /> : <Navigate to="/" /> } />
         <Route path="/" element={ authUser ? <Home /> : <Navigate to="/signin" />} />
         <Route path='/profile' element={<Profile />} />
         <Route path='/messages' element={<Messages />} />
         <Route path='verify-email' element={<EmailVerify />} />
+
+        {/* Admin Routes */}
+        <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to="/admin/home" /> } />
+        <Route path="/admin/home" element={ authAdmin ? <AdminHome /> : <Navigate to="/admin/signin" />} />
+        <Route path="/admin/reported-posts" element={authAdmin ? <ReportedPosts /> : <Navigate to="/admin/signin" /> } />
+        <Route path="/admin/user-list" element={ authAdmin ? <UserList /> : <Navigate to="/admin/signin" />} />
       </Routes>
     </div>
   )
