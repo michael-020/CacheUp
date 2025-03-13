@@ -5,43 +5,50 @@ import postRouter from "./posts";
 import viewProfileHanler from "../handlers/viewProfileHandler";
 import { createAdminHandler } from "../handlers/createAdminHandler";
 import { adminLoginHandler } from "../handlers/adminLoginHandler";
-import { authMiddleware } from "../middlewares/auth";
+import { adminMiddleware } from "../middlewares/auth";
 import { adminDeletePostHandler } from "../handlers/deletePostHandler";
 import { viewUsersHandler } from "../handlers/viewUsersHanlder";
 import { getCommentHandler } from "../handlers/getCommentHandler";
 import { adminDeleteCommentHandler } from "../handlers/deleteCommentHandler";
 import { adminInfoHandler } from "../handlers/adminInfoHandlert";
+import { checkAdminAuth } from "../handlers/checkAdminHandler";
+import { adminLogoutHandler } from "../handlers/adminLogoutHandler";
 
 const adminRouter: Router = Router();
 
 // create admin
-adminRouter.post("/createAdmin", createAdminHandler)
+adminRouter.post("/create-admin", createAdminHandler)
 
 // admin login
-adminRouter.post("/login", adminLoginHandler)
+adminRouter.post("/signin", adminLoginHandler)
 
-adminRouter.use(authMiddleware)
+adminRouter.use(adminMiddleware)
+
+// check auth of admin
+adminRouter.get("/check", checkAdminAuth)
+
+adminRouter.post("/logout", adminLogoutHandler)
 
 // view admin info
-adminRouter.get("/viewAdminInfo", adminInfoHandler)
+adminRouter.get("/view-admin-info", adminInfoHandler)
 
 // delete a post
 adminRouter.use("/delete", postRouter)
 
 // view posts
-adminRouter.use("/viewPosts", viewPostHandler)
+adminRouter.use("/view-posts", viewPostHandler)
 
 // delete a post
-adminRouter.delete("/deletePost/:postId", adminDeletePostHandler)
+adminRouter.delete("/delete-post/:postId", adminDeletePostHandler)
 
 // view reported posts
 adminRouter.use("/report", reportPostHandler)
 
 // view profile handler
-adminRouter.use("/viewProfile", viewProfileHanler)
+adminRouter.use("/view-profile", viewProfileHanler)
 
 // view user count and user list
-adminRouter.get("/viewUsers", viewUsersHandler)
+adminRouter.get("/view-users", viewUsersHandler)
 
 // comment get handler
 adminRouter.get("/comment/:id", getCommentHandler)

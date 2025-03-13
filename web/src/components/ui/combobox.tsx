@@ -22,6 +22,7 @@ interface ComboboxProps {
     value: string | number | null;
     onChange: (value: string | number) => void;
     placeholder: string;
+    className?: string;
 }
 
 export function Combobox({ options, value, onChange, placeholder }: ComboboxProps) {
