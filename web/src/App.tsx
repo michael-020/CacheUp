@@ -14,6 +14,8 @@ import AdminHome from './pages/admin/AdminHome'
 import { AdminSignin } from './pages/admin/AdminSignin'
 import { useAdminStore } from './stores/AdminStore/useAdminStore'
 import { AdminNavbar } from './components/admin/AdminNavbar'
+import UserList from './pages/admin/UserList'
+import ReportedPosts from './pages/admin/ReportedPosts'
 
 function App() {
   const { authUser, checkAuth } = useAuthStore()
@@ -48,6 +50,8 @@ function App() {
         {/* Admin Routes */}
         <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to="/admin/home" /> } />
         <Route path="/admin/home" element={ authAdmin ? <AdminHome /> : <Navigate to="/admin/signin" />} />
+        <Route path="/admin/reported-posts" element={authAdmin ? <ReportedPosts /> : <Navigate to="/admin/signin" /> } />
+        <Route path="/admin/user-list" element={ authAdmin ? <UserList /> : <Navigate to="/admin/signin" />} />
       </Routes>
     </div>
   )

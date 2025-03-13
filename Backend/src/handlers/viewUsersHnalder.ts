@@ -13,7 +13,6 @@ export const viewUsersHandler = async (req: Request, res: Response) => {
         }
 
         res.status(200).json(
-
             userList
         )
     } 
