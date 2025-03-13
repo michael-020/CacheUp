@@ -19,7 +19,7 @@ export interface IUser extends Document {
 }
 
 // Admin Interface
-interface IAdmin extends Document {
+export interface IAdmin extends Document {
   name: string;
   adminId: string;
   password: string;
