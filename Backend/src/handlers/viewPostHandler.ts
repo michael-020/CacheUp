@@ -9,7 +9,7 @@ const viewPostHandler: Router = Router();
 // get all posts
 viewPostHandler.get("/", async (req: Request, res: Response) => {
     try{
-        const userId = req.admin._id
+        const userId = req.user._id
         const allPosts = await postModel.find({}).sort({ createdAt: -1});
 
         if(!allPosts){
