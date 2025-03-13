@@ -54,6 +54,11 @@ export interface Comment {
   date: Date;          
 }
 
+export interface IAdmin {
+  _id: string;
+  adminId: string;
+}
+
 // export interface Post {
 //   _id: string;
 //   content?: string;

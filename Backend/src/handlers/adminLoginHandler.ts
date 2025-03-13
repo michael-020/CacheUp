@@ -29,15 +29,12 @@ export const adminLoginHandler = async (req: Request, res: Response) => {
             return
         }
 
-        const token = jwt.sign({
-            userId: admin._id
-        }, JWT_SECRET as string)
-
         generateToken(new mongoose.Types.ObjectId(admin._id as string), res)
 
         res.status(200).json({
-            msg: "admin signed in successfully",
-            token
+            _id: admin._id,
+            name: admin.name,
+            adminId,
         })
     }
     catch(e) {

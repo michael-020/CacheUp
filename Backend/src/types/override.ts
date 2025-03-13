@@ -1,11 +1,12 @@
 import { JwtPayload } from "jsonwebtoken";
-import { IUser } from "../models/db";
+import { IAdmin, IUser } from "../models/db";
 
 declare global {
     namespace Express{
         interface Request{
             userId?: string | JwtPayload,
-            user: IUser
+            user: IUser,
+            admin: IAdmin
         }
     }
 }
