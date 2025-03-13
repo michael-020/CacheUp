@@ -1,4 +1,4 @@
-import { AdminFeed } from '@/components/feeds/AdminFeed';
+import { AdminFeed } from '@/components/admin/AdminFeed';
 import { Feed } from '@/components/feeds/Feed';
 import { useAdminStore } from '@/stores/AdminStore/useAdminStore'
 

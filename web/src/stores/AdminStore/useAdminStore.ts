@@ -9,6 +9,7 @@ export const useAdminStore = create<AdminStates & AdminActions>((set) => ({
     authAdmin: null,
     isAdminSigninIn: false,
     isAdminCheckingAuth: false,
+    isLoggingOut: false,
     posts: [],
     isDeletingPost: false,
 
@@ -43,6 +44,24 @@ export const useAdminStore = create<AdminStates & AdminActions>((set) => ({
             set({authAdmin: null})
         } finally {
             set({isAdminCheckingAuth: false})
+        }
+    },
+
+    logout: async () => {
+        set({isLoggingOut: true})
+        try {
+            await axiosInstance.post("/admin/logout")
+            set({authAdmin: null})
+
+            toast.success("Logged out successfully")
+        } catch (error) {
+            if (error instanceof AxiosError && error.response?.data?.msg) {
+                toast.error(error.response.data.msg as string);
+            } else {
+                toast.error("An unexpected error occurred.");
+            }
+        } finally {
+            set({isLoggingOut: false})
         }
     },
 

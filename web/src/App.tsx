@@ -10,9 +10,10 @@ import { useEffect } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { EmailVerify } from './pages/EmailVerify'
 import { Navbar } from './components/Navbar'
-import AdminHome from './pages/AdminHome'
-import { AdminSignin } from './pages/AdminSignin'
+import AdminHome from './pages/admin/AdminHome'
+import { AdminSignin } from './pages/admin/AdminSignin'
 import { useAdminStore } from './stores/AdminStore/useAdminStore'
+import { AdminNavbar } from './components/admin/AdminNavbar'
 
 function App() {
   const { authUser, checkAuth } = useAuthStore()
@@ -28,8 +29,11 @@ function App() {
 
   return (
     <div className='bg-red-300 h-screen'>
-      {(authUser || authAdmin) && <div className='fixed top-0 w-screen'>
+      {(authUser) && <div className='fixed top-0 w-screen'>
         <Navbar />
+      </div>}
+      {authAdmin && <div className='fixed top-0 w-screen'>
+          <AdminNavbar />
       </div>}
       <Toaster />
       <Routes>

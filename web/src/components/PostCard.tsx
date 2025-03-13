@@ -50,7 +50,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
       <div className="flex items-center mb-4">
         <div className="size-12 rounded-full border-2 border-white shadow-sm overflow-hidden mr-3">
           <img
-            src={post.userImagePath ? post.userImagePath : "/avatar.png"}
+            src={post.userImagePath ? post.userImagePath : "/avatar.jpeg"}
             alt="Profile"
             className="w-full h-full object-cover bg-gray-100"
           />
