@@ -12,6 +12,7 @@ import { getCommentHandler } from "../handlers/getCommentHandler";
 import { adminDeleteCommentHandler } from "../handlers/deleteCommentHandler";
 import { adminInfoHandler } from "../handlers/adminInfoHandlert";
 import { checkAdminAuth } from "../handlers/checkAdminHandler";
+import { adminLogoutHandler } from "../handlers/adminLogoutHandler";
 
 const adminRouter: Router = Router();
 
@@ -25,6 +26,8 @@ adminRouter.use(adminMiddleware)
 
 // check auth of admin
 adminRouter.get("/check", checkAdminAuth)
+
+adminRouter.post("/logout", adminLogoutHandler)
 
 // view admin info
 adminRouter.get("/view-admin-info", adminInfoHandler)

@@ -16,15 +16,20 @@ import { useAdminStore } from './stores/AdminStore/useAdminStore'
 
 function App() {
   const { authUser, checkAuth } = useAuthStore()
-  const { authAdmin } = useAdminStore()
+  const { authAdmin, checkAdminAuth } = useAdminStore()
+
   useEffect(() => {
     console.log("check Auth")
     checkAuth()
   }, [checkAuth])
 
+  useEffect(() => {
+    checkAdminAuth()
+  }, [checkAdminAuth])
+
   return (
     <div className='bg-red-300 h-screen'>
-      {authUser && <div className='fixed top-0 w-screen'>
+      {(authUser || authAdmin) && <div className='fixed top-0 w-screen'>
         <Navbar />
       </div>}
       <Toaster />
@@ -36,7 +41,7 @@ function App() {
         <Route path='/profile' element={<Profile />} />
         <Route path='/messages' element={<Messages />} />
         <Route path='verify-email' element={<EmailVerify />} />
-        
+
         {/* Admin Routes */}
         <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to="/admin/signin" /> } />
         <Route path="/admin/home" element={ authAdmin ? <AdminHome /> : <Navigate to="/admin/signin" />} />

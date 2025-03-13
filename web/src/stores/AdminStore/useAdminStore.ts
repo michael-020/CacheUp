@@ -8,13 +8,14 @@ import { AxiosError } from "axios";
 export const useAdminStore = create<AdminStates & AdminActions>((set) => ({
     authAdmin: null,
     isAdminSigninIn: false,
+    isAdminCheckingAuth: false,
     posts: null,
     isDeletingPost: false,
 
     signin: async (data) => {
         set({isAdminSigninIn: true})
         try {
-            const res = await axiosInstance.post("/admin/signin", );
+            const res = await axiosInstance.post("/admin/signin", data);
             set({authAdmin: res.data})
             toast.success("Admin Signed In Successfully")
         } catch (error) {
@@ -25,6 +26,24 @@ export const useAdminStore = create<AdminStates & AdminActions>((set) => ({
             }
         } finally {
             set({isAdminSigninIn: false})
+        }
+    },
+
+    checkAdminAuth: async () => {
+        set({isAdminCheckingAuth: true})
+        try {
+            const res = await axiosInstance.post("/admin/check", );
+            set({authAdmin: res.data})
+            toast.success("Admin Signed In Successfully")
+        } catch (error) {
+            if (error instanceof AxiosError && error.response?.data?.msg) {
+                toast.error(error.response.data.msg as string);
+            } else {
+                toast.error("An unexpected error occurred.");
+            }
+            set({authAdmin: null})
+        } finally {
+            set({isAdminCheckingAuth: false})
         }
     },
 
