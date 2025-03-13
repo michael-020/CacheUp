@@ -9,7 +9,7 @@ export const Navbar = () => {
 
   return (
     <div className="h-16"> 
-      <nav className="fixed top-0 left-0 right-0 z-10 flex items-center justify-between px-6 py-3 bg-red-300 shadow">
+      <nav className="fixed top-0 left-0 right-0 z-10 flex items-center justify-between px-6 py-1 bg-red-300 shadow">
         <div className="w-1/4">
           <h1 className="font-extrabold text-3xl text-black">
             CampusConnect
