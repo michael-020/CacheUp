@@ -53,17 +53,20 @@ export default function Share() {
 
         {imagePreview && (
           <div className="my-4 static">
+            <div className="flex justify-end">
+            <button
+              className="bg-white rounded-full p-2 shadow-sm hover:bg-gray-200"
+              onClick={() => setSelectedFile(null)}
+            >
+              ×
+            </button>
+            </div>
             <img
               src={imagePreview}
               alt="Preview"
               className="max-h-30 w-full object-cover rounded-lg"
             />
-            <button
-              className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-sm hover:bg-gray-100"
-              onClick={() => setSelectedFile(null)}
-            >
-              ×
-            </button>
+            
           </div>
         )}
 
