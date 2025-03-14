@@ -41,6 +41,9 @@ export interface Post {
   createdAt: Date;        
   postedBy?: string;      
   reportedBy?: string[]; 
+  isReported: boolean;
+  reportCount: number;
+  
 }
 
 export interface Comment {
