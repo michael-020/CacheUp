@@ -5,7 +5,6 @@ import SaveIcon from "../icons/SaveIcon";
 import { usePostStore } from "../stores/PostStore/usePostStore";
 import Threedot from "../icons/Threedot";
 import { Post } from "../lib/utils";
-import avatar from "web/public/avatar.png"
 
 interface PostCardProps {
   post: Post;
