@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import './App.css'
 import { Home } from './pages/Home'
 import { Profile } from './pages/Profile'
@@ -20,21 +20,28 @@ import ReportedPosts from './pages/admin/ReportedPosts'
 function App() {
   const { authUser, checkAuth } = useAuthStore()
   const { authAdmin, checkAdminAuth } = useAdminStore()
+  const location = useLocation()
+
+  const isAdminRoute = location.pathname.startsWith('/admin')
 
   useEffect(() => {
-    checkAuth()
-  }, [checkAuth])
+    if(!isAdminRoute){
+      checkAuth()
+    }
+  }, [checkAuth, isAdminRoute])
 
   useEffect(() => {
-    checkAdminAuth()
-  }, [checkAdminAuth])
+    if(isAdminRoute) {
+      checkAdminAuth()
+    }
+    }, [checkAdminAuth, isAdminRoute])
 
   return (
     <div className='bg-red-300 h-screen'>
-      {(authUser) && <div className='fixed top-0 w-screen'>
+      {(authUser) && !isAdminRoute && <div className='fixed top-0 w-screen'>
         <Navbar />
       </div>}
-      {authAdmin && <div className='fixed top-0 w-screen'>
+      {authAdmin && isAdminRoute && <div className='fixed top-0 w-screen'>
           <AdminNavbar />
       </div>}
       <Toaster />
@@ -44,6 +51,7 @@ function App() {
         <Route path="/signin" element={!authUser ? <Signin /> : <Navigate to="/" /> } />
         <Route path="/" element={ authUser ? <Home /> : <Navigate to="/signin" />} />
         <Route path='/profile' element={<Profile />} />
+        <Route path="/profile/:id" element={<Profile />} />
         <Route path='/messages' element={<Messages />} />
         <Route path='verify-email' element={<EmailVerify />} />
 
