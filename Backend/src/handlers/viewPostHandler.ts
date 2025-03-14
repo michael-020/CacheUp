@@ -70,19 +70,16 @@ viewPostHandler.get("/:id", async (req: Request, res: Response) => {
     try{
         const userId = req.params.id;
 
-        const userPosts = await postModel.find({ postedBy: userId }).sort({ createdAt: -1});
+        const posts = await postModel.find({ postedBy: userId }).sort({ createdAt: -1});
 
-        if(!userPosts){
+        if(!posts){
             res.status(401).json({
                 msg: "User posts not found"
             })
             return
         }
 
-        res.status(200).json({
-            message: `Posts by ${userId} retrieved successfully`,
-            posts: userPosts
-        })
+        res.status(200).json(posts)
     }
     catch (e) {
         console.error("Error while getting all posts")

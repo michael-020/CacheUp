@@ -51,6 +51,7 @@ function App() {
         <Route path="/signin" element={!authUser ? <Signin /> : <Navigate to="/" /> } />
         <Route path="/" element={ authUser ? <Home /> : <Navigate to="/signin" />} />
         <Route path='/profile' element={<Profile />} />
+        <Route path="/profile/:id" element={<Profile />} />
         <Route path='/messages' element={<Messages />} />
         <Route path='verify-email' element={<EmailVerify />} />
 
