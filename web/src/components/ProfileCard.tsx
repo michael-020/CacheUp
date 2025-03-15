@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import axios from 'axios';
+// import axios from 'axios';
 import { User, Briefcase, Users } from 'lucide-react';
+import { axiosInstance } from '@/lib/axios';
 
 interface UserProfile {
   profileImagePath: string;
@@ -20,16 +21,9 @@ export const ProfileCard: React.FC = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const token = localStorage.getItem('authorization');
-        const response = await axios.get<{ userInfo: UserProfile }>(
-          'http://localhost:3000/api/v1/user/viewProfile',
-          {
-            headers: {
-              authorization: token || '',
-            },
-          }
-        );
-        setUserProfile(response.data.userInfo);
+        const res = await axiosInstance.get("/user/viewProfile")
+
+        setUserProfile(res.data.userInfo);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching profile data', err);
@@ -43,7 +37,7 @@ export const ProfileCard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-4 animate-pulse">
+      <div className="bg-white rounded-lg shadow-md p-4 animate-pulse ">
         <div className="w-24 h-24 bg-gray-300 rounded-full mx-auto mb-4"></div>
         <div className="h-5 bg-gray-300 rounded w-2/3 mx-auto mb-2"></div>
         <div className="h-3 bg-gray-300 rounded w-1/2 mx-auto mb-4"></div>
