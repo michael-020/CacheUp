@@ -42,7 +42,7 @@ export const updateCommentHandler = async (req: Request, res: Response) => {
         const processedComment = {
             content,
             username: user.username,
-            profileImagePath: user.profileImagePath
+            profilePicture: user.profilePicture
         }
 
         res.status(200).json({ 

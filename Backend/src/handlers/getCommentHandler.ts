@@ -56,7 +56,7 @@ export const getCommentHandler = async (req: Request, res: Response) => {
                     user: {
                         _id: new mongo.ObjectId(commentUser._id as string),
                         username: commentUser.username,
-                        profileImagePath: commentUser.profileImagePath || undefined
+                        profileImagePath: commentUser.profilePicture || undefined
                     }
                 } as ProcessedComment;
             } catch (userError) {

@@ -1,78 +1,86 @@
 import { FiSend } from "react-icons/fi";
 import { GrGallery } from "react-icons/gr";
-import { useShareStore } from "../stores/ShareStore/useShareStore";
+import { ChangeEvent, FormEvent, useState } from "react";
+import { usePostStore } from "@/stores/PostStore/usePostStore";
 
 export default function Share() {
-  const {
-    content,
-    imagePreview,
-    error,
-    isLoading,
-    setContent,
-    setSelectedFile,
-    submitPost,
-    clearForm,
-  } = useShareStore();
+  const { createPost, isUploadingPost } = usePostStore();
+  const [text, setText] = useState("");
+  const [image, setImage] = useState("");
+  const [imagePreview, setImagePreview] = useState("");
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (!file.type.startsWith('image/')) {
-        alert('Please upload an image file');
-        return;
-      }
-      await setSelectedFile(file);
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("Please upload an image file");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+
+    reader.onload = () => {
+      const base64Image = reader.result as string;
+      setImagePreview(base64Image);
+      setImage(base64Image);
+    };
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!text.trim() && !image) return;
+    
+    try {
+      await createPost({ text, image });
+      // Clear form after successful post
+      setText("");
+      setImage("");
+      setImagePreview("");
+    } catch (error) {
+      console.error("Error creating post:", error);
     }
   };
 
-  const handleShare = async () => {
-    try {
-      await submitPost();
-      clearForm();
-    } catch (error) {
-      // Error handling is already done in the store
-    }
+  const clearImage = () => {
+    setImagePreview("");
+    setImage("");
   };
 
   return (
-    <div className="w-[800px] mx-auto mb-6">
-      <div className="bg-white rounded-lg shadow p-4">
+    <div className="w-full md:w-[800px] mx-auto mb-6">
+      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-4">
         <div className="border-b pb-4">
           <textarea
             className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="What's on your mind?"
             rows={3}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
             maxLength={200}
           />
           <div className="text-right text-xs text-gray-500 mt-1">
-            {content.length}/200
+            {text.length}/200
           </div>
         </div>
 
         {imagePreview && (
-          <div className="my-4 static">
+          <div className="my-4 relative">
             <div className="flex justify-end">
-            <button
-              className="bg-white rounded-full p-2 shadow-sm hover:bg-gray-200"
-              onClick={() => setSelectedFile(null)}
-            >
-              ×
-            </button>
+              <button
+                type="button"
+                className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-sm hover:bg-gray-200"
+                onClick={clearImage}
+              >
+                ×
+              </button>
             </div>
             <img
               src={imagePreview}
               alt="Preview"
-              className="max-h-30 w-full object-cover rounded-lg"
+              className="max-h-64 w-full object-cover rounded-lg"
             />
-            
-          </div>
-        )}
-
-        {error && (
-          <div className="text-red-500 text-sm mb-2 p-2 bg-red-50 rounded">
-            {error}
           </div>
         )}
 
@@ -82,21 +90,20 @@ export default function Share() {
             <input
               type="file"
               accept="image/png, image/jpeg, image/gif"
-              onChange={handleFileChange}
+              onChange={handleImageUpload}
               className="hidden"
-              disabled={isLoading}
             />
           </label>
 
           <button
+            type="submit"
             className="px-4 py-2 bg-yellow-400 text-black rounded-md font-semibold flex items-center space-x-2 hover:bg-yellow-300 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={handleShare}
-            //disabled={isLoading || (!content.trim() && !imagePreview)}
+            disabled={isUploadingPost}
           >
-            {isLoading ? (
+            {isUploadingPost ? (
               <div className="flex items-center">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Posting...
+                <span>Posting...</span>
               </div>
             ) : (
               <>
@@ -106,7 +113,7 @@ export default function Share() {
             )}
           </button>
         </div>
-      </div>
+      </form>
     </div>
   );
 }
