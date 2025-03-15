@@ -37,7 +37,7 @@ function App() {
     }, [checkAdminAuth, isAdminRoute])
 
   return (
-    <div className='bg-red-300 h-screen'>
+    <div className='bg-gray-100 '>
       {(authUser) && !isAdminRoute && <div className='fixed top-0 w-screen z-50'>
         <Navbar />
       </div>}
