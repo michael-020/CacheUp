@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import HomeIcont from "../icons/HomeIcon";
 import MessageIcon from "../icons/MessageIcon";
 import SettingsIcon from "../icons/SettingsIcon";
@@ -7,7 +7,7 @@ import { useAuthStore } from "../stores/AuthStore/useAuthStore";
 
 export const Navbar = () => {
   const { logout, authUser } = useAuthStore()
-  const navigate = useNavigate();
+  const location = useLocation()
 
   return (
     <div className="h-16 z-50"> 
@@ -44,8 +44,10 @@ export const Navbar = () => {
         </div>
 
         <div className="w-1/4 flex items-center justify-end space-x-4">
-          <button className="hover:-translate-y-0.5 hover:scale-105" onClick={() => navigate('/profile')}>
-            <img src={authUser?.profileImagePath === "" ? authUser.profileImagePath : "/avatar.jpeg"} alt="Profile" className="size-9 rounded-full border" />
+          <button className="hover:-translate-y-0.5 hover:scale-105">
+            <Link to={"/profile"}>
+              <img src={authUser?.profileImagePath === "" ? authUser.profileImagePath : "/avatar.jpeg"} alt="Profile" className="size-9 rounded-full border" />
+            </Link>
           </button>
           <button 
             onClick={logout}

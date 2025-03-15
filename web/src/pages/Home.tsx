@@ -1,5 +1,4 @@
 import {Feed} from '../components/feeds/Feed'
-import { ProfileCard } from '@/components/ProfileCard'
 
 export const Home = () => {
   return (
