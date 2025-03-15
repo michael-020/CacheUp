@@ -5,6 +5,7 @@ import { axiosInstance } from '../../lib/axios';
 export const usePostStore = create<PostState & PostActions>((set) => ({
   posts: [],
   isLoading: false,
+  reportedPosts: [],
   error: null,
 
   setError: (error) => set({ error }),
@@ -20,24 +21,7 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
       set({ error: error.response?.data?.message || 'Failed to load posts', isLoading: false });
     }
   },
-
-  // createPost: async (formData) => {
-  //   set({ isLoading: true, error: null });
-  //   try {
-  //     const res = await axiosInstance.post("/post/createPost", formData, {
-  //       headers: { 'Content-Type': 'multipart/form-data' }
-  //     });
-      
-  //     set((state) => ({ 
-  //       posts: [res.data, ...state.posts],
-  //       isLoading: false
-  //     }));
-  //   } catch (error) {
-  //     console.error("Error creating post:", error);
-  //     set({ error: error.response?.data?.message || 'Failed to create post', isLoading: false });
-  //     throw error;
-  //   }
-  // },
+  
 
   createPost: async (formData) => {
     try {
@@ -83,6 +67,55 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
     } catch (error) {
       console.error("Error toggling save:", error);
       set({ error: error.response?.data?.message || 'Failed to toggle save' });
+    }
+  },
+  
+
+  fetchReportedPosts: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const res = await axiosInstance.get("/");
+      set({ reportedPosts: res.data, isLoading: false });
+    } catch (error) {
+      set({ 
+        error: error.response?.data?.message || 'Failed to load reported posts',
+        isLoading: false 
+      });
+    }
+  },
+
+  reportPost: async (postId) => {
+    try {
+      set({ isLoading: true });
+      const res = await axiosInstance.put(`/post/reportPost/${postId}`);
+      set((state) => ({
+        posts: state.posts.map(post => 
+          post._id === postId ? { ...post, ...res.data.post } : post
+        )
+      }));
+    } catch (error) {
+      set({ error: error.response?.data?.message || 'Failed to report post' });
+      throw error;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  unReportPost: async (postId) => {
+    try {
+      set({ isLoading: true });
+      const res = await axiosInstance.put(`/post/unReportPost/${postId}`);
+      set((state) => ({
+        posts: state.posts.map(post => 
+          post._id === postId ? { ...post, ...res.data.post } : post
+        ),
+        reportedPosts: state.reportedPosts.filter(post => post._id !== postId)
+      }));
+    } catch (error) {
+      set({ error: error.response?.data?.message || 'Failed to unreport post' });
+      throw error;
+    } finally {
+      set({ isLoading: false });
     }
   },
   

@@ -7,7 +7,7 @@ import { createAdminHandler } from "../handlers/createAdminHandler";
 import { adminLoginHandler } from "../handlers/adminLoginHandler";
 import { adminMiddleware } from "../middlewares/auth";
 import { adminDeletePostHandler } from "../handlers/deletePostHandler";
-import { viewUsersHandler } from "../handlers/viewUsersHnalder";
+import { viewUsersHandler } from "../handlers/viewUsersHanlder";
 import { getCommentHandler } from "../handlers/getCommentHandler";
 import { adminDeleteCommentHandler } from "../handlers/deleteCommentHandler";
 import { adminInfoHandler } from "../handlers/adminInfoHandlert";

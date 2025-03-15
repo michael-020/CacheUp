@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
-import HeartIcon from "../icons/HeartIcon";
+import LikeIcon from "@/icons/LikeIcon";
 import MessageIcon from "../icons/MessageIcon";
 import SaveIcon from "../icons/SaveIcon";
 import { usePostStore } from "../stores/PostStore/usePostStore";
 import Threedot from "../icons/Threedot";
 import { Post } from "../lib/utils";
-import avatar from "web/public/avatar.png"
 
 interface PostCardProps {
   post: Post;
-  isAdmin?: boolean
+  isAdmin?: boolean;
 }
 
 export default function PostCard({ post, isAdmin }: PostCardProps) {
@@ -17,6 +16,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
   const [showCommentInput, setShowCommentInput] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [showReport, setShowReport] = useState(false);
+  const { reportPost, unReportPost } = usePostStore();
 
   const handleCommentSubmit = () => {
     if (commentText.trim()) {
@@ -47,7 +47,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
       }}
     >
       {/* Profile Section */}
-      <div className="flex items-center mb-4">
+      {/* <div className="flex items-center mb-4">
         <div className="size-12 rounded-full border-2 border-white shadow-sm overflow-hidden mr-3">
           <img
             src={post.userImagePath ? post.userImagePath : "/avatar.jpeg"}
@@ -61,26 +61,117 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
           </span>
         </div>
 
-        <div className="top-4 right-4">
+        
+        <div className="ml-[500px] relative">
           <button
-            onClick={() => setShowReport(!showReport)}
-            className="text-gray-500 hover:text-gray-700 transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowReport(!showReport);
+            }}
+            className=" p-1.5 hover:bg-gray-100 rounded-full transition-colors duration-200"
           >
-            <div className="ml-[520px]">
-              <Threedot />
-            </div>
+            <Threedot />
           </button>
 
           {showReport && !isAdmin && (
-            <div className="absolute right-0 mt-2 w-32 mr-96 bg-white rounded-md shadow-lg border border-gray-200">
+            <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-xl z-50 overflow-hidden">
               <button
-                onClick={() => {
-                  console.log("Reported post:", post._id);
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  try {
+                    if (post.isReported) {
+                      await unReportPost(post._id);
+                    } else {
+                      await reportPost(post._id);
+                    }
+                  } catch (error) {
+                    console.error("Report action failed:", error);
+                  }
                   setShowReport(false);
                 }}
-                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                className={`w-full px-4 py-2.5 text-sm text-left flex items-center justify-between
+              ${
+                post.isReported
+                  ? "text-red-600 hover:bg-red-50"
+                  : "text-gray-700 hover:bg-gray-50"
+              }
+              transition-colors duration-150`}
               >
-                Report
+                <span>{post.isReported ? "Unreport Post" : "Report Post"}</span>
+                <span className="text-xs font-medium text-gray-400">
+                  {post.reportCount || 0}
+                </span>
+              </button>
+            </div>
+          )}
+        </div>
+      </div> */}
+
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center">
+          <div className="size-12 rounded-full border-2 border-white shadow-sm overflow-hidden mr-3">
+            <img
+              src={post.userImagePath ? post.userImagePath : "/avatar.jpeg"}
+              alt="Profile"
+              className="w-full h-full object-cover bg-gray-100"
+            />
+          </div>
+          <div className="flex flex-col">
+            <span className="font-semibold text-gray-800 text-base">
+              {post.username}
+            </span>
+          </div>
+        </div>
+
+        {/* Report Button */}
+        <div className="relative">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowReport(!showReport);
+            }}
+            className="p-1.5 hover:bg-gray-100 rounded-full transition-colors duration-200"
+          >
+            <Threedot />
+          </button>
+
+          {showReport && !isAdmin && (
+            <div
+              className="fixed bg-white border border-gray-200 rounded-lg shadow-xl z-[5] overflow-hidden w-48"
+              style={{
+                top: "auto",
+                left: "auto",
+                transform: "none",
+                position: "absolute",
+                right: "0",
+              }}
+            >
+              <button
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  try {
+                    if (post.isReported) {
+                      await unReportPost(post._id);
+                    } else {
+                      await reportPost(post._id);
+                    }
+                  } catch (error) {
+                    console.error("Report action failed:", error);
+                  }
+                  setShowReport(false);
+                }}
+                className={`w-full px-4 py-2.5 text-sm text-left flex items-center justify-between
+          ${
+            post.isReported
+              ? "text-red-600 hover:bg-red-50"
+              : "text-gray-700 hover:bg-gray-50"
+          }
+          transition-colors duration-150`}
+              >
+                <span>{post.isReported ? "Unreport Post" : "Report Post"}</span>
+                <span className="text-xs font-medium text-gray-400">
+                  {post.reportCount || 0}
+                </span>
               </button>
             </div>
           )}
@@ -114,10 +205,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
           className="flex items-center mr-6 hover:text-red-500 transition-colors"
           onClick={() => toggleLike(post._id)}
         >
-          <HeartIcon
-            filled={post.isLiked}
-            className={post.isLiked ? "text-red-600" : "text-gray-500"}
-          />
+          <LikeIcon />
           <span className="ml-2 font-medium">{post.likes.length}</span>
         </button>
 

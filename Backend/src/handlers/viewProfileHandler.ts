@@ -20,7 +20,8 @@ viewProfileHanler.get("/", async (req: Request, res: Response)=> {
         }
 
         res.status(200).json({
-            userInfo: user
+            userInfo: user,
+            isOwnProfile: true
         })
 
     }   
