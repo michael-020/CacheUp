@@ -6,7 +6,7 @@ const AdminHome = () => {
   const { authAdmin } = useAdminStore()
 
   return (
-      <div className="min-h-screen bg-red-300">
+      <div className="min-h-screen ">
         <div className='fixed hidden md:block'>
             <AdminLeftbar />
         </div>

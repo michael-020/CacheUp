@@ -46,67 +46,6 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
         }
       }}
     >
-      {/* Profile Section */}
-      {/* <div className="flex items-center mb-4">
-        <div className="size-12 rounded-full border-2 border-white shadow-sm overflow-hidden mr-3">
-          <img
-            src={post.userImagePath ? post.userImagePath : "/avatar.jpeg"}
-            alt="Profile"
-            className="w-full h-full object-cover bg-gray-100"
-          />
-        </div>
-        <div className="flex flex-col">
-          <span className="font-semibold text-gray-800 text-base">
-            {post.username}
-          </span>
-        </div>
-
-        
-        <div className="ml-[500px] relative">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowReport(!showReport);
-            }}
-            className=" p-1.5 hover:bg-gray-100 rounded-full transition-colors duration-200"
-          >
-            <Threedot />
-          </button>
-
-          {showReport && !isAdmin && (
-            <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-xl z-50 overflow-hidden">
-              <button
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  try {
-                    if (post.isReported) {
-                      await unReportPost(post._id);
-                    } else {
-                      await reportPost(post._id);
-                    }
-                  } catch (error) {
-                    console.error("Report action failed:", error);
-                  }
-                  setShowReport(false);
-                }}
-                className={`w-full px-4 py-2.5 text-sm text-left flex items-center justify-between
-              ${
-                post.isReported
-                  ? "text-red-600 hover:bg-red-50"
-                  : "text-gray-700 hover:bg-gray-50"
-              }
-              transition-colors duration-150`}
-              >
-                <span>{post.isReported ? "Unreport Post" : "Report Post"}</span>
-                <span className="text-xs font-medium text-gray-400">
-                  {post.reportCount || 0}
-                </span>
-              </button>
-            </div>
-          )}
-        </div>
-      </div> */}
-
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
           <div className="size-12 rounded-full border-2 border-white shadow-sm overflow-hidden mr-3">
