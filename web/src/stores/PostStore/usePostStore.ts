@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { PostActions, PostState } from './types';
 import { axiosInstance } from '../../lib/axios';
+import { AxiosError } from 'axios';
+import toast from 'react-hot-toast';
 
 export const usePostStore = create<PostState & PostActions>((set) => ({
   posts: [],
@@ -19,7 +21,6 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
       set({ posts: res.data});
     } catch (error) {
       console.error("Error fetching posts:", error);
-      // set({ error: error.response?.data?.message || 'Failed to load posts', isLoading: false });
       set({ isFetchingPosts: false })
     }
   },
@@ -31,9 +32,14 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
       set((state) => ({
         posts: [res.data.post, ...state.posts] 
       }));
+      toast.success("Post uploaded successfully")
     } catch (error) {
       console.error("Error creating post:", error);
-      throw error;
+      if (error instanceof AxiosError && error.response?.data?.msg) {
+          toast.error(error.response.data.msg as string);
+      } else {
+          toast.error("An unexpected error occurred.");
+      }
     } finally {
       set({isUploadingPost: false})
     }
