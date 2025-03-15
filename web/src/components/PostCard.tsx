@@ -5,6 +5,7 @@ import SaveIcon from "../icons/SaveIcon";
 import { usePostStore } from "../stores/PostStore/usePostStore";
 import Threedot from "../icons/Threedot";
 import { Post } from "../lib/utils";
+import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 
 interface PostCardProps {
   post: Post;
@@ -17,6 +18,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
   const [commentText, setCommentText] = useState("");
   const [showReport, setShowReport] = useState(false);
   const { reportPost, unReportPost } = usePostStore();
+  const { authUser } = useAuthStore()
 
   const handleCommentSubmit = () => {
     if (commentText.trim()) {
@@ -50,7 +52,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
         <div className="flex items-center">
           <div className="size-12 rounded-full border-2 border-white shadow-sm overflow-hidden mr-3">
             <img
-              src={post.userImagePath ? post.userImagePath : "/avatar.jpeg"}
+              src={post.userImagePath ? `http://localhost:3000${authUser.profileImagePath}` : "/avatar.jpeg"}
               alt="Profile"
               className="w-full h-full object-cover bg-gray-100"
             />
