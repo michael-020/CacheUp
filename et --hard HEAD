@@ -1,0 +1,75 @@
+[33m2bb7366[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mupdated[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m fixed profil pic rendering
+[33m7f15b0f[m fixed colors
+[33m816c3d0[m fixed navbar
+[33m5d663bc[m Merge pull request #18 from Sharath-Devadiga/updated
+[33ma3f83be[m[33m ([m[1;31morigin/updated[m[33m)[m changed few things
+[33mca781b4[m profile card
+[33m1ed8d18[m Added re-directs in navbar
+[33m7fe08fc[m Fixed report button, navbar and profile card
+[33m5fad057[m Merge branch 'main' of https://github.com/Sharath-Devadiga/Campus_Connect into updated Merge main branch into updated
+[33m21b9ee0[m Merge pull request #17 from michael-020/ayush
+[33m51669fe[m fixed preview image and made features like and report posts
+[33mb339439[m Merge branch 'main' of https://github.com/michael-020/CampusConnect into ayush
+[33m7e7b660[m Merge pull request #15 from michael-020/Parth
+[33m1a981b0[m added profile page
+[33m7d7285d[m removed some bugs
+[33m321d543[m Merge branch 'main' of https://github.com/Michael-2702/CampusConnect into Parth
+[33m51ee3a9[m some changes
+[33m99d2aec[m Merge branch 'main' of https://github.com/michael-020/CampusConnect into ayush
+[33mbb6982a[m Merge pull request #14 from Sharath-Devadiga/updated
+[33m86ddcaa[m add links in admin left bar
+[33md0f5dc8[m Merge branch 'main' of https://github.com/Sharath-Devadiga/Campus_Connect into updated Merge branch update into main
+[33m1736b20[m changed layout
+[33m8cdcbcc[m added admin logout feature
+[33mc480520[m updated signup
+[33m0aacd71[m added admin feed in fe
+[33m8c3ccfe[m added admin logout handler
+[33m3debffc[m added admin middleware in BE
+[33m296a2ee[m Merge branch 'main' of https://github.com/Sharath-Devadiga/Campus_Connect into updated Updated one
+[33m52d1869[m Merge branch 'main' of https://github.com/Sharath-Devadiga/Campus_Connect into updated Merge main to updated branch
+[33m000184a[m fixed handling incorrect password condition in /signin endpoint BE
+[33m6354763[m fixed email and username check in /complete-signup endpoint in BE
+[33m117fa30[m Merge branch 'main' of https://github.com/michael-020/CampusConnect into ayush
+[33m55bdc12[m Merge pull request #13 from Sharath-Devadiga/updated
+[33m78b686d[m Modified frontend signup signin page
+[33m88d0122[m[33m ([m[1;32mmain[m[33m)[m my change
+[33mebe5d4f[m Merge branch 'main' of https://github.com/michael-020/CampusConnect into ayush
+[33m9a3189a[m fixed share component
+[33m77d326f[m Merge pull request #12 from michael-020/ayush
+[33m0d3b75b[m made features like post upload and feed section
+[33m7e36a1d[m Fixed signup form
+[33m5f5426c[m Changed type of gradutaionYear in zod FE
+[33ma729c76[m Changed type of graduation year in schema
+[33mbc8871f[m Integrated shadcn and its combobox component
+[33m7389fad[m added redirect to signin page in signup page
+[33m123310e[m added log out feature in fe and be
+[33mba58cd3[m added react hook forms in signup page
+[33m599b8a6[m Merge branch 'main' into michael
+[33m92db5e6[m fixed checkAuth function
+[33md3bc4c3[m added react-icons library in web folder
+[33md4f798e[m removed package.json and node_modules from root folder
+[33m934fe3e[m Removed node_modules from repository
+[33m1d88171[m made some changes
+[33m54bb778[m Merge pull request #11 from michael-020/Parth
+[33mdd8faa0[m Merge branch 'main' into Parth
+[33m2fd223e[m fixed navbar
+[33m421aa17[m added email verification page and show password feature in Signin
+[33m23b335d[m made home page and its components
+[33m646f678[m changed position of YOP
+[33m32d94af[m Merge pull request #9 from michael-020/Parth
+[33m42fd40b[m Added show and hide password feature
+[33mbd847b3[m added await in bcrypt.compare in /signin endpoint
+[33m62b016d[m added toasts
+[33mdb8f086[m Merge pull request #7 from michael-020/Parth
+[33m5b54a58[m added signup and signin pages
+[33ma2830df[m added useAuthStore
+[33mba0de74[m Removed js code
+[33m6d99c8e[m bootstrapped new frontend
+[33m982fb57[m added web folder for frontend in typescript
+[33m19b6bee[m Merge branch 'main' of https://github.com/Michael-2702/CampusConnect
+[33m2ac9586[m Merge pull request #6 from ayushranaut/ayush
+[33m77b17d0[m added zord validation in initiateSignupHandler
+[33m1f122ae[m fixed override.ts file
+[33m4ac7c58[m Changed the implementation of auth in backend
+[33m240d43c[m added override.ts file to override request object
+[33m9ec73a8[m added /check endpoint in backend
