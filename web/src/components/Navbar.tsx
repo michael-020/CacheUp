@@ -14,7 +14,7 @@ export const Navbar = () => {
       You are not logged in
     </div>
 
-  console.log("user image", authUser.profileImagePath)
+  console.log("user image", authUser.profilePicture)
 
   return (
     <div className="h-16 z-50 border-b-2"> 
@@ -53,7 +53,7 @@ export const Navbar = () => {
         <div className="w-1/4 flex items-center justify-end space-x-4">
           <button className="hover:-translate-y-0.5 hover:scale-105">
             <Link to={"/profile"}>
-              <img src={authUser.profileImagePath ? `http://localhost:3000${authUser.profileImagePath}` : "/avatar.jpeg"} alt="Profile" className="size-9 rounded-full border" />
+              <img src={authUser.profilePicture ? `http://localhost:3000${authUser.profilePicture}` : "/avatar.jpeg"} alt="Profile" className="size-9 rounded-full border" />
             </Link>
           </button>
           <button 

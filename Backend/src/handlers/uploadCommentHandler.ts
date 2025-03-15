@@ -34,12 +34,12 @@ export const uploadCommentHandler = async (req: Request, res: Response) => {
         }
 
         const username = user.username
-        const profileImagePath = user.profileImagePath
+        const profilePicture = user.profilePicture
 
         const processedComment = {
             content,
             username,
-            profileImagePath
+            profilePicture
         }
 
         res.status(200).json({

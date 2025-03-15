@@ -6,7 +6,7 @@ export interface IUser extends Document {
   username: string;
   email: string;
   password: string;
-  profileImagePath?: string;
+  profilePicture?: string;
   department: string;
   graduationYear: string;
   bio?: string;
@@ -106,7 +106,7 @@ const userSchema = new Schema<IUser>({
     type: String, 
     required: [true, 'Password is required'] 
   },
-  profileImagePath: { 
+  profilePicture: { 
     type: String, 
     default: '' 
   },

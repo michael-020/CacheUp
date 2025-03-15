@@ -3,16 +3,39 @@ import { postModel, userModel } from "../models/db";
 import { upload } from "../middlewares/upload";
 import path from 'path';
 import fs from 'fs';
+import cloudinary from "../lib/cloudinary";
 
 const PfpHanler: Router = Router();
 
 const UPLOADS_BASE_PATH = path.join(process.cwd(), 'uploads');
 
 // set/change pfp
-PfpHanler.put("/", upload.single("picture"), async (req: Request, res: Response) => {
+PfpHanler.put("/", async (req: Request, res: Response) => {
     try {
         const userId = req.user._id;
-        const profileImagePath = req.file ? `/uploads/profileImages/${req.file.filename}` : undefined;
+        // const profileImagePath = req.file ? `/uploads/profileImages/${req.file.filename}` : undefined;
+        const profilePic = req.body.profilePicture
+        if(!profilePic){
+            res.status(401).json({
+                msg: "profile picture not provided"
+            })
+            return
+        }
+
+        if (profilePic && profilePic.length > 10 * 1024 * 1024) { // 10MB limit for base64
+            res.status(413).json({
+                msg: "Profile picture is too large"
+            });
+            return
+        }
+
+        const uploadResponse = await cloudinary.uploader.upload(profilePic, {
+            folder: "profile_pictures", 
+            transformation: [
+                { width: 500, height: 500, crop: "fill" }, 
+                { quality: "auto" }
+            ]
+        })
 
         const user = await userModel.findById(userId);
 
@@ -23,26 +46,17 @@ PfpHanler.put("/", upload.single("picture"), async (req: Request, res: Response)
             return;
         }
 
-        if (user.profileImagePath && user.profileImagePath !== "") {
-            const oldImagePath = path.join(__dirname, "..", user.profileImagePath); // Construct the old image path
-            if (fs.existsSync(oldImagePath)) {
-
-                fs.unlinkSync(oldImagePath); 
-            }
-        }
-
-        user.profileImagePath = profileImagePath;
+        user.profilePicture = uploadResponse.url
         await user.save();
 
         await postModel.updateMany(
             { postedBy: userId },
-            { $set: { userImagePath: profileImagePath } }
+            { $set: { userImagePath: uploadResponse.url } }
         );
 
-        res.json({
-            msg: "Profile Picture uploaded successfully",
+        res.status(200).json(
             user
-        });
+        );
 
     } catch (error) {
         console.error("Error uploading profile picture:", error);
@@ -68,7 +82,7 @@ PfpHanler.get("/", async (req: Request, res: Response) => {
         }
 
         res.status(200).json({
-            imagePath: user.profileImagePath
+            image: user.profilePicture
         })
     }   
     catch (e) {
@@ -92,7 +106,7 @@ PfpHanler.get("/:id", async (req: Request, res: Response) => {
         }
 
         res.json({
-            imagePath: user.profileImagePath
+            image: user.profilePicture
         });
     } catch (error) {
         console.error("Error getting profile picture:", error);
@@ -113,18 +127,18 @@ PfpHanler.delete("/", async (req: Request, res: Response) => {
             return;
         }
 
-        if (!user.profileImagePath) {
+        if (!user.profilePicture) {
             res.status(400).json({ msg: "No profile picture to delete" });
             return;
         }
 
-        const imagePath = path.join(UPLOADS_BASE_PATH, 'profileImages', path.basename(user.profileImagePath));
+        // const imagePath = path.join(UPLOADS_BASE_PATH, 'profileImages', path.basename(user.profilePicture));
 
-        if (fs.existsSync(imagePath)) {
-            fs.unlinkSync(imagePath); 
-        }
+        // if (fs.existsSync(imagePath)) {
+        //     fs.unlinkSync(imagePath); 
+        // }
 
-        user.profileImagePath = "";
+        user.profilePicture = "";
 
         await user.save();
 
