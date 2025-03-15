@@ -14,7 +14,7 @@ export function Feed() {
   return (
     <div className="container mx-auto p-4 mt-16">
       <Share />
-      <div className="mt-4">
+      <div className="mt-4 -z-10">
         {posts && posts.length > 0 ? (
           posts.map((post) => (
             <PostCard key={post._id} post={post} />

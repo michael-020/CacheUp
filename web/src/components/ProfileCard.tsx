@@ -18,7 +18,7 @@ export const ProfileCard = ({user, isOwnProfile,}: {user: IUser | null | undefin
                 <div className='flex justify-center m-4'>
                 {user?.profileImagePath ? (
                         <img 
-                            src={user.profileImagePath} 
+                            src={user.profileImagePath === "" ? user.profileImagePath : "/avatar.jpeg"} 
                             alt="Profile" 
                             className="w-24 h-24 rounded-full object-cover"
                         />

@@ -38,10 +38,10 @@ function App() {
 
   return (
     <div className='bg-red-300 h-screen'>
-      {(authUser) && !isAdminRoute && <div className='fixed top-0 w-screen'>
+      {(authUser) && !isAdminRoute && <div className='fixed top-0 w-screen z-50'>
         <Navbar />
       </div>}
-      {authAdmin && isAdminRoute && <div className='fixed top-0 w-screen'>
+      {authAdmin && isAdminRoute && <div className='fixed top-0 w-screen z-50'>
           <AdminNavbar />
       </div>}
       <Toaster />

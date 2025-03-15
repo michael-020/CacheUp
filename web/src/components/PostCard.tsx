@@ -124,27 +124,20 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
         </div>
 
         {/* Report Button */}
-        <div className="relative">
+        <div className="relative z-10">
           <button
             onClick={(e) => {
               e.stopPropagation();
               setShowReport(!showReport);
             }}
-            className="p-1.5 hover:bg-gray-100 rounded-full transition-colors duration-200"
+            className="p-1.5 hover:bg-gray-100 rounded-full transition-colors duration-200 -z-10"
           >
             <Threedot />
           </button>
 
           {showReport && !isAdmin && (
             <div
-              className="fixed bg-white border border-gray-200 rounded-lg shadow-xl z-[5] overflow-hidden w-48"
-              style={{
-                top: "auto",
-                left: "auto",
-                transform: "none",
-                position: "absolute",
-                right: "0",
-              }}
+              className=" bg-white border border-gray-200 rounded-lg shadow-xl z-[5] overflow-hidden w-48 absolute"
             >
               <button
                 onClick={async (e) => {

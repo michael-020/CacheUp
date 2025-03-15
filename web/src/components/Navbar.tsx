@@ -10,7 +10,7 @@ export const Navbar = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="h-16"> 
+    <div className="h-16 z-50"> 
       <nav className="fixed top-0 left-0 right-0 z-10 flex items-center justify-between px-6 py-3 bg-red-300/80 backdrop-blur-md shadow">
         <div className="w-1/4">
           <h1 className="font-extrabold text-3xl text-black">
@@ -35,7 +35,7 @@ export const Navbar = () => {
 
         <div className="w-1/4 flex items-center justify-end space-x-4">
           <button className="hover:-translate-y-0.5 hover:scale-105" onClick={() => navigate('/profile')}>
-            <img src={authUser?.profileImagePath ? authUser.profileImagePath : "/avatar.jpeg"} alt="Profile" className="size-9 rounded-full border" />
+            <img src={authUser?.profileImagePath === "" ? authUser.profileImagePath : "/avatar.jpeg"} alt="Profile" className="size-9 rounded-full border" />
           </button>
           <button 
             onClick={logout}
