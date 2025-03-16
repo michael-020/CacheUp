@@ -7,7 +7,7 @@ import { IUser } from '@/lib/utils';
 
 
 interface ProfileCardProps {
-  user: IUser | null;
+  user: IUser | null | undefined;
   isOwnProfile: boolean;
 }
 
