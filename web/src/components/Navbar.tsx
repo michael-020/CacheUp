@@ -53,7 +53,7 @@ export const Navbar = () => {
         <div className="w-1/4 flex items-center justify-end space-x-4">
           <button className="hover:-translate-y-0.5 hover:scale-105">
             <Link to={"/profile"}>
-              <img src={authUser.profilePicture ? `http://localhost:3000${authUser.profilePicture}` : "/avatar.jpeg"} alt="Profile" className="size-9 rounded-full border" />
+              <img src={authUser.profilePicture ? authUser.profilePicture : "/avatar.jpeg"} alt="Profile" className="size-9 rounded-full border" />
             </Link>
           </button>
           <button 
