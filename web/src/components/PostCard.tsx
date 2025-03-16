@@ -6,6 +6,8 @@ import { usePostStore } from "../stores/PostStore/usePostStore";
 import Threedot from "../icons/Threedot";
 import { Post } from "../lib/utils";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
+import { useUserStore } from '../stores/UserStore/useUserStore';
+
 
 interface PostCardProps {
   post: Post;
@@ -13,18 +15,50 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post, isAdmin }: PostCardProps) {
-  const { toggleLike, toggleSave, addComment } = usePostStore();
+  const { toggleLike, toggleSave, addComment,fetchPosts } = usePostStore();
   const [showCommentInput, setShowCommentInput] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [showReport, setShowReport] = useState(false);
   const { reportPost, unReportPost } = usePostStore();
-  const { authUser } = useAuthStore()
+  const { authUser } = useAuthStore();
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editCommentText, setEditCommentText] = useState("");
+  const { deleteComment, updateComment } = usePostStore();
+  const { currentUser } = useUserStore();
+
+  const handleEditClick = (commentId: string, currentContent: string) => {
+    setEditingCommentId(commentId);
+    setEditCommentText(currentContent);
+  };
+
+  const handleDeleteClick = async (commentId: string) => {
+    if (window.confirm("Are you sure you want to delete this comment?")) {
+      try {
+        await deleteComment(post._id, commentId);
+      } catch (error) {
+        console.error("Failed to delete comment:", error);
+      }
+    }
+  };
+
+  const handleUpdateComment = async (commentId: string) => {
+    if (!editCommentText.trim()) return;
+
+    try {
+      await updateComment(post._id, commentId, editCommentText);
+      setEditingCommentId(null);
+      setEditCommentText("");
+    } catch (error) {
+      console.error("Failed to update comment:", error);
+    }
+  };
 
   const handleCommentSubmit = () => {
     if (commentText.trim()) {
       addComment(post._id, commentText);
       setCommentText("");
       setShowCommentInput(false);
+      
     }
   };
 
@@ -52,7 +86,11 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
         <div className="flex items-center">
           <div className="size-12 rounded-full border-2 border-white shadow-sm overflow-hidden mr-3">
             <img
-              src={post.userImagePath ? `http://localhost:3000${authUser.profileImagePath}` : "/avatar.jpeg"}
+              src={
+                post.userImagePath
+                  ? `http://localhost:3000${authUser.profileImagePath}`
+                  : "/avatar.jpeg"
+              }
               alt="Profile"
               className="w-full h-full object-cover bg-gray-100"
             />
@@ -77,9 +115,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
           </button>
 
           {showReport && !isAdmin && (
-            <div
-              className=" bg-white border border-gray-200 rounded-lg shadow-xl z-[5] overflow-hidden w-48 absolute"
-            >
+            <div className=" bg-white border border-gray-200 rounded-lg shadow-xl z-[5] overflow-hidden w-48 absolute">
               <button
                 onClick={async (e) => {
                   e.stopPropagation();
@@ -168,6 +204,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
       {/* Comment Section */}
       {showCommentInput && (
         <div className="mt-4 space-y-4" data-comment-section>
+          {/* Comment input section remains the same */}
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
             <textarea
               value={commentText}
@@ -192,23 +229,85 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
 
           {post.comments.length > 0 && (
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-3">
-              {post.comments.map((comment) => (
+              {post.comments.filter(comment => comment?._id).map((comment) => (
+                
                 <div
                   key={comment._id}
-                  className="bg-white p-3 rounded-md border border-gray-100"
+                  className="bg-white p-3 rounded-md border border-gray-100 group relative"
                 >
-                  <div className="flex items-center text-xs text-gray-500 mb-1">
-                    <span className="font-semibold text-gray-700">
-                      {comment.user.username} {/* Assume populated user */}
-                    </span>
-                    <span className="mx-2">•</span>
-                    <span className="text-xs">
-                      {new Date(comment.date).toLocaleDateString()}
-                    </span>
+                  {/* Comment Header with User Info */}
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center text-xs text-gray-500">
+                      <img
+                        src={
+                          comment.user?.userImagePath || "/default-avatar.png"
+                        }
+                        className="w-5 h-5 rounded-full mr-2"
+                        alt={comment.user?.username}
+                      />
+                      <span className="font-semibold text-gray-700">
+                        {comment.user?.username||"user"}
+                      </span>
+                      <span className="mx-2">•</span>
+                      <span className="text-xs">
+                        {new Date(comment.date).toLocaleDateString()}
+                      </span>
+                    </div>
+
+                    {/* Edit/Delete Buttons (only show for comment owner) */}
+                    {currentUser?._id === comment.user?._id && (
+                      <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditClick(comment._id, comment.content);
+                          }}
+                          className="text-blue-500 hover:text-blue-600 text-xs"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteClick(comment._id);
+                          }}
+                          className="text-red-500 hover:text-red-600 text-xs"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
                   </div>
-                  <p className="text-sm text-gray-800 leading-snug">
-                    {comment.content}
-                  </p>
+
+                  
+                  {editingCommentId === comment._id ? (
+                    <>
+                      <textarea
+                        value={editCommentText}
+                        onChange={(e) => setEditCommentText(e.target.value)}
+                        className="w-full border rounded-lg p-2 text-sm mb-2"
+                        autoFocus
+                      />
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => setEditingCommentId(null)}
+                          className="px-3 py-1 text-xs text-gray-600 hover:bg-gray-100 rounded"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={() => handleUpdateComment(comment._id)}
+                          className="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600"
+                        >
+                          Save
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-sm text-gray-800 leading-snug">
+                      {comment.content}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
