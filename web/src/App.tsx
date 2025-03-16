@@ -16,6 +16,7 @@ import { useAdminStore } from './stores/AdminStore/useAdminStore'
 import { AdminNavbar } from './components/admin/AdminNavbar'
 import UserList from './pages/admin/UserList'
 import ReportedPosts from './pages/admin/ReportedPosts'
+import { EditProfile } from './pages/EditProfile'
 
 function App() {
   const { authUser, checkAuth } = useAuthStore()
@@ -54,6 +55,7 @@ function App() {
         <Route path="/profile/:id" element={<Profile />} />
         <Route path='/messages' element={<Messages />} />
         <Route path='verify-email' element={<EmailVerify />} />
+        <Route path='/edit-profile' element={<EditProfile />} />
 
         {/* Admin Routes */}
         <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to="/admin/home" /> } />
