@@ -69,7 +69,9 @@ export const EditProfile = () => {
     const { authUser } = useAuthStore()
 
     return (
-        <div className="mt-32 h-screen flex-col justify-center">
+        <div className="mt-24 h-screen flex-col justify-center">
+        <h1 className="text-3xl text-center mb-5 font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Edit Profile</h1>
+
             <div className="flex justify-center">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                 <div className="grid grid-cols-2">
@@ -79,7 +81,7 @@ export const EditProfile = () => {
                     <img src={authUser?.profilePicture} className="w-14 h-14 rounded-full"/>
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Edit Profile Picture</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Change Profile Picture</label>
                     <input
                         type="file"
                         accept="image/png, image/jpeg, image/gif"
@@ -152,7 +154,7 @@ export const EditProfile = () => {
                         disabled={isEditing}
                         className="w-full px-4 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all shadow-lg transform hover:-translate-y-0.5 active:translate-y-0"
                     >
-                        {isEditing ? 'Editing...' : 'Edit Details'}
+                        {isEditing ? 'Saving...' : 'Save Details'}
                     </button>
                 </div>
             </form>
