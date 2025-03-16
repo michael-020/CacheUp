@@ -9,6 +9,7 @@ export type authState = {
     isCheckingAuth: boolean
     isVerifying: boolean
     sendingEmail: boolean
+    isEditing: boolean
 }
 
 export type authAction = {
@@ -18,4 +19,5 @@ export type authAction = {
     checkAuth: () => void;
     sentEmail: (data: {email: string}) => void;
     verifyEmail: (data: {email: string, otp: string}) => void;
+    editProfile: (data: {name?: string, username?: string, profilePicture?: string, bio?: string}) => void;
 }
