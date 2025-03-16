@@ -18,7 +18,7 @@ export interface IUser {
     graduationYear: number;
     bio?: string;
     posts: IPost[];
-    friends: IUser[];
+    friends?: IUser[];
     friendRequests: IUser[];
 }
 
