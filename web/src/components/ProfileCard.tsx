@@ -6,7 +6,7 @@ import { axiosInstance } from '@/lib/axios';
 import { IUser } from '@/lib/utils';
 
 interface UserProfile extends IUser {
-  profileImagePath?: string;
+  profilePicture?: string;
   friends?: IUser[];
 }
 
@@ -57,9 +57,8 @@ export const ProfileCard = ({ user, isOwnProfile }: ProfileCardProps) => {
 
   if (!user) return null;
 
-  // Use mock data for email if not provided
-  const email = user.email || 'user@example.com';
-  const { profileImagePath, name, username, bio, department, friends } = user;
+  const email = user.email;
+  const { profilePicture, name, username, bio, department, friends } = user;
 
   const handleEditClick = () => {
     console.log('Edit profile');
@@ -88,9 +87,9 @@ export const ProfileCard = ({ user, isOwnProfile }: ProfileCardProps) => {
                   <img
                     className="w-full h-full object-cover"
                     src={
-                      profileImagePath
-                        ? `http://localhost:3000${profileImagePath}`
-                        : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfOc2xqD2qG5m9jhgVOuAzLQj8Yotn8Ydp-Q&s'
+                      profilePicture
+                        ? profilePicture
+                        : '/avatar.jpeg'
                     }
                     alt="Profile"
                   />
