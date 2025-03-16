@@ -1,9 +1,8 @@
-
-
 import { useEffect, useState } from 'react';
-import { Briefcase, Users, Edit, Mail } from 'lucide-react';
+import { Briefcase, Users, Mail } from 'lucide-react';
 import { axiosInstance } from '@/lib/axios';
 import { IUser } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 
 interface UserProfile extends IUser {
   profilePicture?: string;
@@ -19,6 +18,7 @@ export const ProfileCard = ({ user, isOwnProfile }: ProfileCardProps) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isHovered, setIsHovered] = useState<boolean>(false);
+  const navigate = useNavigate(); // Initialize useNavigate hook
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -61,7 +61,7 @@ export const ProfileCard = ({ user, isOwnProfile }: ProfileCardProps) => {
   const { profilePicture, name, username, bio, department, friends } = user;
 
   const handleEditClick = () => {
-    console.log('Edit profile');
+    navigate('/edit-profile'); // Navigate to edit profile page
   };
 
   return (
@@ -83,24 +83,14 @@ export const ProfileCard = ({ user, isOwnProfile }: ProfileCardProps) => {
           <div className="text-center">
             <div className="relative w-16 h-16 mx-auto mb-3">
               <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 to-indigo-400 p-1">
-                <div className="w-full h-full rounded-full overflow-hidden bg-white">
+                <div className="w-full h-full rounded-full overflow-hidden bg-white hover:scale-105 transition-transform duration-300">
                   <img
                     className="w-full h-full object-cover"
-                    src={
-                      profilePicture
-                        ? profilePicture
-                        : '/avatar.jpeg'
-                    }
+                    src={profilePicture || '/avatar.jpeg'}
                     alt="Profile"
                   />
                 </div>
               </div>
-              
-              {isOwnProfile && (
-                <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 rounded-full cursor-pointer">
-                  <Edit className="text-white" size={16} />
-                </div>
-              )}
             </div>
             
             <h3 className="text-sm font-bold text-gray-800 mb-1">{name}</h3>

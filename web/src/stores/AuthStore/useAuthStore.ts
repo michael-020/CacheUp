@@ -120,7 +120,7 @@ export const useAuthStore = create<authState & authAction>((set) => ({
         set({isEditing: true})
         try{
             await axiosInstance.put("/user/editProfile", data)
-            toast.success("Details updated successfully")
+            // toast.success("Details updated successfully")
         }catch(error) {
             if (error instanceof AxiosError && error.response?.data?.msg) {
                 toast.error(error.response.data.msg as string);
