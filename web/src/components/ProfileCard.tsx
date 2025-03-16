@@ -1,59 +1,18 @@
 
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Briefcase, Users, Edit, Mail } from 'lucide-react';
-import { axiosInstance } from '@/lib/axios';
+
 import { IUser } from '@/lib/utils';
 
-interface UserProfile extends IUser {
-  profilePicture?: string;
-  friends?: IUser[];
-}
 
 interface ProfileCardProps {
-  user: UserProfile | null | undefined;
+  user: IUser | null | undefined;
   isOwnProfile: boolean;
 }
 
 export const ProfileCard = ({ user, isOwnProfile }: ProfileCardProps) => {
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [isHovered, setIsHovered] = useState<boolean>(false);
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await axiosInstance.get('/user/viewProfile');
-        setLoading(false);
-      } catch (err) {
-        console.error('Error fetching profile data', err);
-        setError('Failed to load profile');
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="bg-white rounded-lg shadow-md p-4 animate-pulse w-64 ml-6">
-        <div className="h-5 bg-gray-300 rounded w-2/3 mx-auto mb-3"></div>
-        <div className="w-16 h-16 bg-gray-300 rounded-full mx-auto mb-3"></div>
-        <div className="h-4 bg-gray-300 rounded w-1/2 mx-auto mb-2"></div>
-        <div className="h-10 bg-gray-300 rounded w-full mb-3"></div>
-        <div className="h-6 bg-gray-300 rounded w-full"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-red-50 rounded-lg shadow-md p-3 ml-6 w-64">
-        <p className="text-red-500 text-center text-sm">{error}</p>
-      </div>
-    );
-  }
 
   if (!user) return null;
 
