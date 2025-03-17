@@ -14,7 +14,7 @@ const postRouter: Router = Router();
 postRouter.use(authMiddleware)
 
 // upload posts
-postRouter.post("/createPost", upload.single("image"), uploadPostsHandler)
+postRouter.post("/createPost", uploadPostsHandler)
 
 // view Posts handler
 postRouter.use("/viewPosts", viewPostHandler)

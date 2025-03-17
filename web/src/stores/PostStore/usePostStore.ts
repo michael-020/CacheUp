@@ -1,42 +1,47 @@
-import { create } from "zustand";
-import { PostActions, PostState } from "./types";
-import { axiosInstance } from "../../lib/axios";
+import { create } from 'zustand';
+import { PostActions, PostState } from './types';
+import { axiosInstance } from '../../lib/axios';
+import { AxiosError } from 'axios';
+import toast from 'react-hot-toast';
 
 export const usePostStore = create<PostState & PostActions>((set) => ({
   posts: [],
-  isLoading: false,
+  isFetchingPosts: false,
   reportedPosts: [],
+  isUploadingPost: false,
   error: null,
 
   setError: (error) => set({ error }),
   clearError: () => set({ error: null }),
 
   fetchPosts: async () => {
-    set({ isLoading: true, error: null });
+    set({ isFetchingPosts: true });
     try {
       const res = await axiosInstance.get("/post/viewPosts/");
-      set({ posts: res.data, isLoading: false });
+      set({ posts: res.data});
     } catch (error) {
       console.error("Error fetching posts:", error);
-      set({
-        error: error.response?.data?.message || "Failed to load posts",
-        isLoading: false,
-      });
+      set({ isFetchingPosts: false })
     }
   },
-
-  createPost: async (formData) => {
+  
+  createPost: async (data) => {
+    set({isUploadingPost: true})
     try {
-      const res = await axiosInstance.post("/post/createPost", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
+      const res = await axiosInstance.post("/post/createPost", data);
       set((state) => ({
         posts: [res.data.post, ...state.posts],
       }));
+      toast.success("Post uploaded successfully")
     } catch (error) {
       console.error("Error creating post:", error);
-      throw error;
+      if (error instanceof AxiosError && error.response?.data?.msg) {
+          toast.error(error.response.data.msg as string);
+      } else {
+          toast.error("An unexpected error occurred.");
+      }
+    } finally {
+      set({isUploadingPost: false})
     }
   },
 
@@ -57,7 +62,7 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
       }));
     } catch (error) {
       console.error("Error toggling like:", error);
-      set({ error: error.response?.data?.message || "Failed to toggle like" });
+      // set({ error: error.response?.data?.message || 'Failed to toggle like' });
     }
   },
 
@@ -76,26 +81,26 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
       }));
     } catch (error) {
       console.error("Error toggling save:", error);
-      set({ error: error.response?.data?.message || "Failed to toggle save" });
+      // set({ error: error.response?.data?.message || 'Failed to toggle save' });
     }
   },
 
   fetchReportedPosts: async () => {
-    set({ isLoading: true, error: null });
+
     try {
       const res = await axiosInstance.get("/");
-      set({ reportedPosts: res.data, isLoading: false });
+      set({ reportedPosts: res.data });
     } catch (error) {
-      set({
-        error: error.response?.data?.message || "Failed to load reported posts",
-        isLoading: false,
-      });
+      // set({ 
+      //   error: error.response?.data?.message || 'Failed to load reported posts',
+      //   isLoading: false 
+      // });
     }
   },
 
   reportPost: async (postId) => {
     try {
-      set({ isLoading: true });
+
       const res = await axiosInstance.put(`/post/reportPost/${postId}`);
       set((state) => ({
         posts: state.posts.map((post) =>
@@ -103,16 +108,16 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
         ),
       }));
     } catch (error) {
-      set({ error: error.response?.data?.message || "Failed to report post" });
-      throw error;
+      // set({ error: error.response?.data?.message || 'Failed to report post' });
+
     } finally {
-      set({ isLoading: false });
+
     }
   },
 
   unReportPost: async (postId) => {
     try {
-      set({ isLoading: true });
+
       const res = await axiosInstance.put(`/post/unReportPost/${postId}`);
       set((state) => ({
         posts: state.posts.map((post) =>
@@ -123,12 +128,9 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
         ),
       }));
     } catch (error) {
-      set({
-        error: error.response?.data?.message || "Failed to unreport post",
-      });
+      // set({ error: error.response?.data?.message || 'Failed to unreport post' });
       throw error;
     } finally {
-      set({ isLoading: false });
     }
   },
   
@@ -191,11 +193,8 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
         ),
       }));
     } catch (error) {
-      console.error("Error deleting comment:", error);
-      set({
-        error: error.response?.data?.message || "Failed to delete comment",
-      });
-      throw error;
+      console.error("Error adding comment:", error);
+      // set({ error: error.response?.data?.message || 'Failed to add comment' });
     }
   },
   

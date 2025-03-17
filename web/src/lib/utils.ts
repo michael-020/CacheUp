@@ -13,12 +13,12 @@ export interface IUser {
     username: string;
     email: string;
     password: string;
-    profileImagePath?: string;
+    profilePicture?: string;
     department: string;
     graduationYear: number;
     bio?: string;
     posts: IPost[];
-    friends: IUser[];
+    friends?: IUser[];
     friendRequests: IUser[];
 }
 

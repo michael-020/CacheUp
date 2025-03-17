@@ -3,12 +3,13 @@ import { Post } from "../../lib/utils";
 export interface PostState {
   posts: Post[];
   reportedPosts: Post[];
-  isLoading: boolean;
+  isFetchingPosts: boolean;
+  isUploadingPost: boolean;
   error: string | null;
 }
 
 export interface PostActions {
-  createPost: (formData: FormData) => Promise<void>;
+  createPost: (data: {text: string, image: string}) => Promise<void>;
   fetchPosts: () => Promise<void>;
   toggleLike: (postId: string) => void;
   toggleSave: (postId: string) => void;

@@ -13,6 +13,7 @@ export const useAuthStore = create<authState & authAction>((set) => ({
     isVerifying: false,
     inputEmail: "",
     sendingEmail: false,
+    isEditing: false,
 
     signup: async (data) => {
         set({isSigningUp: true})
@@ -112,6 +113,22 @@ export const useAuthStore = create<authState & authAction>((set) => ({
         }
         finally{
             set({isVerifying: false})
+        }
+    },
+
+    editProfile: async(data) => {
+        set({isEditing: true})
+        try{
+            await axiosInstance.put("/user/editProfile", data)
+            toast.success("Details updated successfully")
+        }catch(error) {
+            if (error instanceof AxiosError && error.response?.data?.msg) {
+                toast.error(error.response.data.msg as string);
+            } else {
+                toast.error("An unexpected error occurred.");
+            }
+        }finally{
+            set({isEditing: false})
         }
     }
 }))

@@ -5,9 +5,6 @@ import SaveIcon from "../icons/SaveIcon";
 import { usePostStore } from "../stores/PostStore/usePostStore";
 import Threedot from "../icons/Threedot";
 import { Post } from "../lib/utils";
-import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
-import { useUserStore } from '../stores/UserStore/useUserStore';
-
 
 interface PostCardProps {
   post: Post;
@@ -20,38 +17,6 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
   const [commentText, setCommentText] = useState("");
   const [showReport, setShowReport] = useState(false);
   const { reportPost, unReportPost } = usePostStore();
-  const { authUser } = useAuthStore();
-  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
-  const [editCommentText, setEditCommentText] = useState("");
-  const { deleteComment, updateComment } = usePostStore();
-  const { currentUser } = useUserStore();
-
-  const handleEditClick = (commentId: string, currentContent: string) => {
-    setEditingCommentId(commentId);
-    setEditCommentText(currentContent);
-  };
-
-  const handleDeleteClick = async (commentId: string) => {
-    if (window.confirm("Are you sure you want to delete this comment?")) {
-      try {
-        await deleteComment(post._id, commentId);
-      } catch (error) {
-        console.error("Failed to delete comment:", error);
-      }
-    }
-  };
-
-  const handleUpdateComment = async (commentId: string) => {
-    if (!editCommentText.trim()) return;
-
-    try {
-      await updateComment(post._id, commentId, editCommentText);
-      setEditingCommentId(null);
-      setEditCommentText("");
-    } catch (error) {
-      console.error("Failed to update comment:", error);
-    }
-  };
 
   const handleCommentSubmit = () => {
     if (commentText.trim()) {
@@ -86,11 +51,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
         <div className="flex items-center">
           <div className="size-12 rounded-full border-2 border-white shadow-sm overflow-hidden mr-3">
             <img
-              src={
-                post.userImagePath
-                  ? `http://localhost:3000${authUser.profileImagePath}`
-                  : "/avatar.jpeg"
-              }
+              src={post.userImagePath ? post.userImagePath : "/avatar.jpeg"}
               alt="Profile"
               className="w-full h-full object-cover bg-gray-100"
             />
@@ -255,7 +216,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
                     </div>
 
                     {/* Edit/Delete Buttons (only show for comment owner) */}
-                    {currentUser?._id === comment.user?._id && (
+                    {/* {currentUser?._id === comment.user?._id && (
                       <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={(e) => {
@@ -276,11 +237,11 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
                           Delete
                         </button>
                       </div>
-                    )}
+                    )} */}
                   </div>
 
                   
-                  {editingCommentId === comment._id ? (
+                  {/* {editingCommentId === comment._id ? (
                     <>
                       <textarea
                         value={editCommentText}
@@ -307,7 +268,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
                     <p className="text-sm text-gray-800 leading-snug">
                       {comment.content}
                     </p>
-                  )}
+                  )} */}
                 </div>
               ))}
             </div>

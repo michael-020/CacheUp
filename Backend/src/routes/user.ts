@@ -11,6 +11,7 @@ import { verifyOtpHandler } from "../handlers/verifyOTPHandler";
 import { authMiddleware } from "../middlewares/auth";
 import { checkAuth } from "../handlers/checkAuthHandler";
 import { logOutHandler } from "../handlers/logOutHandler";
+import { editProfileHandler } from "../handlers/editProfileHandler";
 
 const userRouter: Router = Router();
 
@@ -35,6 +36,9 @@ userRouter.get("/check", checkAuth)
 // logout
 userRouter.post("/logout", logOutHandler)
 
+// edit profile 
+userRouter.put("/editProfile", editProfileHandler)
+
 // view own profile
 userRouter.use("/viewProfile", viewProfileHanler)
 
@@ -49,6 +53,8 @@ userRouter.use("/viewBio", viewBioHandler)
 
 // PFP
 userRouter.use("/profilePicture", PfpHanler)
+
+
 
 
 export default userRouter;
