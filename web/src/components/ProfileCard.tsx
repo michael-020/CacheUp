@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { Briefcase, Users, Mail } from 'lucide-react';
 import { axiosInstance } from '@/lib/axios';
 import { IUser } from '@/lib/utils';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
+import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from "../stores/AuthStore/useAuthStore";
 
 interface UserProfile extends IUser {
   profilePicture?: string;
@@ -18,7 +19,9 @@ export const ProfileCard = ({ user, isOwnProfile }: ProfileCardProps) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isHovered, setIsHovered] = useState<boolean>(false);
-  const navigate = useNavigate(); // Initialize useNavigate hook
+  const [isTransitionLoading, setIsTransitionLoading] = useState<boolean>(true);
+  const navigate = useNavigate();
+  const { authUser } = useAuthStore();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -33,11 +36,22 @@ export const ProfileCard = ({ user, isOwnProfile }: ProfileCardProps) => {
     };
 
     fetchProfile();
+    
+    const timer = setTimeout(() => {
+      setIsTransitionLoading(false);
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, []);
+
+  const containerStyle = {
+    transition: 'opacity 0.3s ease-in',
+    opacity: isTransitionLoading ? 0 : 1,
+  };
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-4 animate-pulse w-64 ml-6">
+      <div className="bg-white rounded-lg shadow-md p-4 animate-pulse w-64 ml-6" style={containerStyle}>
         <div className="h-5 bg-gray-300 rounded w-2/3 mx-auto mb-3"></div>
         <div className="w-16 h-16 bg-gray-300 rounded-full mx-auto mb-3"></div>
         <div className="h-4 bg-gray-300 rounded w-1/2 mx-auto mb-2"></div>
@@ -49,23 +63,27 @@ export const ProfileCard = ({ user, isOwnProfile }: ProfileCardProps) => {
 
   if (error) {
     return (
-      <div className="bg-red-50 rounded-lg shadow-md p-3 ml-6 w-64">
+      <div className="bg-red-50 rounded-lg shadow-md p-3 ml-6 w-64" style={containerStyle}>
         <p className="text-red-500 text-center text-sm">{error}</p>
       </div>
     );
   }
 
-  if (!user) return null;
+  if (!user && !authUser) return null;
+  
+  const profileUser = user || authUser;
+  
+  if (!profileUser) return null;
 
-  const email = user.email;
-  const { profilePicture, name, username, bio, department, friends } = user;
+  const email = profileUser.email;
+  const { profilePicture, name, username, bio, department, friends } = profileUser;
 
   const handleEditClick = () => {
-    navigate('/edit-profile'); // Navigate to edit profile page
+    navigate('/edit-profile');
   };
 
   return (
-    <div className="fixed left-0 w-64 p-3 overflow-y-auto mt-16 ml-8">
+    <div className="fixed left-0 w-64 p-3 overflow-y-auto mt-16 ml-8" style={containerStyle}>
       <div 
         className={`bg-white rounded-lg shadow-lg border border-gray-100 transition-all duration-300 ${
           isHovered ? 'shadow-xl' : ''

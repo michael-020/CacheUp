@@ -18,27 +18,35 @@ export const EditProfile = () => {
 
     type FormFields = z.infer<typeof updateSchema>;
 
-    const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormFields>({
-        resolver: zodResolver(updateSchema),
-    });
-
     const { isEditing, editProfile, authUser } = useAuthStore();
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [navigating, setNavigating] = useState(false);
 
-    // Set initial values from authUser
+    const { register, handleSubmit, formState: { errors }, reset } = useForm<FormFields>({
+        resolver: zodResolver(updateSchema),
+        defaultValues: {
+            name: authUser?.name || "",
+            username: authUser?.username || "",
+            bio: authUser?.bio || "",
+            profilePicture: authUser?.profilePicture || ""
+        }
+    });
+
     useEffect(() => {
         if (authUser) {
-            setValue("name", authUser.name || "");
-            setValue("username", authUser.username || "");
-            setValue("bio", authUser.bio || "");
+            reset({
+                name: authUser.name || "",
+                username: authUser.username || "",
+                bio: authUser.bio || "",
+                profilePicture: authUser.profilePicture || "",
+            });
             
             if (authUser.profilePicture) {
                 setImagePreview(authUser.profilePicture);
             }
         }
-    }, [authUser, setValue]);
+    }, [authUser, reset]);
 
-    // Function to convert file to Base64
     const convertToBase64 = (file: File): Promise<string> => {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -53,8 +61,14 @@ export const EditProfile = () => {
         if (file) {
             try {
                 const base64 = await convertToBase64(file);
-                setValue("profilePicture", base64); // Set as Base64 in form state
-                setImagePreview(URL.createObjectURL(file)); // Display image preview
+                const currentValues = authUser ? {
+                    name: authUser.name || "",
+                    username: authUser.username || "",
+                    bio: authUser.bio || ""
+                } : {};
+                
+                reset({ ...currentValues, profilePicture: base64 });
+                setImagePreview(base64);
             } catch (error) {
                 toast.error("Failed to process image.");
             }
@@ -73,22 +87,37 @@ export const EditProfile = () => {
             };
 
             await editProfile(sanitizedData);
-            toast.success("Profile updated successfully!");
-            navigate('/'); // Navigate to home page after update
+            
         } catch (error) {
             toast.error("Profile update failed");
         }
     };
 
+    const handleNavigateBack = () => {
+        setNavigating(true);
+        setTimeout(() => {
+            navigate('/');
+        }, 100);
+    };
+
+    const containerStyle = {
+        transition: 'opacity 0.3s ease-out',
+        opacity: navigating ? 0 : 1,
+    };
+
     return (
-        <div className="max-w-2xl mx-auto py-6 px-4 sm:px-6 lg:px-8 mt-16">
+        <div 
+            className="max-w-2xl mx-auto py-6 px-4 sm:px-6 lg:px-8 mt-16" 
+            style={containerStyle}
+        >
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 {/* Header */}
                 <div className="bg-gradient-to-r from-blue-600 to-indigo-600 py-3 px-4">
                     <div className="flex items-center">
                         <button 
-                            onClick={() => navigate('/')}
+                            onClick={handleNavigateBack}
                             className="text-white hover:text-blue-100 transition-colors mr-3"
+                            disabled={navigating}
                         >
                             <ArrowLeft size={20} />
                         </button>
@@ -102,13 +131,11 @@ export const EditProfile = () => {
                     <div className="mb-6 text-center">
                         <div className="relative inline-block w-20 h-20 mb-3">
                             <div className="w-full h-full rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200">
-                            <img 
-                                key={authUser?.profilePicture} // Add key to force re-render
-                                src={imagePreview || authUser?.profilePicture || '/avatar.jpeg'} 
-                                alt="Profile" 
-                                className="w-full h-full object-cover"
-                            />
-
+                                <img 
+                                    src={imagePreview || authUser?.profilePicture || '/avatar.jpeg'} 
+                                    alt="Profile" 
+                                    className="w-full h-full object-cover"
+                                />
                             </div>
                             <label 
                                 htmlFor="profilePicture" 
@@ -137,7 +164,7 @@ export const EditProfile = () => {
                                 type="text"
                                 {...register("name")}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                                placeholder={authUser?.name || "Enter your full name"}
+                                placeholder="Enter your full name"
                             />
                             {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
                         </div>
@@ -151,7 +178,7 @@ export const EditProfile = () => {
                                 type="text"
                                 {...register("username")}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                                placeholder={authUser?.username || "Enter your username"}
+                                placeholder="Enter your username"
                             />
                             {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username.message}</p>}
                         </div>
@@ -167,7 +194,6 @@ export const EditProfile = () => {
                                 className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
                                 disabled
                             />
-                            {/* <p className="text-xs text-gray-400 mt-1">Email cannot be changed</p> */}
                         </div>
 
                         {/* Department - Read Only */}
@@ -181,7 +207,6 @@ export const EditProfile = () => {
                                 className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
                                 disabled
                             />
-                            {/* <p className="text-xs text-gray-400 mt-1">Department cannot be changed</p> */}
                         </div>
 
                         {/* Bio - Full width */}
@@ -193,7 +218,7 @@ export const EditProfile = () => {
                                 {...register("bio")}
                                 rows={3}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                                placeholder={authUser?.bio || "Tell us about yourself"}
+                                placeholder="Tell us about yourself"
                             />
                             {errors.bio && <p className="text-red-500 text-xs mt-1">{errors.bio.message}</p>}
                         </div>
@@ -203,7 +228,7 @@ export const EditProfile = () => {
                     <div className="mt-6 text-center">
                         <button
                             type="submit"
-                            disabled={isEditing}
+                            disabled={isEditing || navigating}
                             className="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all shadow-md inline-flex items-center justify-center space-x-2 min-w-[120px]"
                         >
                             {isEditing ? (
