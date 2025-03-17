@@ -19,4 +19,17 @@ export interface PostActions {
   unReportPost: (postId: string) => Promise<void>;
   setError: (error: string | null) => void;
   clearError: () => void;
+
+  updateComment: (
+    postId: string,
+    commentId: string,
+    newContent: string
+  ) => Promise<void>;
+  
+  deleteComment: (
+    postId: string,
+    commentId: string
+  ) => Promise<void>;
+
 }
+
