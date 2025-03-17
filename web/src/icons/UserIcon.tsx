@@ -1,4 +1,4 @@
-export default function UserIcon() {
+export default function UserIcon({ className = "size-7" }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -6,7 +6,7 @@ export default function UserIcon() {
       viewBox="0 0 24 24"
       strokeWidth="1.5"
       stroke="currentColor"
-      className="size-6"
+      className={className}
     >
       <path
         strokeLinecap="round"

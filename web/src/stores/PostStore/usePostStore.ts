@@ -30,7 +30,7 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
     try {
       const res = await axiosInstance.post("/post/createPost", data);
       set((state) => ({
-        posts: [res.data.post, ...state.posts] 
+        posts: [res.data.post, ...state.posts],
       }));
       toast.success("Post uploaded successfully")
     } catch (error) {
@@ -44,17 +44,21 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
       set({isUploadingPost: false})
     }
   },
-  
+
   toggleLike: async (postId) => {
     try {
       const res = await axiosInstance.put(`/post/like/${postId}`);
       set((state) => ({
-        posts: state.posts.map(post => post._id === postId ? {
-          ...post,
-          likes: res.data.likes,
-          isLiked: !post.isLiked,
-          likesCount: res.data.likes.length
-        } : post)
+        posts: state.posts.map((post) =>
+          post._id === postId
+            ? {
+                ...post,
+                likes: res.data.likes,
+                isLiked: !post.isLiked,
+                likesCount: res.data.likes.length,
+              }
+            : post
+        ),
       }));
     } catch (error) {
       console.error("Error toggling like:", error);
@@ -66,17 +70,20 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
     try {
       await axiosInstance.put(`/post/save/${postId}`);
       set((state) => ({
-        posts: state.posts.map(post => post._id === postId ? {
-          ...post,
-          isSaved: !post.isSaved
-        } : post)
+        posts: state.posts.map((post) =>
+          post._id === postId
+            ? {
+                ...post,
+                isSaved: !post.isSaved,
+              }
+            : post
+        ),
       }));
     } catch (error) {
       console.error("Error toggling save:", error);
       // set({ error: error.response?.data?.message || 'Failed to toggle save' });
     }
   },
-  
 
   fetchReportedPosts: async () => {
 
@@ -96,9 +103,9 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
 
       const res = await axiosInstance.put(`/post/reportPost/${postId}`);
       set((state) => ({
-        posts: state.posts.map(post => 
+        posts: state.posts.map((post) =>
           post._id === postId ? { ...post, ...res.data.post } : post
-        )
+        ),
       }));
     } catch (error) {
       // set({ error: error.response?.data?.message || 'Failed to report post' });
@@ -113,32 +120,117 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
 
       const res = await axiosInstance.put(`/post/unReportPost/${postId}`);
       set((state) => ({
-        posts: state.posts.map(post => 
+        posts: state.posts.map((post) =>
           post._id === postId ? { ...post, ...res.data.post } : post
         ),
-        reportedPosts: state.reportedPosts.filter(post => post._id !== postId)
+        reportedPosts: state.reportedPosts.filter(
+          (post) => post._id !== postId
+        ),
       }));
     } catch (error) {
       // set({ error: error.response?.data?.message || 'Failed to unreport post' });
       throw error;
     } finally {
-
     }
   },
   
+  // addComment: async (postId, content) => {
+  //   try {
+  //     const res = await axiosInstance.put(`/post/comment/${postId}`, {
+  //       content,
+  //     });
+  //     set((state) => ({
+  //       posts: state.posts.map((post) =>
+  //         post._id === postId
+  //           ? {
+  //               ...post,
+  //               comments: [res.data.processedComment, ...post.comments],
+  //             }
+  //           : post
+  //       ),
+  //     }));
+  //   } catch (error) {
+  //     console.error("Error adding comment:", error);
+  //     set({ error: error.response?.data?.message || "Failed to add comment" });
+  //   }
+  // },
+
   addComment: async (postId, content) => {
     try {
-      const res = await axiosInstance.post(`/post/comment/${postId}`, { content });
+      const res = await axiosInstance.put(`/post/comment/${postId}`, { content });
+      
+      // Ensure response contains complete comment data with user info
+      const newComment = res.data.processedComment || res.data.comment;
+      
       set((state) => ({
-        posts: state.posts.map(post => post._id === postId ? {
-          ...post,
-          comments: [res.data, ...post.comments],
-         // commentsCount: post.commentsCount + 1
-        } : post)
+        isLoading: false,
+        posts: state.posts.map(post => 
+          post._id === postId ? {
+            ...post,
+            comments: [newComment, ...post.comments]
+          } : post
+        )
+      }));
+      
+      return newComment;
+    } catch (error) { /* Error handling */ }
+  },
+
+  deleteComment: async (postId: string, commentId: string) => {
+    try {
+      await axiosInstance.delete(`/post/comment/${postId}/${commentId}`);
+
+      set((state) => ({
+        posts: state.posts.map((post) =>
+          post._id === postId
+            ? {
+                ...post,
+                comments: post.comments.filter(
+                  (comment) => comment._id !== commentId
+                ),
+              }
+            : post
+        ),
       }));
     } catch (error) {
       console.error("Error adding comment:", error);
       // set({ error: error.response?.data?.message || 'Failed to add comment' });
     }
-  }
+  },
+  
+  updateComment: async (
+    postId: string,
+    commentId: string,
+    newContent: string
+  ) => {
+    try {
+      const res = await axiosInstance.put(
+        `/post/comment/${postId}/${commentId}`,
+        {
+          content: newContent,
+        }
+      );
+      
+      set((state) => ({
+        posts: state.posts.map(post => 
+          post._id === postId ? {
+            ...post,
+            comments: post.comments.map(comment => 
+              comment._id === commentId ? {
+                ...res.data.updatedComment,
+                user: comment.user 
+              } : comment
+            )
+          } : post
+        )
+      }));
+    } catch (error) {
+      console.error("Error updating comment:", error);
+      set({
+        error: error.response?.data?.message || "Failed to update comment",
+      });
+      throw error;
+    }
+  },
+
 }));

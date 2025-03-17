@@ -37,6 +37,7 @@ export const ProfileCard = ({ user, isOwnProfile }: ProfileCardProps) => {
 
     fetchProfile();
     
+    // Add a small delay to ensure smooth transition when component mounts
     const timer = setTimeout(() => {
       setIsTransitionLoading(false);
     }, 100);
@@ -44,6 +45,7 @@ export const ProfileCard = ({ user, isOwnProfile }: ProfileCardProps) => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Apply fade-in transition when component loads
   const containerStyle = {
     transition: 'opacity 0.3s ease-in',
     opacity: isTransitionLoading ? 0 : 1,
@@ -71,6 +73,7 @@ export const ProfileCard = ({ user, isOwnProfile }: ProfileCardProps) => {
 
   if (!user && !authUser) return null;
   
+  // Use authUser as fallback if user is not provided
   const profileUser = user || authUser;
   
   if (!profileUser) return null;
