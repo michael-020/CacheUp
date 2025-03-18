@@ -86,10 +86,10 @@ export default function Share() {
 
           {imagePreview && (
             <div className="my-4 relative">
-              <div className="flex justify-end">
+              <div className="flex justify-start">
                 <button
                   type="button"
-                  className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-sm hover:bg-gray-200"
+                  className="absolute ml-24 -left-2 bg-white rounded-full p-2 shadow-sm hover:bg-gray-200 "
                   onClick={clearImage}
                 >
                   ×
@@ -98,7 +98,7 @@ export default function Share() {
               <img
                 src={imagePreview}
                 alt="Preview"
-                className="max-h-64 w-full object-cover rounded-lg"
+                className="h-32 w-28 object-cover rounded-lg"
               />
             </div>
           )}
