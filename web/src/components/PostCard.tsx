@@ -5,6 +5,9 @@ import SaveIcon from "../icons/SaveIcon";
 import { usePostStore } from "../stores/PostStore/usePostStore";
 import Threedot from "../icons/Threedot";
 import { Post } from "../lib/utils";
+import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
+
+
 
 interface PostCardProps {
   post: Post;
@@ -12,11 +15,13 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post, isAdmin }: PostCardProps) {
-  const { toggleLike, toggleSave, addComment,fetchPosts } = usePostStore();
+  const { toggleLike, toggleSave, addComment} = usePostStore();
   const [showCommentInput, setShowCommentInput] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [showReport, setShowReport] = useState(false);
   const { reportPost, unReportPost } = usePostStore();
+  const {authUser} = useAuthStore();
+
 
   const handleCommentSubmit = () => {
     if (commentText.trim()) {
@@ -75,7 +80,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
             <Threedot />
           </button>
 
-          {showReport && !isAdmin && (
+          {showReport && !isAdmin && post.postedBy !== authUser?._id &&(
             <div className=" bg-white border border-gray-200 rounded-lg shadow-xl z-[5] overflow-hidden w-48 absolute">
               <button
                 onClick={async (e) => {
