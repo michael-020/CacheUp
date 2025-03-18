@@ -20,6 +20,7 @@ export interface IUser {
     posts: IPost[];
     friends?: IUser[];
     friendRequests: IUser[];
+    lastUsernameChangeDate?: string
 }
 
 export interface IPost {

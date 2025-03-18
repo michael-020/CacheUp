@@ -120,15 +120,39 @@ export const useAuthStore = create<authState & authAction>((set) => ({
         set({isEditing: true})
         try{
             await axiosInstance.put("/user/editProfile", data)
-            toast.success("Details updated successfully")
+            
+            const response = await axiosInstance.get("/user/check"); 
+            const updatedUser = response.data;
+            
+            set({ authUser: updatedUser });
+            
+            toast.success("Profile updated successfully")
+            return updatedUser;
         }catch(error) {
             if (error instanceof AxiosError && error.response?.data?.msg) {
-                toast.error(error.response.data.msg as string);
+                toast.error(error.response.data.msg);
             } else {
                 toast.error("An unexpected error occurred.");
             }
+            throw error;
         }finally{
             set({isEditing: false})
+        }
+    },
+    
+    fetchCurrentUser: async () => {
+        try {
+            const response = await axiosInstance.get("/user/check"); 
+            const userData = response.data;
+            set({ authUser: userData });
+            return userData;
+        } catch (error) {
+            if (error instanceof AxiosError && error.response?.data?.msg) {
+                toast.error(error.response.data.msg);
+            } else {
+                toast.error("Failed to fetch user data");
+            }
+            throw error;
         }
     }
 }))
