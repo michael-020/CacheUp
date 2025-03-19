@@ -53,7 +53,7 @@ export interface Comment {
   user: {               
     _id: string;
     username: string;   
-    userImagePath?: string;
+    profileImagePath?: string;
   };
   date: Date;          
 }

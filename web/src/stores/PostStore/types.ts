@@ -5,6 +5,7 @@ export interface PostState {
   reportedPosts: Post[];
   isFetchingPosts: boolean;
   isUploadingPost: boolean;
+  isUplaodingComment: boolean;
   error: string | null;
 }
 

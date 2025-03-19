@@ -3,12 +3,14 @@ import { PostActions, PostState } from './types';
 import { axiosInstance } from '../../lib/axios';
 import { AxiosError } from 'axios';
 import toast from 'react-hot-toast';
+import { Comment } from '@/lib/utils';
 
 export const usePostStore = create<PostState & PostActions>((set) => ({
   posts: [],
   isFetchingPosts: false,
   reportedPosts: [],
   isUploadingPost: false,
+  isUplaodingComment: false,
   error: null,
 
   setError: (error) => set({ error }),
@@ -133,35 +135,15 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
     } finally {
     }
   },
-  
-  // addComment: async (postId, content) => {
-  //   try {
-  //     const res = await axiosInstance.put(`/post/comment/${postId}`, {
-  //       content,
-  //     });
-  //     set((state) => ({
-  //       posts: state.posts.map((post) =>
-  //         post._id === postId
-  //           ? {
-  //               ...post,
-  //               comments: [res.data.processedComment, ...post.comments],
-  //             }
-  //           : post
-  //       ),
-  //     }));
-  //   } catch (error) {
-  //     console.error("Error adding comment:", error);
-  //     set({ error: error.response?.data?.message || "Failed to add comment" });
-  //   }
-  // },
 
-  addComment: async (postId, content) => {
+  addComment: async (postId, content): Promise<Comment | null> => {
+    set({isUplaodingComment: true})
     try {
       const res = await axiosInstance.put(`/post/comment/${postId}`, { content });
       
       // Ensure response contains complete comment data with user info
-      const newComment = res.data.processedComment || res.data.comment;
-      
+      const newComment = res.data;
+      // console.log("new Comment: ", newComment)
       set((state) => ({
         isLoading: false,
         posts: state.posts.map(post => 
@@ -171,9 +153,20 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
           } : post
         )
       }));
+      toast.success("Comment uploaded successfully")
       
       return newComment;
-    } catch (error) { /* Error handling */ }
+    } catch (error) { 
+      console.error("Error creating post:", error);
+      if (error instanceof AxiosError && error.response?.data?.msg) {
+          toast.error(error.response.data.msg as string);
+      } else {
+          toast.error("An unexpected error occurred.");
+      }
+      return null
+    } finally {
+      set({isUplaodingComment: false})
+    }
   },
 
   deleteComment: async (postId: string, commentId: string) => {
@@ -226,9 +219,9 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
       }));
     } catch (error) {
       console.error("Error updating comment:", error);
-      set({
-        error: error.response?.data?.message || "Failed to update comment",
-      });
+      // set({
+      //   error: error.response?.data?.message || "Failed to update comment",
+      // });
       throw error;
     }
   },

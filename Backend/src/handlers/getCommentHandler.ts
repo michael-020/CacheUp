@@ -68,9 +68,7 @@ export const getCommentHandler = async (req: Request, res: Response) => {
             }
         }));
 
-        res.status(200).json({
-            comments: processedComments
-        });
+        res.status(200).json(processedComments);
     } catch (error) {
         console.error("Error while getting comments from a post", error);
         res.status(500).json({

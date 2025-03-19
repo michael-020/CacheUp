@@ -33,19 +33,18 @@ export const uploadCommentHandler = async (req: Request, res: Response) => {
             return
         }
 
-        const username = user.username
-        const profilePicture = user.profilePicture
-
         const processedComment = {
+            _id: post.comments[post.comments.length - 1]._id,
             content,
-            username,
-            profilePicture
-        }
+            date: new Date(),
+            user: {
+              _id: user._id,
+              username: user.username,
+              profileImagePath: user.profilePicture, 
+            },
+          };
 
-        res.status(200).json({
-            message: "Comment added successfully", 
-            processedComment
-        })
+        res.status(200).json(processedComment)
     }
     catch (e) {
         console.error("Error while uploading a comment", e)

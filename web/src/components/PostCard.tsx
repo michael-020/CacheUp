@@ -4,7 +4,9 @@ import MessageIcon from "../icons/MessageIcon";
 import SaveIcon from "../icons/SaveIcon";
 import { usePostStore } from "../stores/PostStore/usePostStore";
 import Threedot from "../icons/Threedot";
-import { Post } from "../lib/utils";
+import { Comment, Post } from "../lib/utils";
+import { axiosInstance } from "@/lib/axios";
+import { Loader } from "lucide-react";
 
 interface PostCardProps {
   post: Post;
@@ -12,20 +14,35 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post, isAdmin }: PostCardProps) {
-  const { toggleLike, toggleSave, addComment,fetchPosts } = usePostStore();
+  const { toggleLike, toggleSave, addComment, isUplaodingComment } = usePostStore();
   const [showCommentInput, setShowCommentInput] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [showReport, setShowReport] = useState(false);
   const { reportPost, unReportPost } = usePostStore();
+  const [comments, setComments] = useState<Comment[]>([])
 
-  const handleCommentSubmit = () => {
+  const getComments = async (postId: string) => {
+    const res = await axiosInstance.get(`/post/comment/${postId}`)
+    setComments(res.data)
+    console.log("comments: ", comments)
+  }
+
+  const handleCommentSubmit = async () => {
     if (commentText.trim()) {
-      addComment(post._id, commentText);
-      setCommentText("");
-      setShowCommentInput(false);
+      // Force TypeScript to treat the return as unknown first, then as Comment
+      const result = await addComment(post._id, commentText);
+      const newComment = (result as unknown) as Comment | null;
+      
+      if (newComment) {
+        setComments((prevComments) => [newComment, ...prevComments]);
+        setCommentText("");
+      } else {
+        console.error("Failed to add comment.");
+        // Fallback to refreshing comments
+        await getComments(post._id);
+      }
     }
   };
-
   useEffect(() => {
     const handleClickOutside = (e: any) => {
       if (!e.target.closest(".relative")) {
@@ -35,7 +52,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [comments]);
 
   return (
     <div
@@ -144,6 +161,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
           onClick={(e) => {
             e.stopPropagation();
             setShowCommentInput(!showCommentInput);
+            getComments(post._id)
           }}
         >
           <MessageIcon />
@@ -180,37 +198,39 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
                   e.stopPropagation();
                   handleCommentSubmit();
                 }}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
+                className={`px-4 py-2 ${isUplaodingComment ? "bg-blue-300": "bg-blue-500"} text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors`}
+                disabled={isUplaodingComment}
               >
-                Post Comment
+                {isUplaodingComment ? <div className="px-10">
+                  <Loader className="animate-spin size-5" />
+                </div>  : "Post Comment"}
               </button>
             </div>
           </div>
 
-          {post.comments.length > 0 && (
+          {comments.length > 0 && (
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-3">
-              {post.comments.filter(comment => comment?._id).map((comment) => (
+              {comments.filter(comment => comment?._id).map((comment) => (
                 <div
                   key={comment._id}
                   className="bg-white p-3 rounded-md border border-gray-100 group relative"
                 >
-                  <div>{JSON.stringify(comment)}</div>
                   {/* Comment Header with User Info */}
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center text-xs text-gray-500">
                       <img
                         src={
-                          comment.user?.userImagePath || "/default-avatar.png"
+                          comment.user.profileImagePath || "/avatar.jpeg"
                         }
                         className="w-5 h-5 rounded-full mr-2"
-                        alt={comment.user?.username}
+                        alt={comment.user.username}
                       />
                       <span className="font-semibold text-gray-700">
                         {comment.user.username}
                       </span>
                       <span className="mx-2">•</span>
                       <span className="text-xs">
-                        {JSON.stringify(comment.date)}
+                        {new Date(comment.date).toLocaleDateString()}
                       </span>
                     </div>
                   </div>
