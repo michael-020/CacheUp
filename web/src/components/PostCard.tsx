@@ -23,7 +23,6 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
       addComment(post._id, commentText);
       setCommentText("");
       setShowCommentInput(false);
-      
     }
   };
 
@@ -191,11 +190,11 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
           {post.comments.length > 0 && (
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-3">
               {post.comments.filter(comment => comment?._id).map((comment) => (
-                
                 <div
                   key={comment._id}
                   className="bg-white p-3 rounded-md border border-gray-100 group relative"
                 >
+                  <div>{JSON.stringify(comment)}</div>
                   {/* Comment Header with User Info */}
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center text-xs text-gray-500">
@@ -207,68 +206,17 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
                         alt={comment.user?.username}
                       />
                       <span className="font-semibold text-gray-700">
-                        {comment.user?.username||"user"}
+                        {comment.user.username}
                       </span>
                       <span className="mx-2">•</span>
                       <span className="text-xs">
-                        {new Date(comment.date).toLocaleDateString()}
+                        {JSON.stringify(comment.date)}
                       </span>
                     </div>
-
-                    {/* Edit/Delete Buttons (only show for comment owner) */}
-                    {/* {currentUser?._id === comment.user?._id && (
-                      <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEditClick(comment._id, comment.content);
-                          }}
-                          className="text-blue-500 hover:text-blue-600 text-xs"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteClick(comment._id);
-                          }}
-                          className="text-red-500 hover:text-red-600 text-xs"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    )} */}
                   </div>
-
-                  
-                  {/* {editingCommentId === comment._id ? (
-                    <>
-                      <textarea
-                        value={editCommentText}
-                        onChange={(e) => setEditCommentText(e.target.value)}
-                        className="w-full border rounded-lg p-2 text-sm mb-2"
-                        autoFocus
-                      />
-                      <div className="flex justify-end gap-2">
-                        <button
-                          onClick={() => setEditingCommentId(null)}
-                          className="px-3 py-1 text-xs text-gray-600 hover:bg-gray-100 rounded"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          onClick={() => handleUpdateComment(comment._id)}
-                          className="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600"
-                        >
-                          Save
-                        </button>
-                      </div>
-                    </>
-                  ) : (
-                    <p className="text-sm text-gray-800 leading-snug">
-                      {comment.content}
-                    </p>
-                  )} */}
+                  <div>
+                    {comment.content}
+                  </div>
                 </div>
               ))}
             </div>

@@ -56,7 +56,7 @@ export const getCommentHandler = async (req: Request, res: Response) => {
                     user: {
                         _id: new mongo.ObjectId(commentUser._id as string),
                         username: commentUser.username,
-                        profileImagePath: commentUser.profilePicture || undefined
+                        profileImagePath: commentUser.profilePicture
                     }
                 } as ProcessedComment;
             } catch (userError) {
@@ -69,7 +69,6 @@ export const getCommentHandler = async (req: Request, res: Response) => {
         }));
 
         res.status(200).json({
-            msg: "Comments fetched Successfully", 
             comments: processedComments
         });
     } catch (error) {
