@@ -7,6 +7,7 @@ import Threedot from "../icons/Threedot";
 import { Comment, Post } from "../lib/utils";
 import { axiosInstance } from "@/lib/axios";
 import { Loader } from "lucide-react";
+import CommentCard from "./CommentCard";
 
 interface PostCardProps {
   post: Post;
@@ -211,32 +212,8 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
           {comments.length > 0 && (
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-3">
               {comments.filter(comment => comment?._id).map((comment) => (
-                <div
-                  key={comment._id}
-                  className="bg-white p-3 rounded-md border border-gray-100 group relative"
-                >
-                  {/* Comment Header with User Info */}
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center text-xs text-gray-500">
-                      <img
-                        src={
-                          comment.user.profileImagePath || "/avatar.jpeg"
-                        }
-                        className="w-5 h-5 rounded-full mr-2"
-                        alt={comment.user.username}
-                      />
-                      <span className="font-semibold text-gray-700">
-                        {comment.user.username}
-                      </span>
-                      <span className="mx-2">•</span>
-                      <span className="text-xs">
-                        {new Date(comment.date).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </div>
-                  <div>
-                    {comment.content}
-                  </div>
+                <div key={comment._id}>
+                    <CommentCard user={comment.user} content={comment.content} date={comment.date} _id={comment._id} />
                 </div>
               ))}
             </div>
