@@ -6,8 +6,8 @@ import { usePostStore } from "../stores/PostStore/usePostStore";
 import Threedot from "../icons/Threedot";
 import { Comment, Post } from "../lib/utils";
 import { axiosInstance } from "@/lib/axios";
-import { Loader } from "lucide-react";
-import CommentCard from "./CommentCard";
+import { Loader, Pencil, SendHorizonal, Trash } from "lucide-react";
+import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 
 interface PostCardProps {
   post: Post;
@@ -15,9 +15,12 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post, isAdmin }: PostCardProps) {
-  const { toggleLike, toggleSave, addComment, isUplaodingComment } = usePostStore();
+  const { toggleLike, toggleSave, addComment, isUplaodingComment, updateComment, deleteComment } = usePostStore();
+  const { authUser } = useAuthStore()
   const [showCommentInput, setShowCommentInput] = useState(false);
   const [commentText, setCommentText] = useState("");
+  const [editCommentText, setEditCommentText] = useState("");
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [showReport, setShowReport] = useState(false);
   const { reportPost, unReportPost } = usePostStore();
   const [comments, setComments] = useState<Comment[]>([])
@@ -30,7 +33,6 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
 
   const handleCommentSubmit = async () => {
     if (commentText.trim()) {
-      // Force TypeScript to treat the return as unknown first, then as Comment
       const result = await addComment(post._id, commentText);
       const newComment = (result as unknown) as Comment | null;
       
@@ -39,11 +41,46 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
         setCommentText("");
       } else {
         console.error("Failed to add comment.");
-        // Fallback to refreshing comments
         await getComments(post._id);
       }
     }
   };
+
+  async function deleteCommentHandler(postId: string, commentId: string) {
+    await deleteComment(postId, commentId)
+    setComments((prevComments) => 
+      prevComments.filter((comment) => comment._id !== commentId) 
+    );
+  }
+
+  async function editCommentHandler(commentId: string, content: string) {
+    if (editingCommentId === commentId) {
+      setEditingCommentId(null);
+      setEditCommentText("");
+    } else {
+      setEditingCommentId(commentId);
+      setEditCommentText(content);
+    }
+  }
+
+  async function submitEditedComment(postId: string, commentId: string) {
+    if (editCommentText.trim()) {
+      await updateComment(postId, commentId, editCommentText);
+      
+      setComments((prevComments) => 
+        prevComments.map((comment) => 
+          comment._id === commentId 
+            ? { ...comment, content: editCommentText } 
+            : comment
+        )
+      );
+      
+      // Reset edit state
+      setEditingCommentId(null);
+      setEditCommentText("");
+    }
+  }
+
   useEffect(() => {
     const handleClickOutside = (e: any) => {
       if (!e.target.closest(".relative")) {
@@ -183,7 +220,6 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
       {/* Comment Section */}
       {showCommentInput && (
         <div className="mt-4 space-y-4" data-comment-section>
-          {/* Comment input section remains the same */}
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
             <textarea
               value={commentText}
@@ -212,9 +248,86 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
           {comments.length > 0 && (
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-3">
               {comments.filter(comment => comment?._id).map((comment) => (
-                <div key={comment._id}>
-                    <CommentCard user={comment.user} content={comment.content} date={comment.date} _id={comment._id} />
-                </div>
+                <div
+                  key={comment._id}
+                  className="bg-white p-3 rounded-md border border-gray-100 group relative"
+                >
+                {editingCommentId === comment._id ? (
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center text-xs text-gray-500">
+                        <img
+                          src={
+                            comment.user.profileImagePath || "/avatar.jpeg"
+                          }
+                          className="w-5 h-5 rounded-full mr-2"
+                          alt={comment.user.username}
+                        />
+                        <span className="font-semibold text-gray-700">
+                          {comment.user.username}
+                        </span>
+                        <span className="mx-2">•</span>
+                        <span className="text-xs">
+                          {new Date(comment.date).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="w-full pt-1 flex gap-2">
+                      <input 
+                        type="text" 
+                        className="px-2 py-1 placeholder:text-sm border rounded-lg w-full" 
+                        placeholder="Edit your comment..."
+                        value={editCommentText}
+                        onChange={(e) => setEditCommentText(e.target.value)}
+                      />
+                      <button 
+                        className="bg-blue-500 p-2 rounded-md"
+                        onClick={() => submitEditedComment(post._id, comment._id)}
+                      >
+                        <SendHorizonal className="size-5 text-white" /> 
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center text-xs text-gray-500">
+                        <img
+                          src={
+                            comment.user.profileImagePath || "/avatar.jpeg"
+                          }
+                          className="w-5 h-5 rounded-full mr-2"
+                          alt={comment.user.username}
+                        />
+                        <span className="font-semibold text-gray-700">
+                          {comment.user.username}
+                        </span>
+                        <span className="mx-2">•</span>
+                        <span className="text-xs">
+                          {new Date(comment.date).toLocaleDateString()}
+                        </span>
+                      </div>
+                      {authUser?._id === comment.user._id && (
+                        <div className="flex gap-3">
+                          <button
+                            onClick={() => deleteCommentHandler(post._id, comment._id)}
+                          >
+                            <Trash className="text-red-600 size-4" />
+                          </button>
+                          <button
+                            onClick={() => editCommentHandler(comment._id, comment.content)}
+                          >
+                            <Pencil className="text-blue-400 size-4" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      {comment.content}
+                    </div>
+                  </div>
+                )}
+              </div>
               ))}
             </div>
           )}

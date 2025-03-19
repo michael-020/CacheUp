@@ -6,6 +6,8 @@ export interface PostState {
   isFetchingPosts: boolean;
   isUploadingPost: boolean;
   isUplaodingComment: boolean;
+  isUpdatingComment: boolean;
+  isDeletingComment: boolean;
   error: string | null;
 }
 
