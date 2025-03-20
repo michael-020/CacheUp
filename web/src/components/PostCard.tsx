@@ -8,6 +8,8 @@ import { Comment, Post } from "../lib/utils";
 import { axiosInstance } from "@/lib/axios";
 import { Loader } from "lucide-react";
 import CommentCard from "./CommentCard";
+import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
+import { useNavigate } from "react-router-dom";
 
 interface PostCardProps {
   post: Post;
@@ -20,20 +22,22 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
   const [commentText, setCommentText] = useState("");
   const [showReport, setShowReport] = useState(false);
   const { reportPost, unReportPost } = usePostStore();
-  const [comments, setComments] = useState<Comment[]>([])
+  const [comments, setComments] = useState<Comment[]>([]);
+  const { authUser } = useAuthStore();
+  const navigate = useNavigate();
 
   const getComments = async (postId: string) => {
-    const res = await axiosInstance.get(`/post/comment/${postId}`)
-    setComments(res.data)
-    console.log("comments: ", comments)
-  }
+    const res = await axiosInstance.get(`/post/comment/${postId}`);
+    setComments(res.data);
+    console.log("comments: ", comments);
+  };
 
   const handleCommentSubmit = async () => {
     if (commentText.trim()) {
       // Force TypeScript to treat the return as unknown first, then as Comment
       const result = await addComment(post._id, commentText);
-      const newComment = (result as unknown) as Comment | null;
-      
+      const newComment = result as unknown as Comment | null;
+
       if (newComment) {
         setComments((prevComments) => [newComment, ...prevComments]);
         setCommentText("");
@@ -66,7 +70,13 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
-          <div className="size-12 rounded-full border-2 border-white shadow-sm overflow-hidden mr-3">
+          <div
+            className="size-12 rounded-full border-2 border-white shadow-sm overflow-hidden mr-3 cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/profile/${post.postedBy}`);
+            }}
+          >
             <img
               src={post.userImagePath ? post.userImagePath : "/avatar.jpeg"}
               alt="Profile"
@@ -74,7 +84,13 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
             />
           </div>
           <div className="flex flex-col">
-            <span className="font-semibold text-gray-800 text-base">
+            <span
+              className="font-semibold text-gray-800 text-base cursor-pointer hover:underline"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/profile/${post.postedBy}`);
+              }}
+            >
               {post.username}
             </span>
           </div>
@@ -92,7 +108,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
             <Threedot />
           </button>
 
-          {showReport && !isAdmin && post.postedBy !== authUser?._id &&(
+          {showReport && !isAdmin && post.postedBy !== authUser?._id && (
             <div className=" bg-white border border-gray-200 rounded-lg shadow-xl z-[5] overflow-hidden w-48 absolute">
               <button
                 onClick={async (e) => {
@@ -162,7 +178,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
           onClick={(e) => {
             e.stopPropagation();
             setShowCommentInput(!showCommentInput);
-            getComments(post._id)
+            getComments(post._id);
           }}
         >
           <MessageIcon />
@@ -199,23 +215,36 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
                   e.stopPropagation();
                   handleCommentSubmit();
                 }}
-                className={`px-4 py-2 ${isUplaodingComment ? "bg-blue-300": "bg-blue-500"} text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors`}
+                className={`px-4 py-2 ${
+                  isUplaodingComment ? "bg-blue-300" : "bg-blue-500"
+                } text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors`}
                 disabled={isUplaodingComment}
               >
-                {isUplaodingComment ? <div className="px-10">
-                  <Loader className="animate-spin size-5" />
-                </div>  : "Post Comment"}
+                {isUplaodingComment ? (
+                  <div className="px-10">
+                    <Loader className="animate-spin size-5" />
+                  </div>
+                ) : (
+                  "Post Comment"
+                )}
               </button>
             </div>
           </div>
 
           {comments.length > 0 && (
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-3">
-              {comments.filter(comment => comment?._id).map((comment) => (
-                <div key={comment._id}>
-                    <CommentCard user={comment.user} content={comment.content} date={comment.date} _id={comment._id} />
-                </div>
-              ))}
+              {comments
+                .filter((comment) => comment?._id)
+                .map((comment) => (
+                  <div key={comment._id}>
+                    <CommentCard
+                      user={comment.user}
+                      content={comment.content}
+                      date={comment.date}
+                      _id={comment._id}
+                    />
+                  </div>
+                ))}
             </div>
           )}
         </div>

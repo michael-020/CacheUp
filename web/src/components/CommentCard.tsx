@@ -1,5 +1,5 @@
 import { Comment } from '@/lib/utils'
-
+import { useNavigate } from 'react-router-dom' 
 
 const CommentCard = (comment: {
     _id: string;
@@ -11,6 +11,14 @@ const CommentCard = (comment: {
   };
   date: Date;      
 }) => {
+
+  const navigate = useNavigate();
+  const handleProfileClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/profile/${comment.user._id}`);
+  };
+
+
   return (
     <div>
         <div
@@ -23,10 +31,11 @@ const CommentCard = (comment: {
                 src={
                     comment.user.profileImagePath || "/avatar.jpeg"
                 }
-                className="w-5 h-5 rounded-full mr-2"
+                className="w-5 h-5 rounded-full mr-2 cursor-pointer"
                 alt={comment.user.username}
+                onClick={handleProfileClick}
                 />
-                <span className="font-semibold text-gray-700">
+                <span className="font-semibold text-gray-700 cursor-pointer"  onClick={handleProfileClick}>
                 {comment.user.username}
                 </span>
                 <span className="mx-2">•</span>
