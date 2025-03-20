@@ -8,6 +8,7 @@ import { Comment, Post } from "../lib/utils";
 import { axiosInstance } from "@/lib/axios";
 import { Loader, Pencil, SendHorizonal, Trash } from "lucide-react";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
+import { useNavigate } from "react-router-dom";
 
 interface PostCardProps {
   post: Post;
@@ -24,7 +25,6 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
   const [showReport, setShowReport] = useState(false);
   const { reportPost, unReportPost } = usePostStore();
   const [comments, setComments] = useState<Comment[]>([]);
-  const { authUser } = useAuthStore();
   const navigate = useNavigate();
 
   const getComments = async (postId: string) => {
@@ -286,7 +286,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
                             comment.user.profileImagePath || "/avatar.jpeg"
                           }
                           className="w-5 h-5 rounded-full mr-2"
-                          alt={comment.user.username}
+                          alt={comment.user.username}                          
                         />
                         <span className="font-semibold text-gray-700">
                           {comment.user.username}
@@ -321,10 +321,19 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
                           src={
                             comment.user.profileImagePath || "/avatar.jpeg"
                           }
-                          className="w-5 h-5 rounded-full mr-2"
+                          className="w-5 h-5 rounded-full mr-2 cursor-pointer"
                           alt={comment.user.username}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/profile/${comment.user._id}`);
+                          }}
                         />
-                        <span className="font-semibold text-gray-700">
+                        <span className="font-semibold text-gray-700 cursor-pointer"
+                         onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/profile/${comment.user._id}`);
+                        }}
+                        >
                           {comment.user.username}
                         </span>
                         <span className="mx-2">•</span>
