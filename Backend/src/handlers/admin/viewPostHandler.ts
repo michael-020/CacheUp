@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
-import { postModel, userModel } from "../models/db";
+
 import { mongo } from "mongoose";
+import { postModel } from "../../models/db";
 
 
 const viewPostHandler: Router = Router();
@@ -9,7 +10,7 @@ const viewPostHandler: Router = Router();
 // get all posts
 viewPostHandler.get("/", async (req: Request, res: Response) => {
     try{
-        const userId = req.user._id
+        // const userId = req.user._id
         const allPosts = await postModel.find({}).sort({ createdAt: -1});
 
         if(!allPosts){
@@ -19,12 +20,12 @@ viewPostHandler.get("/", async (req: Request, res: Response) => {
         }
 
         const processedPosts = allPosts.map(post => {
-            const isReported = post.reportedBy.includes(new mongo.ObjectId(userId?.toString())); // to check if the logged in user has reported a certain post or not
+            // const isReported = post.reportedBy.includes(new mongo.ObjectId(userId?.toString())); // to check if the logged in user has reported a certain post or not
             
             return {
                 ...post._doc,
-                isReported,
-                reportButtonText: isReported ? 'Unreport' : 'Report',
+                // isReported,
+                // reportButtonText: isReported ? 'Unreport' : 'Report',
                 reportCount: post.reportedBy.length
             };
         });

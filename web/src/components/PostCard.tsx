@@ -28,10 +28,15 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
   const navigate = useNavigate();
 
   const getComments = async (postId: string) => {
-    const res = await axiosInstance.get(`/post/comment/${postId}`);
-    setComments(res.data);
-    console.log("comments: ", comments);
-  };
+    if(isAdmin){
+      const res = await axiosInstance.get(`/admin/comment/${postId}`)
+      setComments(res.data);
+    }
+    else {
+      const res = await axiosInstance.get(`/post/comment/${postId}`)
+      setComments(res.data)
+    }
+  }
 
   const handleCommentSubmit = async () => {
     if (commentText.trim()) {
@@ -327,7 +332,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
                           {new Date(comment.date).toLocaleDateString()}
                         </span>
                       </div>
-                      {authUser?._id === comment.user._id && (
+                      {authUser?._id === comment.user._id || isAdmin && (
                         <div className="flex gap-3">
                           <button
                             onClick={() => deleteCommentHandler(post._id, comment._id)}
@@ -337,7 +342,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
                           <button
                             onClick={() => editCommentHandler(comment._id, comment.content)}
                           >
-                            <Pencil className="text-blue-400 size-4" />
+                            <Pencil className={`text-blue-400 size-4 ${isAdmin ? "hidden" : "block" }`} />
                           </button>
                         </div>
                       )}

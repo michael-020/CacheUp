@@ -1,8 +1,8 @@
 import { Router } from "express";
 import reportPostHandler from "../handlers/reportPostHandler";
-import viewPostHandler from "../handlers/viewPostHandler";
+import viewPostHandler from "../handlers/admin/viewPostHandler";
 import postRouter from "./posts";
-import viewProfileHanler from "../handlers/viewProfileHandler";
+import viewProfileHanler from "../handlers/viewPostHandler";
 import { createAdminHandler } from "../handlers/createAdminHandler";
 import { adminLoginHandler } from "../handlers/adminLoginHandler";
 import { adminMiddleware } from "../middlewares/auth";
