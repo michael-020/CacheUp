@@ -66,20 +66,20 @@ export default function Share() {
 
 
   return (
-    <div className="w-full md:w-[800px] mx-auto mb-6">
+    <div className="w-full md:w-[700px] mx-auto mb-6">
       <div className="relative">
         <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-4">
-          <div className="border-b pb-4">
+          <div className="border-b pb-1">
             <textarea
               className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="What's on your mind?"
-              rows={3}
+              rows={1}
               value={text}
               onChange={handleTextChange}
               maxLength={200}
               readOnly={isLoading}
             />
-            <div className="text-right text-xs text-gray-500 mt-1">
+            <div className="text-right text-xs text-gray-500 ">
               {text.length}/200
             </div>
           </div>
@@ -124,7 +124,7 @@ export default function Share() {
 
             <button
               type="submit"
-              className="px-4 py-2 bg-yellow-400 text-black rounded-md font-semibold flex items-center space-x-2 hover:bg-yellow-300 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-1 bg-yellow-400 text-black rounded-md font-semibold flex items-center space-x-2 hover:bg-yellow-300 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isLoading || (!text.trim() && !image)}
             >
               {isUploadingPost ? (

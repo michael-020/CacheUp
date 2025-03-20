@@ -11,6 +11,8 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
   reportedPosts: [],
   isUploadingPost: false,
   isUplaodingComment: false,
+  isUpdatingComment: false,
+  isDeletingComment: false,
   error: null,
 
   setError: (error) => set({ error }),
@@ -157,7 +159,7 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
       
       return newComment;
     } catch (error) { 
-      console.error("Error creating post:", error);
+      console.error("Error uploading comment:", error);
       if (error instanceof AxiosError && error.response?.data?.msg) {
           toast.error(error.response.data.msg as string);
       } else {
@@ -170,6 +172,7 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
   },
 
   deleteComment: async (postId: string, commentId: string) => {
+    set({isDeletingComment: true})
     try {
       await axiosInstance.delete(`/post/comment/${postId}/${commentId}`);
 
@@ -185,9 +188,16 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
             : post
         ),
       }));
+      toast.success("Comment deleted successfully")
     } catch (error) {
-      console.error("Error adding comment:", error);
-      // set({ error: error.response?.data?.message || 'Failed to add comment' });
+      console.error("Error deleting comment:", error);
+      if (error instanceof AxiosError && error.response?.data?.msg) {
+          toast.error(error.response.data.msg as string);
+      } else {
+          toast.error("An unexpected error occurred.");
+      }
+    } finally {
+      set({isDeletingComment: false})
     }
   },
   
@@ -196,6 +206,7 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
     commentId: string,
     newContent: string
   ) => {
+    set({isUpdatingComment: true})
     try {
       const res = await axiosInstance.put(
         `/post/comment/${postId}/${commentId}`,
@@ -217,12 +228,16 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
           } : post
         )
       }));
+      toast.success("Comment Edited Successfully")
     } catch (error) {
       console.error("Error updating comment:", error);
-      // set({
-      //   error: error.response?.data?.message || "Failed to update comment",
-      // });
-      throw error;
+      if (error instanceof AxiosError && error.response?.data?.msg) {
+          toast.error(error.response.data.msg as string);
+      } else {
+          toast.error("An unexpected error occurred.");
+      }
+    } finally {
+      set({isUpdatingComment: false})
     }
   },
 
