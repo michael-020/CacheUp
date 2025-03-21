@@ -1,7 +1,6 @@
 import { Briefcase, Users, Mail } from 'lucide-react';
 import { IUser } from '@/lib/utils';
 import { Link } from 'react-router-dom';
-import { useAuthStore } from "../stores/AuthStore/useAuthStore";
 
 interface UserProfile extends IUser {
   profilePicture?: string;
@@ -14,12 +13,9 @@ interface ProfileCardProps {
 }
 
 export const ProfileCard = ({ user, isOwnProfile }: ProfileCardProps) => {
-  const { authUser } = useAuthStore();
+  if (!user) return null;
 
-  if (!user && !authUser) return null;
-  if (!authUser) return null;
-
-  const { profilePicture, name, username, email, bio, department, friends } = authUser;
+  const { profilePicture, name, username, email, bio, department, friends } = user;
 
   return (
     <div className="fixed left-0 w-64 p-3 overflow-y-auto mt-16 ml-8" >
