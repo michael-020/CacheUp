@@ -8,6 +8,7 @@ import { Comment, Post } from "../lib/utils";
 import { axiosInstance } from "@/lib/axios";
 import { Loader, Pencil, SendHorizonal, Trash } from "lucide-react";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
+import { useNavigate } from "react-router-dom";
 
 interface PostCardProps {
   post: Post;
@@ -24,7 +25,6 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
   const [showReport, setShowReport] = useState(false);
   const { reportPost, unReportPost } = usePostStore();
   const [comments, setComments] = useState<Comment[]>([]);
-  const { authUser } = useAuthStore();
   const navigate = useNavigate();
 
   const getComments = async (postId: string) => {
