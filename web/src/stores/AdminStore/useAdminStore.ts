@@ -36,11 +36,7 @@ export const useAdminStore = create<AdminStates & AdminActions>((set) => ({
             const res = await axiosInstance.get("/admin/check");
             set({authAdmin: res.data})
         } catch (error) {
-            if (error instanceof AxiosError && error.response?.data?.msg) {
-                toast.error(error.response.data.msg as string);
-            } else {
-                toast.error("An unexpected error occurred.");
-            }
+            console.error("Not logged in", error)
             set({authAdmin: null})
         } finally {
             set({isAdminCheckingAuth: false})
