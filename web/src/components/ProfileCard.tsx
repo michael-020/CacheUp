@@ -10,15 +10,16 @@ interface UserProfile extends IUser {
 interface ProfileCardProps {
   user: UserProfile | null | undefined;
   isOwnProfile: boolean;
+  className?: string;
 }
 
-export const ProfileCard = ({ user, isOwnProfile }: ProfileCardProps) => {
+export const ProfileCard = ({ user, isOwnProfile,className  }: ProfileCardProps) => {
   if (!user) return null;
 
   const { profilePicture, name, username, email, bio, department, friends } = user;
 
   return (
-    <div className="fixed left-0 w-64 p-3 overflow-y-auto mt-16 ml-8" >
+    <div className={`${className || 'fixed left-0 w-64 p-3 overflow-y-auto mt-16 ml-8'}`}>
       <div 
         className={`bg-white rounded-lg shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-xl`}
       >
