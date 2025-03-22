@@ -14,6 +14,7 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
   if (!userInfo) return null;
 
   const { profilePicture, name, username, email, bio, department, friends } = userInfo;
+  const shouldRender = (location.pathname.endsWith("/profile") || isOwnProfile || isAdmin) && location.pathname !== "/" ;
 
   return (
     <div className={`${className || 'fixed left-0 w-64 p-3 overflow-y-auto mt-16 ml-8'}`}>
@@ -61,8 +62,8 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
                 <p className="text-xs text-gray-700">{friends?.length || 0}</p>
               </div>
             </div>
-            {isOwnProfile || location.pathname==="/profile" || isAdmin  && <div className="mb-3 p-2 rounded-md bg-gray-50 border border-gray-100">
-              <div className="flex items-center justify-center gap-1 text-xs text-gray-600">
+            {shouldRender  && <div className="mb-3 p-2 rounded-md bg-gray-50 dark:bg-neutral-600  border border-gray-100">
+              <div className="flex items-center justify-center gap-1 text-xs text-gray-600 dark:text-gray-300">
                 <Mail size={12} className="text-blue-500" />
                 <span>{email}</span>
               </div>

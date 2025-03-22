@@ -45,7 +45,7 @@ export const Profile = () => {
   return (
     <div className="flex gap-6 p-6 w-full h-screen">
       <div className="w-1/4 h-screen fixed p-6 ">
-        <ProfileCard user={userInfo} isOwnProfile={isOwnProfile} />
+        <ProfileCard userInfo={userInfo} isOwnProfile={isOwnProfile} />
       </div>
       <div className="bg-white w-3/4 ml-[25%] mt-20 rounded-lg p-4 h-fit">
       <h1 className='text-center text-2xl font-bold'>{isOwnProfile ? "My Posts" : `${userInfo?.name}'s Profile`}</h1>
