@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, MouseEvent } from "react";
 import LikeIcon from "@/icons/LikeIcon";
 import MessageIcon from "../icons/MessageIcon";
 import SaveIcon from "../icons/SaveIcon";
@@ -14,29 +14,34 @@ import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
 interface PostCardProps {
   post: Post;
   isAdmin?: boolean;
-  onPostDelete?: (postId: string) => void; 
 }
 
-export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) {
+export default function ReportedPostFeed({ post, isAdmin }: PostCardProps) {
   const { toggleLike, toggleSave, addComment, isUplaodingComment, updateComment, deleteComment } = usePostStore();
   const { authUser } = useAuthStore()
   const [showCommentInput, setShowCommentInput] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [editCommentText, setEditCommentText] = useState("");
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
-  const [showReport, setShowReport] = useState(false);
-  const { reportPost, unReportPost } = usePostStore();
+  const [showDelete, setShowDelete] = useState(false);
+  const { isDeletingPost, deletePost } = useAdminStore()
   const [comments, setComments] = useState<Comment[]>([]);
   const navigate = useNavigate();
 
+  async function deletePosthandler(postId: string, e: MouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    e.stopPropagation();
+    await deletePost({id: postId});
+  }
+
   const getComments = async (postId: string) => {
     if(isAdmin){
-      const res = await axiosInstance.get(`/admin/comment/${postId}`)
+      const res = await axiosInstance.get(`/admin/comment/${postId}`);
       setComments(res.data);
     }
     else {
-      const res = await axiosInstance.get(`/post/comment/${postId}`)
-      setComments(res.data)
+      const res = await axiosInstance.get(`/post/comment/${postId}`);
+      setComments(res.data);
     }
   }
 
@@ -56,13 +61,11 @@ export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) 
   };
 
   async function deleteCommentHandler(postId: string, commentId: string) {
-    await deleteComment(postId, commentId)
+    await deleteComment(postId, commentId);
     setComments((prevComments) => 
       prevComments.filter((comment) => comment._id !== commentId) 
     );
   }
-
-
 
   async function editCommentHandler(commentId: string, content: string) {
     if (editingCommentId === commentId) {
@@ -95,7 +98,7 @@ export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) 
   useEffect(() => {
     const handleClickOutside = (e: any) => {
       if (!e.target.closest(".relative")) {
-        setShowReport(false);
+        setShowDelete(false);
       }
     };
 
@@ -105,7 +108,7 @@ export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) 
 
   return (
     <div
-      className="max-w-[700px] mx-auto rounded-xl bg-white dark:bg-neutral-800 dark:border-neutral-900 dark:shadow-0 dark:shadow-sm p-4 shadow-lg mb-4 border border-gray-200"
+      className="max-w-[700px] mx-auto rounded-xl bg-white p-4 shadow-lg mb-4 border border-gray-200"
       onClick={(e) => {
         if (!(e.target as HTMLElement).closest("[data-comment-section]")) {
           setShowCommentInput(false);
@@ -115,7 +118,7 @@ export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) 
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
           <div
-            className="size-12 rounded-full border-2 border-white dark:border-gray-500 shadow-sm overflow-hidden mr-3 cursor-pointer"
+            className="size-12 rounded-full border-2 border-white shadow-sm overflow-hidden mr-3 cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               navigate(`/profile/${post.postedBy}`);
@@ -129,7 +132,7 @@ export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) 
           </div>
           <div className="flex flex-col">
             <span
-              className="font-semibold text-gray-800 dark:text-gray-300 text-base cursor-pointer hover:underline"
+              className="font-semibold text-gray-800 text-base cursor-pointer hover:underline"
               onClick={(e) => {
                 e.stopPropagation();
                 navigate(`/profile/${post.postedBy}`);
@@ -140,85 +143,50 @@ export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) 
           </div>
         </div>
 
-        {/* Report Button  */}
+        {/* Report Button */}
         <div className="relative z-10">
           <button
             onClick={(e) => {
               e.stopPropagation();
-              setShowReport(!showReport);
+              setShowDelete(!showDelete);
             }}
-            className="p-1.5 hover:bg-gray-100 rounded-full transition-colors duration-200 -z-10 dark:hover:bg-gray-700 "
+            className="p-1.5 hover:bg-gray-100 rounded-full transition-colors duration-200 -z-10"
           >
             <Threedot />
           </button>
 
-          {showReport && (
-          <div className="bg-white border border-gray-200 dark:bg-neutral-600 dark:border-0 rounded-lg shadow-xl z-[5] overflow-hidden w-48 absolute">
-            {(post.postedBy === authUser?._id || isAdmin) && (
+          {showDelete && !isAdmin && post.postedBy !== authUser?._id && (
+            <div className="bg-white border border-gray-200 rounded-lg shadow-xl z-[5] overflow-hidden w-48 absolute">
               <button
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  try {
-                    if (isAdmin) {
-                      await useAdminStore.getState().deletePost({ postId: post._id });
-                    } else {
-                      await usePostStore.getState().deletePost({ postId: post._id });
-                    }
-                    if (onPostDelete) {
-                      onPostDelete(post._id);
-                    }
-                  } catch (error) {
-                    console.error("Delete post failed:", error);
-                  }
-                  setShowReport(false);
-                }}
-                className="w-full px-4 py-2.5 text-sm text-left flex items-center justify-between text-red-600 hover:bg-red-50 transition-colors duration-150"
-              >
-                <span>Delete Post</span>
-                <Trash className="size-4" />
-              </button>
-            )}
-            
-            {post.postedBy !== authUser?._id && !isAdmin && (
-              <button
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  try {
-                    if (post.isReported) {
-                      await unReportPost(post._id);
-                    } else {
-                      await reportPost(post._id);
-                    }
-                  } catch (error) {
-                    console.error("Report action failed:", error);
-                  }
-                  setShowReport(false);
-                }}
+                onClick={(e) => deletePosthandler(post._id, e)}
                 className={`w-full px-4 py-2.5 text-sm text-left flex items-center justify-between
-                  ${post.isReported ? "text-red-600 hover:bg-red-50" : "text-gray-700 hover:bg-gray-50"}
-                  transition-colors duration-150`}
+                ${
+                  post.isReported
+                    ? "text-red-600 hover:bg-red-50"
+                    : "text-gray-700 hover:bg-gray-50"
+                }
+                transition-colors duration-150`}
               >
-                <span>{post.isReported ? "Unreport Post" : "Report Post"}</span>
+                <span>{"Delete Post"}</span>
                 <span className="text-xs font-medium text-gray-400">
                   {post.reportCount || 0}
                 </span>
               </button>
-            )}
-          </div>
-        )}
-              </div>
             </div>
+          )}
+        </div>
+      </div>
 
       {/* Text Content */}
       {post.text && (
-        <div className="mb-4 text-gray-800 dark:text-gray-300 text-[15px] leading-relaxed">
+        <div className="mb-4 text-gray-800 text-[15px] leading-relaxed">
           {post.text}
         </div>
       )}
 
       {/* Post Image */}
       {post.postsImagePath && (
-        <div className="rounded-xl overflow-hidden mb-4 border border-gray-100 dark:border-gray-700">
+        <div className="rounded-xl overflow-hidden mb-4 border border-gray-100">
           <img
             src={post.postsImagePath}
             alt="Post content"
@@ -231,10 +199,13 @@ export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) 
       )}
 
       {/* Actions */}
-      <div className="flex items-center text-gray-500 dark:text-neutral-400 dark:border-gray-600 text-sm border-t border-gray-100 pt-3">
+      <div className="flex items-center text-gray-500 text-sm border-t border-gray-100 pt-3">
         <button
-          className="flex items-center mr-6 hover:text-red-600 transition-colors"
-          onClick={() => toggleLike(post._id)}
+          className="flex items-center mr-6 hover:text-red-500 transition-colors"
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleLike(post._id);
+          }}
         >
           <LikeIcon />
           <span className="ml-2 font-medium">{post.likes.length}</span>
@@ -254,7 +225,10 @@ export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) 
 
         <button
           className="ml-auto hover:text-blue-500 transition-colors"
-          onClick={() => toggleSave(post._id)}
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleSave(post._id);
+          }}
         >
           <SaveIcon
             filled={post.isSaved}
@@ -313,7 +287,7 @@ export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) 
                             comment.user.profileImagePath || "/avatar.jpeg"
                           }
                           className="w-5 h-5 rounded-full mr-2"
-                          alt={comment.user.username}                          
+                          alt={comment.user.username}
                         />
                         <span className="font-semibold text-gray-700">
                           {comment.user.username}
@@ -334,7 +308,10 @@ export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) 
                       />
                       <button 
                         className="bg-blue-500 p-2 rounded-md"
-                        onClick={() => submitEditedComment(post._id, comment._id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          submitEditedComment(post._id, comment._id);
+                        }}
                       >
                         <SendHorizonal className="size-5 text-white" /> 
                       </button>
@@ -348,19 +325,10 @@ export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) 
                           src={
                             comment.user.profileImagePath || "/avatar.jpeg"
                           }
-                          className="w-5 h-5 rounded-full mr-2 cursor-pointer"
+                          className="w-5 h-5 rounded-full mr-2"
                           alt={comment.user.username}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/profile/${comment.user._id}`);
-                          }}
                         />
-                        <span className="font-semibold text-gray-700 cursor-pointer"
-                         onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/profile/${comment.user._id}`);
-                        }}
-                        >
+                        <span className="font-semibold text-gray-700">
                           {comment.user.username}
                         </span>
                         <span className="mx-2">•</span>
@@ -368,18 +336,26 @@ export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) 
                           {new Date(comment.date).toLocaleDateString()}
                         </span>
                       </div>
-                      {authUser?._id === comment.user._id || isAdmin && (
+                      {(authUser?._id === comment.user._id || isAdmin) && (
                         <div className="flex gap-3">
                           <button
-                            onClick={() => deleteCommentHandler(post._id, comment._id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteCommentHandler(post._id, comment._id);
+                            }}
                           >
                             <Trash className="text-red-600 size-4" />
                           </button>
-                          <button
-                            onClick={() => editCommentHandler(comment._id, comment.content)}
-                          >
-                            <Pencil className={`text-blue-400 size-4 ${isAdmin ? "hidden" : "block" }`} />
-                          </button>
+                          {!isAdmin && authUser?._id === comment.user._id && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                editCommentHandler(comment._id, comment.content);
+                              }}
+                            >
+                              <Pencil className="text-blue-400 size-4" />
+                            </button>
+                          )}
                         </div>
                       )}
                     </div>

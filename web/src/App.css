@@ -1,5 +1,5 @@
 body {
-    overflow-y: scroll;
-    padding-right: constant(safe-area-inset-right); /* For iOS */
-    padding-right: env(safe-area-inset-right);
-  }
+  overflow-y: scroll;
+  padding-right: constant(safe-area-inset-right); /* For iOS */
+  padding-right: env(safe-area-inset-right);
+}
