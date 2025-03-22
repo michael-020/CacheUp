@@ -17,10 +17,10 @@ export const ProfileCard = ({ isOwnProfile,className  }: ProfileCardProps) => {
   return (
     <div className={`${className || 'fixed left-0 w-64 p-3 overflow-y-auto mt-16 ml-8'}`}>
       <div 
-        className={`bg-white rounded-lg shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-xl`}
+        className={`bg-white dark:bg-neutral-800 dark:border-gray-700 rounded-lg shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-xl`}
       > 
         <div className="p-4">
-          <h2 className="text-base font-semibold text-center text-gray-800 mb-3 pb-2 border-b border-gray-100">
+          <h2 className="text-base font-semibold text-center text-gray-800 dark:text-gray-300 mb-3 pb-2 border-b dark:border-gray-300 border-gray-100">
             {isOwnProfile ? "My Profile" : `${name}'s Profile`}
           </h2>
           
@@ -40,13 +40,13 @@ export const ProfileCard = ({ isOwnProfile,className  }: ProfileCardProps) => {
             </div>
             
             <Link to="/profile" >
-              <h3 className="text-sm font-bold text-gray-800 mb-1 cursor-pointer">{name}</h3>
+              <h3 className="text-sm font-bold text-gray-800 mb-1 cursor-pointer  dark:text-gray-300">{name}</h3>
             </Link>
             <Link to="/profile" >
               <p className="text-xs text-gray-500 mb-3 cursor-pointer">@{username}</p>
             </Link>
            
-            <div className="p-2 mb-3 rounded-md text-xs text-gray-600 bg-gray-50 border border-gray-100">
+            <div className="p-2 mb-3 rounded-md text-xs text-gray-600 bg-gray-50 border border-gray-100 dark:bg-neutral-700 dark:border-gray-700">
               <p className="line-clamp-3">{bio || 'No bio available'}</p>
             </div>
             

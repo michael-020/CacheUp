@@ -68,10 +68,10 @@ export default function Share() {
   return (
     <div className="w-full md:w-[700px] mx-auto mb-6">
       <div className="relative">
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-4">
-          <div className="border-b pb-1">
+        <form onSubmit={handleSubmit} className="bg-white dark:bg-neutral-800 rounded-lg shadow p-4">
+          <div className="border-b dark:border-gray-700 pb-1">
             <textarea
-              className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 dark:placeholder:text-gray-600 dark:bg-neutral-600 focus:ring-blue-500"
               placeholder="What's on your mind?"
               rows={1}
               value={text}
