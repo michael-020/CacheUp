@@ -101,7 +101,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
 
   return (
     <div
-      className="max-w-[700px] mx-auto rounded-xl bg-white p-4 shadow-lg mb-4 border border-gray-200"
+      className="max-w-[700px] mx-auto rounded-xl bg-white dark:bg-neutral-800 dark:border-neutral-900 dark:shadow-0 dark:shadow-sm p-4 shadow-lg mb-4 border border-gray-200"
       onClick={(e) => {
         if (!(e.target as HTMLElement).closest("[data-comment-section]")) {
           setShowCommentInput(false);
@@ -111,7 +111,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
           <div
-            className="size-12 rounded-full border-2 border-white shadow-sm overflow-hidden mr-3 cursor-pointer"
+            className="size-12 rounded-full border-2 border-white dark:border-gray-500 shadow-sm overflow-hidden mr-3 cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               navigate(`/profile/${post.postedBy}`);
@@ -125,7 +125,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
           </div>
           <div className="flex flex-col">
             <span
-              className="font-semibold text-gray-800 text-base cursor-pointer hover:underline"
+              className="font-semibold text-gray-800 dark:text-gray-300 text-base cursor-pointer hover:underline"
               onClick={(e) => {
                 e.stopPropagation();
                 navigate(`/profile/${post.postedBy}`);
@@ -143,13 +143,13 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
               e.stopPropagation();
               setShowReport(!showReport);
             }}
-            className="p-1.5 hover:bg-gray-100 rounded-full transition-colors duration-200 -z-10"
+            className="p-1.5 hover:bg-gray-100 rounded-full transition-colors duration-200 -z-10 dark:hover:bg-gray-700 "
           >
             <Threedot />
           </button>
 
           {showReport && !isAdmin && post.postedBy !== authUser?._id && (
-            <div className=" bg-white border border-gray-200 rounded-lg shadow-xl z-[5] overflow-hidden w-48 absolute">
+            <div className=" bg-white border border-gray-200 dark:bg-neutral-600 dark:border-0 rounded-lg shadow-xl z-[5] overflow-hidden w-48 absolute">
               <button
                 onClick={async (e) => {
                   e.stopPropagation();
@@ -184,14 +184,14 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
 
       {/* Text Content */}
       {post.text && (
-        <div className="mb-4 text-gray-800 text-[15px] leading-relaxed">
+        <div className="mb-4 text-gray-800 dark:text-gray-300 text-[15px] leading-relaxed">
           {post.text}
         </div>
       )}
 
       {/* Post Image */}
       {post.postsImagePath && (
-        <div className="rounded-xl overflow-hidden mb-4 border border-gray-100">
+        <div className="rounded-xl overflow-hidden mb-4 border border-gray-100 dark:border-gray-700">
           <img
             src={post.postsImagePath}
             alt="Post content"
@@ -204,9 +204,9 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
       )}
 
       {/* Actions */}
-      <div className="flex items-center text-gray-500 text-sm border-t border-gray-100 pt-3">
+      <div className="flex items-center text-gray-500 dark:text-neutral-400 dark:border-gray-600 text-sm border-t border-gray-100 pt-3">
         <button
-          className="flex items-center mr-6 hover:text-red-500 transition-colors"
+          className="flex items-center mr-6 hover:text-red-600 transition-colors"
           onClick={() => toggleLike(post._id)}
         >
           <LikeIcon />
@@ -286,7 +286,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
                             comment.user.profileImagePath || "/avatar.jpeg"
                           }
                           className="w-5 h-5 rounded-full mr-2"
-                          alt={comment.user.username}
+                          alt={comment.user.username}                          
                         />
                         <span className="font-semibold text-gray-700">
                           {comment.user.username}
@@ -321,10 +321,19 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
                           src={
                             comment.user.profileImagePath || "/avatar.jpeg"
                           }
-                          className="w-5 h-5 rounded-full mr-2"
+                          className="w-5 h-5 rounded-full mr-2 cursor-pointer"
                           alt={comment.user.username}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/profile/${comment.user._id}`);
+                          }}
                         />
-                        <span className="font-semibold text-gray-700">
+                        <span className="font-semibold text-gray-700 cursor-pointer"
+                         onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/profile/${comment.user._id}`);
+                        }}
+                        >
                           {comment.user.username}
                         </span>
                         <span className="mx-2">•</span>

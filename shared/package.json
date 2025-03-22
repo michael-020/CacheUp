@@ -1,0 +1,20 @@
+{
+  "name": "shared",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "mongoose": "^8.12.2"
+  },
+  "devDependencies": {
+    "@types/mongoose": "^5.11.96",
+    "typescript": "^5.8.2"
+  }
+}

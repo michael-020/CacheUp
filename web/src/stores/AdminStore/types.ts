@@ -1,4 +1,4 @@
-import { IAdmin, Post } from "@/lib/utils";
+import { IAdmin, Post,IUser } from "@/lib/utils";
 
 export type AdminStates = {
     authAdmin: IAdmin | null;
@@ -7,6 +7,9 @@ export type AdminStates = {
     isLoggingOut: boolean;
     posts: Post[];
     isDeletingPost: boolean;
+    userList: IUser[];
+    isFetchingUsers: boolean;
+    userError: string | null;
 }
 
 export type AdminActions = {
@@ -16,4 +19,5 @@ export type AdminActions = {
     getPosts: () => void;
     deletePost: (data: {id: string}) => void;
     deleteComment: () => void;
+    fetchUsers: () => Promise<void>;
 }

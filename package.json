@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "cloudinary": "^2.6.0",
-    "dotenv": "^16.4.7"
-  }
-}

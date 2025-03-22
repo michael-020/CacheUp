@@ -12,6 +12,9 @@ export const useAdminStore = create<AdminStates & AdminActions>((set) => ({
     isLoggingOut: false,
     posts: [],
     isDeletingPost: false,
+    userList: [],
+    isFetchingUsers: false,
+    userError: null,
 
     signin: async (data) => {
         set({isAdminSigninIn: true})
@@ -92,6 +95,21 @@ export const useAdminStore = create<AdminStates & AdminActions>((set) => ({
             set({isDeletingPost: false})
         }
     },
+
+    fetchUsers: async () => {
+        set({ isFetchingUsers: true, userError: null });
+        try {
+          const res = await axiosInstance.get("/admin/view-users");
+          set({ userList: res.data });
+        } catch (error) {
+          const errorMessage = error instanceof AxiosError 
+            ? error.response?.data?.msg 
+            : "Failed to fetch users";
+          set({ userError: errorMessage || "Failed to fetch users" });
+        } finally {
+          set({ isFetchingUsers: false });
+        }
+      },
 
     deleteComment: async () => {
         try {
