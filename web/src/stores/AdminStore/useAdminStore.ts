@@ -78,21 +78,31 @@ export const useAdminStore = create<AdminStates & AdminActions>((set) => ({
         }
     },
 
+    deletePost: async ({ postId }: { postId: string }) => {
+        const { posts } = get();
+        try {
+          set({ isDeletingPost: true });
+          await axiosInstance.delete(`/admin/delete-post/${postId}`);
+          set({
+            posts: posts.filter((post) => post._id !== postId)
+          });
+          
+          toast.success("Post deleted successfully");
     deletePost: async ({id}) => {
         try {
             set({isDeletingPost: true})
             await axiosInstance.delete(`/admin/delete-post/${id}`)
             toast.success("Deleted Successfully")
         } catch (error) {
-            if (error instanceof AxiosError && error.response?.data?.msg) {
-                toast.error(error.response.data.msg as string);
-            } else {
-                toast.error("An unexpected error occurred.");
-            }
+          if (error instanceof AxiosError && error.response?.data?.msg) {
+            toast.error(error.response.data.msg as string);
+          } else {
+            toast.error("An unexpected error occurred.");
+          }
         } finally {
-            set({isDeletingPost: false})
+          set({ isDeletingPost: false });
         }
-    },
+      },
 
     fetchUsers: async () => {
         set({ isFetchingUsers: true, userError: null });

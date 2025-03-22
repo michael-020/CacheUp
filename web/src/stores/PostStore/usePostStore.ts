@@ -14,6 +14,7 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
   isUpdatingComment: false,
   isDeletingComment: false,
   error: null,
+  isPostDeleting: false,
 
   setError: (error) => set({ error }),
   clearError: () => set({ error: null }),
@@ -238,6 +239,27 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
       }
     } finally {
       set({isUpdatingComment: false})
+    }
+  },
+
+  deletePost: async (data) => {
+    set({isPostDeleting: true})
+    try {
+      await axiosInstance.delete(`/post/deletePost/${data.postId}`);
+            set((state) => ({
+        posts: state.posts.filter(post => post._id !== data.postId),
+      }));
+      
+      toast.success("Post deleted successfully")
+    } catch (error) {
+      console.error("Error deleting post:", error);
+      if (error instanceof AxiosError && error.response?.data?.msg) {
+          toast.error(error.response.data.msg as string);
+      } else {
+          toast.error("An unexpected error occurred.");
+      }
+    } finally {
+      set({isPostDeleting: false})
     }
   },
 
