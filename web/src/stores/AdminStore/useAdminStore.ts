@@ -4,7 +4,8 @@ import { axiosInstance } from "@/lib/axios";
 import toast from "react-hot-toast";
 import { AxiosError } from "axios";
 
-export const useAdminStore = create<AdminStates & AdminActions>((set) => ({
+
+export const useAdminStore = create<AdminStates & AdminActions>((set,get) => ({
     authAdmin: null,
     isAdminSigninIn: false,
     isAdminCheckingAuth: false,
@@ -88,11 +89,6 @@ export const useAdminStore = create<AdminStates & AdminActions>((set) => ({
           });
           
           toast.success("Post deleted successfully");
-    deletePost: async ({id}) => {
-        try {
-            set({isDeletingPost: true})
-            await axiosInstance.delete(`/admin/delete-post/${id}`)
-            toast.success("Deleted Successfully")
         } catch (error) {
           if (error instanceof AxiosError && error.response?.data?.msg) {
             toast.error(error.response.data.msg as string);

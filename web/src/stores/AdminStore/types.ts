@@ -19,5 +19,5 @@ export type AdminActions = {
     getPosts: () => void;
     deleteComment: () => void;
     deletePost: ({ postId }: { postId: string }) => Promise<void>;
-
+    fetchUsers: () => void;
 }
