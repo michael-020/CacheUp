@@ -17,7 +17,7 @@ export const ProfileCard = ({ isOwnProfile,className  }: ProfileCardProps) => {
   return (
     <div className={`${className || 'fixed left-0 w-64 p-3 overflow-y-auto mt-16 ml-8'}`}>
       <div 
-        className={`bg-white dark:bg-neutral-800 dark:border-gray-700 rounded-lg shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-xl`}
+        className={`bg-white dark:bg-neutral-800 dark:border-neutral-700 rounded-lg shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-xl`}
       > 
         <div className="p-4">
           <h2 className="text-base font-semibold text-center text-gray-800 dark:text-gray-300 mb-3 pb-2 border-b dark:border-gray-300 border-gray-100">
