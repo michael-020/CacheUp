@@ -8,7 +8,7 @@ import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export const Navbar = () => {
-  const { logout, authUser } = useAuthStore()
+  const { logout, authUser, checkAuth } = useAuthStore()
   const location = useLocation()
   const currentPath = location.pathname;
   const [dark, setDark] = useState<boolean>()
@@ -29,7 +29,8 @@ export const Navbar = () => {
       setDark(false);
       document.body.classList.remove("dark");
     }
-  }, []);
+    checkAuth()
+  }, [checkAuth]);
 
   if(!authUser)
     return <div>
