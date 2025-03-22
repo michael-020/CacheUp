@@ -5,7 +5,7 @@ import SettingsIcon from "../icons/SettingsIcon";
 import UserIcon from "../icons/UserIcon";
 import { useAuthStore } from "../stores/AuthStore/useAuthStore";
 import { Moon, Sun } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const Navbar = () => {
   const { logout, authUser } = useAuthStore()
@@ -14,16 +14,27 @@ export const Navbar = () => {
   const [dark, setDark] = useState<boolean>()
 
   const toggleDarkMode = () => {
-    setDark(!dark);
-    document.body.classList.toggle("dark");
+    setDark((prevState) => !prevState);
+    const newTheme = !dark ? "dark" : "light";
+    document.body.classList.toggle("dark", newTheme === "dark");
+    localStorage.setItem("theme", newTheme);
   }
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+      setDark(true);
+      document.body.classList.add("dark");
+    } else {
+      setDark(false);
+      document.body.classList.remove("dark");
+    }
+  }, []);
 
   if(!authUser)
     return <div>
       You are not logged in
     </div>
-
-  console.log("user image", authUser.profilePicture)
 
   return (
     <div className="h-16 z-50 border-b-2"> 
