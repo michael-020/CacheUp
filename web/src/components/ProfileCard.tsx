@@ -1,30 +1,24 @@
 import { Briefcase, Users, Mail } from 'lucide-react';
-import { IUser } from '@/lib/utils';
-import { Link } from 'react-router-dom';
-
-interface UserProfile extends IUser {
-  profilePicture?: string;
-  friends?: IUser[];
-}
+import { Link, useLocation } from 'react-router-dom';
+import { useAuthStore } from '@/stores/AuthStore/useAuthStore';
 
 interface ProfileCardProps {
-  user: UserProfile | null | undefined;
   isOwnProfile: boolean;
   className?: string;
 }
 
-export const ProfileCard = ({ user, isOwnProfile,className  }: ProfileCardProps) => {
-  if (!user) return null;
+export const ProfileCard = ({ isOwnProfile,className  }: ProfileCardProps) => {
+  const { authUser } = useAuthStore()
+  const location = useLocation();
+  if (!authUser) return null;
 
-  const { profilePicture, name, username, email, bio, department, friends } = user;
+  const { profilePicture, name, username, email, bio, department, friends } = authUser;
 
   return (
     <div className={`${className || 'fixed left-0 w-64 p-3 overflow-y-auto mt-16 ml-8'}`}>
       <div 
         className={`bg-white rounded-lg shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-xl`}
-      >
-        <div className="h-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-t-lg" />
-        
+      > 
         <div className="p-4">
           <h2 className="text-base font-semibold text-center text-gray-800 mb-3 pb-2 border-b border-gray-100">
             {isOwnProfile ? "My Profile" : `${name}'s Profile`}
@@ -32,20 +26,26 @@ export const ProfileCard = ({ user, isOwnProfile,className  }: ProfileCardProps)
           
           <div className="text-center">
             <div className="relative w-16 h-16 mx-auto mb-3">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 to-indigo-400 p-1">
-                <div className="w-full h-full rounded-full overflow-hidden bg-white hover:scale-105 transition-transform duration-300">
-                  <img
-                    className="w-full h-full object-cover"
-                    src={profilePicture || '/avatar.jpeg'}
-                    alt="Profile"
-                  />
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 to-indigo-400 p-0.5  hover:scale-105 cursor-pointer ">
+                <div className="w-full h-full rounded-full overflow-hidden bg-whitetransition-transform duration-300">
+                  <Link to="/profile" >
+                    <img
+                      className="w-full h-full object-cover"
+                      src={profilePicture || '/avatar.jpeg'}
+                      alt="Profile"
+                    />
+                  </Link>
                 </div>
               </div>
             </div>
             
-            <h3 className="text-sm font-bold text-gray-800 mb-1">{name}</h3>
-            <p className="text-xs text-gray-500 mb-3">@{username}</p>
-            
+            <Link to="/profile" >
+              <h3 className="text-sm font-bold text-gray-800 mb-1 cursor-pointer">{name}</h3>
+            </Link>
+            <Link to="/profile" >
+              <p className="text-xs text-gray-500 mb-3 cursor-pointer">@{username}</p>
+            </Link>
+           
             <div className="p-2 mb-3 rounded-md text-xs text-gray-600 bg-gray-50 border border-gray-100">
               <p className="line-clamp-3">{bio || 'No bio available'}</p>
             </div>
@@ -60,13 +60,12 @@ export const ProfileCard = ({ user, isOwnProfile,className  }: ProfileCardProps)
                 <p className="text-xs text-gray-700">{friends?.length || 0}</p>
               </div>
             </div>
-            
-            <div className="mb-3 p-2 rounded-md bg-gray-50 border border-gray-100">
+            {isOwnProfile && location.pathname==="/profile" && <div className="mb-3 p-2 rounded-md bg-gray-50 border border-gray-100">
               <div className="flex items-center justify-center gap-1 text-xs text-gray-600">
                 <Mail size={12} className="text-blue-500" />
                 <span>{email}</span>
               </div>
-            </div>
+            </div>}
 
             {isOwnProfile && (
               <Link to="/edit-profile" >
