@@ -79,9 +79,12 @@ export const useAdminStore = create<AdminStates & AdminActions>((set) => ({
         }
     },
 
-    deletePost: async () => {
+    deletePost: async ({id}) => {
         try {
-            
+            set({isDeletingPost: true})
+            await axiosInstance.delete(`/admin/delete-post/${id}`)
+            toast.success("Deleted Successfully")
+            location.reload()
         } catch (error) {
             if (error instanceof AxiosError && error.response?.data?.msg) {
                 toast.error(error.response.data.msg as string);
@@ -89,7 +92,7 @@ export const useAdminStore = create<AdminStates & AdminActions>((set) => ({
                 toast.error("An unexpected error occurred.");
             }
         } finally {
-            
+            set({isDeletingPost: false})
         }
     },
 
