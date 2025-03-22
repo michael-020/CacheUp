@@ -14,6 +14,7 @@ export type AdminActions = {
     checkAdminAuth: () => void;
     logout: () => void;
     getPosts: () => void;
-    deletePost: () => void;
     deleteComment: () => void;
+    deletePost: ({ postId }: { postId: string }) => Promise<void>;
+
 }

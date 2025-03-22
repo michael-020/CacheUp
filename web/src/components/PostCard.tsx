@@ -9,13 +9,15 @@ import { axiosInstance } from "@/lib/axios";
 import { Loader, Pencil, SendHorizonal, Trash } from "lucide-react";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { useNavigate } from "react-router-dom";
+import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
 
 interface PostCardProps {
   post: Post;
   isAdmin?: boolean;
+  onPostDelete?: (postId: string) => void; 
 }
 
-export default function PostCard({ post, isAdmin }: PostCardProps) {
+export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) {
   const { toggleLike, toggleSave, addComment, isUplaodingComment, updateComment, deleteComment } = usePostStore();
   const { authUser } = useAuthStore()
   const [showCommentInput, setShowCommentInput] = useState(false);
@@ -59,6 +61,8 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
       prevComments.filter((comment) => comment._id !== commentId) 
     );
   }
+
+
 
   async function editCommentHandler(commentId: string, content: string) {
     if (editingCommentId === commentId) {
@@ -136,7 +140,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
           </div>
         </div>
 
-        {/* Report Button */}
+        {/* Report Button  */}
         <div className="relative z-10">
           <button
             onClick={(e) => {
@@ -148,8 +152,34 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
             <Threedot />
           </button>
 
-          {showReport && !isAdmin && post.postedBy !== authUser?._id && (
-            <div className=" bg-white border border-gray-200 rounded-lg shadow-xl z-[5] overflow-hidden w-48 absolute">
+          {showReport && (
+          <div className="bg-white border border-gray-200 rounded-lg shadow-xl z-[5] overflow-hidden w-48 absolute">
+            {(post.postedBy === authUser?._id || isAdmin) && (
+              <button
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  try {
+                    if (isAdmin) {
+                      await useAdminStore.getState().deletePost({ postId: post._id });
+                    } else {
+                      await usePostStore.getState().deletePost({ postId: post._id });
+                    }
+                    if (onPostDelete) {
+                      onPostDelete(post._id);
+                    }
+                  } catch (error) {
+                    console.error("Delete post failed:", error);
+                  }
+                  setShowReport(false);
+                }}
+                className="w-full px-4 py-2.5 text-sm text-left flex items-center justify-between text-red-600 hover:bg-red-50 transition-colors duration-150"
+              >
+                <span>Delete Post</span>
+                <Trash className="size-4" />
+              </button>
+            )}
+            
+            {post.postedBy !== authUser?._id && !isAdmin && (
               <button
                 onClick={async (e) => {
                   e.stopPropagation();
@@ -165,22 +195,19 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
                   setShowReport(false);
                 }}
                 className={`w-full px-4 py-2.5 text-sm text-left flex items-center justify-between
-          ${
-            post.isReported
-              ? "text-red-600 hover:bg-red-50"
-              : "text-gray-700 hover:bg-gray-50"
-          }
-          transition-colors duration-150`}
+                  ${post.isReported ? "text-red-600 hover:bg-red-50" : "text-gray-700 hover:bg-gray-50"}
+                  transition-colors duration-150`}
               >
                 <span>{post.isReported ? "Unreport Post" : "Report Post"}</span>
                 <span className="text-xs font-medium text-gray-400">
                   {post.reportCount || 0}
                 </span>
               </button>
+            )}
+          </div>
+        )}
+              </div>
             </div>
-          )}
-        </div>
-      </div>
 
       {/* Text Content */}
       {post.text && (
