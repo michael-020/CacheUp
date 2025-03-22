@@ -9,6 +9,7 @@ export interface PostState {
   isUpdatingComment: boolean;
   isDeletingComment: boolean;
   error: string | null;
+  isPostDeleting: boolean;
 }
 
 export interface PostActions {
@@ -23,6 +24,8 @@ export interface PostActions {
   setError: (error: string | null) => void;
   clearError: () => void;
 
+  deletePost: (data: {postId: string}) => Promise<void>;
+  
   updateComment: (
     postId: string,
     commentId: string,
