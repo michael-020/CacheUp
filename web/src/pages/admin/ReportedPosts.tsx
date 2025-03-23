@@ -1,30 +1,27 @@
 import AdminLeftbar from "@/components/admin/AdminLeftbar"
 import ReportedPostFeed from "@/components/ReportedPostFeed"
-import { axiosInstance } from "@/lib/axios"
-import { Post } from "@/lib/utils"
-import { useEffect, useState } from "react"
+import { useAdminStore } from "@/stores/AdminStore/useAdminStore"
+import { useEffect } from "react"
 
 const ReportedPosts = () => {
-  const [reportedPosts, setReportedPosts] = useState<Post[]>()
+  const { reportedPosts, getReportedPosts } = useAdminStore()
+
   useEffect(() => {
-    const fetchReprtedPosts = async() => {
-      const res = await axiosInstance.get('/admin/report')
-      setReportedPosts(res.data)
-    }
-    fetchReprtedPosts()
-  },[])
+    getReportedPosts()
+  },[getReportedPosts])
+
   return <div className="min-h-screen">
     <div className="fixed hidden md:block ">
       <AdminLeftbar />
     </div>
-    <div className="mt-20">
-    <div>
+    <div className="mt-16">
+    <div className="relative top-12">
         {reportedPosts && reportedPosts.length > 0 ? (
           reportedPosts.map((post) => (
-            <ReportedPostFeed key={post._id} post={post} />
+            <ReportedPostFeed  post={post} />
           ))
         ) : (
-          <p>Loading posts...</p> 
+          <p className=" flex items-center justify-center">No Reported Posts...</p> 
         )}
       </div>
     </div>

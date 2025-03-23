@@ -10,9 +10,6 @@ export function AdminFeed() {
     getPosts();
   }, [getPosts]);
 
-  const handlePostDelete = () => {
-    getPosts();
-  };
   
   return (
     <div className="container mt-24">
@@ -20,10 +17,10 @@ export function AdminFeed() {
       <div className="">
         {posts && posts.length > 0 ? (
           posts.map((post) => (
-            <PostCard isAdmin={true} key={post._id} post={post} onPostDelete={handlePostDelete}/>
+            <PostCard isAdmin={true} key={post._id} post={post} />
           ))
         ) : (
-          <p>Loading posts...</p> 
+          <p> No posts... </p> 
         )}
       </div>
     </div>

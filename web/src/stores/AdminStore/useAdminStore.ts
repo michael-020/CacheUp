@@ -15,6 +15,9 @@ export const useAdminStore = create<AdminStates & AdminActions>((set,get) => ({
     userList: [],
     isFetchingUsers: false,
     userError: null,
+    isGettingReportedPosts: false,
+    reportedPosts: [],
+    isDeletingReportedPost: false,
 
     signin: async (data) => {
         set({isAdminSigninIn: true})
@@ -127,5 +130,42 @@ export const useAdminStore = create<AdminStates & AdminActions>((set,get) => ({
         } finally {
             
         }
-    }
+    },
+
+    getReportedPosts: async () => {
+        set({isGettingReportedPosts: true})
+        try {
+            const res = await axiosInstance.get('/admin/report')
+            set({reportedPosts: res.data})
+        } catch (error) {
+            if (error instanceof AxiosError && error.response?.data?.msg) {
+                toast.error(error.response.data.msg as string);
+            } else {
+                toast.error("An unexpected error occurred.");
+            }
+        } finally {
+            set({isGettingReportedPosts: false})
+        }
+    },
+
+    deleteReportedPosts: async ({ postId }: { postId: string }) => {
+        const { reportedPosts } = get();
+        try {
+          set({ isDeletingPost: true });
+          await axiosInstance.delete(`/admin/delete-post/${postId}`);
+          set({
+            reportedPosts: reportedPosts.filter((post) => post._id !== postId)
+          });
+          
+          toast.success("Post deleted successfully");
+        } catch (error) {
+          if (error instanceof AxiosError && error.response?.data?.msg) {
+            toast.error(error.response.data.msg as string);
+          } else {
+            toast.error("An unexpected error occurred.");
+          }
+        } finally {
+          set({ isDeletingPost: false });
+        }
+    },
 }))

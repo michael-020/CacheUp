@@ -10,14 +10,14 @@ import { Loader, Pencil, SendHorizonal, Trash } from "lucide-react";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { useNavigate } from "react-router-dom";
 import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
+import { DeleteModal } from "./DeleteModal";
 
 interface PostCardProps {
   post: Post;
   isAdmin?: boolean;
-  onPostDelete?: (postId: string) => void; 
 }
 
-export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) {
+export default function PostCard({ post, isAdmin }: PostCardProps) {
   const { toggleLike, toggleSave, addComment, isUplaodingComment, updateComment, deleteComment } = usePostStore();
   const { authUser } = useAuthStore()
   const [showCommentInput, setShowCommentInput] = useState(false);
@@ -27,6 +27,7 @@ export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) 
   const [showReport, setShowReport] = useState(false);
   const { reportPost, unReportPost } = usePostStore();
   const [comments, setComments] = useState<Comment[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const navigate = useNavigate();
 
   const getComments = async (postId: string) => {
@@ -62,8 +63,6 @@ export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) 
     );
   }
 
-
-
   async function editCommentHandler(commentId: string, content: string) {
     if (editingCommentId === commentId) {
       setEditingCommentId(null);
@@ -92,6 +91,16 @@ export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) 
     }
   }
 
+  const deletePostHandler = async () => {
+    if (isAdmin) {
+      await useAdminStore.getState().deletePost({ postId: post._id });
+    } else {
+      await usePostStore.getState().deletePost({ postId: post._id });
+    }
+    
+    setShowReport(false);
+  }
+
   useEffect(() => {
     const handleClickOutside = (e: any) => {
       if (!e.target.closest(".relative")) {
@@ -103,8 +112,7 @@ export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) 
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [comments]);
 
-  const handleProfileClick = (e) => {
-    e.stopPropagation();
+  const handleProfileClick = () => {
     if (isAdmin) {
       navigate(`/admin/profile/${post.postedBy}`);
     } else {
@@ -115,18 +123,12 @@ export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) 
   return (
     <div
       className="max-w-[700px] mx-auto rounded-xl bg-white dark:bg-neutral-800 dark:border-neutral-900 dark:shadow-0 dark:shadow-sm p-4 shadow-lg mb-4 border border-gray-200"
-      onClick={(e) => {
-        e.stopPropagation();
-        const basePath = isAdmin ? '/admin/profile/' : '/profile/';
-        navigate(`${basePath}${post.postedBy}`);
-      }}
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
           <div
             className="size-12 rounded-full border-2 border-white dark:border-gray-500 shadow-sm overflow-hidden mr-3 cursor-pointer"
-            onClick={(e) => {
-              e.stopPropagation();
+            onClick={() => {
               navigate(`/profile/${post.postedBy}`);
             }}
           >
@@ -163,22 +165,7 @@ export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) 
           <div className="bg-white border border-gray-200 dark:bg-neutral-600 dark:border-0 rounded-lg shadow-xl z-[5] overflow-hidden w-48 absolute">
             {(post.postedBy === authUser?._id || isAdmin) && (
               <button
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  try {
-                    if (isAdmin) {
-                      await useAdminStore.getState().deletePost({ postId: post._id });
-                    } else {
-                      await usePostStore.getState().deletePost({ postId: post._id });
-                    }
-                    if (onPostDelete) {
-                      onPostDelete(post._id);
-                    }
-                  } catch (error) {
-                    console.error("Delete post failed:", error);
-                  }
-                  setShowReport(false);
-                }}
+                onClick={() => setIsModalOpen(!isModalOpen)}
                 className="w-full px-4 py-2.5 text-sm text-left flex items-center justify-between text-red-600 hover:bg-red-50 transition-colors duration-150"
               >
                 <span>Delete Post</span>
@@ -401,6 +388,7 @@ export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) 
           )}
         </div>
       )}
+      {isModalOpen && <DeleteModal deleteHandler={deletePostHandler} isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />}
     </div>
   );
 }

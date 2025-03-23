@@ -10,6 +10,9 @@ export type AdminStates = {
     userList: IUser[];
     isFetchingUsers: boolean;
     userError: string | null;
+    isGettingReportedPosts: boolean;
+    reportedPosts: Post[];
+    isDeletingReportedPost: boolean;
 }
 
 export type AdminActions = {
@@ -20,4 +23,6 @@ export type AdminActions = {
     deleteComment: () => void;
     deletePost: ({ postId }: { postId: string }) => Promise<void>;
     fetchUsers: () => void;
+    getReportedPosts: () => void;
+    deleteReportedPosts: ({ postId }: { postId: string }) => void;
 }
