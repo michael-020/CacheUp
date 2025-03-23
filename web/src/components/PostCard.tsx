@@ -113,14 +113,20 @@ export default function PostCard({ post, isAdmin, onPostDelete }: PostCardProps)
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [comments]);
 
+  const handleProfileClick = (e) => {
+    e.stopPropagation();
+    if (isAdmin) {
+      navigate(`/admin/profile/${post.postedBy}`);
+    } else {
+      navigate(`/profile/${post.postedBy}`);
+    }
+  };
+
   return (
     <div
       className="max-w-[700px] mx-auto rounded-xl bg-white dark:bg-neutral-800 dark:border-neutral-900 dark:shadow-0 dark:shadow-sm p-4 shadow-lg mb-4 border border-gray-200"
-      onClick={(e) => {
-        if (!(e.target as HTMLElement).closest("[data-comment-section]")) {
-          setShowCommentInput(false);
-        }
-      }}
+
+      
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
@@ -135,15 +141,13 @@ export default function PostCard({ post, isAdmin, onPostDelete }: PostCardProps)
               src={post.userImagePath ? post.userImagePath : "/avatar.jpeg"}
               alt="Profile"
               className="w-full h-full object-cover bg-gray-100"
+              onClick={handleProfileClick}
             />
           </div>
           <div className="flex flex-col">
             <span
               className="font-semibold text-gray-800 dark:text-gray-300 text-base cursor-pointer hover:underline"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/profile/${post.postedBy}`);
-              }}
+              onClick={handleProfileClick}
             >
               {post.username}
             </span>
@@ -366,7 +370,7 @@ export default function PostCard({ post, isAdmin, onPostDelete }: PostCardProps)
                               {new Date(comment.date).toLocaleDateString()}
                             </span>
                           </div>
-                          {(authUser?._id === comment.user._id || isAdmin) && (
+                          {((authUser?._id === comment.user._id || isAdmin)) && (
                             <div className="flex gap-3">
                               <button
                                 onClick={() => deleteCommentHandler(post._id, comment._id)}
