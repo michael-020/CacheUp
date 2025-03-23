@@ -372,7 +372,7 @@ export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) 
                           {new Date(comment.date).toLocaleDateString()}
                         </span>
                       </div>
-                      {authUser?._id === comment.user._id || isAdmin && (
+                      {(authUser?._id === comment.user._id || isAdmin) && (
                         <div className="flex gap-3">
                           <button
                             onClick={() => deleteCommentHandler(post._id, comment._id)}
