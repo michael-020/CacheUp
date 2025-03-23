@@ -66,7 +66,6 @@ export const Profile = () => {
 
   return (
     <div className="flex gap-6 p-4 w-full min-h-screen bg-gray-50">
-      {/* Sidebar with fixed position */}
       <div className="w-1/4 max-w-xs">
         <div className="sticky top-20">
           {userInfo && (
@@ -79,7 +78,6 @@ export const Profile = () => {
         </div>
       </div>
       
-      {/* Main content area */}
       <div className="flex-1 max-w-2xl mx-auto mt-16">
         <div className="bg-white rounded-lg shadow p-6 mb-6">
           <h1 className="text-2xl font-bold mb-4">
@@ -108,7 +106,6 @@ export const Profile = () => {
         </div>
       </div>
       
-      {/* Empty space on the right for balance */}
       <div className="hidden lg:block w-1/4 max-w-xs"></div>
     </div>
   );
