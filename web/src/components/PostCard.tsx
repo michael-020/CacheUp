@@ -115,11 +115,6 @@ export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) 
   return (
     <div
       className="max-w-[700px] mx-auto rounded-xl bg-white dark:bg-neutral-800 dark:border-neutral-900 dark:shadow-0 dark:shadow-sm p-4 shadow-lg mb-4 border border-gray-200"
-      onClick={(e) => {
-        e.stopPropagation();
-        const basePath = isAdmin ? '/admin/profile/' : '/profile/';
-        navigate(`${basePath}${post.postedBy}`);
-      }}
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
@@ -375,7 +370,7 @@ export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) 
                           {new Date(comment.date).toLocaleDateString()}
                         </span>
                       </div>
-                      {authUser?._id === comment.user._id || isAdmin && (
+                      {(authUser?._id === comment.user._id || isAdmin) && (
                         <div className="flex gap-3">
                           <button
                             onClick={() => deleteCommentHandler(post._id, comment._id)}
