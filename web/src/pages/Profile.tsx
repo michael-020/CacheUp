@@ -14,6 +14,7 @@ export const Profile = () => {
   const { authUser } = useAuthStore();
   const [userPosts, setUserPosts] = useState<Post[]>([]);
   const userId = authUser?._id;
+  const [isLoading, setIsLoading] = useState(true);
 
   const isAdminView = location.pathname.includes("/admin");
 
@@ -41,6 +42,7 @@ export const Profile = () => {
     };
 
     const fetchUserPosts = async () => {
+      setIsLoading(true);
       try {
         let url;
         if (isAdminView) {
@@ -48,11 +50,13 @@ export const Profile = () => {
         } else {
           url = id ? `/post/viewPosts/${id}` : "/post/viewPosts/myPosts";
         }
-
+    
         const postResponse = await axiosInstance(url);
         setUserPosts(postResponse.data);
       } catch (e) {
         console.error("Error fetching user posts", e);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -61,38 +65,48 @@ export const Profile = () => {
   }, [id, userId, isAdminView]);
 
   return (
-    <div className="flex gap-6 p-6 w-full h-screen">
-      <div className="w-1/4 h-screen fixed p-6 ">
-        {userInfo && (
-          <ProfileCard
-            userInfo={userInfo}
-            isOwnProfile={isOwnProfile}
-            isAdmin={isAdminView}
-          />
-        )}
+    <div className="flex gap-6 p-4 w-full min-h-screen bg-gray-50">
+      <div className="w-1/4 max-w-xs">
+        <div className="sticky top-20">
+          {userInfo && (
+            <ProfileCard
+              userInfo={userInfo}
+              isOwnProfile={isOwnProfile}
+              isAdmin={isAdminView}
+            />
+          )}
+        </div>
       </div>
-      <div className="bg-white w-3/4 ml-[25%] mt-20 rounded-lg p-4 h-fit">
-        <h1 className="text-center text-2xl font-bold">
-          {isOwnProfile
-            ? isAdminView
-              ? "My Admin Dashboard"
-              : "My Posts"
-            : userInfo
-            ? `${userInfo.name}'s ${
-                isAdminView ? "Profile (Admin View)" : "Profile"
-              }`
-            : "Profile"}
-        </h1>
-        {userPosts.length > 0 ? (
-          <div className="space-y-4">
-            {userPosts.map((post) => (
-              <PostCard key={post._id} post={post} isAdmin={isAdminView} />
-            ))}
-          </div>
-        ) : (
-          <p className="text-gray-500">No posts available.</p>
-        )}
+      
+      <div className="flex-1 max-w-2xl mx-auto mt-16">
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <h1 className="text-2xl font-bold mb-4">
+            {isOwnProfile
+              ? isAdminView
+                ? "My Admin Dashboard"
+                : "My Posts"
+              : userInfo
+              ? `${userInfo.name}'s ${
+                  isAdminView ? "Profile (Admin View)" : "Profile"
+                }`
+              : "Profile"}
+          </h1>
+          
+          {isLoading ? (
+            <p className="text-gray-500 text-center py-8">Loading posts...</p>
+          ) : userPosts.length > 0 ? (
+            <div className="space-y-6">
+              {userPosts.map((post) => (
+                <PostCard key={post._id} post={post} isAdmin={isAdminView} />
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 text-center py-8">No posts available.</p>
+          )}
+        </div>
       </div>
+      
+      <div className="hidden lg:block w-1/4 max-w-xs"></div>
     </div>
   );
 };
