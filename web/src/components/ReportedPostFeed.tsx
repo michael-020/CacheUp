@@ -26,18 +26,12 @@ export default function ReportedPostFeed({ post, isAdmin }: PostCardProps) {
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [showDelete, setShowDelete] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-  const { isDeletingPost, deletePost } = useAdminStore();
+  const { isDeletingPost } = useAdminStore();
   const [comments, setComments] = useState<Comment[]>([]);
   const navigate = useNavigate();
 
-  async function confirmDeletePost (postId: string) {
-    try {
-      await deletePost({ postId });
-    } catch (error) {
-      console.error("Delete post failed:", error);
-    } finally {
-      setShowDeleteConfirmation(false);
-    }
+  const confirmDeletePost = async () => {
+      await useAdminStore.getState().deletePost({ postId: post._id });
   };
 
   const getComments = async (postId: string) => {
@@ -388,7 +382,7 @@ export default function ReportedPostFeed({ post, isAdmin }: PostCardProps) {
       <DeleteConfirmationModal
         isOpen={showDeleteConfirmation}
         onClose={() => setShowDeleteConfirmation(false)}
-        onConfirm={() => confirmDeletePost(post._id)}
+        onConfirm={confirmDeletePost}
         isDeleting={isDeletingPost}
       />
     </div>

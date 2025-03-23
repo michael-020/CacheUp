@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, MouseEvent } from "react";
 import LikeIcon from "@/icons/LikeIcon";
 import MessageIcon from "../icons/MessageIcon";
 import SaveIcon from "../icons/SaveIcon";
@@ -113,7 +113,7 @@ export default function PostCard({ post, isAdmin, onPostDelete }: PostCardProps)
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [comments]);
 
-  const handleProfileClick = (e) => {
+  const handleProfileClick = (e:MouseEvent<HTMLImageElement>) => {
     e.stopPropagation();
     if (isAdmin) {
       navigate(`/admin/profile/${post.postedBy}`);
