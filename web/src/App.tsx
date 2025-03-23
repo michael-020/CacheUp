@@ -39,7 +39,7 @@ function App() {
 
   return (
     <div className='bg-gray-100 dark:bg-neutral-900 '>
-      {(authUser) && !isAdminRoute && <div className='fixed top-0 w-screen z-50'>
+      {authUser && !isAdminRoute && <div className='fixed top-0 w-screen z-50'>
         <Navbar />
       </div>}
       {authAdmin && isAdminRoute && <div className='fixed top-0 w-screen z-50'>

@@ -45,10 +45,11 @@ const UserList = () => {
           {users.map((user) => (
             <div 
               key={user._id} 
-              className="relative h-[420px] w-72 cursor-pointer"
+              className="relative h-[420px] w-72 cursor-pointer -mt-10 top-12"
             >
               <ProfileCard 
-                user={user} 
+                isAdmin={true}
+                userInfo={user} 
                 isOwnProfile={false}
                 className="relative w-full h-full"
               />

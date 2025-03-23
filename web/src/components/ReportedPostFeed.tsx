@@ -31,7 +31,7 @@ export default function ReportedPostFeed({ post, isAdmin }: PostCardProps) {
   async function deletePosthandler(postId: string, e: MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     e.stopPropagation();
-    await deletePost({id: postId});
+    await deletePost({postId});
   }
 
   const getComments = async (postId: string) => {

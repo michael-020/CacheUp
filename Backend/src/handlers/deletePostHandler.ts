@@ -6,7 +6,7 @@ import fs from 'fs';
 export const deletePostHandler = async (req: Request, res: Response) => {
     try {
         const postId = req.params.postId; 
-        const userId = req.user._id;
+        const userId = String(req.user._id);
         console.log(postId)
         const userPost = await postModel.findById(postId);
         
@@ -34,7 +34,6 @@ export const deletePostHandler = async (req: Request, res: Response) => {
 
         await postModel.findByIdAndDelete(postId);
         
-        // this is not working for some reason fix it 
         await userModel.findByIdAndUpdate(userId, { $pull: { posts: postId } });
 
         res.status(200).json({
@@ -47,6 +46,7 @@ export const deletePostHandler = async (req: Request, res: Response) => {
         });
     }
 };
+
 
 export const adminDeletePostHandler = async (req: Request, res: Response) => {
     try {
@@ -74,7 +74,6 @@ export const adminDeletePostHandler = async (req: Request, res: Response) => {
 
         await postModel.findByIdAndDelete(postId);
         
-         // this is not working for some reason fix it 
         await userModel.findByIdAndUpdate(userId, { $pull: { posts: postId } });
 
         res.status(200).json({
