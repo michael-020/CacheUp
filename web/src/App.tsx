@@ -51,7 +51,8 @@ function App() {
         <Route path="/signup" element={!authUser ? <Signup /> : <Navigate to="/" /> } />
         <Route path="/signin" element={!authUser ? <Signin /> : <Navigate to="/" /> } />
         <Route path="/" element={ authUser ? <Home /> : <Navigate to="/signin" />} />
-        <Route path='/profile' element={<Profile />} />
+        {/* <Route path='/profile' element={<Profile />} /> */}
+        <Route path='/profile' element={authUser ? <Profile /> : <Navigate to="/admin/home"/>} />
         <Route path="/profile/:id" element={<Profile />} />
         <Route path='/messages' element={<Messages />} />
         <Route path='verify-email' element={<EmailVerify />} />
@@ -62,6 +63,7 @@ function App() {
         <Route path="/admin/home" element={ authAdmin ? <AdminHome /> : <Navigate to="/admin/signin" />} />
         <Route path="/admin/reported-posts" element={authAdmin ? <ReportedPosts /> : <Navigate to="/admin/signin" /> } />
         <Route path="/admin/user-list" element={ authAdmin ? <UserList /> : <Navigate to="/admin/signin" />} />
+        <Route path="/admin/profile/:id" element={authAdmin ? <Profile /> : <Navigate to="/admin/signin" />} />
       </Routes>
     </div>
   )
