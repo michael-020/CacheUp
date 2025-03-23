@@ -4,6 +4,7 @@ import { axiosInstance } from "../../lib/axios";
 import { AxiosError } from "axios";
 import toast from "react-hot-toast";
 
+
 export const useAuthStore = create<authState & authAction>((set) => ({
     authUser: null,
     isSigningUp: false,
@@ -57,6 +58,7 @@ export const useAuthStore = create<authState & authAction>((set) => ({
             await axiosInstance.post("/user/logout")
             set({authUser: null})
             toast.success("Logged out successfully")
+            window.location.href = "/signin";
         } catch (error) {
             console.error("Error in check auth")
             toast.error("Logging out failed")

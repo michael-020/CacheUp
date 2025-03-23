@@ -11,9 +11,11 @@ import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { useNavigate } from "react-router-dom";
 import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
 
+
 interface PostCardProps {
   post: Post;
   isAdmin?: boolean;
+  onPostDeleted?: (postId: string) => void;
 }
 
 export default function ReportedPostFeed({ post, isAdmin }: PostCardProps) {
@@ -24,14 +26,25 @@ export default function ReportedPostFeed({ post, isAdmin }: PostCardProps) {
   const [editCommentText, setEditCommentText] = useState("");
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [showDelete, setShowDelete] = useState(false);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const { isDeletingPost, deletePost } = useAdminStore()
   const [comments, setComments] = useState<Comment[]>([]);
   const navigate = useNavigate();
 
-  async function deletePosthandler(postId: string, e: MouseEvent<HTMLButtonElement>) {
+  async function deletePosthandler(e: MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     e.stopPropagation();
+    setShowDeleteConfirmation(true);
+    setShowDelete(false);
+  }
+
+  async function confirmDeletePost(postId: string) {
     await deletePost({postId});
+    setShowDeleteConfirmation(false);
+  }
+
+  function cancelDeletePost() {
+    setShowDeleteConfirmation(false);
   }
 
   const getComments = async (postId: string) => {
@@ -100,6 +113,9 @@ export default function ReportedPostFeed({ post, isAdmin }: PostCardProps) {
       if (!e.target.closest(".relative")) {
         setShowDelete(false);
       }
+      if (!e.target.closest(".delete-confirmation-modal")) {
+        setShowDeleteConfirmation(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -143,7 +159,7 @@ export default function ReportedPostFeed({ post, isAdmin }: PostCardProps) {
           </div>
         </div>
 
-        {/* Report Button */}
+        {/* Delete Button */}
         <div className="relative z-10">
           <button
             onClick={(e) => {
@@ -158,7 +174,7 @@ export default function ReportedPostFeed({ post, isAdmin }: PostCardProps) {
           {showDelete && !isAdmin && post.postedBy !== authUser?._id && (
             <div className="bg-white border border-gray-200 rounded-lg shadow-xl z-[5] overflow-hidden w-48 absolute">
               <button
-                onClick={(e) => deletePosthandler(post._id, e)}
+                onClick={(e: MouseEvent<HTMLButtonElement>) => deletePosthandler(e)}
                 className={`w-full px-4 py-2.5 text-sm text-left flex items-center justify-between
                 ${
                   post.isReported
@@ -368,6 +384,44 @@ export default function ReportedPostFeed({ post, isAdmin }: PostCardProps) {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirmation && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full delete-confirmation-modal">
+            <h3 className="text-lg font-medium mb-4">Confirm Delete</h3>
+            <p className="mb-6">Are you sure you want to delete this post? This action cannot be undone.</p>
+            <div className="flex justify-end space-x-4">
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  cancelDeletePost();
+                }}
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  confirmDeletePost(post._id);
+                }}
+                className={`px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 ${isDeletingPost ? 'opacity-70 cursor-not-allowed' : ''}`}
+                disabled={isDeletingPost}
+              >
+                {isDeletingPost ? (
+                  <div className="px-2 flex items-center">
+                    <Loader className="animate-spin size-4 mr-2" />
+                    Deleting...
+                  </div>
+                ) : (
+                  "Delete"
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

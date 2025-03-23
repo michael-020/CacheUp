@@ -1,10 +1,8 @@
 import { AdminFeed } from '@/components/admin/AdminFeed';
 import AdminLeftbar from '@/components/admin/AdminLeftbar';
-import { useAdminStore } from '@/stores/AdminStore/useAdminStore'
 
 const AdminHome = () => {
-  const { authAdmin } = useAdminStore()
-
+   
   return (
       <div className="min-h-screen ">
         <div className='fixed hidden md:block'>

@@ -14,31 +14,31 @@ import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
 interface PostCardProps {
   post: Post;
   isAdmin?: boolean;
-  onPostDelete?: (postId: string) => void; 
+  onPostDelete?: (postId: string) => void;
 }
 
-export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) {
+export default function PostCard({ post, isAdmin, onPostDelete }: PostCardProps) {
   const { toggleLike, toggleSave, addComment, isUplaodingComment, updateComment, deleteComment } = usePostStore();
-  const { authUser } = useAuthStore()
+  const { authUser } = useAuthStore();
   const [showCommentInput, setShowCommentInput] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [editCommentText, setEditCommentText] = useState("");
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [showReport, setShowReport] = useState(false);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false); // State for delete confirmation modal
   const { reportPost, unReportPost } = usePostStore();
   const [comments, setComments] = useState<Comment[]>([]);
   const navigate = useNavigate();
 
   const getComments = async (postId: string) => {
-    if(isAdmin){
-      const res = await axiosInstance.get(`/admin/comment/${postId}`)
+    if (isAdmin) {
+      const res = await axiosInstance.get(`/admin/comment/${postId}`);
+      setComments(res.data);
+    } else {
+      const res = await axiosInstance.get(`/post/comment/${postId}`);
       setComments(res.data);
     }
-    else {
-      const res = await axiosInstance.get(`/post/comment/${postId}`)
-      setComments(res.data)
-    }
-  }
+  };
 
   const handleCommentSubmit = async () => {
     if (commentText.trim()) {
@@ -56,13 +56,9 @@ export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) 
   };
 
   async function deleteCommentHandler(postId: string, commentId: string) {
-    await deleteComment(postId, commentId)
-    setComments((prevComments) => 
-      prevComments.filter((comment) => comment._id !== commentId) 
-    );
+    await deleteComment(postId, commentId);
+    setComments((prevComments) => prevComments.filter((comment) => comment._id !== commentId));
   }
-
-
 
   async function editCommentHandler(commentId: string, content: string) {
     if (editingCommentId === commentId) {
@@ -77,20 +73,35 @@ export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) 
   async function submitEditedComment(postId: string, commentId: string) {
     if (editCommentText.trim()) {
       await updateComment(postId, commentId, editCommentText);
-      
-      setComments((prevComments) => 
-        prevComments.map((comment) => 
-          comment._id === commentId 
-            ? { ...comment, content: editCommentText } 
-            : comment
+
+      setComments((prevComments) =>
+        prevComments.map((comment) =>
+          comment._id === commentId ? { ...comment, content: editCommentText } : comment
         )
       );
-      
+
       // Reset edit state
       setEditingCommentId(null);
       setEditCommentText("");
     }
   }
+
+  // Function to handle post deletion
+  const handleDeletePost = async () => {
+    try {
+      if (isAdmin) {
+        await useAdminStore.getState().deletePost({ postId: post._id });
+      } else {
+        await usePostStore.getState().deletePost({ postId: post._id });
+      }
+      if (onPostDelete) {
+        onPostDelete(post._id);
+      }
+    } catch (error) {
+      console.error("Delete post failed:", error);
+    }
+    setShowDeleteConfirmation(false); // Close the modal after deletion
+  };
 
   useEffect(() => {
     const handleClickOutside = (e: any) => {
@@ -140,74 +151,63 @@ export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) 
           </div>
         </div>
 
-        {/* Report Button  */}
+        {/* Report Button */}
         <div className="relative z-10">
           <button
             onClick={(e) => {
               e.stopPropagation();
               setShowReport(!showReport);
             }}
-            className="p-1.5 hover:bg-gray-100 rounded-full transition-colors duration-200 -z-10 dark:hover:bg-gray-700 "
+            className="p-1.5 hover:bg-gray-100 rounded-full transition-colors duration-200 -z-10 dark:hover:bg-gray-700"
           >
             <Threedot />
           </button>
 
           {showReport && (
-          <div className="bg-white border border-gray-200 dark:bg-neutral-600 dark:border-0 rounded-lg shadow-xl z-[5] overflow-hidden w-48 absolute">
-            {(post.postedBy === authUser?._id || isAdmin) && (
-              <button
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  try {
-                    if (isAdmin) {
-                      await useAdminStore.getState().deletePost({ postId: post._id });
-                    } else {
-                      await usePostStore.getState().deletePost({ postId: post._id });
+            <div className="bg-white border border-gray-200 dark:bg-neutral-600 dark:border-0 rounded-lg shadow-xl z-[5] overflow-hidden w-48 absolute">
+              {(post.postedBy === authUser?._id || isAdmin) && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowDeleteConfirmation(true); // Show delete confirmation modal
+                    setShowReport(false);
+                  }}
+                  className="w-full px-4 py-2.5 text-sm text-left flex items-center justify-between text-red-600 hover:bg-red-50 transition-colors duration-150"
+                >
+                  <span>Delete Post</span>
+                  <Trash className="size-4" />
+                </button>
+              )}
+
+              {post.postedBy !== authUser?._id && !isAdmin && (
+                <button
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    try {
+                      if (post.isReported) {
+                        await unReportPost(post._id);
+                      } else {
+                        await reportPost(post._id);
+                      }
+                    } catch (error) {
+                      console.error("Report action failed:", error);
                     }
-                    if (onPostDelete) {
-                      onPostDelete(post._id);
-                    }
-                  } catch (error) {
-                    console.error("Delete post failed:", error);
-                  }
-                  setShowReport(false);
-                }}
-                className="w-full px-4 py-2.5 text-sm text-left flex items-center justify-between text-red-600 hover:bg-red-50 transition-colors duration-150"
-              >
-                <span>Delete Post</span>
-                <Trash className="size-4" />
-              </button>
-            )}
-            
-            {post.postedBy !== authUser?._id && !isAdmin && (
-              <button
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  try {
-                    if (post.isReported) {
-                      await unReportPost(post._id);
-                    } else {
-                      await reportPost(post._id);
-                    }
-                  } catch (error) {
-                    console.error("Report action failed:", error);
-                  }
-                  setShowReport(false);
-                }}
-                className={`w-full px-4 py-2.5 text-sm text-left flex items-center justify-between
-                  ${post.isReported ? "text-red-600 hover:bg-red-50" : "text-gray-700 hover:bg-gray-50"}
-                  transition-colors duration-150`}
-              >
-                <span>{post.isReported ? "Unreport Post" : "Report Post"}</span>
-                <span className="text-xs font-medium text-gray-400">
-                  {post.reportCount || 0}
-                </span>
-              </button>
-            )}
-          </div>
-        )}
-              </div>
+                    setShowReport(false);
+                  }}
+                  className={`w-full px-4 py-2.5 text-sm text-left flex items-center justify-between
+                    ${post.isReported ? "text-red-600 hover:bg-red-50" : "text-gray-700 hover:bg-gray-50"}
+                    transition-colors duration-150`}
+                >
+                  <span>{post.isReported ? "Unreport Post" : "Report Post"}</span>
+                  <span className="text-xs font-medium text-gray-400">
+                    {post.reportCount || 0}
+                  </span>
+                </button>
+              )}
             </div>
+          )}
+        </div>
+      </div>
 
       {/* Text Content */}
       {post.text && (
@@ -299,99 +299,120 @@ export default function PostCard({ post, isAdmin, onPostDelete}: PostCardProps) 
 
           {comments.length > 0 && (
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-3">
-              {comments.filter(comment => comment?._id).map((comment) => (
-                <div
-                  key={comment._id}
-                  className="bg-white p-3 rounded-md border border-gray-100 group relative"
-                >
-                {editingCommentId === comment._id ? (
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center text-xs text-gray-500">
-                        <img
-                          src={
-                            comment.user.profileImagePath || "/avatar.jpeg"
-                          }
-                          className="w-5 h-5 rounded-full mr-2"
-                          alt={comment.user.username}                          
-                        />
-                        <span className="font-semibold text-gray-700">
-                          {comment.user.username}
-                        </span>
-                        <span className="mx-2">•</span>
-                        <span className="text-xs">
-                          {new Date(comment.date).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="w-full pt-1 flex gap-2">
-                      <input 
-                        type="text" 
-                        className="px-2 py-1 placeholder:text-sm border rounded-lg w-full" 
-                        placeholder="Edit your comment..."
-                        value={editCommentText}
-                        onChange={(e) => setEditCommentText(e.target.value)}
-                      />
-                      <button 
-                        className="bg-blue-500 p-2 rounded-md"
-                        onClick={() => submitEditedComment(post._id, comment._id)}
-                      >
-                        <SendHorizonal className="size-5 text-white" /> 
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center text-xs text-gray-500">
-                        <img
-                          src={
-                            comment.user.profileImagePath || "/avatar.jpeg"
-                          }
-                          className="w-5 h-5 rounded-full mr-2 cursor-pointer"
-                          alt={comment.user.username}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/profile/${comment.user._id}`);
-                          }}
-                        />
-                        <span className="font-semibold text-gray-700 cursor-pointer"
-                         onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/profile/${comment.user._id}`);
-                        }}
-                        >
-                          {comment.user.username}
-                        </span>
-                        <span className="mx-2">•</span>
-                        <span className="text-xs">
-                          {new Date(comment.date).toLocaleDateString()}
-                        </span>
-                      </div>
-                      {authUser?._id === comment.user._id || isAdmin && (
-                        <div className="flex gap-3">
+              {comments
+                .filter((comment) => comment?._id)
+                .map((comment) => (
+                  <div
+                    key={comment._id}
+                    className="bg-white p-3 rounded-md border border-gray-100 group relative"
+                  >
+                    {editingCommentId === comment._id ? (
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center text-xs text-gray-500">
+                            <img
+                              src={comment.user.profileImagePath || "/avatar.jpeg"}
+                              className="w-5 h-5 rounded-full mr-2"
+                              alt={comment.user.username}
+                            />
+                            <span className="font-semibold text-gray-700">
+                              {comment.user.username}
+                            </span>
+                            <span className="mx-2">•</span>
+                            <span className="text-xs">
+                              {new Date(comment.date).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="w-full pt-1 flex gap-2">
+                          <input
+                            type="text"
+                            className="px-2 py-1 placeholder:text-sm border rounded-lg w-full"
+                            placeholder="Edit your comment..."
+                            value={editCommentText}
+                            onChange={(e) => setEditCommentText(e.target.value)}
+                          />
                           <button
-                            onClick={() => deleteCommentHandler(post._id, comment._id)}
+                            className="bg-blue-500 p-2 rounded-md"
+                            onClick={() => submitEditedComment(post._id, comment._id)}
                           >
-                            <Trash className="text-red-600 size-4" />
-                          </button>
-                          <button
-                            onClick={() => editCommentHandler(comment._id, comment.content)}
-                          >
-                            <Pencil className={`text-blue-400 size-4 ${isAdmin ? "hidden" : "block" }`} />
+                            <SendHorizonal className="size-5 text-white" />
                           </button>
                         </div>
-                      )}
-                    </div>
-                    <div>
-                      {comment.content}
-                    </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center text-xs text-gray-500">
+                            <img
+                              src={comment.user.profileImagePath || "/avatar.jpeg"}
+                              className="w-5 h-5 rounded-full mr-2 cursor-pointer"
+                              alt={comment.user.username}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/profile/${comment.user._id}`);
+                              }}
+                            />
+                            <span
+                              className="font-semibold text-gray-700 cursor-pointer"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/profile/${comment.user._id}`);
+                              }}
+                            >
+                              {comment.user.username}
+                            </span>
+                            <span className="mx-2">•</span>
+                            <span className="text-xs">
+                              {new Date(comment.date).toLocaleDateString()}
+                            </span>
+                          </div>
+                          {(authUser?._id === comment.user._id || isAdmin) && (
+                            <div className="flex gap-3">
+                              <button
+                                onClick={() => deleteCommentHandler(post._id, comment._id)}
+                              >
+                                <Trash className="text-red-600 size-4" />
+                              </button>
+                              <button
+                                onClick={() => editCommentHandler(comment._id, comment.content)}
+                              >
+                                <Pencil className={`text-blue-400 size-4 ${isAdmin ? "hidden" : "block"}`} />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                        <div>{comment.content}</div>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-              ))}
+                ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirmation && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h3 className="text-lg font-medium mb-4">Confirm Delete</h3>
+            <p className="mb-6">Are you sure you want to delete this post? This action cannot be undone.</p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => setShowDeleteConfirmation(false)}
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeletePost}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
