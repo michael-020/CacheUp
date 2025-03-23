@@ -1,8 +1,10 @@
 import { useEffect } from "react";
 import { ProfileCard } from "@/components/ProfileCard";
 import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
+import { useNavigate } from "react-router-dom";
 
 const UserList = () => {
+  const navigate = useNavigate(); 
   const {
     userList: users,
     isFetchingUsers: loading,
@@ -13,6 +15,10 @@ const UserList = () => {
   useEffect(() => {
     fetchUsers();
   }, [fetchUsers]);
+
+  const handleProfileClick = (userId) => {
+    navigate(`/admin/profile/${userId}`); 
+  };
 
   if (loading) {
     return (
@@ -45,10 +51,10 @@ const UserList = () => {
           {users.map((user) => (
             <div 
               key={user._id} 
-              className="relative h-[420px] w-72 cursor-pointer -mt-10 top-12"
+              className="relative h-[420px] w-72 cursor-pointer"
+              onClick={() => handleProfileClick(user._id)}
             >
               <ProfileCard 
-                isAdmin={true}
                 userInfo={user} 
                 isOwnProfile={false}
                 className="relative w-full h-full"
