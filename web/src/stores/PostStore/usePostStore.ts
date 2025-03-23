@@ -23,7 +23,17 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
     set({ isFetchingPosts: true });
     try {
       const res = await axiosInstance.get("/post/viewPosts/");
-      set({ posts: res.data});
+      
+      const postsWithLikeStatus = res.data.map(post => {
+        // Ensure post has proper isLiked property from server
+        return {
+          ...post,
+          // If server doesn't provide isLiked, we need to ensure it's set correctly here
+          isLiked: post.isLiked !== undefined ? post.isLiked : false
+        };
+      });
+      
+      set({ posts: postsWithLikeStatus, isFetchingPosts: false });
     } catch (error) {
       console.error("Error fetching posts:", error);
       set({ isFetchingPosts: false })
@@ -53,21 +63,20 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
   toggleLike: async (postId) => {
     try {
       const res = await axiosInstance.put(`/post/like/${postId}`);
+      
       set((state) => ({
         posts: state.posts.map((post) =>
           post._id === postId
             ? {
                 ...post,
-                likes: res.data.likes,
-                isLiked: !post.isLiked,
-                likesCount: res.data.likes.length,
+                likes: res.data.likes || post.likes,
+                isLiked: res.data.isLiked, 
               }
             : post
         ),
       }));
     } catch (error) {
       console.error("Error toggling like:", error);
-      // set({ error: error.response?.data?.message || 'Failed to toggle like' });
     }
   },
 
@@ -263,4 +272,20 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
     }
   },
 
+  getLikedUsers: async (postId: string) => {
+    try {
+      const response = await axiosInstance.get(`/post/like/${postId}`);
+      if (response.data && Array.isArray(response.data.likedUsers)) {
+        return response.data.likedUsers.map((user: any) => ({
+          _id: user._id,
+          username: user.username,
+          profileImagePath: user.profileImagePath || null
+        }));
+      }
+      return [];
+    } catch (error) {
+      console.error("Error fetching liked users:", error);
+      return [];
+    }
+  }
 }));

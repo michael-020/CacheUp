@@ -64,6 +64,12 @@ export interface IAdmin {
   adminId: string;
 }
 
+export interface LikedUser {
+  _id: string;
+  username: string;
+  profileImagePath?: string | null;
+}
+
 // export interface Post {
 //   _id: string;
 //   content?: string;
