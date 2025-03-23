@@ -10,53 +10,45 @@ import { Loader, Pencil, SendHorizonal, Trash } from "lucide-react";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { useNavigate } from "react-router-dom";
 import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
-
+import { DeleteConfirmationModal } from "./DeleteConfirmationModal";
 
 interface PostCardProps {
   post: Post;
   isAdmin?: boolean;
-  onPostDeleted?: (postId: string) => void;
 }
 
 export default function ReportedPostFeed({ post, isAdmin }: PostCardProps) {
   const { toggleLike, toggleSave, addComment, isUplaodingComment, updateComment, deleteComment } = usePostStore();
-  const { authUser } = useAuthStore()
+  const { authUser } = useAuthStore();
   const [showCommentInput, setShowCommentInput] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [editCommentText, setEditCommentText] = useState("");
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [showDelete, setShowDelete] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-  const { isDeletingPost, deletePost } = useAdminStore()
+  const { isDeletingPost, deletePost } = useAdminStore();
   const [comments, setComments] = useState<Comment[]>([]);
   const navigate = useNavigate();
 
-  async function deletePosthandler(e: MouseEvent<HTMLButtonElement>) {
-    e.preventDefault();
-    e.stopPropagation();
-    setShowDeleteConfirmation(true);
-    setShowDelete(false);
-  }
-
-  async function confirmDeletePost(postId: string) {
-    await deletePost({postId});
-    setShowDeleteConfirmation(false);
-  }
-
-  function cancelDeletePost() {
-    setShowDeleteConfirmation(false);
-  }
+  async function confirmDeletePost (postId: string) {
+    try {
+      await deletePost({ postId });
+    } catch (error) {
+      console.error("Delete post failed:", error);
+    } finally {
+      setShowDeleteConfirmation(false);
+    }
+  };
 
   const getComments = async (postId: string) => {
-    if(isAdmin){
+    if (isAdmin) {
       const res = await axiosInstance.get(`/admin/comment/${postId}`);
       setComments(res.data);
-    }
-    else {
+    } else {
       const res = await axiosInstance.get(`/post/comment/${postId}`);
       setComments(res.data);
     }
-  }
+  };
 
   const handleCommentSubmit = async () => {
     if (commentText.trim()) {
@@ -75,9 +67,7 @@ export default function ReportedPostFeed({ post, isAdmin }: PostCardProps) {
 
   async function deleteCommentHandler(postId: string, commentId: string) {
     await deleteComment(postId, commentId);
-    setComments((prevComments) => 
-      prevComments.filter((comment) => comment._id !== commentId) 
-    );
+    setComments((prevComments) => prevComments.filter((comment) => comment._id !== commentId));
   }
 
   async function editCommentHandler(commentId: string, content: string) {
@@ -93,16 +83,13 @@ export default function ReportedPostFeed({ post, isAdmin }: PostCardProps) {
   async function submitEditedComment(postId: string, commentId: string) {
     if (editCommentText.trim()) {
       await updateComment(postId, commentId, editCommentText);
-      
-      setComments((prevComments) => 
-        prevComments.map((comment) => 
-          comment._id === commentId 
-            ? { ...comment, content: editCommentText } 
-            : comment
+
+      setComments((prevComments) =>
+        prevComments.map((comment) =>
+          comment._id === commentId ? { ...comment, content: editCommentText } : comment
         )
       );
-      
-      // Reset edit state
+
       setEditingCommentId(null);
       setEditCommentText("");
     }
@@ -174,7 +161,11 @@ export default function ReportedPostFeed({ post, isAdmin }: PostCardProps) {
           {showDelete && !isAdmin && post.postedBy !== authUser?._id && (
             <div className="bg-white border border-gray-200 rounded-lg shadow-xl z-[5] overflow-hidden w-48 absolute">
               <button
-                onClick={(e: MouseEvent<HTMLButtonElement>) => deletePosthandler(e)}
+                onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                  e.stopPropagation();
+                  setShowDeleteConfirmation(true);
+                  setShowDelete(false);
+                }}
                 className={`w-full px-4 py-2.5 text-sm text-left flex items-center justify-between
                 ${
                   post.isReported
@@ -289,141 +280,117 @@ export default function ReportedPostFeed({ post, isAdmin }: PostCardProps) {
 
           {comments.length > 0 && (
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-3">
-              {comments.filter(comment => comment?._id).map((comment) => (
-                <div
-                  key={comment._id}
-                  className="bg-white p-3 rounded-md border border-gray-100 group relative"
-                >
-                {editingCommentId === comment._id ? (
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center text-xs text-gray-500">
-                        <img
-                          src={
-                            comment.user.profileImagePath || "/avatar.jpeg"
-                          }
-                          className="w-5 h-5 rounded-full mr-2"
-                          alt={comment.user.username}
-                        />
-                        <span className="font-semibold text-gray-700">
-                          {comment.user.username}
-                        </span>
-                        <span className="mx-2">•</span>
-                        <span className="text-xs">
-                          {new Date(comment.date).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="w-full pt-1 flex gap-2">
-                      <input 
-                        type="text" 
-                        className="px-2 py-1 placeholder:text-sm border rounded-lg w-full" 
-                        placeholder="Edit your comment..."
-                        value={editCommentText}
-                        onChange={(e) => setEditCommentText(e.target.value)}
-                      />
-                      <button 
-                        className="bg-blue-500 p-2 rounded-md"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          submitEditedComment(post._id, comment._id);
-                        }}
-                      >
-                        <SendHorizonal className="size-5 text-white" /> 
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center text-xs text-gray-500">
-                        <img
-                          src={
-                            comment.user.profileImagePath || "/avatar.jpeg"
-                          }
-                          className="w-5 h-5 rounded-full mr-2"
-                          alt={comment.user.username}
-                        />
-                        <span className="font-semibold text-gray-700">
-                          {comment.user.username}
-                        </span>
-                        <span className="mx-2">•</span>
-                        <span className="text-xs">
-                          {new Date(comment.date).toLocaleDateString()}
-                        </span>
-                      </div>
-                      {(authUser?._id === comment.user._id || isAdmin) && (
-                        <div className="flex gap-3">
+              {comments
+                .filter((comment) => comment?._id)
+                .map((comment) => (
+                  <div
+                    key={comment._id}
+                    className="bg-white p-3 rounded-md border border-gray-100 group relative"
+                  >
+                    {editingCommentId === comment._id ? (
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center text-xs text-gray-500">
+                            <img
+                              src={comment.user.profileImagePath || "/avatar.jpeg"}
+                              className="w-5 h-5 rounded-full mr-2"
+                              alt={comment.user.username}
+                            />
+                            <span className="font-semibold text-gray-700">
+                              {comment.user.username}
+                            </span>
+                            <span className="mx-2">•</span>
+                            <span className="text-xs">
+                              {new Date(comment.date).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="w-full pt-1 flex gap-2">
+                          <input
+                            type="text"
+                            className="px-2 py-1 placeholder:text-sm border rounded-lg w-full"
+                            placeholder="Edit your comment..."
+                            value={editCommentText}
+                            onChange={(e) => setEditCommentText(e.target.value)}
+                          />
                           <button
+                            className="bg-blue-500 p-2 rounded-md"
                             onClick={(e) => {
                               e.stopPropagation();
-                              deleteCommentHandler(post._id, comment._id);
+                              submitEditedComment(post._id, comment._id);
                             }}
                           >
-                            <Trash className="text-red-600 size-4" />
+                            <SendHorizonal className="size-5 text-white" />
                           </button>
-                          {!isAdmin && authUser?._id === comment.user._id && (
-                            <button
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center text-xs text-gray-500">
+                            <img
+                              src={comment.user.profileImagePath || "/avatar.jpeg"}
+                              className="w-5 h-5 rounded-full mr-2 cursor-pointer"
+                              alt={comment.user.username}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                editCommentHandler(comment._id, comment.content);
+                                navigate(`/profile/${comment.user._id}`);
+                              }}
+                            />
+                            <span
+                              className="font-semibold text-gray-700 cursor-pointer"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/profile/${comment.user._id}`);
                               }}
                             >
-                              <Pencil className="text-blue-400 size-4" />
-                            </button>
+                              {comment.user.username}
+                            </span>
+                            <span className="mx-2">•</span>
+                            <span className="text-xs">
+                              {new Date(comment.date).toLocaleDateString()}
+                            </span>
+                          </div>
+                          {(authUser?._id === comment.user._id || isAdmin) && (
+                            <div className="flex gap-3">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  deleteCommentHandler(post._id, comment._id);
+                                }}
+                              >
+                                <Trash className="text-red-600 size-4" />
+                              </button>
+                              {!isAdmin && authUser?._id === comment.user._id && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    editCommentHandler(comment._id, comment.content);
+                                  }}
+                                >
+                                  <Pencil className="text-blue-400 size-4" />
+                                </button>
+                              )}
+                            </div>
                           )}
                         </div>
-                      )}
-                    </div>
-                    <div>
-                      {comment.content}
-                    </div>
+                        <div>{comment.content}</div>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-              ))}
+                ))}
             </div>
           )}
         </div>
       )}
 
       {/* Delete Confirmation Modal */}
-      {showDeleteConfirmation && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full delete-confirmation-modal">
-            <h3 className="text-lg font-medium mb-4">Confirm Delete</h3>
-            <p className="mb-6">Are you sure you want to delete this post? This action cannot be undone.</p>
-            <div className="flex justify-end space-x-4">
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  cancelDeletePost();
-                }}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100"
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  confirmDeletePost(post._id);
-                }}
-                className={`px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 ${isDeletingPost ? 'opacity-70 cursor-not-allowed' : ''}`}
-                disabled={isDeletingPost}
-              >
-                {isDeletingPost ? (
-                  <div className="px-2 flex items-center">
-                    <Loader className="animate-spin size-4 mr-2" />
-                    Deleting...
-                  </div>
-                ) : (
-                  "Delete"
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteConfirmationModal
+        isOpen={showDeleteConfirmation}
+        onClose={() => setShowDeleteConfirmation(false)}
+        onConfirm={() => confirmDeletePost(post._id)}
+        isDeleting={isDeletingPost}
+      />
     </div>
   );
 }

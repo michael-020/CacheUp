@@ -10,6 +10,7 @@ import { Loader, Pencil, SendHorizonal, Trash } from "lucide-react";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { useNavigate } from "react-router-dom";
 import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
+import { DeleteConfirmationModal } from "./DeleteConfirmationModal";
 
 interface PostCardProps {
   post: Post;
@@ -25,7 +26,7 @@ export default function PostCard({ post, isAdmin, onPostDelete }: PostCardProps)
   const [editCommentText, setEditCommentText] = useState("");
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [showReport, setShowReport] = useState(false);
-  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false); // State for delete confirmation modal
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const { reportPost, unReportPost } = usePostStore();
   const [comments, setComments] = useState<Comment[]>([]);
   const navigate = useNavigate();
@@ -80,13 +81,11 @@ export default function PostCard({ post, isAdmin, onPostDelete }: PostCardProps)
         )
       );
 
-      // Reset edit state
       setEditingCommentId(null);
       setEditCommentText("");
     }
   }
 
-  // Function to handle post deletion
   const handleDeletePost = async () => {
     try {
       if (isAdmin) {
@@ -100,7 +99,7 @@ export default function PostCard({ post, isAdmin, onPostDelete }: PostCardProps)
     } catch (error) {
       console.error("Delete post failed:", error);
     }
-    setShowDeleteConfirmation(false); // Close the modal after deletion
+    setShowDeleteConfirmation(false);
   };
 
   useEffect(() => {
@@ -169,7 +168,7 @@ export default function PostCard({ post, isAdmin, onPostDelete }: PostCardProps)
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setShowDeleteConfirmation(true); // Show delete confirmation modal
+                    setShowDeleteConfirmation(true);
                     setShowReport(false);
                   }}
                   className="w-full px-4 py-2.5 text-sm text-left flex items-center justify-between text-red-600 hover:bg-red-50 transition-colors duration-150"
@@ -393,28 +392,12 @@ export default function PostCard({ post, isAdmin, onPostDelete }: PostCardProps)
       )}
 
       {/* Delete Confirmation Modal */}
-      {showDeleteConfirmation && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-            <h3 className="text-lg font-medium mb-4">Confirm Delete</h3>
-            <p className="mb-6">Are you sure you want to delete this post? This action cannot be undone.</p>
-            <div className="flex justify-end space-x-4">
-              <button
-                onClick={() => setShowDeleteConfirmation(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeletePost}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteConfirmationModal
+        isOpen={showDeleteConfirmation}
+        onClose={() => setShowDeleteConfirmation(false)}
+        onConfirm={handleDeletePost}
+        isDeleting={useAdminStore.getState().isDeletingPost}
+      />
     </div>
   );
 }
