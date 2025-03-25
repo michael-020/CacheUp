@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import LikeIcon from "@/icons/LikeIcon";
+import HeartIcon from "@/icons/HeartIcon";
 import MessageIcon from "../icons/MessageIcon";
 import SaveIcon from "../icons/SaveIcon";
 import { usePostStore } from "../stores/PostStore/usePostStore";
 import Threedot from "../icons/Threedot";
-import { Comment, Post } from "../lib/utils";
+import { Comment, Post, IUser, LikedUser } from "../lib/utils";
 import { axiosInstance } from "@/lib/axios";
-import { Loader, Pencil, SendHorizonal, Trash } from "lucide-react";
+import { Loader, Pencil, SendHorizonal, Trash, X } from "lucide-react";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { useNavigate } from "react-router-dom";
 import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
@@ -18,13 +18,16 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post, isAdmin }: PostCardProps) {
-  const { toggleLike, toggleSave, addComment, isUplaodingComment, updateComment, deleteComment } = usePostStore();
+  const { toggleLike, toggleSave, addComment, isUplaodingComment, updateComment, deleteComment, getLikedUsers } = usePostStore();
   const { authUser } = useAuthStore()
   const [showCommentInput, setShowCommentInput] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [editCommentText, setEditCommentText] = useState("");
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [showReport, setShowReport] = useState(false);
+  const [showLikes, setShowLikes] = useState(false);
+  const [likedUsers, setLikedUsers] = useState<LikedUser[]>([]);
+  const [isLoadingLikes, setIsLoadingLikes] = useState(false);
   const { reportPost, unReportPost } = usePostStore();
   const [comments, setComments] = useState<Comment[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -41,6 +44,56 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
     }
   }
 
+  const fetchLikedUsers = async (postId: string) => {
+    if (showLikes) {
+      setShowLikes(false);
+      return;
+    }
+    
+    if (showCommentInput) {
+      setShowCommentInput(false);
+      await new Promise(resolve => setTimeout(resolve, 300));
+    }
+
+ 
+
+    setIsLoadingLikes(true);
+    try {
+      setLikedUsers([]); 
+      const users = await getLikedUsers(postId);
+      
+      if (users && users.length > 0) {
+        setLikedUsers(users);
+        setShowLikes(true);
+      } else {
+        setShowLikes(true); 
+      }
+    } catch (error) {
+      console.error("Failed to fetch liked users:", error);
+      setShowLikes(true); 
+    } finally {
+      setIsLoadingLikes(false);
+    }
+  };
+
+  const handleCommentToggle = async (postId: string) => {
+    if (showCommentInput) {
+      setShowCommentInput(false);
+      return;
+    }
+    
+    if (showLikes) {
+      setShowLikes(false);
+      await new Promise(resolve => setTimeout(resolve, 300));
+    }
+    
+    await getComments(postId);
+    setShowCommentInput(true);
+  };
+
+
+  
+  
   const handleCommentSubmit = async () => {
     if (commentText.trim()) {
       const result = await addComment(post._id, commentText);
@@ -102,8 +155,8 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
   }
 
   useEffect(() => {
-    const handleClickOutside = (e: any) => {
-      if (!e.target.closest(".relative")) {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (!(e.target as Element).closest(".relative")) {
         setShowReport(false);
       }
     };
@@ -117,6 +170,15 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
       navigate(`/admin/profile/${post.postedBy}`);
     } else {
       navigate(`/profile/${post.postedBy}`);
+    }
+  };
+
+  const handleLikedUserProfileClick = (userId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isAdmin) {
+      navigate(`/admin/profile/${userId}`);
+    } else {
+      navigate(`/profile/${userId}`);
     }
   };
 
@@ -152,7 +214,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
         {/* Report Button  */}
         <div className="relative z-10">
           <button
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
               setShowReport(!showReport);
             }}
@@ -175,7 +237,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
             
             {post.postedBy !== authUser?._id && !isAdmin && (
               <button
-                onClick={async (e) => {
+                onClick={async (e: React.MouseEvent) => {
                   e.stopPropagation();
                   try {
                     if (post.isReported) {
@@ -217,7 +279,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
             src={post.postsImagePath}
             alt="Post content"
             className="w-full h-auto aspect-video object-cover"
-            onError={(e) => {
+            onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
               (e.target as HTMLImageElement).style.display = "none";
             }}
           />
@@ -226,21 +288,26 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
 
       {/* Actions */}
       <div className="flex items-center text-gray-500 dark:text-neutral-400 dark:border-gray-600 text-sm border-t border-gray-100 pt-3">
-        <button
-          className="flex items-center mr-6 hover:text-red-600 transition-colors"
-          onClick={() => toggleLike(post._id)}
-        >
-          <LikeIcon />
-          <span className="ml-2 font-medium">{post.likes.length}</span>
+      <button
+            className="flex items-center mr-6 transition-colors"
+            onClick={() => toggleLike(post._id)}
+          >
+            <HeartIcon filled={post.isLiked} />
+            <span 
+              className={`ml-2 font-medium cursor-pointer hover:underline ${post.isLiked ? "text-red-500" : ""}`}
+              onClick={(e: React.MouseEvent) => {
+                e.stopPropagation();
+                fetchLikedUsers(post._id);
+              }}
+            >
+              {post.likes.length}
+            </span>
         </button>
+
 
         <button
           className="flex items-center mr-6 hover:text-blue-500 transition-colors"
-          onClick={(e) => {
-            e.stopPropagation();
-            setShowCommentInput(!showCommentInput);
-            getComments(post._id);
-          }}
+          onClick={() => handleCommentToggle(post._id)}
         >
           <MessageIcon />
           <span className="ml-2 font-medium">{post.comments.length}</span>
@@ -257,7 +324,63 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
         </button>
       </div>
 
+      {/* Likes Modal */}
+      <div 
+        className={`transition-all duration-300 ease-in-out overflow-hidden ${
+          showLikes ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
+        {showLikes && (
+          <div className="mt-3 bg-gray-50 p-4 rounded-lg border border-gray-200 relative">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="font-medium text-gray-800">Liked by</h3>
+              <button
+                onClick={() => setShowLikes(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+            
+            {isLoadingLikes ? (
+              <div className="flex justify-center py-4">
+                <Loader className="animate-spin size-6 text-blue-500" />
+              </div>
+            ) : (
+              <div className="max-h-48 overflow-y-auto">
+                {likedUsers.length > 0 ? (
+                  likedUsers.map(user => (
+                    <div 
+                      key={user._id} 
+                      className="flex items-center py-2 hover:bg-gray-100 px-2 rounded-md transition-colors cursor-pointer"
+                      onClick={(e: React.MouseEvent) => handleLikedUserProfileClick(user._id, e)}
+                    >
+                      <img 
+                        src={user.profileImagePath || "/avatar.jpeg"} 
+                        alt={user.username}
+                        className="size-8 rounded-full mr-3 object-cover"
+                        onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                          (e.target as HTMLImageElement).src = "/avatar.jpeg";
+                        }}
+                      />
+                      <span className="text-gray-700 font-medium">{user.username}</span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-center text-gray-500 py-4">No likes yet</p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Comment Section */}
+      <div 
+        className={`transition-all duration-300 ease-in-out overflow-hidden ${
+          showCommentInput ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
       {showCommentInput && (
         <div className="mt-4 space-y-4" data-comment-section>
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
@@ -267,11 +390,11 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
               placeholder="Write a comment..."
               className="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-200 focus:border-blue-500 outline-none transition-all"
               rows={2}
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
             />
             <div className="flex justify-end mt-2">
               <button
-                onClick={(e) => {
+                onClick={(e: React.MouseEvent) => {
                   e.stopPropagation();
                   handleCommentSubmit();
                 }}
@@ -344,13 +467,13 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
                           }
                           className="w-5 h-5 rounded-full mr-2 cursor-pointer"
                           alt={comment.user.username}
-                          onClick={(e) => {
+                          onClick={(e: React.MouseEvent) => {
                             e.stopPropagation();
                             navigate(`/profile/${comment.user._id}`);
                           }}
                         />
                         <span className="font-semibold text-gray-700 cursor-pointer"
-                         onClick={(e) => {
+                         onClick={(e: React.MouseEvent) => {
                           e.stopPropagation();
                           navigate(`/profile/${comment.user._id}`);
                         }}
@@ -362,7 +485,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
                           {new Date(comment.date).toLocaleDateString()}
                         </span>
                       </div>
-                      {authUser?._id === comment.user._id || isAdmin && (
+                      {(authUser?._id === comment.user._id || isAdmin) && (
                         <div className="flex gap-3">
                           <button
                             onClick={() => deleteCommentHandler(post._id, comment._id)}
@@ -388,6 +511,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
           )}
         </div>
       )}
+      </div>
       {isModalOpen && <DeleteModal deleteHandler={deletePostHandler} isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />}
     </div>
   );
