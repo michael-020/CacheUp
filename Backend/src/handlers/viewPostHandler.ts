@@ -93,7 +93,6 @@ viewPostHandler.get("/:id", async (req: Request, res: Response) => {
             return
         }
 
-        // Process posts to include isLiked status
         const processedPosts = posts.map(post => {
             const isLiked = post.likes.includes(new mongo.ObjectId(currentUserId?.toString()));
             

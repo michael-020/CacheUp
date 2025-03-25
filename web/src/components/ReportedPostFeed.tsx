@@ -1,4 +1,4 @@
-import { useState, useEffect, MouseEvent } from "react";
+import { useState, useEffect } from "react";
 import LikeIcon from "@/icons/LikeIcon";
 import MessageIcon from "../icons/MessageIcon";
 import SaveIcon from "../icons/SaveIcon";
@@ -10,6 +10,7 @@ import { Loader, Pencil, SendHorizonal, Trash } from "lucide-react";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { useNavigate } from "react-router-dom";
 import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
+import { DeleteModal } from "./DeleteModal";
 
 interface PostCardProps {
   post: Post;
@@ -24,14 +25,13 @@ export default function ReportedPostFeed({ post, isAdmin }: PostCardProps) {
   const [editCommentText, setEditCommentText] = useState("");
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [showDelete, setShowDelete] = useState(false);
-  const { isDeletingPost, deletePost } = useAdminStore()
+  const { deleteReportedPosts } = useAdminStore()
   const [comments, setComments] = useState<Comment[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const navigate = useNavigate();
 
-  async function deletePosthandler(postId: string, e: MouseEvent<HTMLButtonElement>) {
-    e.preventDefault();
-    e.stopPropagation();
-    await deletePost({postId});
+  async function deletePosthandler() {
+    deleteReportedPosts({postId: post._id});
   }
 
   const getComments = async (postId: string) => {
@@ -108,7 +108,7 @@ export default function ReportedPostFeed({ post, isAdmin }: PostCardProps) {
 
   return (
     <div
-      className="max-w-[700px] mx-auto rounded-xl bg-white p-4 shadow-lg mb-4 border border-gray-200"
+      className="max-w-[700px] mt-6 mx-auto rounded-xl bg-white p-4 shadow-lg mb-4 border border-gray-200"
       onClick={(e) => {
         if (!(e.target as HTMLElement).closest("[data-comment-section]")) {
           setShowCommentInput(false);
@@ -158,7 +158,7 @@ export default function ReportedPostFeed({ post, isAdmin }: PostCardProps) {
           {showDelete && !isAdmin && post.postedBy !== authUser?._id && (
             <div className="bg-white border border-gray-200 rounded-lg shadow-xl z-[5] overflow-hidden w-48 absolute">
               <button
-                onClick={(e) => deletePosthandler(post._id, e)}
+                onClick={() => setIsModalOpen(!isModalOpen)}
                 className={`w-full px-4 py-2.5 text-sm text-left flex items-center justify-between
                 ${
                   post.isReported
@@ -370,6 +370,7 @@ export default function ReportedPostFeed({ post, isAdmin }: PostCardProps) {
           )}
         </div>
       )}
+      {isModalOpen && <DeleteModal deleteHandler={deletePosthandler} isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />}
     </div>
   );
 }

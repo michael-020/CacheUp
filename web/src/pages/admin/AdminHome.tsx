@@ -1,9 +1,7 @@
 import { AdminFeed } from '@/components/admin/AdminFeed';
 import AdminLeftbar from '@/components/admin/AdminLeftbar';
-import { useAdminStore } from '@/stores/AdminStore/useAdminStore'
 
 const AdminHome = () => {
-  const { authAdmin } = useAdminStore()
 
   return (
       <div className="min-h-screen ">
@@ -12,7 +10,7 @@ const AdminHome = () => {
         </div>
         <div className="flex w-screen justify-center "> 
           
-          <div className=""> 
+        <div className="ml-[1rem] min-w-[700px]">
             <AdminFeed />
           </div>
         </div>
