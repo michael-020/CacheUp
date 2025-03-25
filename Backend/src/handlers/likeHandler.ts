@@ -52,7 +52,7 @@ likeHandler.put("/:id", async (req: Request, res: Response) => {
 
 // get users who have like a post
 likeHandler.get("/:id", async (req: Request, res: Response) => {
-    try{
+    try {
         const postId = req.params.id
 
         const post = await postModel.findById(postId)
@@ -64,7 +64,7 @@ likeHandler.get("/:id", async (req: Request, res: Response) => {
             return;
         }
 
-        const likedUsers = await userModel.find({ _id: { $in: post.likes }}, "username profileImagePath")
+        const likedUsers = await userModel.find({ _id: { $in: post.likes }}, "username profilePicture")
 
         if(!likedUsers){
             res.status(401).json({
@@ -78,9 +78,9 @@ likeHandler.get("/:id", async (req: Request, res: Response) => {
         })
     }
     catch (e) {
-        console.error("Error while liking a post")
+        console.error("Error while fetching liked users", e)
         res.status(401).json({
-            msg: "Error while liking a post"
+            msg: "Error while fetching liked users"
         })
         return
     }

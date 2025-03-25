@@ -50,20 +50,50 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
       return;
     }
     
+    if (showCommentInput) {
+      setShowCommentInput(false);
+      await new Promise(resolve => setTimeout(resolve, 300));
+    }
+
+ 
+
     setIsLoadingLikes(true);
     try {
-      // Clear previous liked users first
-      setLikedUsers([]);
+      setLikedUsers([]); 
       const users = await getLikedUsers(postId);
-      setLikedUsers(users as LikedUser[]);
-      setShowLikes(true);
+      
+      if (users && users.length > 0) {
+        setLikedUsers(users);
+        setShowLikes(true);
+      } else {
+        setShowLikes(true); 
+      }
     } catch (error) {
       console.error("Failed to fetch liked users:", error);
+      setShowLikes(true); 
     } finally {
       setIsLoadingLikes(false);
     }
   };
 
+  const handleCommentToggle = async (postId: string) => {
+    if (showCommentInput) {
+      setShowCommentInput(false);
+      return;
+    }
+    
+    if (showLikes) {
+      setShowLikes(false);
+      await new Promise(resolve => setTimeout(resolve, 300));
+    }
+    
+    await getComments(postId);
+    setShowCommentInput(true);
+  };
+
+
+  
+  
   const handleCommentSubmit = async () => {
     if (commentText.trim()) {
       const result = await addComment(post._id, commentText);
@@ -277,11 +307,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
 
         <button
           className="flex items-center mr-6 hover:text-blue-500 transition-colors"
-          onClick={(e: React.MouseEvent) => {
-            e.stopPropagation();
-            setShowCommentInput(!showCommentInput);
-            getComments(post._id);
-          }}
+          onClick={() => handleCommentToggle(post._id)}
         >
           <MessageIcon />
           <span className="ml-2 font-medium">{post.comments.length}</span>
@@ -299,32 +325,37 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
       </div>
 
       {/* Likes Modal */}
-      {showLikes && (
-        <div className="mt-3 bg-gray-50 p-4 rounded-lg border border-gray-200 relative">
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="font-medium text-gray-800">Liked by</h3>
-            <button
-              onClick={() => setShowLikes(false)}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              <X className="size-5" />
-            </button>
-          </div>
-          
-          {isLoadingLikes ? (
-            <div className="flex justify-center py-4">
-              <Loader className="animate-spin size-6 text-blue-500" />
+      <div 
+        className={`transition-all duration-300 ease-in-out overflow-hidden ${
+          showLikes ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
+        {showLikes && (
+          <div className="mt-3 bg-gray-50 p-4 rounded-lg border border-gray-200 relative">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="font-medium text-gray-800">Liked by</h3>
+              <button
+                onClick={() => setShowLikes(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X className="size-5" />
+              </button>
             </div>
-          ) : (
-            <div className="max-h-48 overflow-y-auto">
-              {likedUsers.length > 0 ? (
-                likedUsers.map(user => (
-                  <div 
-                    key={user._id} 
-                    className="flex items-center py-2 hover:bg-gray-100 px-2 rounded-md transition-colors cursor-pointer"
-                    onClick={(e: React.MouseEvent) => handleLikedUserProfileClick(user._id, e)}
-                  >
-                    <img 
+            
+            {isLoadingLikes ? (
+              <div className="flex justify-center py-4">
+                <Loader className="animate-spin size-6 text-blue-500" />
+              </div>
+            ) : (
+              <div className="max-h-48 overflow-y-auto">
+                {likedUsers.length > 0 ? (
+                  likedUsers.map(user => (
+                    <div 
+                      key={user._id} 
+                      className="flex items-center py-2 hover:bg-gray-100 px-2 rounded-md transition-colors cursor-pointer"
+                      onClick={(e: React.MouseEvent) => handleLikedUserProfileClick(user._id, e)}
+                    >
+                      <img 
                         src={user.profileImagePath || "/avatar.jpeg"} 
                         alt={user.username}
                         className="size-8 rounded-full mr-3 object-cover"
@@ -332,18 +363,24 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
                           (e.target as HTMLImageElement).src = "/avatar.jpeg";
                         }}
                       />
-                    <span className="text-gray-700 font-medium">{user.username}</span>
-                  </div>
-                ))
-              ) : (
-                <p className="text-center text-gray-500 py-4">No likes yet</p>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+                      <span className="text-gray-700 font-medium">{user.username}</span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-center text-gray-500 py-4">No likes yet</p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* Comment Section */}
+      <div 
+        className={`transition-all duration-300 ease-in-out overflow-hidden ${
+          showCommentInput ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
       {showCommentInput && (
         <div className="mt-4 space-y-4" data-comment-section>
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
@@ -474,6 +511,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
           )}
         </div>
       )}
+      </div>
       {isModalOpen && <DeleteModal deleteHandler={deletePostHandler} isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />}
     </div>
   );
