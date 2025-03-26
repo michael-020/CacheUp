@@ -3,8 +3,10 @@ import { authAction, authState } from "./types";
 import { axiosInstance } from "../../lib/axios";
 import { AxiosError } from "axios";
 import toast from "react-hot-toast";
+import { useChatStore } from "../chatStore/useChatStore";
+import { WS_URL } from "@/lib/utils";
 
-export const useAuthStore = create<authState & authAction>((set) => ({
+export const useAuthStore = create<authState & authAction>((set, get) => ({
     authUser: null,
     isSigningUp: false,
     isSigningIn: false,
@@ -14,6 +16,8 @@ export const useAuthStore = create<authState & authAction>((set) => ({
     inputEmail: "",
     sendingEmail: false,
     isEditing: false,
+    socket: null,
+    onlineUsers: [],
 
     signup: async (data) => {
         set({isSigningUp: true})
@@ -154,5 +158,69 @@ export const useAuthStore = create<authState & authAction>((set) => ({
             }
             throw error;
         }
-    }
+    },
+
+    connectSocket: () => {
+        const { authUser } = get();
+        if (!authUser || get().socket) return;
+
+        const socket = new WebSocket(`${WS_URL}?userId=${authUser._id}`);
+
+        socket.onopen = () => {
+            console.log("WebSocket connection established");
+            set({ socket });
+        };
+
+        socket.onmessage = (event) => {
+            try {
+                const { type, payload } = JSON.parse(event.data);
+    
+                switch(type) {
+                    case "ONLINE_USERS":
+                         // Update the online users in the state
+                        set({ onlineUsers: payload });
+                        break;
+                    case "NEW_MESSAGE":
+                        const chatStore = useChatStore.getState();
+                        chatStore.addIncomingMessage({
+                            _id: Date.now().toString(), // temporary ID
+                            content: payload.content,
+                            sender: payload.senderId, 
+                            receiver: payload.recieverId,
+                            roomId: payload.roomId,
+                            createdAt: new Date()
+                        });
+
+                        break;
+                }
+            } catch (error) {
+                console.error("Error parsing WebSocket message:", error);
+            }
+        };
+
+        
+
+        socket.onclose = () => {
+            console.log("WebSocket connection closed");
+            set({ socket: null });
+        };
+
+        socket.onerror = (error) => {
+            console.error("WebSocket error:", error);
+        };
+    },
+
+    fetchOnlineUsers: () => {
+
+    },
+
+    disconnectSocket: () => {
+        const { socket } = get();
+        if (socket) {
+            socket.close();
+            set({ socket: null });
+        }
+    },
+
+    getSocket: () => get().socket
 }))

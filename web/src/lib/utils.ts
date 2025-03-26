@@ -7,6 +7,16 @@ export function cn(...inputs: ClassValue[]) {
 
 export const HTTP_URL="http://localhost:3000/api/v1"
 
+export const WS_URL = "ws://localhost:4000" 
+
+export function formatMessageTime(date: Date) {
+  return new Date(date).toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
+
 export interface IUser {
     _id: string
     name: string;

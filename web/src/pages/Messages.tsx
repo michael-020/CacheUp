@@ -1,7 +1,10 @@
+import ChatContainer from "@/components/ChatContainer"
 
 
 export const Messages = () => {
   return (
-    <div>Messages</div>
+    <div>
+      <ChatContainer />
+    </div>
   )
 }
