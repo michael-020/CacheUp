@@ -4,7 +4,7 @@ import { axiosInstance } from "../../lib/axios";
 import { AxiosError } from "axios";
 import toast from "react-hot-toast";
 import { useChatStore } from "../chatStore/useChatStore";
-import { WS_URL } from "@/lib/utils";
+import { HTTP_URL } from "@/lib/utils";
 
 export const useAuthStore = create<authState & authAction>((set, get) => ({
     authUser: null,
@@ -18,6 +18,7 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
     isEditing: false,
     socket: null,
     onlineUsers: [],
+    token: "",
 
     signup: async (data) => {
         set({isSigningUp: true})
@@ -26,6 +27,7 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
             const res = await axiosInstance.post("/user/complete-signup", data)
             set({authUser: res.data})
             toast.success("Account created Successfully")
+            get().connectSocket()
         } catch (error) {
             if (error instanceof AxiosError && error.response?.data?.msg) {
                 toast.error(error.response.data.msg as string);
@@ -43,6 +45,7 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
             const res = await axiosInstance.post("/user/signin", data)
             set({authUser: res.data})
             toast.success("Signed In Successfully")
+            get().connectSocket()
         } catch (error) {
             if (error instanceof AxiosError && error.response?.data?.msg) {
                 toast.error(error.response.data.msg as string);
@@ -77,6 +80,7 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
             // await new Promise(r => setTimeout(r, 2000))
             const res = await axiosInstance.get("/user/check")
             set({authUser: res.data})
+            get().connectSocket()
         } catch (error) {
             console.error("Error in check auth")
             set({authUser: null})
@@ -160,11 +164,11 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
         }
     },
 
-    connectSocket: () => {
-        const { authUser } = get();
+    connectSocket: async () => {
+        await get().getToken()
+        const { authUser, token } = get();
         if (!authUser || get().socket) return;
-
-        const socket = new WebSocket(`${WS_URL}?userId=${authUser._id}`);
+        const socket = new WebSocket(`${HTTP_URL}?userId=${authUser._id}&token=${token}`);
 
         socket.onopen = () => {
             console.log("WebSocket connection established");
@@ -222,5 +226,10 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
         }
     },
 
-    getSocket: () => get().socket
+    getSocket: () => get().socket,
+
+    getToken: async () => {
+        const res = await axiosInstance.get("/user/get-token")
+        set({token: res.data.token})
+    }
 }))

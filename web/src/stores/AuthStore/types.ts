@@ -12,6 +12,7 @@ export type authState = {
     isEditing: boolean
     onlineUsers: string[]
     socket: WebSocket | null
+    token: string | ""
 }
 
 export type authAction = {
@@ -26,4 +27,5 @@ export type authAction = {
     fetchOnlineUsers: () => void;
     disconnectSocket: () => void;
     getSocket: () => WebSocket | null; 
+    getToken: () => void;
 }

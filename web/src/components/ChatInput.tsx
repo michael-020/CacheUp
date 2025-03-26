@@ -3,7 +3,6 @@ import { Image, Send, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { useChatStore } from "@/stores/chatStore/useChatStore";
 
-
 const ChatInput = () => {
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -56,25 +55,25 @@ const ChatInput = () => {
             <img
               src={imagePreview}
               alt="Preview"
-              className="w-20 h-20 object-cover rounded-lg border border-zinc-700"
+              className="w-20 h-20 object-cover rounded-lg border border-gray-700"
             />
             <button
               onClick={removeImage}
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-base-300
-              flex items-center justify-center"
+              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-gray-300
+              flex items-center justify-center hover:bg-gray-400 transition-colors"
               type="button"
             >
-              <X className="size-3" />
+              <X className="w-3 h-3" />
             </button>
           </div>
         </div>
       )}
    
-      <form  onSubmit={handleSendMessage} className="flex items-center gap-2">
+      <form onSubmit={handleSendMessage} className="flex items-center gap-2">
         <div className="flex-1 flex gap-2">
           <input
             type="text"
-            className="w-full input input-bordered rounded-lg input-sm sm:input-md"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Type a message..."
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -89,8 +88,8 @@ const ChatInput = () => {
 
           <button
             type="button"
-            className={`hidden sm:flex btn btn-circle
-                     ${imagePreview ? "text-emerald-500" : "text-zinc-400"}`}
+            className={`hidden sm:flex items-center justify-center w-10 h-10 rounded-full 
+                     ${imagePreview ? "text-green-500" : "text-gray-400"}`}
             onClick={() => fileInputRef.current?.click()}
           >
             <Image size={20} />
@@ -98,11 +97,10 @@ const ChatInput = () => {
         </div>
         <button
           type="submit"
-          className="btn btn-primary h-10 min-h-0"
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={!text.trim() && !imagePreview}
         >
           <Send size={22} />
-          
         </button>
       </form>
     </div>

@@ -1,111 +1,106 @@
-import { useEffect, useRef } from "react"
+import { useCallback, useEffect, useMemo, useRef } from "react"
 import ChatHeader from "./ChatHeader"
-import { formatMessageTime } from "../lib/utils"
 import MessageSkeleton from "./skeletons/MessageSkeleton"
 import { motion } from "framer-motion"
 import { useChatStore } from "@/stores/chatStore/useChatStore"
-import { useAuthStore } from "@/stores/AuthStore/useAuthStore"
 import ChatInput from "./ChatInput"
+import ChatBubble from "./ChatBubble"
+import ChatSidebar from "./ChatSidebar"
+import NoChatSelected from "./NoChatSelected"
 
 const ChatContainer = () => {
   const {messages, getMessages, isMessagesLoading, selectedUser, subscribeToMessages, unSubscribeFromMessages} = useChatStore()
-  const { authUser } = useAuthStore()
   const messageEndRef = useRef<HTMLDivElement>(null);
 
-  if(selectedUser)
-    useEffect(() => {
+  const memoizedGetMessages = useCallback(() => {
+    if (selectedUser) {
       getMessages(selectedUser._id)
+    }
+  }, [getMessages, selectedUser?._id])
 
-      subscribeToMessages()
+  useEffect(() => {
+    memoizedGetMessages()
 
-      return () => unSubscribeFromMessages();
-    }, [getMessages, selectedUser._id, subscribeToMessages, unSubscribeFromMessages])
+    subscribeToMessages()
 
-    useEffect(() => {
-      if(messageEndRef.current && messages){
-        messageEndRef.current.scrollIntoView({behavior: "smooth"})
-        // messageEndRef.current?.lastElementChild?.scrollIntoView({ behavior: "smooth"})
-      }
-    }, [messages])
+    return () => {
+      unSubscribeFromMessages()
+    }
+  }, [memoizedGetMessages, subscribeToMessages, unSubscribeFromMessages])
 
-  if(isMessagesLoading){
-    return <div className="h-full w-full relative">
-      <ChatHeader />
+  useEffect(() => {
+    if (messageEndRef.current && messages) {
+      messageEndRef.current.scrollIntoView({ behavior: "smooth" })
+    }
+  }, [messages])
 
-      <motion.div className="flex-1 overflow-y-auto p-4 space-y-4 -mt-3 "
-      initial={{
-        opacity: 0,
-      }}
-      animate={{
-        opacity: 1,
-        
-      }}
-      transition={{
-        duration: 0,
-        type: "spring",
-        ease: "linear"
-      }}
-        exit={{
-          opacity: 0,
-          transition: {
-            duration: 2,
-          }
-        }}
-      >
-       {  <MessageSkeleton /> }
-      </motion.div>
+  const renderSkeleton = useMemo(() => {
+    if (isMessagesLoading) {
+      return (
+        <motion.div 
+          className="flex-1 overflow-y-auto p-4 space-y-4 -mt-3"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{
+            duration: 0,
+            type: "spring",
+            ease: "linear"
+          }}
+          exit={{
+            opacity: 0,
+            transition: {
+              duration: 2,
+            }
+          }}
+        >
+          <MessageSkeleton />
+        </motion.div>
+      )
+    }
+    return null
+  }, [isMessagesLoading])
 
-      <div className="absolute bottom-0 w-full">
-         <ChatInput />
+  if (isMessagesLoading) {
+    return (
+      <div className="h-full w-full relative">
+        <ChatHeader />
+        {renderSkeleton}
+        <div className="absolute bottom-0 w-full">
+          <ChatInput />
+        </div>
       </div>
-    </div>
+    )
   }
 
   return (
-    <div className="flex-1 flex flex-col overflow-auto">
-      <ChatHeader />
-
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages && messages.map((message) => (
-          <div
-            key={message._id}
-            className={`chat ${message.sender === authUser?._id ? "chat-end " : "chat-start"}`}
-            ref={messageEndRef}
-          >
-            <div className=" chat-image avatar">
-              <div className="size-10 rounded-full border p-[1px] border-gray-400">
-                <img
-                  className="rounded-full"
-                  src={
-                    message.sender === authUser?._id
-                      ? authUser?.profilePicture || "/avatar.png"
-                      : selectedUser?.profilePicture || "/avatar.png"
-                  }
-                  alt="profile pic"
-                />
-              </div>
-            </div>
-            <div className="chat-header mb-1">
-              <time className="text-xs opacity-50 ml-1">
-                {/* {message.createdAt.toString()} */}
-                {formatMessageTime(message.createdAt)}
-              </time>
-            </div>
-            <div className={`chat-bubble flex flex-col ${message.sender === authUser?._id ? "bg-primary/25  text-base-content " : "bg-base-200 text-base-content "}  `}>
-              {message.image && (
-                <img
-                  src={message.image}
-                  alt="Attachment"
-                  className="sm:max-w-[200px] rounded-md mb-2 mt-2"
-                />
-              )}
-              {message.content && <p>{message.content}</p>}
-            </div>
-          </div>
-        ))}
+    <div className="w-[71rem] h-[40rem] border mx-auto translate-y-24 grid grid-cols-4 gap-4 overflow-auto">
+      <div className="col-span-1">
+        <ChatSidebar />
       </div>
+      <div className="col-span-3">
+        {selectedUser ? <div className="grid grid-rows-8 grid-cols-1">
+          <div className="row-span-1">
+            <ChatHeader />
+          </div>
 
-      <ChatInput />
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 row-span-6">
+            {messages && messages.map((message) => (
+              <ChatBubble 
+                key={message._id} 
+                message={message} 
+                selectedUser={selectedUser}
+              />
+            ))}
+            <div ref={messageEndRef} />
+          </div>
+
+          <div className="row-span-1 translate-y-10">
+            <ChatInput />
+          </div>
+        </div> : <div>
+            <NoChatSelected />
+        </div>}
+      </div>
     </div>
   )
 }

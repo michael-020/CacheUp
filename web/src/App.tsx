@@ -54,7 +54,7 @@ function App() {
         {/* <Route path='/profile' element={<Profile />} /> */}
         <Route path='/profile' element={authUser ? <Profile /> : <Navigate to="/admin/home"/>} />
         <Route path="/profile/:id" element={<Profile />} />
-        <Route path='/messages' element={<Messages />} />
+        <Route path='/message' element={<Messages />} />
         <Route path='verify-email' element={<EmailVerify />} />
         <Route path='/edit-profile' element={<EditProfile />} />
 

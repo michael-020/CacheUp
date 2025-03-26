@@ -1,4 +1,5 @@
-import { IMessageData, IMessages, IUser } from "./useChatStore";
+import { IUser } from "@/lib/utils";
+import { IMessageData, IMessages } from "./useChatStore";
 
 export type chatState = {
     messages: IMessages[];

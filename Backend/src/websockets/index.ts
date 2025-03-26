@@ -1,9 +1,13 @@
 import { WebSocket, WebSocketServer } from 'ws';
-import { chatModel, userModel, chatRoomModel } from "shared/src/models/db"
-import { JWT_SECRET }  from "shared/src/lib/config"
 import jwt from "jsonwebtoken"
-const socketServer = new WebSocketServer({ port: 4000 });
+import JWT_SECRET from '../config';
+import express from "express"
+import http from "http"
 
+const app = express()
+export const server = http.createServer(app);
+export default app;
+const socketServer = new WebSocketServer({noServer: true})
 
 export const userSocketMap: Record<string, WebSocket> = {}; // { userId: socket }
 
@@ -32,6 +36,20 @@ const checkUser = (token: string | undefined): string | null => {
   }
 };
 
+server.on('upgrade', (request, socket, head) => {
+  const url = new URL(request.url || "", `http://${request.headers.host}`);
+  const userId = url.searchParams.get("userId");
+
+  if (!userId) {
+      socket.destroy();
+      return;
+  }
+
+  socketServer.handleUpgrade(request, socket, head, (ws) => {
+      socketServer.emit('connection', ws, request); // this triggers a connection event
+  });
+});
+
 socketServer.on('connection', function connection(socket: CustomWebSocket, request) {
   const url = request.url;
   if (!url) {
@@ -53,23 +71,24 @@ socketServer.on('connection', function connection(socket: CustomWebSocket, reque
     socket.close();
     return;
   }
-  if (userId){
-    userSocketMap[userId] = socket;
+  console.log(`User ${userId} connected`);
 
-    broadcastOnlineUsers()
-  }
+  // Store the WebSocket for the user
+  userSocketMap[userId] = socket;
+
+  // Broadcast online users
+  broadcastOnlineUsers();
 
   socket.on("error", console.error)
 
   socket.on("message", async (data) => {
       try {
           const parsedMessage: WebSocketMessage = JSON.parse(data.toString())
-
+          console.log("message recieved: ", parsedMessage)
           if(parsedMessage.type === "JOIN_ROOM" && parsedMessage.payload.roomId){
               // join room logic
               socket.roomId = parsedMessage.payload.roomId
-
-              // console.log(`User ${userId} joined room ${parsedMessage.payload.roomId}`);
+              console.log(`User ${userId} joined room ${parsedMessage.payload.roomId}`);
           }
           else if(parsedMessage.type === "SEND_MESSAGE"){
               const { roomId, content, image } = parsedMessage.payload;
@@ -87,6 +106,7 @@ socketServer.on('connection', function connection(socket: CustomWebSocket, reque
                               payload: { roomId, content, image },
                           })
                       );
+                      console.log("message: ", content + ", " +image)
                   }
               });
           }
@@ -121,6 +141,7 @@ function broadcastOnlineUsers() {
               type: "ONLINE_USERS",
               payload: onlineUsers,
           }));
+          console.log("online users:  ", onlineUsers)
       }
   });
 }

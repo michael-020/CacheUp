@@ -13,7 +13,7 @@ const ChatSidebar = () => {
 
   useEffect(() => {
     getUsers();
-  }, [getUsers]);
+  }, [getUsers, selectedUser]);
 
   const filteredUsers = showOnlineOnly
     ? users.filter((user) => onlineUsers.includes(user._id))
@@ -22,10 +22,10 @@ const ChatSidebar = () => {
   if (isUsersLoading) return <SidebarSkeleton />;
 
   return (
-    <aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200">
-      <div className="border-b border-base-300 lg:w-72 w-20 p-5">
+    <aside className="h-full w-20 lg:w-72 border-r border-gray-300 flex flex-col transition-all duration-200">
+      <div className="border-b border-gray-300 lg:w-72 w-20 p-5">
         <div className="flex items-center gap-2">
-          <Users className="size-6" />
+          <Users className="w-6 h-6" />
           <span className="font-medium hidden lg:block">Contacts</span>
         </div>
         <div className="mt-3 hidden lg:flex items-center gap-2">
@@ -34,18 +34,16 @@ const ChatSidebar = () => {
               type="checkbox"
               checked={showOnlineOnly}
               onChange={(e) => setShowOnlineOnly(e.target.checked)}
-              className="checkbox checkbox-sm"
+              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
             />
             <span className="text-sm">Show online only</span>
           </label>
-          <span className="text-xs text-zinc-500">({onlineUsers.length - 1} online)</span>
+          <span className="text-xs text-gray-500">({onlineUsers.length - 1} online)</span>
         </div>
       </div>
 
-      {/* User List Animation */}
-      <div className="overflow-y-auto w-full py-3 flex-1">
+      <div className="overflow-y-auto w-full pb-3 flex-1">
         <AnimatePresence mode="wait">
-          {/* Display User List if Users are Available */}
           {filteredUsers.length > 0 ? (
             <motion.div
               key="user-list"
@@ -63,10 +61,10 @@ const ChatSidebar = () => {
                   }}
                   className={`
                     w-full p-3 flex items-center gap-3
-                    hover:bg-base-300 transition-colors 
+                    hover:bg-gray-700 transition-colors 
                     ${
                       selectedUser?._id === user._id
-                        ? "bg-base-300 ring-1 ring-base-300"
+                        ? "bg-gray-700 ring-1 ring-gray-300"
                         : ""
                     }
                   `}
@@ -75,17 +73,17 @@ const ChatSidebar = () => {
                     <img
                       src={user.profilePicture || "/avatar.png"}
                       alt={user.username}
-                      className="size-12 object-cover rounded-full"
+                      className="w-12 h-12 object-cover rounded-full"
                     />
                     {onlineUsers.includes(user._id) && (
                       <span
-                        className="absolute bottom-0 right-0 size-3 bg-green-500 rounded-full"
+                        className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full"
                       />
                     )}
                   </div>
                   <div className="hidden lg:block text-left min-w-0">
                     <div className="font-medium truncate">{user.username}</div>
-                    <div className="text-sm text-zinc-400">
+                    <div className="text-sm text-gray-400">
                       {onlineUsers.includes(user._id) ? "Online" : "Offline"}
                     </div>
                   </div>
@@ -93,14 +91,13 @@ const ChatSidebar = () => {
               ))}
             </motion.div>
           ) : (
-
             <motion.div
               key="no-users"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.3 }}
-              className="text-center text-zinc-500 py-4"
+              className="text-center text-gray-500 py-4"
             >
               No online users
             </motion.div>
