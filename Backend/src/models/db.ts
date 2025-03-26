@@ -79,6 +79,48 @@ export interface IChatRoom extends Document {
   updatedAt: Date;
 }
 
+// Forum Interface
+export interface IForum extends Document {
+  name: string;
+  description: string;
+  createdBy: mongoose.Types.ObjectId;
+  createdAt: Date;
+}
+
+
+// Forums Threads Interface
+export interface IThreadForum extends Document {
+  title: string;
+  description?: string;
+  forum: mongoose.Types.ObjectId;
+  createdAt: Date;
+  createdBy: mongoose.Types.ObjectId;
+  watchedBy?: mongoose.Types.ObjectId[];
+  reportedBy?: mongoose.Types.ObjectId[];
+}
+
+// Forums Post Interface
+export interface IPostForum extends Document {
+  content: string;
+  thread: mongoose.Types.ObjectId;
+  createdAt: Date;
+  createdBy: mongoose.Types.ObjectId;
+  likedBy?: mongoose.Types.ObjectId[];
+  disLikedBy?: mongoose.Types.ObjectId[];
+  reportedBy?: mongoose.Types.ObjectId[];
+}
+
+// Forums Comment Interface
+export interface ICommentForum extends Document {
+  content: string;
+  post: mongoose.Types.ObjectId;
+  createdAt: Date;
+  createdBy: mongoose.Types.ObjectId;
+  likedBy?: mongoose.Types.ObjectId[];
+  disLikedBy?: mongoose.Types.ObjectId[];
+  reportedBy?: mongoose.Types.ObjectId[];
+}
+
 // User Schema
 const userSchema = new Schema<IUser>({
   name: { 
@@ -263,9 +305,129 @@ const chatRoomSchema = new Schema<IChatRoom>({
   timestamps: true
 })
 
+// Forum Schema
+const forumSchema = new Schema<IForum>({
+  name: {
+    type: String,
+    required: [true, "name is required"]
+  },
+  description: {
+    type: String,
+    required: [true, "Please give some description about the forum"]
+  },
+  createdBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'Admin'
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+})
+
+// Thread Forum Schema
+const threadForumSchema = new Schema<IThreadForum>({
+  title: {
+    type: String,
+    maxlength: [50, "Please give a shorter name"],
+    required: [true, "Thread should have a title"]
+  },
+  description: {
+    type: String
+  },
+  forum: {
+    type: Schema.Types.ObjectId,
+    ref: 'Forum'
+  },
+  createdBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  watchedBy: [{
+    type: Schema.Types.ObjectId,
+    ref: 'users'
+  }],
+  reportedBy: [{
+    type: Schema.Types.ObjectId,
+    ref: 'users'
+  }]
+})
+
+// Post Forum Schema
+const postForumSchema = new Schema<IPostForum>({
+  content: {
+    type: String,
+    required: [true, "Post should not be empty"]
+  },
+  thread: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  createdBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  likedBy: [{
+    type: Schema.Types.ObjectId,
+    ref: 'users'
+  }],
+  disLikedBy: [{
+    type: Schema.Types.ObjectId,
+    ref: 'users'
+  }],
+  reportedBy: [{
+    type: Schema.Types.ObjectId,
+    ref: 'users'
+  }]
+})
+
+// Comment Forum Schema
+const commentForumSchema = new Schema<ICommentForum>({
+  content: {
+    type: String,
+    required:[true, "Comment cannot be empty"]
+  },
+  post: {
+    type: Schema.Types.ObjectId,
+    ref: 'ForumPost'
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  createdBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  likedBy: [{
+    type: Schema.Types.ObjectId,
+    ref: 'users'
+  }],
+  disLikedBy: [{
+    type: Schema.Types.ObjectId,
+    ref: 'users'
+  }],
+  reportedBy: [{
+    type: Schema.Types.ObjectId,
+    ref: 'users'
+  }]
+})
+
 export const userModel = mongoose.model<IUser, Model<IUser>>('User', userSchema);
 export const postModel = mongoose.model<IPost, Model<IPost>>('Post', postSchema);
 export const adminModel = mongoose.model<IAdmin, Model<IAdmin>>('Admin', adminSchema);
 export const otpModel = mongoose.model<IOTP, Model<IOTP>>('OTP', otpSchema);
 export const chatRoomModel = mongoose.model<IChatRoom, Model<IChatRoom>>('ChatRoom', chatRoomSchema);
 export const chatModel = mongoose.model<IChat, Model<IChat>>('Message', chatSchema);
+export const forumModel = mongoose.model<IForum, Model<IForum>>('Forum', forumSchema);
+export const threadForumModel = mongoose.model<IThreadForum, Model<IThreadForum>>('Thread', threadForumSchema);
+export const postForumModel = mongoose.model<IPostForum, Model<IPostForum>>('ForumPost', postForumSchema);
+export const commentForumModel = mongoose.model<ICommentForum, Model<ICommentForum>>('ForumComment', commentForumSchema);
