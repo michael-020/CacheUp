@@ -10,6 +10,9 @@ export type authState = {
     isVerifying: boolean
     sendingEmail: boolean
     isEditing: boolean
+    onlineUsers: string[]
+    socket: WebSocket | null
+    token: string | ""
 }
 
 export type authAction = {
@@ -20,4 +23,9 @@ export type authAction = {
     sentEmail: (data: {email: string}) => void;
     verifyEmail: (data: {email: string, otp: string}) => void;
     editProfile: (data: {name?: string, username?: string, profilePicture?: string, bio?: string}) => void;
+    connectSocket: () => void;
+    fetchOnlineUsers: () => void;
+    disconnectSocket: () => void;
+    getSocket: () => WebSocket | null; 
+    getToken: () => void;
 }

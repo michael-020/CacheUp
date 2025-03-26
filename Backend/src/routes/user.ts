@@ -12,6 +12,8 @@ import { authMiddleware } from "../middlewares/auth";
 import { checkAuth } from "../handlers/checkAuthHandler";
 import { logOutHandler } from "../handlers/logOutHandler";
 import { editProfileHandler } from "../handlers/editProfileHandler";
+import { getTokenHandler } from "../handlers/getTokenHandler";
+import { getUsernameHandler } from "../handlers/getUsernameHandler";
 
 const userRouter: Router = Router();
 
@@ -42,6 +44,8 @@ userRouter.put("/editProfile", editProfileHandler)
 // view own profile
 userRouter.use("/viewProfile", viewProfileHanler)
 
+userRouter.get("/usernames", getUsernameHandler)
+
 // friends
 userRouter.use("/friends", friendHanler)
 
@@ -54,7 +58,7 @@ userRouter.use("/viewBio", viewBioHandler)
 // PFP
 userRouter.use("/profilePicture", PfpHanler)
 
-
-
+// get token
+userRouter.get("/get-token", getTokenHandler)
 
 export default userRouter;

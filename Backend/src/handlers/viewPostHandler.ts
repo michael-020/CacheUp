@@ -7,7 +7,6 @@ const viewPostHandler: Router = Router();
 
 
 // get all posts
-
 viewPostHandler.get("/", async (req: Request, res: Response) => {
     try{
         const userId = req.user._id
@@ -20,16 +19,13 @@ viewPostHandler.get("/", async (req: Request, res: Response) => {
         }
 
         const processedPosts = allPosts.map(post => {
-            const isReported = post.reportedBy.includes(new mongo.ObjectId(userId?.toString())); 
-            
-            const isLiked = post.likes.includes(new mongo.ObjectId(userId?.toString()));
+            const isReported = post.reportedBy.includes(new mongo.ObjectId(userId?.toString())); // to check if the logged in user has reported a certain post or not
             
             return {
                 ...post._doc,
                 isReported,
                 reportButtonText: isReported ? 'Unreport' : 'Report',
-                reportCount: post.reportedBy.length,
-                isLiked 
+                reportCount: post.reportedBy.length
             };
         });
 
@@ -58,16 +54,7 @@ viewPostHandler.get("/myPosts", async (req: Request, res: Response) => {
             return
         }
 
-        const processedPosts = posts.map(post => {
-            const isLiked = post.likes.includes(new mongo.ObjectId(userId?.toString()));
-            
-            return {
-                ...post._doc,
-                isLiked
-            };
-        });
-
-        res.status(200).json(processedPosts)
+        res.status(200).json(posts)
     }
     catch (e) {
         console.error("Error while getting my posts")
@@ -81,10 +68,9 @@ viewPostHandler.get("/myPosts", async (req: Request, res: Response) => {
 // get other user's post
 viewPostHandler.get("/:id", async (req: Request, res: Response) => {
     try{
-        const otherUserId = req.params.id;
-        const currentUserId = req.user._id;
+        const userId = req.params.id;
 
-        const posts = await postModel.find({ postedBy: otherUserId }).sort({ createdAt: -1});
+        const posts = await postModel.find({ postedBy: userId }).sort({ createdAt: -1});
 
         if(!posts){
             res.status(401).json({
@@ -93,16 +79,7 @@ viewPostHandler.get("/:id", async (req: Request, res: Response) => {
             return
         }
 
-        const processedPosts = posts.map(post => {
-            const isLiked = post.likes.includes(new mongo.ObjectId(currentUserId?.toString()));
-            
-            return {
-                ...post._doc,
-                isLiked
-            };
-        });
-
-        res.status(200).json(processedPosts)
+        res.status(200).json(posts)
     }
     catch (e) {
         console.error("Error while getting all posts")
