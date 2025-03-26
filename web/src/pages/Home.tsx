@@ -8,7 +8,7 @@ export const Home = () => {
     return null;
   
   return (
-    <div className="relative px-8">
+    <div className="relative px-8 bg-white dark:bg-neutral-950 dark:border-neutral-900">
       {/* ProfileCard shifted to the right */}
       <div className="absolute left-40 -top-12 ">
         <ProfileCard userInfo={authUser} isOwnProfile={true} />
