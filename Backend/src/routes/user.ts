@@ -1,6 +1,6 @@
 import { Router } from "express";
 import viewProfileHanler from "../handlers/viewProfileHandler";
-import friendHanler from "../handlers/friendHandler";
+import friendHandler from "../handlers/friendHandler";
 import userBioHanler from "../handlers/userBioHandler";
 import PfpHanler from "../handlers/profilePicHandler";
 import { signupHandler } from "../handlers/signupHandler";
@@ -43,7 +43,7 @@ userRouter.put("/editProfile", editProfileHandler)
 userRouter.use("/viewProfile", viewProfileHanler)
 
 // friends
-userRouter.use("/friends", friendHanler)
+userRouter.use("/friends", friendHandler)
 
 // user Bio
 userRouter.use("/bio", userBioHanler)
