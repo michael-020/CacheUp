@@ -65,7 +65,7 @@ export const Profile = () => {
   }, [id, userId, isAdminView]);
 
   return (
-    <div className="flex gap-6 p-4 w-full min-h-screen bg-gray-50">
+    <div className="flex gap-6 p-4 w-full min-h-screen bg-gray-50 dark:bg-neutral-900 dark:border-neutral-900 dark:shadow-0 dark:shadow-sm">
       <div className="w-1/4 max-w-xs">
         <div className="sticky top-20">
           {userInfo && (
@@ -79,7 +79,7 @@ export const Profile = () => {
       </div>
       
       <div className="flex-1 max-w-2xl mx-auto mt-16">
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
+        <div className="bg-white rounded-lg shadow p-6 mb-6 dark:bg-neutral-800 dark:border-neutral-900 dark:shadow-0 dark:shadow-sm">
           <h1 className="text-2xl font-bold mb-4">
             {isOwnProfile
               ? isAdminView
@@ -93,7 +93,7 @@ export const Profile = () => {
           </h1>
           
           {isLoading ? (
-            <p className="text-gray-500 text-center py-8">Loading posts...</p>
+            <p className="text-gray-500 text-center py-8 ">Loading posts...</p>
           ) : userPosts.length > 0 ? (
             <div className="space-y-6">
               {userPosts.map((post) => (
