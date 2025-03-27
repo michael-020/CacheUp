@@ -84,20 +84,7 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
             // Update local messages
             set({ messages: [...messages, newMessage] });
 
-            // Send via WebSocket
-            const socket = useAuthStore.getState().socket;
-            if (socket) {
-              socket.send(
-                JSON.stringify({
-                  type: "SEND_MESSAGE",
-                  payload: {
-                    ...newMessage,
-                    receiver: selectedUser._id
-                  },
-                })
-              );
-            }
-
+            // Remove the WebSocket send from here since it's handled by the backend
             return newMessage;
         } catch (error) {
             if (error instanceof AxiosError && error.response?.data?.msg) {
@@ -116,8 +103,15 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
             selectedUser && 
             (message.sender === selectedUser._id || message.receiver === selectedUser._id)
         ) {
-            // Prevent duplicate messages
-            const isDuplicate = messages.some(msg => msg._id === message._id);
+            // Enhanced duplicate check - check content and timestamp within last few seconds
+            const isDuplicate = messages.some(msg => 
+                msg._id === message._id || 
+                (msg.content === message.content && 
+                 msg.sender === message.sender &&
+                 msg.receiver === message.receiver &&
+                 Math.abs(new Date(msg.createdAt).getTime() - new Date(message.createdAt).getTime()) < 1000)
+            );
+            
             if (!isDuplicate) {
                 set({
                     messages: [...messages, message]

@@ -181,20 +181,13 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
     
                 switch(type) {
                     case "ONLINE_USERS":
-                         // Update the online users in the state
                         set({ onlineUsers: payload });
                         break;
                     case "NEW_MESSAGE":
                         const chatStore = useChatStore.getState();
-                        chatStore.addIncomingMessage({
-                            _id: Date.now().toString(), // temporary ID
-                            content: payload.content,
-                            sender: payload.senderId, 
-                            receiver: payload.recieverId,
-                            roomId: payload.roomId,
-                            createdAt: new Date()
-                        });
-
+                        if (payload._id) {
+                            chatStore.addIncomingMessage(payload);
+                        }
                         break;
                 }
             } catch (error) {

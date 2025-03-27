@@ -91,35 +91,8 @@ socketServer.on('connection', function connection(socket: CustomWebSocket, reque
       console.log("message received: ", parsedMessage)
 
       if(parsedMessage.type === "JOIN_ROOM" && parsedMessage.payload.roomId){
-        // join room logic
         socket.roomId = parsedMessage.payload.roomId
         console.log(`User ${userId} joined room ${parsedMessage.payload.roomId}`);
-      }
-      else if(parsedMessage.type === "SEND_MESSAGE"){
-        const { roomId, content, image, receiver } = parsedMessage.payload;
-
-        // Broadcast the message to the specific receiver
-        socketServer.clients.forEach((client) => { 
-          const customClient = client as CustomWebSocket;
-          if (
-            customClient.readyState === WebSocket.OPEN && 
-            customClient.userId === receiver
-          ) {
-            customClient.send(
-              JSON.stringify({
-                type: "NEW_MESSAGE",
-                payload: { 
-                  roomId, 
-                  content, 
-                  image, 
-                  sender: userId,
-                  receiver 
-                },
-              })
-            );
-            console.log(`Message sent to user ${receiver}: ${content}`)
-          }
-        });
       }
     } catch (error) {
       console.error("Error while processing message:", error);
