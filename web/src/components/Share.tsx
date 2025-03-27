@@ -89,7 +89,7 @@ export default function Share() {
               <div className="flex justify-start">
                 <button
                   type="button"
-                  className="absolute ml-24 -left-2 bg-white rounded-full p-2 shadow-sm hover:bg-gray-200 "
+                  className="absolute ml-24 -left-2 bg-white rounded-full px-2 py-1 shadow-sm dark:text-neutral-800 hover:bg-gray-200 "
                   onClick={clearImage}
                 >
                   ×

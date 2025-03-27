@@ -4,7 +4,6 @@ import { axiosInstance } from '../../lib/axios';
 import { AxiosError } from 'axios';
 import toast from 'react-hot-toast';
 import { Comment } from '@/lib/utils';
-import { useAuthStore } from '../AuthStore/useAuthStore';
 
 export const usePostStore = create<PostState & PostActions>((set) => ({
   posts: [],
@@ -24,15 +23,7 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
     set({ isFetchingPosts: true });
     try {
       const res = await axiosInstance.get("/post/viewPosts/");
-      
-      const postsWithLikeStatus = res.data.map(post => {
-        return {
-          ...post,
-          isLiked: post.isLiked !== undefined ? post.isLiked : false
-        };
-      });
-      
-      set({ posts: postsWithLikeStatus, isFetchingPosts: false });
+      set({ posts: res.data});
     } catch (error) {
       console.error("Error fetching posts:", error);
       set({ isFetchingPosts: false })
@@ -61,26 +52,22 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
 
   toggleLike: async (postId) => {
     try {
-      const userId = useAuthStore.getState().authUser?._id;
-      if (!userId) {
-        throw new Error("User not authenticated");
-      }
-  
       const res = await axiosInstance.put(`/post/like/${postId}`);
-      
       set((state) => ({
         posts: state.posts.map((post) =>
           post._id === postId
             ? {
                 ...post,
-                likes: res.data.likes || [],
-                isLiked: res.data.likes.some((id: string) => id === userId),
+                likes: res.data.likes,
+                isLiked: !post.isLiked,
+                likesCount: res.data.likes.length,
               }
             : post
         ),
       }));
     } catch (error) {
       console.error("Error toggling like:", error);
+      // set({ error: error.response?.data?.message || 'Failed to toggle like' });
     }
   },
 
@@ -157,7 +144,9 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
     try {
       const res = await axiosInstance.put(`/post/comment/${postId}`, { content });
       
+      // Ensure response contains complete comment data with user info
       const newComment = res.data;
+      // console.log("new Comment: ", newComment)
       set((state) => ({
         isLoading: false,
         posts: state.posts.map(post => 
@@ -273,22 +262,5 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
       set({isPostDeleting: false})
     }
   },
-  
-  getLikedUsers: async (postId: string) => {
-    try {
-      const response = await axiosInstance.get(`/post/like/${postId}`);
-      if (response.data && Array.isArray(response.data.likedUsers)) {
-        return response.data.likedUsers.map((user: any) => ({
-          _id: user._id,
-          username: user.username,
-          profileImagePath: user.profilePicture || "/avatar.jpeg" 
-        }));
-      }
-      return [];
-    } catch (error) {
-      console.error("Error fetching liked users:", error);
-      return [];
-    }
-  }
-  
+
 }));
