@@ -81,7 +81,7 @@ export interface IChatRoom extends Document {
 
 // Forum Interface
 export interface IForum extends Document {
-  name: string;
+  title: string;
   description: string;
   createdBy: mongoose.Types.ObjectId;
   createdAt: Date;
@@ -307,9 +307,10 @@ const chatRoomSchema = new Schema<IChatRoom>({
 
 // Forum Schema
 const forumSchema = new Schema<IForum>({
-  name: {
+  title: {
     type: String,
-    required: [true, "name is required"]
+    required: [true, "name is required"],
+    unique: true
   },
   description: {
     type: String,
@@ -330,7 +331,8 @@ const threadForumSchema = new Schema<IThreadForum>({
   title: {
     type: String,
     maxlength: [50, "Please give a shorter name"],
-    required: [true, "Thread should have a title"]
+    required: [true, "Thread should have a title"],
+    unique: true
   },
   description: {
     type: String

@@ -1,15 +1,15 @@
 import weaviate from "weaviate-ts-client";
 
-const client = weaviate.client({
+export const weaviateClient = weaviate.client({
   scheme: "http",
   host: "localhost:8080", // Change if using a remote server
 });
 
 async function setupWeaviateSchema() {
-  const schema = await client.schema.getter().do();
+  const schema = await weaviateClient.schema.getter().do();
 
   if (!schema || !schema.classes?.find((c) => c.class === "Forum")) {
-    await client.schema.classCreator().withClass({
+    await weaviateClient.schema.classCreator().withClass({
       class: "Forum",
       vectorizer: "none", // We provide vectors manually
       properties: [
@@ -21,11 +21,12 @@ async function setupWeaviateSchema() {
   }
 
   if (!schema.classes?.find((c) => c.class === "Thread")) {
-    await client.schema.classCreator().withClass({
+    await weaviateClient.schema.classCreator().withClass({
       class: "Thread",
       vectorizer: "none",
       properties: [
         { name: "title", dataType: ["string"] },
+        { name: "description", dataType: ["string"]},
         { name: "forum", dataType: ["Forum"] }, // Links to a forum
         { name: "vector", dataType: ["number[]"] },
       ],
@@ -33,7 +34,7 @@ async function setupWeaviateSchema() {
   }
 
   if (!schema.classes?.find((c) => c.class === "Post")) {
-    await client.schema.classCreator().withClass({
+    await weaviateClient.schema.classCreator().withClass({
       class: "Post",
       vectorizer: "none",
       properties: [
@@ -45,7 +46,7 @@ async function setupWeaviateSchema() {
   }
 
   if (!schema.classes?.find((c) => c.class === "Comment")) {
-    await client.schema.classCreator().withClass({
+    await weaviateClient.schema.classCreator().withClass({
       class: "Comment",
       vectorizer: "none",
       properties: [
