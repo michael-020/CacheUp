@@ -1,4 +1,4 @@
-import { Post } from "../../lib/utils";
+import { Post,LikedUser } from "../../lib/utils";
 
 export interface PostState {
   posts: Post[];
@@ -12,6 +12,7 @@ export interface PostState {
   isPostDeleting: boolean;
 }
 
+
 export interface PostActions {
   createPost: (data: {text: string, image: string}) => Promise<void>;
   fetchPosts: () => Promise<void>;
@@ -23,7 +24,7 @@ export interface PostActions {
   unReportPost: (postId: string) => Promise<void>;
   setError: (error: string | null) => void;
   clearError: () => void;
-
+  getLikedUsers: (postId: string) => Promise<LikedUser[]>;
   deletePost: (data: {postId: string}) => Promise<void>;
   
   updateComment: (
@@ -38,4 +39,3 @@ export interface PostActions {
   ) => Promise<void>;
 
 }
-
