@@ -5,8 +5,6 @@ import { motion } from "framer-motion"
 import { useChatStore } from "@/stores/chatStore/useChatStore"
 import ChatInput from "./ChatInput"
 import ChatBubble from "./ChatBubble"
-import ChatSidebar from "./ChatSidebar"
-import NoChatSelected from "./NoChatSelected"
 
 const ChatContainer = () => {
   const {messages, getMessages, isMessagesLoading, selectedUser, subscribeToMessages, unSubscribeFromMessages} = useChatStore()
@@ -62,7 +60,7 @@ const ChatContainer = () => {
 
   if (isMessagesLoading) {
     return (
-      <div className="h-full w-full relative">
+      <div className="h-full w-full relative dark:bg-neutral-800">
         <ChatHeader />
         {renderSkeleton}
         <div className="absolute bottom-0 w-full">
@@ -73,34 +71,21 @@ const ChatContainer = () => {
   }
 
   return (
-    <div className="w-[71rem] h-[40rem] border mx-auto translate-y-24 grid grid-cols-4 gap-4 overflow-auto">
-      <div className="col-span-1">
-        <ChatSidebar />
+    <div className="flex flex-col w-full">
+      <ChatHeader />
+      
+      <div className="flex-grow overflow-y-auto px-4 py-4 dark:bg-neutral-800 space-y-2">
+        {messages && messages.map((message) => (
+          <ChatBubble 
+            key={message._id} 
+            message={message}
+            selectedUser={selectedUser} 
+          />
+        ))}
+        <div ref={messageEndRef} />
       </div>
-      <div className="col-span-3">
-        {selectedUser ? <div className="grid grid-rows-8 grid-cols-1">
-          <div className="row-span-1">
-            <ChatHeader />
-          </div>
-
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 row-span-6">
-            {messages && messages.map((message) => (
-              <ChatBubble 
-                key={message._id} 
-                message={message} 
-                selectedUser={selectedUser}
-              />
-            ))}
-            <div ref={messageEndRef} />
-          </div>
-
-          <div className="row-span-1 translate-y-10">
-            <ChatInput />
-          </div>
-        </div> : <div>
-            <NoChatSelected />
-        </div>}
-      </div>
+      
+      <ChatInput />
     </div>
   )
 }

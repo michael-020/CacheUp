@@ -33,6 +33,12 @@ export interface IUser {
     lastUsernameChangeDate?: string
 }
 
+export interface LikedUser {
+  _id: string;
+  username: string;
+  profileImagePath?: string | null;
+}
+
 export interface IPost {
     _id: string,
     image: string,

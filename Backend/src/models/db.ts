@@ -268,7 +268,7 @@ const otpSchema = new Schema<IOTP>({
 const chatSchema = new Schema<IChat>({
   chatRoom: { 
       type: Schema.Types.ObjectId, 
-      ref: 'chatrooms', 
+      ref: 'ChatRoom', 
       required: true 
   },
   sender: { 
@@ -299,7 +299,7 @@ const chatRoomSchema = new Schema<IChatRoom>({
   }],
   messages: [{ 
       type: Schema.Types.ObjectId, 
-      ref: 'chats' 
+      ref: 'Message' 
   }]
 }, {
   timestamps: true
