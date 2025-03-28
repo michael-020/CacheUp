@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import { z } from "zod";
-import { forumModel } from "../models/db";
-import { embedtext } from "../lib/vectorizeText";
-import { weaviateClient } from "../models/weaviate";
+import { forumModel } from "../../models/db";
+import { embedtext } from "../../lib/vectorizeText";
+import { weaviateClient } from "../../models/weaviate";
 
 
 export const createForumhandler = async(req: Request, res: Response) => {

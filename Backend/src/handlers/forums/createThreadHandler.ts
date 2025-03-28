@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import { string, z } from "zod";
-import { threadForumModel } from "../models/db";
-import { weaviateClient } from "../models/weaviate";
-import { embedtext } from "../lib/vectorizeText";
+import { threadForumModel } from "../../models/db";
+import { weaviateClient } from "../../models/weaviate";
+import { embedtext } from "../../lib/vectorizeText";
 
 export const createThreadHandler = async (req: Request, res: Response) => {
     const createThreadSchema = z.object({

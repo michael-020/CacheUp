@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { forumModel } from "../models/db";
+import { forumModel } from "../../models/db";
 
 
 export const getAllForumsHandler = async (req: Request, res: Response) => {
