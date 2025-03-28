@@ -21,14 +21,12 @@ likeHandler.put("/:id", async (req: Request, res: Response) => {
             return
         }
 
-        const userObjectId = new mongo.ObjectId(userId as string)
-
-        const isLiked = post.likes.includes(userObjectId);
+        const isLiked = post.likes.includes(userId);
         if(isLiked){
             post.likes = post.likes.filter(id => id.toString() !== userId.toString())
         }
         else {
-            post.likes.push(userObjectId);
+            post.likes.push(userId);
         }
 
         await post.save()

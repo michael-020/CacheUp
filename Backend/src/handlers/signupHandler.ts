@@ -69,7 +69,7 @@ export const signupHandler: RequestHandler =  async (req: Request, res: Response
             friendRequests: [],  
         })
 
-        generateToken(new mongoose.Types.ObjectId(newUser._id as string), res);
+        generateToken(new mongoose.Types.ObjectId(newUser._id), res);
 
         res.status(201).json({
             _id: newUser._id,

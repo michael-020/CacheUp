@@ -8,8 +8,7 @@ import { weaviateClient } from "../models/weaviate";
 export const createForumhandler = async(req: Request, res: Response) => {
     const forumSchema = z.object({
         title: z.string().min(1),
-        description: z.string().min(10),
-        createdBy: z.string()
+        description: z.string().min(10)
     })
     const response = forumSchema.safeParse(req.body);
     if(!response.success){
@@ -21,12 +20,12 @@ export const createForumhandler = async(req: Request, res: Response) => {
     }
     let forumMongo = null
     try{
-        const {title, description, createdBy} = req.body
+        const {title, description} = req.body
 
         forumMongo = await forumModel.create({
             title,
             description,
-            createdBy
+            createdBy: req.admin._id
         })
 
         const vector = await embedtext(title + " " + description)
@@ -49,7 +48,7 @@ export const createForumhandler = async(req: Request, res: Response) => {
         if (forumMongo) {
             await forumModel.deleteOne({ _id: forumMongo._id });
         }
-
-        res.status(500).json({error:e})
+        console.log("error: ", e)
+        res.status(500).json({msg: "Internal server error"})
     }
 }

@@ -47,7 +47,7 @@ export const loginHandler: RequestHandler = async (req: Request, res: Response) 
             return
         }
 
-        generateToken(new mongoose.Types.ObjectId(user._id as string), res);
+        generateToken(new mongoose.Types.ObjectId(user._id), res);
 
         res.status(200).json({
             _id: user._id,

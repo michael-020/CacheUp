@@ -4,6 +4,7 @@ dotenv.config();
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
+import "./types/override";
 import userRouter from "./routes/user";
 import adminRouter from "./routes/admin";
 import postRouter from "./routes/posts";
