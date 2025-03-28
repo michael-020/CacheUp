@@ -3,9 +3,16 @@ import { forumModel } from "../../models/db";
 
 
 export const getAllForumsHandler = async (req: Request, res: Response) => {
-    const allForums = await forumModel.find({});
-    res.json({
-        msg: "All the forums",
-        allForums
-    })
+    try{
+        const allForums = await forumModel.find({});
+        res.json({
+            msg: "All the forums",
+            allForums
+        })
+    }catch(e){
+        console.error(e)
+        res.status(500).json({
+            msg: "Some internal error"
+        })
+    }
 }

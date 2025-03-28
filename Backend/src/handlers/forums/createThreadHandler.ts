@@ -7,9 +7,7 @@ import { embedtext } from "../../lib/vectorizeText";
 export const createThreadHandler = async (req: Request, res: Response) => {
     const createThreadSchema = z.object({
         title: z.string(),
-        description: z.string(),
-        forumMongo: z.string(),
-        forumWeaviate: z.string()
+        description: z.string()
     })
     
     try {
@@ -20,7 +18,8 @@ export const createThreadHandler = async (req: Request, res: Response) => {
             return
         }
         
-        const { title, description, forumMongo, forumWeaviate } = req.body;
+        const { title, description } = req.body;
+        const {forumMongo, forumWeaviate} = req.params
         
         // Create thread in MongoDB
         const threadMongo = await threadForumModel.create({
