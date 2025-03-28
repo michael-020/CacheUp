@@ -1,0 +1,20 @@
+import { Router } from "express";
+import { getAllForumsHandler } from "../handlers/forums/getAllForumsHandler";
+import { createThreadHandler } from "../handlers/forums/createThreadHandler";
+import { authMiddleware } from "../middlewares/auth";
+import { createPostForumshandler } from "../handlers/forums/createPostForumsHandler";
+
+
+const forumsRouter = Router()
+
+forumsRouter.use(authMiddleware)
+// get all forums
+forumsRouter.get("/get-forums", getAllForumsHandler)
+
+// create threads
+forumsRouter.post("/create-thread/:forumMongo/:forumWeaviate", createThreadHandler)
+
+// create Posts
+forumsRouter.post("/create-post/:threadMongo/:threadWeaviate", createPostForumshandler)
+
+export default forumsRouter

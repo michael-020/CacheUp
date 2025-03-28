@@ -86,6 +86,7 @@ export interface IForum extends Document {
   description: string;
   createdBy: mongoose.Types.ObjectId;
   createdAt: Date;
+  weaviateId: string;
 }
 
 
@@ -98,6 +99,7 @@ export interface IThreadForum extends Document {
   createdBy: mongoose.Types.ObjectId;
   watchedBy?: mongoose.Types.ObjectId[];
   reportedBy?: mongoose.Types.ObjectId[];
+  weaviateId: string
 }
 
 // Forums Post Interface
@@ -109,6 +111,7 @@ export interface IPostForum extends Document {
   likedBy?: mongoose.Types.ObjectId[];
   disLikedBy?: mongoose.Types.ObjectId[];
   reportedBy?: mongoose.Types.ObjectId[];
+  weaviateId: string
 }
 
 // Forums Comment Interface
@@ -120,6 +123,7 @@ export interface ICommentForum extends Document {
   likedBy?: mongoose.Types.ObjectId[];
   disLikedBy?: mongoose.Types.ObjectId[];
   reportedBy?: mongoose.Types.ObjectId[];
+  weaviateId: string;
 }
 
 // User Schema
@@ -324,6 +328,10 @@ const forumSchema = new Schema<IForum>({
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  weaviateId: {
+    type: String,
+    required: true
   }
 })
 
@@ -357,7 +365,11 @@ const threadForumSchema = new Schema<IThreadForum>({
   reportedBy: [{
     type: Schema.Types.ObjectId,
     ref: 'users'
-  }]
+  }],
+  weaviateId: {
+    type: String,
+    required: true
+  }
 })
 
 // Post Forum Schema
@@ -389,7 +401,11 @@ const postForumSchema = new Schema<IPostForum>({
   reportedBy: [{
     type: Schema.Types.ObjectId,
     ref: 'users'
-  }]
+  }],
+  weaviateId: {
+    type: String,
+    required: true
+  }
 })
 
 // Comment Forum Schema
@@ -421,7 +437,11 @@ const commentForumSchema = new Schema<ICommentForum>({
   reportedBy: [{
     type: Schema.Types.ObjectId,
     ref: 'users'
-  }]
+  }],
+  weaviateId: {
+    type: String,
+    required: true
+  }
 })
 
 export const userModel = mongoose.model<IUser, Model<IUser>>('User', userSchema);
