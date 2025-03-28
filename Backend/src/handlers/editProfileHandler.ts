@@ -60,7 +60,7 @@ export const editProfileHandler = async (req: Request, res: Response) => {
     
         res.status(200).json({ msg: "User updated successfully", user});
     }catch (e) {
-        res.status(500).json({ msg: "Error updating the user", error: e });
+        res.status(500).json({ msg: "Error updating the user" });
     }
 };
 

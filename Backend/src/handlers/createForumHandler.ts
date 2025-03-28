@@ -18,14 +18,14 @@ export const createForumhandler = async(req: Request, res: Response) => {
         })
         return;
     }
-    let forumMongo = null
     try{
         const {title, description} = req.body
 
-        forumMongo = await forumModel.create({
+        const forumMongo = await forumModel.create({
             title,
             description,
-            createdBy: req.admin._id
+            createdBy: req.admin._id,
+            weaviateId: "temp"
         })
 
         const vector = await embedtext(title + " " + description)
@@ -34,10 +34,14 @@ export const createForumhandler = async(req: Request, res: Response) => {
             .withClassName("Forum")
             .withProperties({
                 title,
-                description
+                description,
+                mongoId: forumMongo._id
             })
             .withVector(vector)
             .do()
+
+        forumMongo.weaviateId = forumWeaviate?.id as string;
+        await forumMongo.save()
 
         res.json({
             msg: "Forum created succssfully",
@@ -45,9 +49,6 @@ export const createForumhandler = async(req: Request, res: Response) => {
             forumWeaviate
         })
     }catch(e) {
-        if (forumMongo) {
-            await forumModel.deleteOne({ _id: forumMongo._id });
-        }
         console.log("error: ", e)
         res.status(500).json({msg: "Internal server error"})
     }

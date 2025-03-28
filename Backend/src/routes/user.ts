@@ -14,6 +14,8 @@ import { logOutHandler } from "../handlers/logOutHandler";
 import { editProfileHandler } from "../handlers/editProfileHandler";
 import { getTokenHandler } from "../handlers/getTokenHandler";
 import { getUsernameHandler } from "../handlers/getUsernameHandler";
+import { createThreadHandler } from "../handlers/createThreadHandler";
+import { getAllForumsHandler } from "../handlers/getAllForumsHandler";
 
 const userRouter: Router = Router();
 
@@ -60,5 +62,14 @@ userRouter.use("/profilePicture", PfpHanler)
 
 // get token
 userRouter.get("/get-token", getTokenHandler)
+
+
+// FORUMS ROUTES FROM HERE 
+
+// get all forums
+userRouter.get("/get-forums", getAllForumsHandler)
+
+// create threads
+userRouter.post("/create-thread", createThreadHandler)
 
 export default userRouter;

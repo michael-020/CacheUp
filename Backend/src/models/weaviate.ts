@@ -16,6 +16,7 @@ async function setupWeaviateSchema() {
         { name: "title", dataType: ["string"] },
         { name: "description", dataType: ["string"] },
         { name: "vector", dataType: ["number[]"] }, // Store embeddings
+        { name: "mongoId", dataType: ["string"]}
       ],
     }).do();
   }
@@ -29,6 +30,7 @@ async function setupWeaviateSchema() {
         { name: "description", dataType: ["string"]},
         { name: "forum", dataType: ["Forum"] }, // Links to a forum
         { name: "vector", dataType: ["number[]"] },
+        { name: "mongoId", dataType: ["string"]}
       ],
     }).do();
   }
@@ -41,6 +43,7 @@ async function setupWeaviateSchema() {
         { name: "content", dataType: ["string"] },
         { name: "thread", dataType: ["Thread"] },
         { name: "vector", dataType: ["number[]"] },
+        { name: "mongoId", dataType: ["string"]}
       ],
     }).do();
   }
@@ -53,6 +56,7 @@ async function setupWeaviateSchema() {
         { name: "content", dataType: ["string"] },
         { name: "post", dataType: ["Post"] },
         { name: "vector", dataType: ["number[]"] },
+        { name: "mongoId", dataType: ["string"]}
       ],
     }).do();
   }
