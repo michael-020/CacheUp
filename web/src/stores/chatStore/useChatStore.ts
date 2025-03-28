@@ -9,8 +9,8 @@ import { IUser } from "@/lib/utils";
 export interface IMessages {
     _id: string;
     roomId: string;
-    sender: any;
-    receiver?: string;
+    sender: string;
+    receiver: string;
     content?: string;
     image?: string;
     createdAt: Date;
@@ -18,7 +18,7 @@ export interface IMessages {
 }
 
 export interface IMessageData {
-    content: string;
+    content?: string;
     image?: string;
 }
 
@@ -32,7 +32,6 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
     getUsers: async () => {
         set({ isUsersLoading: true });
         try {
-            // await new Promise(e => setTimeout(e, 1000))
             const res = await axiosInstance.get("/user/usernames");
             set({ users: res.data.users });
         } catch (error) {
@@ -48,14 +47,12 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
 
     getMessages: async (userId: string) => {
         if (!userId) {
-            // toast.error("User ID is required to fetch messages");
             return;
         }
         set({ isMessagesLoading: true });
         try {
-            await new Promise(e => setTimeout(e, 1000))
             const res = await axiosInstance.get(`/messages/${userId}`);
-            set({ messages: res.data.messages });
+            set({ messages: res.data.messages || [] });
         } catch (error) {
             if (error instanceof AxiosError && error.response?.data?.msg) {
                 toast.error(error.response.data.msg as string);
@@ -67,27 +64,28 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
         }
     },
 
-    setSelectedUser: (selectedUser: IUser | null) => set({ selectedUser }),
+    setSelectedUser: (selectedUser: IUser | null) => {
+        set({ selectedUser });
+        // Fetch messages for the selected user when they are selected
+        if (selectedUser) {
+            get().getMessages(selectedUser._id);
+        }
+    },
 
     sendMessage: async (messageData: IMessageData) => {
         const { selectedUser, messages } = get();
         if (!selectedUser) {
-            // toast.error("No user selected");
             return;
         }
         try {
             const res = await axiosInstance.post(`/messages/${selectedUser._id}`, messageData);
-            set({ messages: [...messages, res.data.message] });
+            const newMessage = res.data.message;
 
-            const socket = useAuthStore.getState().socket;
-            if (socket) {
-              socket.send(
-                JSON.stringify({
-                  type: "SEND_MESSAGE",
-                  payload: res.data,
-                })
-              );
-            }
+            // Update local messages
+            set({ messages: [...messages, newMessage] });
+
+            // Remove the WebSocket send from here since it's handled by the backend
+            return newMessage;
         } catch (error) {
             if (error instanceof AxiosError && error.response?.data?.msg) {
                 toast.error(error.response.data.msg as string);
@@ -98,32 +96,47 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
     },
 
     addIncomingMessage: (message: IMessages) => {
-        // set((state) => ({
-        //     messages: [...state.messages, message],
-        // }));
-        const { selectedUser } = get();
-        if (selectedUser && message.sender === selectedUser._id) {
-            set((state) => ({
-                messages: [...state.messages, message]
-            }));
+        const { selectedUser, messages } = get();
+        
+        // Check if the message is from or to the selected user
+        if (
+            selectedUser && 
+            (message.sender === selectedUser._id || message.receiver === selectedUser._id)
+        ) {
+            // Enhanced duplicate check - check content and timestamp within last few seconds
+            const isDuplicate = messages.some(msg => 
+                msg._id === message._id || 
+                (msg.content === message.content && 
+                 msg.sender === message.sender &&
+                 msg.receiver === message.receiver &&
+                 Math.abs(new Date(msg.createdAt).getTime() - new Date(message.createdAt).getTime()) < 1000)
+            );
+            
+            if (!isDuplicate) {
+                set({
+                    messages: [...messages, message]
+                });
+            }
         }
     },
 
     subscribeToMessages: () => {
-        const { selectedUser } = get();
-        if (!selectedUser) return;
-
         const socket = useAuthStore.getState().socket;
         if (!socket) return;
 
         socket.onmessage = (event) => {
             const { type, payload } = JSON.parse(event.data);
 
-            if (type === "NEW_MESSAGE" && payload.sender === selectedUser._id) {
-                const isMessageSentFromSelectedUser = payload.sender === selectedUser._id;
-                if (!isMessageSentFromSelectedUser) return;
-
-                set({ messages: [...get().messages, payload] });
+            if (type === "NEW_MESSAGE") {
+                const { selectedUser } = get();
+                
+                // Check if the message is relevant to the current selected user
+                if (
+                    selectedUser && 
+                    (payload.sender === selectedUser._id || payload.receiver === selectedUser._id)
+                ) {
+                    get().addIncomingMessage(payload);
+                }
             }
         };
     },

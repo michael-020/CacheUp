@@ -7,7 +7,7 @@ import http from "http"
 const app = express()
 export const server = http.createServer(app);
 export default app;
-const socketServer = new WebSocketServer({noServer: true})
+export const socketServer = new WebSocketServer({noServer: true})
 
 export const userSocketMap: Record<string, WebSocket> = {}; // { userId: socket }
 
@@ -17,10 +17,13 @@ interface WebSocketMessage {
     roomId?: string;
     content?: string;
     image?: string;
+    sender?: string;
+    receiver?: string;
   };
 }
 
 interface CustomWebSocket extends WebSocket {
+  userId?: string;
   roomId?: string;
 }
 
@@ -41,12 +44,12 @@ server.on('upgrade', (request, socket, head) => {
   const userId = url.searchParams.get("userId");
 
   if (!userId) {
-      socket.destroy();
-      return;
+    socket.destroy();
+    return;
   }
 
   socketServer.handleUpgrade(request, socket, head, (ws) => {
-      socketServer.emit('connection', ws, request); // this triggers a connection event
+    socketServer.emit('connection', ws, request);
   });
 });
 
@@ -75,6 +78,7 @@ socketServer.on('connection', function connection(socket: CustomWebSocket, reque
 
   // Store the WebSocket for the user
   userSocketMap[userId] = socket;
+  socket.userId = userId;
 
   // Broadcast online users
   broadcastOnlineUsers();
@@ -82,66 +86,39 @@ socketServer.on('connection', function connection(socket: CustomWebSocket, reque
   socket.on("error", console.error)
 
   socket.on("message", async (data) => {
-      try {
-          const parsedMessage: WebSocketMessage = JSON.parse(data.toString())
-          console.log("message recieved: ", parsedMessage)
-          if(parsedMessage.type === "JOIN_ROOM" && parsedMessage.payload.roomId){
-              // join room logic
-              socket.roomId = parsedMessage.payload.roomId
-              console.log(`User ${userId} joined room ${parsedMessage.payload.roomId}`);
-          }
-          else if(parsedMessage.type === "SEND_MESSAGE"){
-              const { roomId, content, image } = parsedMessage.payload;
+    try {
+      const parsedMessage: WebSocketMessage = JSON.parse(data.toString())
+      console.log("message received: ", parsedMessage)
 
-              // Broadcast the message only;
-              socketServer.clients.forEach((client) => { 
-                  const customClient = client as CustomWebSocket;
-                  if (
-                      customClient.readyState === WebSocket.OPEN && 
-                      customClient.roomId === roomId
-                  ) {
-                      customClient.send(
-                          JSON.stringify({
-                              type: "NEW_MESSAGE",
-                              payload: { roomId, content, image },
-                          })
-                      );
-                      console.log("message: ", content + ", " +image)
-                  }
-              });
-          }
-      } catch (error) {
-          console.error("Error while sending message:", error);
+      if(parsedMessage.type === "JOIN_ROOM" && parsedMessage.payload.roomId){
+        socket.roomId = parsedMessage.payload.roomId
+        console.log(`User ${userId} joined room ${parsedMessage.payload.roomId}`);
       }
-      
+    } catch (error) {
+      console.error("Error while processing message:", error);
+    }
   })
 
   socket.on("close", () => {
-    // logic to disconnect the user 
-    // console.log("A client disconnected");
-
-    const userId = Object.keys(userSocketMap).find(
-        (key) => userSocketMap[key] === socket
-    );
+    const userId = socket.userId;
 
     if (userId) {
-        delete userSocketMap[userId];
-        // console.log(`User ${userId} removed from socket map`);
-
-        broadcastOnlineUsers();
+      delete userSocketMap[userId];
+      console.log(`User ${userId} disconnected and removed from socket map`);
+      broadcastOnlineUsers();
     }
-})
+  })
 });
 
 function broadcastOnlineUsers() {
   const onlineUsers = Object.keys(userSocketMap);
   socketServer.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify({
-              type: "ONLINE_USERS",
-              payload: onlineUsers,
-          }));
-          console.log("online users:  ", onlineUsers)
-      }
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify({
+        type: "ONLINE_USERS",
+        payload: onlineUsers,
+      }));
+      console.log("online users: ", onlineUsers)
+    }
   });
 }

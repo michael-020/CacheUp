@@ -2,15 +2,16 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import express from "express";
-import "./types/override";
 import mongoose from "mongoose";
 import cors from "cors";
+import "./types/override";
 import userRouter from "./routes/user";
 import adminRouter from "./routes/admin";
 import postRouter from "./routes/posts";
 import cookieParser from "cookie-parser";
 import messageRouter from "./routes/message";
 import app, { server } from "./websockets";
+import forumsRouter from "./routes/forums";
 
 app.use(cors({
     origin: "http://localhost:5173", 
@@ -24,6 +25,7 @@ app.use("/api/v1/user", userRouter);
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/post", postRouter);
 app.use("/api/v1/messages", messageRouter);
+app.use("/api/v1/forums", forumsRouter)
 
 async function main() {
     try {

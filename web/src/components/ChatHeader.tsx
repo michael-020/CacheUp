@@ -7,7 +7,7 @@ const ChatHeader = () => {
   const { onlineUsers } = useAuthStore();
 
   return (
-    <div className="p-2.5 border-b border-gray-300">
+    <div className="p-2.5 border-b border-gray-300 dark:border-gray-700 dark:bg-neutral-800">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full relative border border-gray-400 p-[2px]">

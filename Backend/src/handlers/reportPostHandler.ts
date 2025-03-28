@@ -19,12 +19,10 @@ reportPostHandler.put("/:id", async (req: Request, res: Response) => {
             return
         }
 
-        const userObjectId = new mongo.ObjectId(userId as string)
-
-        const isReported = post.reportedBy.includes(userObjectId)
+        const isReported = post.reportedBy.includes(userId)
 
         if(!isReported){
-            post.reportedBy.push(userObjectId);
+            post.reportedBy.push(userId);
             await post.save()
         }
         

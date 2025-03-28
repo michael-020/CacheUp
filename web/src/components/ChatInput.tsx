@@ -70,10 +70,10 @@ const ChatInput = () => {
       )}
    
       <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-        <div className="flex-1 flex gap-2">
+        <div className="flex-1 flex gap-2 dark:text-gray-400 text-black">
           <input
             type="text"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-neutral-500 dark:border-gray-600"
             placeholder="Type a message..."
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -88,11 +88,11 @@ const ChatInput = () => {
 
           <button
             type="button"
-            className={`hidden sm:flex items-center justify-center w-10 h-10 rounded-full 
+            className={`hidden sm:flex items-center justify-center size-10 rounded-full 
                      ${imagePreview ? "text-green-500" : "text-gray-400"}`}
             onClick={() => fileInputRef.current?.click()}
           >
-            <Image size={20} />
+            <Image size={40} className="border-1 text-neutral-400 dark:text-gray-400" strokeWidth={1} />
           </button>
         </div>
         <button

@@ -13,6 +13,8 @@ import { adminDeleteCommentHandler } from "../handlers/deleteCommentHandler";
 import { adminInfoHandler } from "../handlers/adminInfoHandlert";
 import { checkAdminAuth } from "../handlers/checkAdminHandler";
 import { adminLogoutHandler } from "../handlers/adminLogoutHandler";
+import { createForumhandler } from "../handlers/forums/createForumHandler";
+import { getAllForumsHandler } from "../handlers/forums/getAllForumsHandler";
 
 const adminRouter: Router = Router();
 
@@ -56,5 +58,10 @@ adminRouter.get("/comment/:id", getCommentHandler)
 // delete comment
 adminRouter.delete("/comment/:postId/:commentId", adminDeleteCommentHandler)
 
+// create forum
+adminRouter.post("/create-forum", createForumhandler)
+
+// get all forums
+adminRouter.get("/get-forums", getAllForumsHandler)
 
 export default adminRouter;

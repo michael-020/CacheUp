@@ -54,7 +54,7 @@ export const getCommentHandler = async (req: Request, res: Response) => {
                 return {
                     ...comment._doc,
                     user: {
-                        _id: new mongo.ObjectId(commentUser._id as string),
+                        _id: commentUser._id,
                         username: commentUser.username,
                         profileImagePath: commentUser.profilePicture
                     }
