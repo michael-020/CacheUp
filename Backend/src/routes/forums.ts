@@ -17,4 +17,7 @@ forumsRouter.post("/create-thread/:forumMongo/:forumWeaviate", createThreadHandl
 // create Posts
 forumsRouter.post("/create-post/:threadMongo/:threadWeaviate", createPostForumshandler)
 
+// create comments
+forumsRouter.post("/create-comment/:postMongo/:postWeaviate", createPostForumshandler)
+
 export default forumsRouter

@@ -40,7 +40,7 @@ export const createForumhandler = async(req: Request, res: Response) => {
             .withVector(vector)
             .do()
 
-        forumMongo.weaviateId = forumWeaviate?.id as string;
+        forumMongo.weaviateId = forumWeaviate.id as string;
         await forumMongo.save()
 
         res.json({
