@@ -6,6 +6,8 @@ import { createPostForumshandler } from "../handlers/forums/createPostForumsHand
 import { createCommentForumHandler } from "../handlers/forums/createCommentForumHandler";
 import { searchForumHandler } from "../handlers/forums/searchForumHandler";
 import { getAllThreadsFromAForumHandler } from "../handlers/forums/getAllThreadsFromAForumHandler";
+import { getAllPostsFromAThreadHandler } from "../handlers/forums/getAllPostsFromAThreadHandler";
+import { getAllCommentsFromAPostHandler } from "../handlers/forums/getAllCommentsFromAPostHandler";
 
 
 const forumsRouter = Router()
@@ -18,7 +20,7 @@ forumsRouter.get("/get-forums", getAllForumsHandler)
 forumsRouter.post("/create-thread/:forumMongo/:forumWeaviate", createThreadHandler)
 
 // get all threads from a forum
-forumsRouter.get("/get-thread/:forumId", getAllThreadsFromAForumHandler)
+forumsRouter.get("/get-threads/:forumId", getAllThreadsFromAForumHandler)
 
 // create Posts
 forumsRouter.post("/create-post/:threadMongo/:threadWeaviate", createPostForumshandler)
@@ -29,4 +31,9 @@ forumsRouter.post("/create-comment/:postMongo/:postWeaviate", createCommentForum
 // search forums
 forumsRouter.get("/search-forums/:query", searchForumHandler)
 
+// get posts from a thread
+forumsRouter.get("/get-posts/:threadId", getAllPostsFromAThreadHandler)
+
+// get comments of a post 
+forumsRouter.get("/get-comments/:postId", getAllCommentsFromAPostHandler)
 export default forumsRouter
