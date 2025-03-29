@@ -4,6 +4,7 @@ import { createThreadHandler } from "../handlers/forums/createThreadHandler";
 import { authMiddleware } from "../middlewares/auth";
 import { createPostForumshandler } from "../handlers/forums/createPostForumsHandler";
 import { createCommentForumHandler } from "../handlers/forums/createCommentForumHandler";
+import { searchForumHandler } from "../handlers/forums/searchForumHandler";
 
 
 const forumsRouter = Router()
@@ -20,5 +21,8 @@ forumsRouter.post("/create-post/:threadMongo/:threadWeaviate", createPostForumsh
 
 // create comments
 forumsRouter.post("/create-comment/:postMongo/:postWeaviate", createCommentForumHandler)
+
+// search forums
+forumsRouter.get("/search-forums/:query", searchForumHandler)
 
 export default forumsRouter
