@@ -6,11 +6,11 @@ interface HeartIconProps {
 export default function HeartIcon({ filled, className = "" }: HeartIconProps) {
   return (
     <svg
-      className={`w-5 h-5 ${className}`}
+      className={`w-7 h-7 ${className}`}
       viewBox="0 0 24 24"
       fill={filled ? "currentColor" : "none"}
       stroke="currentColor"
-      strokeWidth={filled ? 0 : 2}
+      strokeWidth={filled ? 1 : 2}
     >
       <path
         strokeLinecap="round"
