@@ -3,6 +3,7 @@ import { getAllForumsHandler } from "../handlers/forums/getAllForumsHandler";
 import { createThreadHandler } from "../handlers/forums/createThreadHandler";
 import { authMiddleware } from "../middlewares/auth";
 import { createPostForumshandler } from "../handlers/forums/createPostForumsHandler";
+import { createCommentForumHandler } from "../handlers/forums/createCommentForumHandler";
 
 
 const forumsRouter = Router()
@@ -16,5 +17,8 @@ forumsRouter.post("/create-thread/:forumMongo/:forumWeaviate", createThreadHandl
 
 // create Posts
 forumsRouter.post("/create-post/:threadMongo/:threadWeaviate", createPostForumshandler)
+
+// create comments
+forumsRouter.post("/create-comment/:postMongo/:postWeaviate", createCommentForumHandler)
 
 export default forumsRouter
