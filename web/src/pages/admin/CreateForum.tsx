@@ -1,6 +1,8 @@
 import React, { useState, FormEvent } from 'react';
-import axios, { AxiosError } from 'axios';
+import { AxiosError } from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { axiosInstance } from '../../lib/axios';
+import toast from 'react-hot-toast';
 
 interface ErrorResponse {
   msg: string;
@@ -10,50 +12,40 @@ interface ErrorResponse {
 const CreateForum: React.FC = () => {
   const [title, setTitle] = useState<string>('');
   const [description, setDescription] = useState<string>('');
-  const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
-  const [success, setSuccess] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
     
     try {
-      const response = await axios.post('/api/v1/admin/create-forum', {
-        title,
-        description
-      }, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
+      const response = await axiosInstance.post('/admin/create-forum', { title, description });
+      
+      toast.success('🎉 Forum created successfully! Redirecting...', {
+        duration: 1000,
       });
       
-      setSuccess(true);
       setLoading(false);
-      
-      // Reset form
       setTitle('');
       setDescription('');
       
-      // Redirect to forums list after 2 seconds
       setTimeout(() => {
-        navigate('/forums');
-      }, 2000);
+        navigate('/admin/get-forums');
+      }, 1000);
       
     } catch (err) {
       setLoading(false);
       const axiosError = err as AxiosError<ErrorResponse>;
       
       if (axiosError.response?.data) {
-        if (axiosError.response.status === 411) {
-          setError(axiosError.response.data.error.map(e => e.message).join(', '));
-        } else {
-          setError(axiosError.response.data.msg || 'An error occurred');
-        }
+        const errorMessage = axiosError.response.status === 411
+          ? axiosError.response.data.error.map(e => e.message).join(', ')
+          : axiosError.response.data.msg || 'An error occurred';
+          
+        toast.error(errorMessage);
       } else {
-        setError('Failed to create forum. Please try again.');
+        toast.error('❌ Failed to create forum. Please try again.');
       }
     }
   };
@@ -61,18 +53,6 @@ const CreateForum: React.FC = () => {
   return (
     <div className="max-w-2xl mt-20 mx-auto p-6 bg-white rounded-lg shadow-md">
       <h1 className="text-2xl font-bold mb-6">Create New Forum</h1>
-      
-      {success && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-          Forum created successfully! Redirecting...
-        </div>
-      )}
-      
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
       
       <form onSubmit={handleSubmit}>
         <div className="mb-4">

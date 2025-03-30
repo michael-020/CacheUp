@@ -18,6 +18,9 @@ import UserList from './pages/admin/UserList'
 import ReportedPosts from './pages/admin/ReportedPosts'
 import { EditProfile } from './pages/EditProfile'
 import CreateForum from './pages/admin/CreateForum'
+import ForumList from './components/forums/ForumsList'
+import ForumPage from './pages/ForumPage'
+import CreateThread from './components/forums/CreateThread'
 
 function App() {
   const { authUser, checkAuth } = useAuthStore()
@@ -58,6 +61,9 @@ function App() {
         <Route path='/message' element={<Messages />} />
         <Route path='verify-email' element={<EmailVerify />} />
         <Route path='/edit-profile' element={<EditProfile />} />
+        <Route path="/forums/get-forums" element={<ForumList />} />
+        <Route path="/forums/:forumMongoId/:forumWeaviateId" element={<ForumPage />} />
+<Route path="/forums/create-thread/:forumMongoId/:forumWeaviateId" element={<CreateThread />} />
 
         {/* Admin Routes */}
         <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to="/admin/home" /> } />
@@ -66,6 +72,7 @@ function App() {
         <Route path="/admin/user-list" element={ authAdmin ? <UserList /> : <Navigate to="/admin/signin" />} />
         <Route path="/admin/profile/:id" element={authAdmin ? <Profile /> : <Navigate to="/admin/signin" />} />
         <Route path="/admin/home/forums" element={<CreateForum/>} />
+        <Route path="/admin/get-forums" element={<ForumList />} />
       </Routes>
     </div>
   )
