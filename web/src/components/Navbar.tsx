@@ -52,31 +52,31 @@ export const Navbar = () => {
         </div>
         
         <div className="flex items-center justify-center space-x-4">
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">
+          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
             <Link to={"/"}>
               <HomeIcont
                 className={`w-6 h-6 ${
-                  currentPath === "/" ? "text-yellow-500 fill-current " : "text-gray-600 dark:fill-none"
+                  currentPath === "/" ? "text-blue-500 fill-current gradient-text" : "text-gray-600 dark:fill-none"
                 }`}
               />
             </Link>
           </button>
           
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">
+          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
             <Link to={"/profile"}>
               <UserIcon
                 className={`w-6 h-6 ${
-                  currentPath === '/profile' ? "text-yellow-500 fill-current" : "text-gray-600"
+                  currentPath === '/profile' ? "text-blue-500 fill-current" : "text-gray-600"
                 }`}
               />
             </Link>
           </button>
           
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative">
+          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
             <Link to={"/message"}>
               <MessageIcon
                 className={`w-6 h-6 ${
-                  currentPath === "/message" ? "text-yellow-500 fill-current" : "text-gray-600"
+                  currentPath === "/message" ? "text-blue-500 fill-current" : "text-gray-600"
                 }`}
               />
             </Link>
@@ -85,11 +85,11 @@ export const Navbar = () => {
             </div>}
           </button>
           
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">
+          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
             <Link to={"/settings"}>
               <SettingsIcon
                 className={`w-6 h-6 ${
-                  currentPath === "/settings" ? "text-yellow-500 fill-current" : "text-gray-600"
+                  currentPath === "/settings" ? "text-blue-500 fill-current" : "text-gray-600"
                 }`}
               />
             </Link>
@@ -97,7 +97,7 @@ export const Navbar = () => {
         </div>
         
         <div className="w-1/4 flex items-center justify-end space-x-4">
-          <button onClick={toggleDarkMode}>
+          <button onClick={toggleDarkMode} className="hover:bg-neutral-200 py-1.5 px-1.5 rounded-md dark:hover:bg-gray-700">
             {
               dark ? <Sun /> : <Moon />
             }
@@ -109,7 +109,7 @@ export const Navbar = () => {
           </button>
           <button 
             onClick={logout}
-            className="px-4 py-2 hover:bg-gray-100 rounded-lg text-sm font-medium border border-gray-400"
+            className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-black rounded-lg text-sm font-medium border border-gray-400"
           >
             Logout
           </button>

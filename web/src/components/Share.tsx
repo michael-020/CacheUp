@@ -124,7 +124,7 @@ export default function Share() {
 
             <button
               type="submit"
-              className="px-4 py-1 bg-yellow-400 text-black rounded-md font-semibold flex items-center space-x-2 hover:bg-yellow-300 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-1 bg-gradient-to-r from-blue-400 to-indigo-400 text-black rounded-md font-semibold flex items-center space-x-2 hover:bg-indigo-500 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isLoading || (!text.trim() && !image)}
             >
               {isUploadingPost ? (
@@ -144,8 +144,8 @@ export default function Share() {
         
         {isLoading && (
           <div className="absolute inset-0 bg-white bg-opacity-60 rounded-lg flex flex-col items-center justify-center">
-            <Loader className="size-8 animate-spin text-yellow-500 mb-2" />
-            <p className="text-sm font-medium text-gray-700">
+            <Loader className="size-8 animate-spin text-blue-500 mb-2" />
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
               {isProcessingImage ? "Processing image..." : "Creating your post..."}
             </p>
           </div>
