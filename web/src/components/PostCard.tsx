@@ -278,7 +278,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
           <img
             src={post.postsImagePath}
             alt="Post content"
-            className="w-full h-auto aspect-video object-cover hover:scale-105 transition-all duration-1000 ease-in-out"
+            className="w-full h-auto aspect-auto object-cover hover:scale-105 transition-all duration-1000 ease-in-out"
             onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
               (e.target as HTMLImageElement).style.display = "none";
             }}
@@ -358,7 +358,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
                       <img 
                         src={user.profileImagePath || "/avatar.jpeg"} 
                         alt={user.username}
-                        className="size-8 rounded-full mr-3 object-cover"
+                        className="size-8 rounded-full mr-3 object-contain"
                         onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                           (e.target as HTMLImageElement).src = "/avatar.jpeg";
                         }}
