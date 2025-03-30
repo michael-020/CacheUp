@@ -80,7 +80,7 @@ export const Navbar = () => {
                 }`}
               />
             </Link>
-            {unReadMessages.length > 0 && <div className="bg-red-600 text-[0.7rem] px-1.5 rounded-full absolute top-0 right-1">
+            {unReadMessages.length > 0 && <div className="bg-red-500 text-white text-[0.7rem] px-1.5 rounded-full absolute top-0 right-1">
                 {unReadMessages.length < 99 ? unReadMessages.length : "99+"}
             </div>}
           </button>

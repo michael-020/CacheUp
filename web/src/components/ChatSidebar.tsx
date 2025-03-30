@@ -7,7 +7,7 @@ import { useChatStore } from "@/stores/chatStore/useChatStore";
 import { IUser } from "@/lib/utils";
 
 const ChatSidebar = () => {
-  const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading } = useChatStore();
+  const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading, unReadMessages } = useChatStore();
   const { onlineUsers } = useAuthStore();
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
 
@@ -18,6 +18,10 @@ const ChatSidebar = () => {
   const filteredUsers = showOnlineOnly
     ? users.filter((user) => onlineUsers.includes(user._id))
     : users;
+
+  const getUnreadCount = (userId: string) => {
+    return unReadMessages.filter(message => message.sender === userId).length;
+  };
 
   if (isUsersLoading) return <SidebarSkeleton />;
 
@@ -52,43 +56,63 @@ const ChatSidebar = () => {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
             >
-              {filteredUsers.map((user) => (
-                <button
-                  key={user._id}
-                  onClick={() => {
-                    if (user._id) setSelectedUser(user as IUser);
-                    else console.error("User ID is missing or invalid");
-                  }}
-                  className={`
-                    w-full p-3 flex items-center gap-3
-                    hover:bg-gray-700 transition-colors 
-                    ${
-                      selectedUser?._id === user._id
-                        ? "bg-gray-700 ring-1 ring-gray-300"
-                        : ""
-                    }
-                  `}
-                >
-                  <div className="relative mx-auto lg:mx-0 border border-gray-400 rounded-full p-[1px]">
-                    <img
-                      src={user.profilePicture || "/avatar.png"}
-                      alt={user.username}
-                      className="w-12 h-12 object-cover rounded-full"
-                    />
-                    {onlineUsers.includes(user._id) && (
-                      <span
-                        className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full"
+              {filteredUsers.map((user) => {
+                const unreadCount = getUnreadCount(user._id);
+                
+                return (
+                  <button
+                    key={user._id}
+                    onClick={() => {
+                      if (user._id) setSelectedUser(user as IUser);
+                      else console.error("User ID is missing or invalid");
+                    }}
+                    className={`
+                      w-full p-3 flex items-center gap-3
+                      hover:bg-gray-700 transition-colors relative
+                      ${
+                        selectedUser?._id === user._id
+                          ? "bg-gray-700 ring-1 ring-gray-300"
+                          : ""
+                      }
+                    `}
+                  >
+                    <div className="relative mx-auto lg:mx-0 border border-gray-400 rounded-full p-[1px]">
+                      <img
+                        src={user.profilePicture || "/avatar.jpeg"}
+                        alt={user.username}
+                        className="w-12 h-12 object-cover rounded-full"
                       />
-                    )}
-                  </div>
-                  <div className="hidden lg:block text-left min-w-0">
-                    <div className="font-medium truncate">{user.username}</div>
-                    <div className="text-sm text-gray-400">
-                      {onlineUsers.includes(user._id) ? "Online" : "Offline"}
+                      {onlineUsers.includes(user._id) && (
+                        <span
+                          className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full"
+                        />
+                      )}
                     </div>
-                  </div>
-                </button>
-              ))}
+                    <div className="hidden lg:block text-left min-w-0 flex-1">
+                      <div className="font-medium truncate flex items-center justify-between">
+                        <span>{user.username}</span>
+                        {unreadCount > 0 && (
+                          <span className="ml-2 md:relative absolute bg-blue-600 text-white text-xs font-semibold rounded-full px-2 py-0.5 min-w-5 text-center">
+                            {"+" + unreadCount}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-sm text-gray-400">
+                        {onlineUsers.includes(user._id) ? "Online" : "Offline"}
+                      </div>
+                    </div>
+                    
+                    {/* Show unread count badge in mobile view */}
+                    {unreadCount > 0 && (
+                      <div className="absolute top-1 right-1 lg:hidden">
+                        <span className="bg-blue-600 text-white text-xs font-semibold rounded-full px-1.5 py-0.5 min-w-4 text-center">
+                          {unreadCount}
+                        </span>
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
             </motion.div>
           ) : (
             <motion.div

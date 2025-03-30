@@ -13,7 +13,7 @@ export const deleteForum = async(mongoId: string, weaviateId: string) => {
             throw new Error(`Invalid Weaviate ID: ${weaviateId}`);
         }
 
-        await Promise.all(threadIdsMongo.map((id, index) => deleteThread(id as string, threadIdsWeaviate[index])))
+        await Promise.all(threadIdsMongo.map((id, index) => deleteThread(id as string, threadIdsWeaviate[index] as string)))
 
         await Promise.all([
             forumModel.findByIdAndDelete(mongoId),

@@ -25,7 +25,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message, selectedUser }) => {
     >
       {!isOwnMessage && (
         <img
-          src={selectedUser?.profilePicture || "/avatar.png"}
+          src={selectedUser?.profilePicture || "/avatar.jpeg"}
           alt="Sender profile"
           className="w-8 h-8 rounded-full object-cover"
         />
@@ -63,7 +63,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message, selectedUser }) => {
 
       {isOwnMessage && (
         <img
-          src={authUser?.profilePicture || "/avatar.png"}
+          src={authUser?.profilePicture || "/avatar.jpeg"}
           alt="Your profile"
           className="w-8 h-8 rounded-full object-cover"
         />

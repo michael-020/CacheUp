@@ -8,13 +8,6 @@ export default {
   theme: {
   	extend: {
   		colors: {
-  			'red': {
-  				'200': '#CDA7A7',
-  				'300': '#9C8A8A',
-  				'400': '#988787',
-  				'500': '#6D5F5F',
-  				'600': '#D34343'
-  			},
   			'gray': {
   				'400': '#DCDCDB',
   				'600': '#9C9C9C',
