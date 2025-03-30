@@ -1,4 +1,5 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
+import { boolean } from 'zod';
 
 // User Interface
 export interface IUser extends Document {
@@ -68,6 +69,7 @@ interface IChat extends Document {
   receiver: mongoose.Types.ObjectId;
   content?: string; 
   image?: string;
+  isRead?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -291,6 +293,10 @@ const chatSchema = new Schema<IChat>({
   image: {
       type: String,
       default: ""
+  },
+  isRead: {
+    type: Boolean,
+    default: false,
   }
 }, { 
   timestamps: true 

@@ -5,9 +5,20 @@ import { motion } from "framer-motion"
 import { useChatStore } from "@/stores/chatStore/useChatStore"
 import ChatInput from "./ChatInput"
 import ChatBubble from "./ChatBubble"
+import { useAuthStore } from "@/stores/AuthStore/useAuthStore"
 
 const ChatContainer = () => {
-  const {messages, getMessages, isMessagesLoading, selectedUser, subscribeToMessages, unSubscribeFromMessages} = useChatStore()
+  const {
+    messages, 
+    getMessages, 
+    isMessagesLoading, 
+    selectedUser, 
+    subscribeToMessages, 
+    unSubscribeFromMessages, 
+    getAllMessages
+  } = useChatStore()
+  
+  const { authUser } = useAuthStore()
   const messageEndRef = useRef<HTMLDivElement>(null);
 
   const memoizedGetMessages = useCallback(() => {
@@ -17,14 +28,22 @@ const ChatContainer = () => {
   }, [getMessages, selectedUser?._id])
 
   useEffect(() => {
-    memoizedGetMessages()
-
+    // Initialize WebSocket subscription globally once
     subscribeToMessages()
+    
+    // Get all messages for notification purposes
+    if (authUser) {
+      getAllMessages()
+    }
 
     return () => {
       unSubscribeFromMessages()
     }
-  }, [memoizedGetMessages, subscribeToMessages, unSubscribeFromMessages])
+  }, [subscribeToMessages, unSubscribeFromMessages, getAllMessages, authUser])
+
+  useEffect(() => {
+    memoizedGetMessages()
+  }, [memoizedGetMessages])
 
   useEffect(() => {
     if (messageEndRef.current && messages) {

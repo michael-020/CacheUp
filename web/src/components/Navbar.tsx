@@ -6,9 +6,11 @@ import UserIcon from "../icons/UserIcon";
 import { useAuthStore } from "../stores/AuthStore/useAuthStore";
 import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useChatStore } from "@/stores/chatStore/useChatStore";
 
 export const Navbar = () => {
   const { logout, authUser, checkAuth } = useAuthStore()
+  const { unReadMessages, getUnReadMessages } = useChatStore()
   const location = useLocation()
   const currentPath = location.pathname;
   const [dark, setDark] = useState<boolean>()
@@ -30,7 +32,8 @@ export const Navbar = () => {
       document.body.classList.remove("dark");
     }
     checkAuth()
-  }, [checkAuth]);
+    getUnReadMessages()
+  }, [checkAuth, getUnReadMessages]);
 
   if(!authUser)
     return <div>
@@ -69,7 +72,7 @@ export const Navbar = () => {
             </Link>
           </button>
           
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">
+          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative">
             <Link to={"/message"}>
               <MessageIcon
                 className={`w-6 h-6 ${
@@ -77,6 +80,9 @@ export const Navbar = () => {
                 }`}
               />
             </Link>
+            {unReadMessages.length > 0 && <div className="bg-red-600 text-[0.7rem] px-1.5 rounded-full absolute top-0 right-1">
+                {unReadMessages.length < 99 ? unReadMessages.length : "99+"}
+            </div>}
           </button>
           
           <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">

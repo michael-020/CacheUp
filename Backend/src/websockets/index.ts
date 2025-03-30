@@ -74,7 +74,6 @@ socketServer.on('connection', function connection(socket: CustomWebSocket, reque
     socket.close();
     return;
   }
-  console.log(`User ${userId} connected`);
 
   // Store the WebSocket for the user
   userSocketMap[userId] = socket;
@@ -88,11 +87,9 @@ socketServer.on('connection', function connection(socket: CustomWebSocket, reque
   socket.on("message", async (data) => {
     try {
       const parsedMessage: WebSocketMessage = JSON.parse(data.toString())
-      console.log("message received: ", parsedMessage)
 
       if(parsedMessage.type === "JOIN_ROOM" && parsedMessage.payload.roomId){
         socket.roomId = parsedMessage.payload.roomId
-        console.log(`User ${userId} joined room ${parsedMessage.payload.roomId}`);
       }
     } catch (error) {
       console.error("Error while processing message:", error);
@@ -104,7 +101,6 @@ socketServer.on('connection', function connection(socket: CustomWebSocket, reque
 
     if (userId) {
       delete userSocketMap[userId];
-      console.log(`User ${userId} disconnected and removed from socket map`);
       broadcastOnlineUsers();
     }
   })
@@ -118,7 +114,6 @@ function broadcastOnlineUsers() {
         type: "ONLINE_USERS",
         payload: onlineUsers,
       }));
-      console.log("online users: ", onlineUsers)
     }
   });
 }
