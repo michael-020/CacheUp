@@ -17,10 +17,7 @@ import { AdminNavbar } from './components/admin/AdminNavbar'
 import UserList from './pages/admin/UserList'
 import ReportedPosts from './pages/admin/ReportedPosts'
 import { EditProfile } from './pages/EditProfile'
-import {ForumsPage} from './pages/admin/ForumsPage'
-import { SearchBar } from './components/forums/search-bar'
-import { ForumsList } from './components/forums/ForumsList'
-import { ForumPage } from './pages/admin/ForumPage'
+import CreateForum from './pages/admin/CreateForum'
 
 function App() {
   const { authUser, checkAuth } = useAuthStore()
@@ -68,7 +65,7 @@ function App() {
         <Route path="/admin/reported-posts" element={authAdmin ? <ReportedPosts /> : <Navigate to="/admin/signin" /> } />
         <Route path="/admin/user-list" element={ authAdmin ? <UserList /> : <Navigate to="/admin/signin" />} />
         <Route path="/admin/profile/:id" element={authAdmin ? <Profile /> : <Navigate to="/admin/signin" />} />
-        <Route path="/admin/home/forums" element={<ForumsPage/>} />
+        <Route path="/admin/home/forums" element={<CreateForum/>} />
       </Routes>
     </div>
   )
