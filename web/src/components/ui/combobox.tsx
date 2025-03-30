@@ -25,15 +25,22 @@ interface ComboboxProps {
     className?: string;
 }
 
-export function Combobox({ options, value, onChange, placeholder }: ComboboxProps) {
+export function Combobox({ options, value, onChange, placeholder, className }: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
 
   return (
     <Popover open={open} onOpenChange={setOpen} modal={true}>
       <PopoverTrigger asChild>
-        <Button variant="outline" role="combobox" aria-expanded={open} className="w-full justify-between">
-          {value ? options.find((opt) => opt.value === value)?.label : placeholder}
-          <ChevronsUpDown className="h-4 w-4 opacity-50" />
+        <Button 
+          variant="outline" 
+          role="combobox" 
+          aria-expanded={open} 
+          className={cn("w-full justify-between", className)}
+        >
+          <span className="truncate text-left">
+            {value ? options.find((opt) => opt.value === value)?.label : placeholder}
+          </span>
+          <ChevronsUpDown className="h-4 w-4 opacity-50 flex-shrink-0 ml-2" />
         </Button>
       </PopoverTrigger>
       <PopoverContent align="center" sideOffset={4} className="p-0" style={{ width: 'var(--radix-popover-trigger-width)' }}>
@@ -43,14 +50,14 @@ export function Combobox({ options, value, onChange, placeholder }: ComboboxProp
               {options.map((opt) => (
                 <CommandItem
                   key={opt.value}
-                  value={String(opt.value)} // Ensure correct type for React components
+                  value={String(opt.value)}
                   onSelect={() => {
                     onChange(opt.value);
                     setOpen(false);
                   }}
                 >
-                  {opt.label}
-                  <Check className={cn("h-4 w-4 ml-auto", value === opt.value ? "opacity-100" : "opacity-0")} />
+                  <span className="truncate">{opt.label}</span>
+                  <Check className={cn("h-4 w-4 ml-auto flex-shrink-0", value === opt.value ? "opacity-100" : "opacity-0")} />
                 </CommandItem>
               ))}
             </CommandGroup>
