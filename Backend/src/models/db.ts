@@ -99,7 +99,7 @@ export interface IThreadForum extends Document {
   createdBy: mongoose.Types.ObjectId;
   watchedBy?: mongoose.Types.ObjectId[];
   reportedBy?: mongoose.Types.ObjectId[];
-  weaviateId: string
+  weaviateId?: string
 }
 
 // Forums Post Interface
@@ -367,8 +367,7 @@ const threadForumSchema = new Schema<IThreadForum>({
     ref: 'users'
   }],
   weaviateId: {
-    type: String,
-    required: true
+    type: String
   }
 })
 

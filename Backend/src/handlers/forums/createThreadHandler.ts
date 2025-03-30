@@ -18,50 +18,56 @@ export const createThreadHandler = async (req: Request, res: Response) => {
             return
         }
         
-        const { title, description } = req.body;
-        const {forumMongo, forumWeaviate} = req.params
+        const { title, description } = response.data;
+        const { forumMongoId, forumWeaviateId } = req.params
         
-        // Create thread in MongoDB
         const threadMongo = await threadForumModel.create({
             title,
             description,
-            forum: forumMongo,
-            createdBy: req.user._id,
-            weaviateId: "temp"
-        })
+            forum: forumMongoId,
+            createdBy: req.user._id
+        });
 
-        // Generate vector embedding for the thread
-        const vector = await embedtext(title + " " + description)
+        if(!threadMongo){
+            res.status(500).json({ 
+                msg: "Failed to create thread in Mongo" 
+            });
+            return
+        }
 
-        // Create thread in Weaviate with vector embedding
+        const vector = await embedtext(`${title} ${description}`);
+
         const threadWeaviate = await weaviateClient.data.creator()
             .withClassName("Thread")
             .withProperties({
                 title,
                 description,
-                forum: [{ 
-                    beacon: `weaviate://localhost/Forum/${forumWeaviate}` 
-                }],
-                mongoId: threadMongo._id as string
+                forum: [{ beacon: `weaviate://localhost/Forum/${forumWeaviateId}` }],
+                mongoId: threadMongo._id
             })
             .withVector(vector)
-            .do()
+            .do();
 
-        // Update MongoDB thread with Weaviate ID
-        threadMongo.weaviateId = threadWeaviate.id as string;
-        await threadMongo.save()
+        if (!threadWeaviate?.id) {
+            await threadMongo.deleteOne();
+            res.status(500).json({ 
+                msg: "Failed to create thread in Weaviate" 
+            });
+            return;
+        }
 
-        // Respond with success and created thread details
-        res.json({
+        threadMongo.weaviateId = threadWeaviate.id;
+        await threadMongo.save();
+
+        res.status(201).json({
             msg: "Thread created successfully",
             threadMongo,
             threadWeaviate
-        })
+        });
     } catch(e) {
         console.error(e);
         res.status(500).json({
-            msg: "Some server error",
-            error: e instanceof Error ? e.message : "Unknown error"
+            msg: "Internal server error"
         })
     }
 }

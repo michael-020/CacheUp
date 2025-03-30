@@ -17,7 +17,7 @@ forumsRouter.use(authMiddleware)
 forumsRouter.get("/get-forums", getAllForumsHandler)
 
 // create threads
-forumsRouter.post("/create-thread/:forumMongo/:forumWeaviate", createThreadHandler)
+forumsRouter.post("/create-thread/:forumMongoId/:forumWeaviateId", createThreadHandler)
 
 // get all threads from a forum
 forumsRouter.get("/get-threads/:forumId", getAllThreadsFromAForumHandler)
