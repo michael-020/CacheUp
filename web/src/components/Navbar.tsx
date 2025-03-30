@@ -7,6 +7,7 @@ import { useAuthStore } from "../stores/AuthStore/useAuthStore";
 import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useChatStore } from "@/stores/chatStore/useChatStore";
+import { MdOutlineForum } from "react-icons/md";
 
 export const Navbar = () => {
   const { logout, authUser, checkAuth } = useAuthStore()
@@ -93,6 +94,17 @@ export const Navbar = () => {
                 }`}
               />
             </Link>
+          </button>
+
+          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
+            <Link to={"/forums"}>
+                <MdOutlineForum className={`size-6 ${
+                  currentPath === "/forums" ? "text-blue-500 fill-current" : "text-gray-600"
+                }`} />
+            </Link>
+            {unReadMessages.length > 0 && <div className="bg-red-500 text-white text-[0.7rem] px-1.5 rounded-full absolute top-0 right-1">
+                {unReadMessages.length < 99 ? unReadMessages.length : "99+"}
+            </div>}
           </button>
         </div>
         
