@@ -3,7 +3,7 @@ import { commentForumModel } from "../../models/db";
 import { deleteComment } from "./deleteFunctions/deleteComment";
 
 
-export const userCommentDeleteHandler = async(req: Request, res: Response) => {
+export const userCommentForumDeleteHandler = async(req: Request, res: Response) => {
     try{
         const userId = req.user._id
         const { mongoId, weaviateId } = req.params;

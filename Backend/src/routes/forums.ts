@@ -8,7 +8,8 @@ import { searchForumHandler } from "../handlers/forums/searchForumHandler";
 import { getAllThreadsFromAForumHandler } from "../handlers/forums/getAllThreadsFromAForumHandler";
 import { getAllPostsFromAThreadHandler } from "../handlers/forums/getAllPostsFromAThreadHandler";
 import { getAllCommentsFromAPostHandler } from "../handlers/forums/getAllCommentsFromAPostHandler";
-import { userCommentDeleteHandler } from "../handlers/forums/userCommentDeleteHandler";
+import { userCommentForumDeleteHandler } from "../handlers/forums/userCommentForumDeleteHandler";
+import { userPostForumdeleteHandler } from "../handlers/forums/userPostForumDeleteHandler";
 
 
 const forumsRouter = Router()
@@ -39,5 +40,8 @@ forumsRouter.get("/get-posts/:threadId", getAllPostsFromAThreadHandler)
 forumsRouter.get("/get-comments/:postId", getAllCommentsFromAPostHandler)
 
 // delete comment 
-forumsRouter.delete("/delete-comment/:mongoId/:weaviateId", userCommentDeleteHandler)
+forumsRouter.delete("/delete-comment/:mongoId/:weaviateId", userCommentForumDeleteHandler)
+
+// delete post
+forumsRouter.delete("/delete-post/:mongoId/:weaviateId", userPostForumdeleteHandler)
 export default forumsRouter
