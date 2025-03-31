@@ -10,6 +10,7 @@ import { getAllPostsFromAThreadHandler } from "../handlers/forums/getAllPostsFro
 import { getAllCommentsFromAPostHandler } from "../handlers/forums/getAllCommentsFromAPostHandler";
 import { userCommentForumDeleteHandler } from "../handlers/forums/userCommentForumDeleteHandler";
 import { userPostForumdeleteHandler } from "../handlers/forums/userPostForumDeleteHandler";
+import { reportCommentForumHandler } from "../handlers/forums/reportCommentForumHandler";
 
 
 const forumsRouter = Router()
@@ -44,4 +45,7 @@ forumsRouter.delete("/delete-comment/:mongoId/:weaviateId", userCommentForumDele
 
 // delete post
 forumsRouter.delete("/delete-post/:mongoId/:weaviateId", userPostForumdeleteHandler)
+
+// report comment
+forumsRouter.post("/report-comment/:mongoId", reportCommentForumHandler)
 export default forumsRouter
