@@ -13,6 +13,7 @@ export type AdminStates = {
     isGettingReportedPosts: boolean;
     reportedPosts: Post[];
     isDeletingReportedPost: boolean;
+    isCreatingForum: boolean;
 }
 
 export type AdminActions = {
@@ -25,4 +26,5 @@ export type AdminActions = {
     fetchUsers: () => void;
     getReportedPosts: () => void;
     deleteReportedPosts: ({ postId }: { postId: string }) => void;
+    createForum: (title: string, description: string) => Promise<void>;
 }

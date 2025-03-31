@@ -1,52 +1,27 @@
 import React, { useState, FormEvent } from 'react';
-import { AxiosError } from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { axiosInstance } from '../../lib/axios';
 import toast from 'react-hot-toast';
-
-interface ErrorResponse {
-  msg: string;
-  error: Array<{ message: string }>;
-}
+import { useAdminStore } from '@/stores/AdminStore/useAdminStore'; 
 
 const CreateForum: React.FC = () => {
   const [title, setTitle] = useState<string>('');
   const [description, setDescription] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
+  const { createForum, isCreatingForum } = useAdminStore();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
     
     try {
-      const response = await axiosInstance.post('/admin/create-forum', { title, description });
-      
-      toast.success('🎉 Forum created successfully! Redirecting...', {
-        duration: 1000,
-      });
-      
-      setLoading(false);
+      await createForum(title, description);
+      toast.success('🎉 Forum created successfully! Redirecting...', { duration: 1000 });
       setTitle('');
       setDescription('');
-      
       setTimeout(() => {
         navigate('/admin/get-forums');
       }, 1000);
+    } catch (error) {
       
-    } catch (err) {
-      setLoading(false);
-      const axiosError = err as AxiosError<ErrorResponse>;
-      
-      if (axiosError.response?.data) {
-        const errorMessage = axiosError.response.status === 411
-          ? axiosError.response.data.error.map(e => e.message).join(', ')
-          : axiosError.response.data.msg || 'An error occurred';
-          
-        toast.error(errorMessage);
-      } else {
-        toast.error('❌ Failed to create forum. Please try again.');
-      }
     }
   };
 
@@ -54,6 +29,7 @@ const CreateForum: React.FC = () => {
     <div className="max-w-2xl mt-20 mx-auto p-6 bg-white rounded-lg shadow-md">
       <h1 className="text-2xl font-bold mb-6">Create New Forum</h1>
       
+      <form onSubmit={handleSubmit}>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label htmlFor="title" className="block text-gray-700 font-medium mb-2">
@@ -85,11 +61,12 @@ const CreateForum: React.FC = () => {
             minLength={10}
           ></textarea>
         </div>
+      </form>
         
         <div className="flex justify-end">
           <button
             type="button"
-            onClick={() => navigate('/forums')}
+            onClick={() => navigate('/admin/home')}
             className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md mr-2 hover:bg-gray-300"
           >
             Cancel
@@ -97,9 +74,9 @@ const CreateForum: React.FC = () => {
           <button
             type="submit"
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-300"
-            disabled={loading}
+            disabled={isCreatingForum}
           >
-            {loading ? 'Creating...' : 'Create Forum'}
+            {isCreatingForum ? 'Creating...' : 'Create Forum'}
           </button>
         </div>
       </form>

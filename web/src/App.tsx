@@ -20,7 +20,6 @@ import { EditProfile } from './pages/EditProfile'
 import CreateForum from './pages/admin/CreateForum'
 import ForumList from './components/forums/ForumsList'
 import ForumPage from './pages/ForumPage'
-import CreateThread from './components/forums/CreateThread'
 
 function App() {
   const { authUser, checkAuth } = useAuthStore()
@@ -63,7 +62,6 @@ function App() {
         <Route path='/edit-profile' element={<EditProfile />} />
         <Route path="/forums/get-forums" element={<ForumList />} />
         <Route path="/forums/:forumMongoId/:forumWeaviateId" element={<ForumPage />} />
-<Route path="/forums/create-thread/:forumMongoId/:forumWeaviateId" element={<CreateThread />} />
 
         {/* Admin Routes */}
         <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to="/admin/home" /> } />

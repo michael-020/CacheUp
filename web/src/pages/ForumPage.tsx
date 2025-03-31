@@ -1,25 +1,17 @@
-// src/components/ForumPage.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AxiosError } from 'axios';
 import { axiosInstance } from '../lib/axios';
-import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
+import ThreadModal from '../components/forums/ThreadModal';
+import { IUser } from '@/lib/utils';
 
 interface Thread {
   _id: string;
   title: string;
   description: string;
   createdAt: string;
-  author: {
-    username: string;
-  };
-}
-
-interface Forum {
-  _id: string;
-  title: string;
-  description: string;
   weaviateId: string;
-  threads: Thread[];
+  createdBy: IUser;
 }
 
 const ForumPage: React.FC = () => {
@@ -27,63 +19,94 @@ const ForumPage: React.FC = () => {
     forumMongoId: string;
     forumWeaviateId: string;
   }>();
-  const [forum, setForum] = useState<Forum | null>(null);
+  
+  const [threads, setThreads] = useState<Thread[]>([]);
+  const [forumTitle, setForumTitle] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showModal, setShowModal] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
   const isAdminRoute = location.pathname.includes('/admin');
 
+  const fetchForumDetails = async () => {
+    try {
+      setLoading(true);
+      // Fetch forum details
+      // const forumResponse = await axiosInstance.get(`/forums/${forumMongoId}`);
+      // setForumTitle(forumResponse.data.forum.title || 'Forum');
+      
+      // Fetch all threads for this forum
+      const threadsResponse = await axiosInstance.get(`/forums/get-thread/${forumMongoId}`);
+      setThreads(threadsResponse.data.allThreads);
+      setError('');
+    } catch (err) {
+      const axiosError = err as AxiosError<{ msg: string }>;
+      setError(axiosError.response?.data?.msg || 'Failed to fetch forum details');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchForum = async () => {
-      try {
-        const endpoint = isAdminRoute 
-          ? `/admin/forums/${forumMongoId}/${forumWeaviateId}`
-          : `/forums/${forumMongoId}/${forumWeaviateId}`;
-          
-        const response = await axiosInstance.get(endpoint);
-        setForum(response.data.forum);
-        setLoading(false);
-      } catch (err) {
-        setLoading(false);
-        const axiosError = err as AxiosError<{ msg: string }>;
-        setError(axiosError.response?.data?.msg || 'Failed to load forum');
-      }
-    };
+    fetchForumDetails();
+  }, [forumMongoId]);
 
-    if (forumMongoId && forumWeaviateId) fetchForum();
-  }, [forumMongoId, forumWeaviateId, isAdminRoute]);
+  const handleCreateThread = async (threadData: { title: string; description: string }) => {
+    try {
+      const endpoint = isAdminRoute 
+        ? `/admin/forums/${forumMongoId}/${forumWeaviateId}`
+        : `/forums/create-thread/${forumMongoId}/${forumWeaviateId}`;
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-  if (!forum) return <div>Forum not found</div>;
+      await axiosInstance.post(endpoint, threadData);
+      setShowModal(false);
+      fetchForumDetails();
+    } catch (err) {
+      const axiosError = err as AxiosError<{ msg: string }>;
+      setError(axiosError.response?.data?.msg || 'Failed to create thread');
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto p-6 mt-20">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">{forum.title}</h1>
-        <Link 
-          to={`${isAdminRoute ? '/admin' : ''}/forums/${forumMongoId}/${forumWeaviateId}/create-thread`}
+        <h1 className="text-2xl font-bold">{forumTitle}</h1>
+        <button
+          onClick={() => setShowModal(true)}
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
         >
           Create Thread
-        </Link>
+        </button>
       </div>
-      
-      <p className="text-gray-600 mb-8">{forum.description}</p>
 
-      <div className="space-y-4">
-        {forum.threads.map(thread => (
-          <div key={thread._id} className="bg-white p-4 rounded shadow">
-            <h3 className="text-lg font-semibold">{thread.title}</h3>
-            <p className="text-gray-600 mt-2">{thread.description}</p>
-            <div className="text-sm text-gray-500 mt-2">
-              Posted by {thread.author.username} on{' '}
-              {new Date(thread.createdAt).toLocaleDateString()}
+      {error && <div className="text-red-500 mb-4">{error}</div>}
+      
+      {loading ? (
+        <div className="text-center py-8">Loading forum content...</div>
+      ) : threads.length === 0 ? (
+        <div className="text-center py-8 bg-gray-100 rounded">
+          <p>No threads found in this forum.</p>
+          <p className="mt-2">Be the first to create a thread!</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {threads.map((thread) => (
+            <div key={thread._id} className="border p-4 rounded hover:bg-gray-50">
+              <h2 className="text-xl font-semibold">{thread.title}</h2>
+              <p className="mt-2 text-gray-600">{thread.description}</p>
+              <div className="mt-3 flex justify-between text-sm text-gray-500">
+                <span>Created: {new Date(thread.createdAt).toLocaleString()}</span>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
+
+      {showModal && (
+        <ThreadModal 
+          onClose={() => setShowModal(false)}
+          onSubmit={handleCreateThread}
+        />
+      )}
     </div>
   );
 };

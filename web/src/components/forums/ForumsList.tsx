@@ -48,9 +48,14 @@ const ForumList: React.FC = () => {
   // const handleViewForum = (forumId: string) => {
   //   navigate(`${isAdminRoute ? '/admin' : ''}/forums/${forumId}`);
   // };
+  // const handleViewForum = (forum: Forum) => {
+  //   navigate(
+  //     `${isAdminRoute ? '/admin' : ''}/forums/create-thread/${forum._id}/${forum.weaviateId}`
+  //   );
+  // };
   const handleViewForum = (forum: Forum) => {
     navigate(
-      `${isAdminRoute ? '/admin' : ''}/forums/create-thread/${forum._id}/${forum.weaviateId}`
+      `${isAdminRoute ? '/admin' : ''}/forums/${forum._id}/${forum.weaviateId}`
     );
   };
 
