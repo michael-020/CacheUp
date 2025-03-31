@@ -8,11 +8,14 @@ import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useChatStore } from "@/stores/chatStore/useChatStore";
 import { MdOutlineForum } from "react-icons/md";
+import FriendsIcon from "@/icons/FriendsIcon";
+import { useFriendsStore } from "@/stores/FriendsStore/useFriendsStore";
 
 export const Navbar = () => {
-  const { logout, authUser, checkAuth } = useAuthStore()
+  const { logout, authUser, checkAuth } = useAuthStore();
+  const { requests, fetchRequests } = useFriendsStore();
   const { unReadMessages, getUnReadMessages } = useChatStore()
-  const location = useLocation()
+  const location = useLocation();
   const currentPath = location.pathname;
   const [dark, setDark] = useState<boolean>()
 
@@ -32,9 +35,10 @@ export const Navbar = () => {
       setDark(false);
       document.body.classList.remove("dark");
     }
-    checkAuth()
+    checkAuth();
+    fetchRequests(); // Fetch friend requests when navbar loads
     getUnReadMessages()
-  }, [checkAuth, getUnReadMessages]);
+  }, [checkAuth, getUnReadMessages, fetchRequests]);
 
   if(!authUser)
     return <div>
@@ -56,42 +60,47 @@ export const Navbar = () => {
           <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
             <Link to={"/"}>
               <HomeIcont
-                className={`w-6 h-6 ${
-                  currentPath === "/" ? "text-blue-500 fill-current gradient-text" : "text-gray-600 dark:fill-none"
-                }`}
+                className={`w-6 h-6 ${currentPath === "/" ? "text-blue-500 fill-currentgradient-text" : "text-gray-600 dark:fill-none"}`}
               />
             </Link>
           </button>
-          
+
           <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
             <Link to={"/profile"}>
               <UserIcon
-                className={`w-6 h-6 ${
-                  currentPath === '/profile' ? "text-blue-500 fill-current" : "text-gray-600"
-                }`}
+                className={`w-6 h-6 ${currentPath === "/profile" ? "text-blue-500 fill-current" : "text-gray-600"}`}
               />
             </Link>
           </button>
-          
+
           <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
             <Link to={"/message"}>
               <MessageIcon
-                className={`w-6 h-6 ${
-                  currentPath === "/message" ? "text-blue-500 fill-current" : "text-gray-600"
-                }`}
+                className={`w-6 h-6 ${currentPath === "/message" ? "text-blue-500 fill-current" : "text-gray-600"}`}
               />
             </Link>
             {unReadMessages.length > 0 && <div className="bg-red-500 text-white text-[0.7rem] px-1.5 rounded-full absolute top-0 right-1">
                 {unReadMessages.length < 99 ? unReadMessages.length : "99+"}
             </div>}
           </button>
-          
+
+          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative">
+            <Link to={"/friends"}>
+              <FriendsIcon
+                className={`w-6 h-6 ${currentPath === "/friends" ? "text-yellow-500 fill-current" : "text-gray-600"}`}
+              />
+              {requests.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {requests.length > 9 ? '9+' : requests.length}
+                </span>
+              )}
+            </Link>
+          </button>
+
           <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
             <Link to={"/settings"}>
               <SettingsIcon
-                className={`w-6 h-6 ${
-                  currentPath === "/settings" ? "text-blue-500 fill-current" : "text-gray-600"
-                }`}
+                className={`w-6 h-6 ${currentPath === "/settings" ? "text-blue-500 fill-current" : "text-gray-600"}`}
               />
             </Link>
           </button>

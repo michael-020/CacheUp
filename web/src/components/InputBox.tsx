@@ -6,6 +6,7 @@ interface InputBoxTypes {
     placeholder: string;
     type: string;
     value?: string;
+    className?: string;
     }
 export const InputBox = ({label, onChange, placeholder, type, value}: InputBoxTypes) => {
     return <div>
