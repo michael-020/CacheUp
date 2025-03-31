@@ -31,6 +31,8 @@ export interface IUser {
     friends?: IUser[];
     friendRequests: IUser[];
     lastUsernameChangeDate?: string
+    mutualFriends?: number;
+    isFriend?: boolean;
 }
 
 export interface LikedUser {
