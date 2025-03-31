@@ -29,19 +29,29 @@ const ForumPage: React.FC = () => {
   const isAdminRoute = location.pathname.includes('/admin');
 
   const fetchForumDetails = async () => {
+    setLoading(true);
+    
     try {
-      setLoading(true);
       // Fetch forum details
-      // const forumResponse = await axiosInstance.get(`/forums/${forumMongoId}`);
-      // setForumTitle(forumResponse.data.forum.title || 'Forum');
-      
-      // Fetch all threads for this forum
-      const threadsResponse = await axiosInstance.get(`/forums/get-thread/${forumMongoId}`);
-      setThreads(threadsResponse.data.allThreads);
+      console.log('Fetching forum details for ID:', forumMongoId);
+      const forumResponse = await axiosInstance.get(`/forums/${forumMongoId}`);
+      console.log('Forum response:', forumResponse.data);
+      setForumTitle(forumResponse.data.forum.title || 'Forum');
       setError('');
     } catch (err) {
+      console.error('Error fetching forum details:', err);
+      setForumTitle('Forum');
+    }
+    
+    try {
+      const threadsResponse = await axiosInstance.get(`/forums/get-threads/${forumMongoId}`);
+      console.log('Threads response:', threadsResponse.data);
+      setThreads(threadsResponse.data.allThreads);
+    } catch (err) {
+      console.error('Error fetching threads:', err);
       const axiosError = err as AxiosError<{ msg: string }>;
-      setError(axiosError.response?.data?.msg || 'Failed to fetch forum details');
+      setError(axiosError.response?.data?.msg || 'Failed to fetch threads');
+      setThreads([]);
     } finally {
       setLoading(false);
     }
@@ -49,7 +59,7 @@ const ForumPage: React.FC = () => {
 
   useEffect(() => {
     fetchForumDetails();
-  }, [forumMongoId]);
+  }, [forumMongoId, forumWeaviateId]);
 
   const handleCreateThread = async (threadData: { title: string; description: string }) => {
     try {

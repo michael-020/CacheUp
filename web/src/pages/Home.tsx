@@ -19,15 +19,6 @@ export const Home = () => {
       <div className="ml-[1rem]">
         <Feed />
       </div>
-
-      <div className="fixed right-6 top-6">
-          <Link 
-            to="/forums/get-forums"
-            className="inline-block rounded-md bg-blue-500 px-4 py-2 text-white shadow-md transition-colors hover:bg-blue-600 no-underline mt-20"
-          >
-            Forums
-          </Link>
-        </div>
     </div>
   );
 };
