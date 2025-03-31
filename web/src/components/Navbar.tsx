@@ -60,7 +60,7 @@ export const Navbar = () => {
           <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
             <Link to={"/"}>
               <HomeIcont
-                className={`w-6 h-6 ${currentPath === "/" ? "text-blue-500 fill-currentgradient-text" : "text-gray-600 dark:fill-none"}`}
+                className={`w-6 h-6 ${currentPath === "/" ? "text-blue-500 fill-current" : "text-gray-600 dark:fill-none"}`}
               />
             </Link>
           </button>
@@ -87,7 +87,7 @@ export const Navbar = () => {
           <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative">
             <Link to={"/friends"}>
               <FriendsIcon
-                className={`w-6 h-6 ${currentPath === "/friends" ? "text-yellow-500 fill-current" : "text-gray-600"}`}
+                className={`w-6 h-6 ${currentPath === "/friends" ? "text-blue-500 fill-current" : "text-gray-600"}`}
               />
               {requests.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
