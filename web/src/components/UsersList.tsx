@@ -40,7 +40,6 @@ const UsersList = ({ searchTerm = "" }: UsersListProps) => {
       .substring(0, 2);
   };
 
-  // Filter users based on search term and status
   const allUsers = users.filter(user => {
     const searchLower = searchTerm.toLowerCase();
     const nameMatch = user.name.toLowerCase().includes(searchLower);
@@ -86,7 +85,6 @@ const UsersList = ({ searchTerm = "" }: UsersListProps) => {
     fetchAllUsers();
   }, [currentUser]);
 
-  // Update user statuses when friends or sentRequests change
   useEffect(() => {
     setUsers(prevUsers => 
       prevUsers.map(user => ({

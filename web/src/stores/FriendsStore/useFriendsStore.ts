@@ -10,7 +10,7 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
   requests: [],
   sentRequests: [],
   loading: false,
-  mutualFriends: {},
+  // mutualFriends: {},
 
   fetchFriends: async () => {
     set({ loading: true });
@@ -55,44 +55,43 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
     }
   },
 
-  fetchSuggestions: async () => {
-    set({ loading: true });
-    try {
-      const { data } = await axiosInstance.get<{ suggestions: IUser[] }>("user/friends/suggestions");
-      set({ friends: data.suggestions || [] });
-    } catch (error) {
-      const err = error as AxiosError<{ message?: string }>;
-      console.error("Error fetching suggestions:", err);
-      toast.error(err.response?.data?.message || "Failed to load suggestions");
-    } finally {
-      set({ loading: false });
-    }
-  },
+  // fetchSuggestions: async () => {
+  //   set({ loading: true });
+  //   try {
+  //     const { data } = await axiosInstance.get<{ suggestions: IUser[] }>("user/friends/suggestions");
+  //     set({ friends: data.suggestions || [] });
+  //   } catch (error) {
+  //     const err = error as AxiosError<{ message?: string }>;
+  //     console.error("Error fetching suggestions:", err);
+  //     toast.error(err.response?.data?.message || "Failed to load suggestions");
+  //   } finally {
+  //     set({ loading: false });
+  //   }
+  // },
 
-  fetchMutualFriends: async (friendId: string) => {
-    try {
-      const { data } = await axiosInstance.get<{ count: number }>(`user/friends/mutual/${friendId}`);
-      set(state => ({
-        mutualFriends: {
-          ...state.mutualFriends,
-          [friendId]: data.count || 0
-        }
-      }));
-    } catch (error) {
-      const err = error as AxiosError;
-      console.error("Error fetching mutual friends:", err);
-      set(state => ({
-        mutualFriends: {
-          ...state.mutualFriends,
-          [friendId]: 0
-        }
-      }));
-    }
-  },
+  // fetchMutualFriends: async (friendId: string) => {
+  //   try {
+  //     const { data } = await axiosInstance.get<{ count: number }>(`user/friends/mutual/${friendId}`);
+  //     set(state => ({
+  //       mutualFriends: {
+  //         ...state.mutualFriends,
+  //         [friendId]: data.count || 0
+  //       }
+  //     }));
+  //   } catch (error) {
+  //     const err = error as AxiosError;
+  //     console.error("Error fetching mutual friends:", err);
+  //     set(state => ({
+  //       mutualFriends: {
+  //         ...state.mutualFriends,
+  //         [friendId]: 0
+  //       }
+  //     }));
+  //   }
+  // },
 
   sendRequest: async (userId: string) => {
     try {
-      // Optimistic update
       set(state => ({
         sentRequests: [...state.sentRequests, { _id: userId } as IUser]
       }));
@@ -101,7 +100,6 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
       toast.success("Friend request sent");
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
-      // Rollback optimistic update
       set(state => ({
         sentRequests: state.sentRequests.filter(req => req._id !== userId)
       }));
@@ -112,7 +110,6 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
 
   acceptRequest: async (userId: string) => {
     try {
-      // Optimistic updates - already handles UI updates correctly
       set(state => ({
         requests: state.requests.filter(req => req._id !== userId),
         friends: [...state.friends, state.requests.find(req => req._id === userId)!]
@@ -121,10 +118,8 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
       await axiosInstance.post("user/friends/accept-request", { senderId: userId });
       toast.success("Friend request accepted");
       
-      // No need to call fetchFriends() here anymore
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
-      // Need to refetch on error since we can't reliably rollback
       await Promise.all([get().fetchFriends(), get().fetchRequests()]);
       console.error("Error accepting request:", err);
       toast.error(err.response?.data?.message || "Failed to accept request");
@@ -133,7 +128,6 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
 
   rejectRequest: async (userId: string) => {
     try {
-      // Optimistic update
       set(state => ({
         requests: state.requests.filter(req => req._id !== userId)
       }));
@@ -150,7 +144,6 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
 
   cancelRequest: async (userId: string) => {
     try {
-      // Optimistic update
       set(state => ({
         sentRequests: state.sentRequests.filter(req => req._id !== userId)
       }));
@@ -169,12 +162,10 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
 
   removeFriend: async (userId: string) => {
     try {
-      // Optimistic update immediately
       set(state => ({
         friends: state.friends.filter(friend => friend._id !== userId)
       }));
       
-      // Send request to server in background
       await axiosInstance.delete(`user/friends/remove/${userId}`);
       toast.success("Friend removed");
     } catch (error) {
@@ -182,7 +173,6 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
       console.error("Error removing friend:", err);
       toast.error(err.response?.data?.message || "Failed to remove friend");
       
-      // Refetch friends only on error
       await get().fetchFriends();
     }
   }
