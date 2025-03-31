@@ -1,17 +1,16 @@
 import { useFriendsStore } from "@/stores/FriendsStore/useFriendsStore";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bell, Check, X, Clock } from "lucide-react";
+import { Bell, Check, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Skeleton } from "./ui/skeleton";
 import { useState } from "react";
 
 const FriendRequests = () => {
-  const { requests, acceptRequest, rejectRequest, loading, fetchFriends } = useFriendsStore();
+  const { requests, acceptRequest, rejectRequest, loading } = useFriendsStore();
   const [processingIds, setProcessingIds] = useState<Set<string>>(new Set());
 
-  // Get initials for avatar fallback
-  const getInitials = (name) => {
+  const getInitials = (name: string) => {
     return name
       .split(" ")
       .map(part => part[0])
@@ -20,39 +19,13 @@ const FriendRequests = () => {
       .substring(0, 2);
   };
 
-  // Format time properly based on timestamps
-  const getTimeSince = (timestamp) => {
-    if (!timestamp) return "Unknown";
-    
-    const now = new Date();
-    const requestTime = new Date(timestamp);
-    const diffMs = now.getTime() - requestTime.getTime();
-    const diffMins = Math.floor(diffMs / (1000 * 60));
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffMins < 1) return "just now";
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays === 1) return "1d ago";
-    if (diffDays < 30) return `${diffDays}d ago`;
-    
-    return requestTime.toLocaleDateString();
-  };
-
   const handleAccept = async (userId: string) => {
     try {
-      // Mark this request as processing
       setProcessingIds(prev => new Set(prev).add(userId));
-      
-      // Accept the request without page refresh
       await acceptRequest(userId);
-      
-      // No need to call fetchFriends as the store already handles updates optimistically
     } catch (error) {
       console.error("Error accepting request:", error);
     } finally {
-      // Remove from processing state
       setProcessingIds(prev => {
         const newSet = new Set(prev);
         newSet.delete(userId);
@@ -63,17 +36,12 @@ const FriendRequests = () => {
 
   const handleReject = async (userId: string) => {
     try {
-      // Mark this request as processing
       setProcessingIds(prev => new Set(prev).add(userId));
-      
-      // Reject without page refresh
       await rejectRequest(userId);
       
-      // The store handles removal from the UI optimistically
     } catch (error) {
       console.error("Error rejecting request:", error);
     } finally {
-      // Remove from processing state
       setProcessingIds(prev => {
         const newSet = new Set(prev);
         newSet.delete(userId);
@@ -97,10 +65,7 @@ const FriendRequests = () => {
 
   return (
     <div className="space-y-6">
-      {/* <h2 className="text-xl font-bold flex items-center gap-2 mb-4">
-        <Bell className="h-6 w-6" />
-        Friend Requests ({requests.length})
-      </h2> */}
+
 
       {requests.length === 0 ? (
         <div className="text-center py-16 bg-gray-50 dark:bg-neutral-900 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -136,10 +101,6 @@ const FriendRequests = () => {
                         {user.department && user.graduationYear ? " • " : ""}
                         {user.graduationYear || ""}
                       </span>
-                      {/* <div className="flex items-center gap-1 text-gray-400 mt-1">
-                        <Clock className="h-3 w-3" />
-                        <span className="text-xs">{getTimeSince(user.requestTimestamp)}</span>
-                      </div> */}
                     </div>
                   </div>
                 </div>

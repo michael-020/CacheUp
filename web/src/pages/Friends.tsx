@@ -1,18 +1,17 @@
 import { useEffect, useState } from "react";
 import { useFriendsStore } from "@/stores/FriendsStore/useFriendsStore";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Users, Bell, Send, UserPlus } from "lucide-react";
+import { Search, Users, Bell, UserPlus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import FriendsList from "@/components/FriendsList";
 import FriendRequests from "@/components/FriendRequests";
-import SentRequests from "@/components/SentRequests";
 import UsersList from "@/components/UsersList";
 
 const FriendsPage = () => {
   const [activeTab, setActiveTab] = useState("friends");
   const [searchTerm, setSearchTerm] = useState("");
-  
+
   const { 
     fetchFriends, 
     fetchRequests,
@@ -20,7 +19,6 @@ const FriendsPage = () => {
     loading,
     requests,
     friends,
-    sentRequests
   } = useFriendsStore();
 
   useEffect(() => {
@@ -46,10 +44,6 @@ const FriendsPage = () => {
         return <FriendsList searchTerm={searchTerm} />;
       case 'requests':
         return <FriendRequests />;
-      case 'sent':
-        return <SentRequests />;
-      case 'users':
-        return <UsersList />;
       default:
         return <FriendsList />;
     }
@@ -77,11 +71,11 @@ const FriendsPage = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         {/* Search Bar - Now takes the full width since title is removed */}
         <div className="relative w-full md:w-96 ml-auto">
-          <div className="absolute right-3 top-3 text-gray-400">
+          <div className="absolute right-3 top-2 text-gray-400">
             <Search className="h-5 w-5" />
           </div>
           <Input
-            placeholder="Search users"
+            placeholder="Search users..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-4 pr-10 py-2 rounded-full border-gray-300 focus:ring-2 focus:ring-blue-500"
@@ -92,10 +86,9 @@ const FriendsPage = () => {
       {/* Tab Navigation - Improved spacing */}
       <div className="flex mb-8 border-b border-gray-200">
         {[
-          { id: 'friends', label: 'My Friends', icon: <Users className="h-5 w-5" />, count: friends.length },
-          { id: 'requests', label: 'Friend Requests', icon: <Bell className="h-5 w-5" />, count: requests.length },
-          // { id: 'sent', label: 'Sent Requests', icon: <Send className="h-5 w-5" />, count: sentRequests.length },
-          { id: 'users', label: 'Find Users', icon: <UserPlus className="h-5 w-5" /> }
+          { id: 'friends', label: 'My Friends', icon: <Users className="h-5 w-5" />, count: friends.length || 0},
+          { id: 'requests', label: 'Friend Requests', icon: <Bell className="h-5 w-5" />, count: requests.length || 0},
+          { id: 'users', label: 'Find Users', icon: <UserPlus className="h-5 w-5" />,count: 0 }
         ].map((tab) => (
           <button
             key={tab.id}

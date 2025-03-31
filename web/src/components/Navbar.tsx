@@ -4,15 +4,17 @@ import MessageIcon from "../icons/MessageIcon";
 import SettingsIcon from "../icons/SettingsIcon";
 import UserIcon from "../icons/UserIcon";
 import { useAuthStore } from "../stores/AuthStore/useAuthStore";
+import { useFriendsStore } from "@/stores/FriendsStore/useFriendsStore";
 import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 import FriendsIcon from "@/icons/FriendsIcon";
 
 export const Navbar = () => {
-  const { logout, authUser, checkAuth } = useAuthStore()
-  const location = useLocation()
+  const { logout, authUser, checkAuth } = useAuthStore();
+  const { requests, fetchRequests } = useFriendsStore();
+  const location = useLocation();
   const currentPath = location.pathname;
-  const [dark, setDark] = useState<boolean>()
+  const [dark, setDark] = useState<boolean>();
 
   const toggleDarkMode = () => {
     setDark((prevState) => !prevState);
@@ -30,8 +32,9 @@ export const Navbar = () => {
       setDark(false);
       document.body.classList.remove("dark");
     }
-    checkAuth()
-  }, [checkAuth]);
+    checkAuth();
+    fetchRequests(); // Fetch friend requests when navbar loads
+  }, [checkAuth, fetchRequests]);
 
   if(!authUser)
     return <div>
@@ -50,47 +53,51 @@ export const Navbar = () => {
         </div>
         
         <div className="flex items-center justify-center space-x-4">
-        <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">
-          <Link to={"/"}>
-            <HomeIcont
-              className={`w-6 h-6 ${currentPath === "/" ? "text-yellow-500 fill-current" : "text-gray-600 dark:fill-none"}`}
-            />
-          </Link>
-        </button>
+          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">
+            <Link to={"/"}>
+              <HomeIcont
+                className={`w-6 h-6 ${currentPath === "/" ? "text-yellow-500 fill-current" : "text-gray-600 dark:fill-none"}`}
+              />
+            </Link>
+          </button>
 
-        <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">
-          <Link to={"/profile"}>
-            <UserIcon
-              className={`w-6 h-6 ${currentPath === "/profile" ? "text-yellow-500 fill-current" : "text-gray-600"}`}
-            />
-          </Link>
-        </button>
+          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">
+            <Link to={"/profile"}>
+              <UserIcon
+                className={`w-6 h-6 ${currentPath === "/profile" ? "text-yellow-500 fill-current" : "text-gray-600"}`}
+              />
+            </Link>
+          </button>
 
-        <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">
-          <Link to={"/message"}>
-            <MessageIcon
-              className={`w-6 h-6 ${currentPath === "/message" ? "text-yellow-500 fill-current" : "text-gray-600"}`}
-            />
-          </Link>
-        </button>
+          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">
+            <Link to={"/message"}>
+              <MessageIcon
+                className={`w-6 h-6 ${currentPath === "/message" ? "text-yellow-500 fill-current" : "text-gray-600"}`}
+              />
+            </Link>
+          </button>
 
-        <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">
-          <Link to={"/friends"}>
-            <FriendsIcon
-              className={`w-6 h-6 ${currentPath === "/friends" ? "text-yellow-500 fill-current" : "text-gray-600"}`}
-            />
-          </Link>
-        </button>
+          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative">
+            <Link to={"/friends"}>
+              <FriendsIcon
+                className={`w-6 h-6 ${currentPath === "/friends" ? "text-yellow-500 fill-current" : "text-gray-600"}`}
+              />
+              {requests.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {requests.length > 9 ? '9+' : requests.length}
+                </span>
+              )}
+            </Link>
+          </button>
 
-        <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">
-          <Link to={"/settings"}>
-            <SettingsIcon
-              className={`w-6 h-6 ${currentPath === "/settings" ? "text-yellow-500 fill-current" : "text-gray-600"}`}
-            />
-          </Link>
-        </button>
-      </div>
-
+          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">
+            <Link to={"/settings"}>
+              <SettingsIcon
+                className={`w-6 h-6 ${currentPath === "/settings" ? "text-yellow-500 fill-current" : "text-gray-600"}`}
+              />
+            </Link>
+          </button>
+        </div>
         
         <div className="w-1/4 flex items-center justify-end space-x-4">
           <button onClick={toggleDarkMode}>

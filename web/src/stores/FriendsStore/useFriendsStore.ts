@@ -169,18 +169,21 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
 
   removeFriend: async (userId: string) => {
     try {
-      // Optimistic update
+      // Optimistic update immediately
       set(state => ({
         friends: state.friends.filter(friend => friend._id !== userId)
       }));
       
+      // Send request to server in background
       await axiosInstance.delete(`user/friends/remove/${userId}`);
       toast.success("Friend removed");
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
-      await get().fetchFriends(); // Refetch on error
       console.error("Error removing friend:", err);
       toast.error(err.response?.data?.message || "Failed to remove friend");
+      
+      // Refetch friends only on error
+      await get().fetchFriends();
     }
   }
 }));

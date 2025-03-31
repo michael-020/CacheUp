@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useFriendsStore } from "@/stores/FriendsStore/useFriendsStore";
 import { Button } from "./ui/button";
 import { Link } from "react-router-dom";
@@ -12,52 +11,45 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "./ui/badge";
 import { Skeleton } from "./ui/skeleton";
+import { IUser } from "@/lib/utils"; 
 
-const FriendsList = ({ searchTerm = "" }) => {
+interface FriendsListProps {
+  searchTerm?: string;
+}
+
+const FriendsList = ({ searchTerm = "" }: FriendsListProps) => {
   const { 
     friends, 
     loading, 
     removeFriend, 
-    fetchMutualFriends,
-    mutualFriends,
-    fetchFriends
   } = useFriendsStore();
   
-  // Get initials for avatar fallback
-  const getInitials = (name) => {
+  const getInitials = (name: string) => {
     if (!name) return "??";
     return name
       .split(" ")
-      .map(part => part[0])
+      .map((part: string) => part[0])
       .join("")
       .toUpperCase()
       .substring(0, 2);
   };
 
-  const handleRemove = async (userId) => {
+  const handleRemove = async (e: React.MouseEvent, userId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
     await removeFriend(userId);
   };
 
-  // Filter friends based on search term
-  const filteredFriends = friends.filter(friend => 
+  const filteredFriends = friends.filter((friend: IUser) => 
     friend.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (friend.username && friend.username.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  // Sort friends alphabetically by name
-  const sortedFriends = [...filteredFriends].sort((a, b) => {
+  const sortedFriends = [...filteredFriends].sort((a: IUser, b: IUser) => {
     if (!a.name) return 1;
     if (!b.name) return -1;
     return a.name.localeCompare(b.name);
   });
-
-  useEffect(() => {
-    friends.forEach(friend => {
-      if (friend._id) {
-        fetchMutualFriends(friend._id);
-      }
-    });
-  }, [friends, fetchMutualFriends]);
 
   if (loading) {
     return (
@@ -102,7 +94,7 @@ const FriendsList = ({ searchTerm = "" }) => {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-          {sortedFriends.map((friend) => (
+          {sortedFriends.map((friend: IUser) => (
             <div 
               key={friend._id} 
               className="flex items-center justify-between p-4 bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all"
@@ -119,9 +111,6 @@ const FriendsList = ({ searchTerm = "" }) => {
                     <h3 className="font-semibold">{friend.name}</h3>
                   </Link>
                   <div className="flex items-center gap-1 text-sm text-gray-500">
-                    {mutualFriends[friend._id] > 0 && (
-                      <span className="text-xs text-blue-600">{mutualFriends[friend._id]} mutual</span>
-                    )}
                     {friend.department && (
                       <span className="max-w-[120px] truncate text-xs">{friend.department}</span>
                     )}
@@ -155,12 +144,12 @@ const FriendsList = ({ searchTerm = "" }) => {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem 
-                      className="text-red-600 focus:text-red-600 cursor-pointer flex items-center gap-2"
-                      onClick={() => handleRemove(friend._id)}
-                    >
-                      <UserMinus className="h-4 w-4" /> 
-                      Remove Friend
-                    </DropdownMenuItem>
+                        className="text-red-600 focus:text-red-600 cursor-pointer flex items-center gap-2"
+                        onClick={(e) => handleRemove(e, friend._id)}
+                      >
+                        <UserMinus className="h-4 w-4" /> 
+                        Remove Friend
+                      </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
