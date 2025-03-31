@@ -27,6 +27,7 @@ interface CustomWebSocket extends WebSocket {
   roomId?: string;
 }
 
+
 const checkUser = (token: string | undefined): string | null => {
   if (!token) return null;
   try {

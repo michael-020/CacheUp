@@ -318,4 +318,49 @@ friendHandler.get("/search", async (req: Request, res: Response) => {
     }
   });
 
+  friendHandler.get("/all-users", async (req: Request, res: Response) => {
+    try {
+      const users = await userModel.find()
+        .select("name username profilePicture")
+        .lean();
+  
+      res.status(200).json({ users });
+      return;
+    } catch (error) {
+      console.error("Error fetching all users:", error);
+      res.status(500).json({ message: "Internal server error" });
+      return;
+    }
+  });
+
+friendHandler.delete("/cancel-request", async (req: Request, res: Response) => {
+  try {
+    const senderId = req.user._id;
+    const { receiverId } = req.body;
+
+    if (!isValidObjectId(receiverId)) {
+       res.status(400).json({ message: "Invalid receiver ID" });
+       return
+    }
+
+    const result = await userModel.updateOne(
+      { 
+        _id: new Types.ObjectId(receiverId),
+        friendRequests: senderId
+      },
+      { $pull: { friendRequests: senderId } }
+    );
+
+    if (result.modifiedCount === 0) {
+       res.status(400).json({ message: "No request to cancel" });
+       return
+    }
+
+    res.status(200).json({ message: "Request canceled" });
+  } catch (error) {
+    console.error("Error canceling request:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 export default friendHandler;
