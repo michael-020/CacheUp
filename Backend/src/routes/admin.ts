@@ -15,6 +15,11 @@ import { checkAdminAuth } from "../handlers/checkAdminHandler";
 import { adminLogoutHandler } from "../handlers/adminLogoutHandler";
 import { createForumhandler } from "../handlers/forums/createForumHandler";
 import { getAllForumsHandler } from "../handlers/forums/getAllForumsHandler";
+import { searchForumHandler } from "../handlers/forums/searchForumHandler";
+import { adminDeletePostForumHandler } from "../handlers/forums/adminDeletePostForumHandler";
+import { adminDeleteCommentForumHandler } from "../handlers/forums/adminDeleteCommentForumhandler";
+import { adminDeleteThreadHandler } from "../handlers/forums/adminDeleteThreadHandler";
+import { adminDeleteForumHandler } from "../handlers/forums/adminDeleteForumHandler";
 
 const adminRouter: Router = Router();
 
@@ -63,5 +68,20 @@ adminRouter.post("/create-forum", createForumhandler)
 
 // get all forums
 adminRouter.get("/get-forums", getAllForumsHandler)
+
+// delete post
+adminRouter.delete("/delete-post/:mongoId/:weaviateId", adminDeletePostForumHandler)
+
+// search forums
+adminRouter.get("/search-forums/:query", searchForumHandler)
+
+// delete comments
+adminRouter.delete("/delete-comment/:mongoId/:weaviateId", adminDeleteCommentForumHandler)
+
+// delete thread
+adminRouter.delete("/delete-thread/:mongoId/:weaviateId", adminDeleteThreadHandler)
+
+// delete forum
+adminRouter.delete("/delete-forum/:mongoId/:weaviateId", adminDeleteForumHandler)
 
 export default adminRouter;

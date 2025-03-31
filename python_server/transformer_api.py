@@ -15,7 +15,7 @@ app.add_middleware(
 )
 
 # Load Sentence Transformer model
-vectorizer_model_path = "models/all-MiniLM-L6-v2"
+vectorizer_model_path = "models/multi-qa-MiniLM-L6-cos-v1"
 vectorizer = SentenceTransformer(vectorizer_model_path)
 
 def encode_text(text: str):

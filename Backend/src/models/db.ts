@@ -1,4 +1,5 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
+import { boolean } from 'zod';
 
 // User Interface
 export interface IUser extends Document {
@@ -68,6 +69,7 @@ interface IChat extends Document {
   receiver: mongoose.Types.ObjectId;
   content?: string; 
   image?: string;
+  isRead?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -99,7 +101,7 @@ export interface IThreadForum extends Document {
   createdBy: mongoose.Types.ObjectId;
   watchedBy?: mongoose.Types.ObjectId[];
   reportedBy?: mongoose.Types.ObjectId[];
-  weaviateId: string
+  weaviateId?: string
 }
 
 // Forums Post Interface
@@ -291,6 +293,10 @@ const chatSchema = new Schema<IChat>({
   image: {
       type: String,
       default: ""
+  },
+  isRead: {
+    type: Boolean,
+    default: false,
   }
 }, { 
   timestamps: true 
@@ -367,8 +373,7 @@ const threadForumSchema = new Schema<IThreadForum>({
     ref: 'users'
   }],
   weaviateId: {
-    type: String,
-    required: true
+    type: String
   }
 })
 

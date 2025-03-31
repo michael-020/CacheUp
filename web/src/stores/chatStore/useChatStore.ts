@@ -13,6 +13,7 @@ export interface IMessages {
     receiver: string;
     content?: string;
     image?: string;
+    isRead?: boolean;
     createdAt: Date;
     updatedAt?: Date;
 }
@@ -24,10 +25,12 @@ export interface IMessageData {
 
 export const useChatStore = create<chatState & chatAction>((set, get) => ({
     messages: [],
+    allMessages: [],
     users: [],
     selectedUser: null,
     isUsersLoading: false,
     isMessagesLoading: false,
+    unReadMessages: [],
 
     getUsers: async () => {
         set({ isUsersLoading: true });
@@ -51,8 +54,18 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
         }
         set({ isMessagesLoading: true });
         try {
-            const res = await axiosInstance.get(`/messages/${userId}`);
-            set({ messages: res.data.messages || [] });
+            const res = await axiosInstance.get(`/messages/chat/${userId}`);
+            const messages = res.data.messages as IMessages[] || [];
+            set({ messages });
+
+            const currentUserId = useAuthStore.getState().authUser?._id;
+            const unreadMessageIds = messages
+                .filter(msg => msg.receiver === currentUserId && !msg.isRead)
+                .map(msg => msg._id);
+
+            if (unreadMessageIds.length > 0) {
+                get().markMessagesAsRead(unreadMessageIds);
+            }
         } catch (error) {
             if (error instanceof AxiosError && error.response?.data?.msg) {
                 toast.error(error.response.data.msg as string);
@@ -64,9 +77,24 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
         }
     },
 
+    getAllMessages: async () => {
+        try {
+            const res = await axiosInstance.get(`/messages/get-all-messages`);
+            const currentUserId = useAuthStore.getState().authUser?._id;
+            const responseMessages = res.data as IMessages[]
+            const receivedMessages = responseMessages.filter(msg => msg.receiver === currentUserId);
+            set({ allMessages: receivedMessages });
+        } catch (error) {
+            if (error instanceof AxiosError && error.response?.data?.msg) {
+                toast.error(error.response.data.msg as string);
+            } else {
+                toast.error("An unexpected error occurred.");
+            }
+        } 
+    },
+
     setSelectedUser: (selectedUser: IUser | null) => {
         set({ selectedUser });
-        // Fetch messages for the selected user when they are selected
         if (selectedUser) {
             get().getMessages(selectedUser._id);
         }
@@ -78,13 +106,11 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
             return;
         }
         try {
-            const res = await axiosInstance.post(`/messages/${selectedUser._id}`, messageData);
+            const res = await axiosInstance.post(`/messages/chat/${selectedUser._id}`, messageData);
             const newMessage = res.data.message;
 
-            // Update local messages
             set({ messages: [...messages, newMessage] });
 
-            // Remove the WebSocket send from here since it's handled by the backend
             return newMessage;
         } catch (error) {
             if (error instanceof AxiosError && error.response?.data?.msg) {
@@ -96,27 +122,40 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
     },
 
     addIncomingMessage: (message: IMessages) => {
-        const { selectedUser, messages } = get();
+        const { selectedUser, messages, allMessages } = get();
+        const currentUserId = useAuthStore.getState().authUser?._id;
         
-        // Check if the message is from or to the selected user
+        const isIncomingMessage = message.receiver === currentUserId;
+        if (!isIncomingMessage) return;
+
+        const isDuplicateInChat = messages.some(msg => 
+            msg._id === message._id || 
+            (msg.content === message.content && 
+             msg.sender === message.sender &&
+             msg.receiver === message.receiver &&
+             Math.abs(new Date(msg.createdAt).getTime() - new Date(message.createdAt).getTime()) < 1000)
+        );
+        
+        const isDuplicateInAll = allMessages.some(msg => 
+            msg._id === message._id || 
+            (msg.content === message.content && 
+             msg.sender === message.sender &&
+             msg.receiver === message.receiver &&
+             Math.abs(new Date(msg.createdAt).getTime() - new Date(message.createdAt).getTime()) < 1000)
+        );
+        
         if (
             selectedUser && 
-            (message.sender === selectedUser._id || message.receiver === selectedUser._id)
+            message.sender === selectedUser._id &&
+            !isDuplicateInChat
         ) {
-            // Enhanced duplicate check - check content and timestamp within last few seconds
-            const isDuplicate = messages.some(msg => 
-                msg._id === message._id || 
-                (msg.content === message.content && 
-                 msg.sender === message.sender &&
-                 msg.receiver === message.receiver &&
-                 Math.abs(new Date(msg.createdAt).getTime() - new Date(message.createdAt).getTime()) < 1000)
-            );
+            set({ messages: [...messages, message] });
             
-            if (!isDuplicate) {
-                set({
-                    messages: [...messages, message]
-                });
+            if (!message.isRead) {
+                get().markMessagesAsRead([message._id]);
             }
+        } else if (isIncomingMessage && !isDuplicateInAll) {
+            set({ allMessages: [...allMessages, message] });
         }
     },
 
@@ -125,18 +164,19 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
         if (!socket) return;
 
         socket.onmessage = (event) => {
-            const { type, payload } = JSON.parse(event.data);
-
-            if (type === "NEW_MESSAGE") {
-                const { selectedUser } = get();
+            try {
+                const { type, payload } = JSON.parse(event.data);
                 
-                // Check if the message is relevant to the current selected user
-                if (
-                    selectedUser && 
-                    (payload.sender === selectedUser._id || payload.receiver === selectedUser._id)
-                ) {
-                    get().addIncomingMessage(payload);
+                if (type === "NEW_MESSAGE") {
+                    const currentUserId = useAuthStore.getState().authUser?._id;
+                    
+                    if (payload.receiver === currentUserId) {
+                        get().addIncomingMessage(payload);
+                        get().getUnReadMessages();
+                    }
                 }
+            } catch (error) {
+                console.error("Error processing WebSocket message:", error);
             }
         };
     },
@@ -144,7 +184,89 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
     unSubscribeFromMessages: () => {
         const socket = useAuthStore.getState().socket;
         if (socket) {
-          socket.onmessage = null; // Clear WebSocket event handler
+          socket.onmessage = null; 
         }
+    },
+
+    getUnReadMessages: async () => {
+        try {
+            const previousCount = get().unReadMessages.length;
+            
+            const res = await axiosInstance.get("/messages/get-unread-messages");
+            const newUnreadMessages = res.data as IMessages[];
+            
+            set({ unReadMessages: newUnreadMessages });
+            
+
+            if (newUnreadMessages.length > previousCount && newUnreadMessages.length > 0) {
+                const latestMessage = newUnreadMessages.reduce((latest, current) => {
+                    const latestDate = new Date(latest.createdAt).getTime();
+                    const currentDate = new Date(current.createdAt).getTime();
+                    return currentDate > latestDate ? current : latest;
+                }, newUnreadMessages[0]);
+                
+                get().sendNotification(latestMessage);
+            }
+        } catch (error) {
+            if (error instanceof AxiosError && error.response?.data?.msg) {
+                toast.error(error.response.data.msg as string);
+            } else {
+                toast.error("An unexpected error occurred.");
+            }
+        } 
+    },
+
+    markMessagesAsRead: async (messageIds) => {
+        if (!messageIds || messageIds.length === 0) return;
+        
+        try {
+            await axiosInstance.put("/messages/read-message", { messageIds });
+            
+            set({
+                messages: get().messages.map(message => {
+                    if (messageIds.includes(message._id)) {
+                        return { ...message, isRead: true };
+                    }
+                    return message;
+                })
+            });
+            
+            set({
+                allMessages: get().allMessages.map(message => {
+                    if (messageIds.includes(message._id)) {
+                        return { ...message, isRead: true };
+                    }
+                    return message;
+                })
+            });
+            
+            set({
+                unReadMessages: get().unReadMessages.filter(
+                    message => !messageIds.includes(message._id)
+                )
+            });
+        } catch (error) {
+            if (error instanceof AxiosError && error.response?.data?.msg) {
+                toast.error(error.response.data.msg as string);
+            } else {
+                toast.error("Failed to mark messages as read");
+            }
+        }
+    },
+
+    sendNotification: (message) => {        
+        if (!message) return;
+        
+        const sender = get().users.find(user => user._id === message.sender);
+        const senderName = sender ? sender.username : "Someone";
+        
+        let displayContent = "sent you a message";
+        if (message.content) {
+            displayContent = `${message.content.substring(0, 30)}${message.content.length > 30 ? '...' : ''}`;
+        } else if (message.image) {
+            displayContent = "sent you an image";
+        }
+            
+        toast.success(`${senderName}: ${displayContent}`);
     }
 }));
