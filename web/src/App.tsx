@@ -17,6 +17,8 @@ import { AdminNavbar } from './components/admin/AdminNavbar'
 import UserList from './pages/admin/UserList'
 import ReportedPosts from './pages/admin/ReportedPosts'
 import { EditProfile } from './pages/EditProfile'
+import FriendsPage from "./pages/Friends";
+
 
 function App() {
   const { authUser, checkAuth } = useAuthStore()
@@ -57,6 +59,8 @@ function App() {
         <Route path='/message' element={<Messages />} />
         <Route path='verify-email' element={<EmailVerify />} />
         <Route path='/edit-profile' element={<EditProfile />} />
+        <Route path='/friends' element={authUser ? <FriendsPage /> : <Navigate to="/signin" />} />
+
 
         {/* Admin Routes */}
         <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to="/admin/home" /> } />

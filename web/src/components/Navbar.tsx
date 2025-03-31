@@ -6,6 +6,7 @@ import UserIcon from "../icons/UserIcon";
 import { useAuthStore } from "../stores/AuthStore/useAuthStore";
 import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
+import FriendsIcon from "@/icons/FriendsIcon";
 
 export const Navbar = () => {
   const { logout, authUser, checkAuth } = useAuthStore()
@@ -49,46 +50,47 @@ export const Navbar = () => {
         </div>
         
         <div className="flex items-center justify-center space-x-4">
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">
-            <Link to={"/"}>
-              <HomeIcont
-                className={`w-6 h-6 ${
-                  currentPath === "/" ? "text-yellow-500 fill-current " : "text-gray-600 dark:fill-none"
-                }`}
-              />
-            </Link>
-          </button>
-          
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">
-            <Link to={"/profile"}>
-              <UserIcon
-                className={`w-6 h-6 ${
-                  currentPath === '/profile' ? "text-yellow-500 fill-current" : "text-gray-600"
-                }`}
-              />
-            </Link>
-          </button>
-          
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">
-            <Link to={"/message"}>
-              <MessageIcon
-                className={`w-6 h-6 ${
-                  currentPath === "/message" ? "text-yellow-500 fill-current" : "text-gray-600"
-                }`}
-              />
-            </Link>
-          </button>
-          
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">
-            <Link to={"/settings"}>
-              <SettingsIcon
-                className={`w-6 h-6 ${
-                  currentPath === "/settings" ? "text-yellow-500 fill-current" : "text-gray-600"
-                }`}
-              />
-            </Link>
-          </button>
-        </div>
+        <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">
+          <Link to={"/"}>
+            <HomeIcont
+              className={`w-6 h-6 ${currentPath === "/" ? "text-yellow-500 fill-current" : "text-gray-600 dark:fill-none"}`}
+            />
+          </Link>
+        </button>
+
+        <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">
+          <Link to={"/profile"}>
+            <UserIcon
+              className={`w-6 h-6 ${currentPath === "/profile" ? "text-yellow-500 fill-current" : "text-gray-600"}`}
+            />
+          </Link>
+        </button>
+
+        <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">
+          <Link to={"/message"}>
+            <MessageIcon
+              className={`w-6 h-6 ${currentPath === "/message" ? "text-yellow-500 fill-current" : "text-gray-600"}`}
+            />
+          </Link>
+        </button>
+
+        <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">
+          <Link to={"/friends"}>
+            <FriendsIcon
+              className={`w-6 h-6 ${currentPath === "/friends" ? "text-yellow-500 fill-current" : "text-gray-600"}`}
+            />
+          </Link>
+        </button>
+
+        <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">
+          <Link to={"/settings"}>
+            <SettingsIcon
+              className={`w-6 h-6 ${currentPath === "/settings" ? "text-yellow-500 fill-current" : "text-gray-600"}`}
+            />
+          </Link>
+        </button>
+      </div>
+
         
         <div className="w-1/4 flex items-center justify-end space-x-4">
           <button onClick={toggleDarkMode}>
