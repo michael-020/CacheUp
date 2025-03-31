@@ -17,13 +17,15 @@ import { AdminNavbar } from './components/admin/AdminNavbar'
 import UserList from './pages/admin/UserList'
 import ReportedPosts from './pages/admin/ReportedPosts'
 import { EditProfile } from './pages/EditProfile'
-import CreateForum from './pages/admin/CreateForum'
+import { useChatStore } from './stores/chatStore/useChatStore'
 import ForumList from './components/forums/ForumsList'
 import ForumPage from './pages/ForumPage'
+import CreateForum from './pages/admin/CreateForum'
 
 function App() {
   const { authUser, checkAuth } = useAuthStore()
   const { authAdmin, checkAdminAuth } = useAdminStore()
+  const { subscribeToMessages, getAllMessages, getUnReadMessages } = useChatStore()
   const location = useLocation()
 
   const isAdminRoute = location.pathname.startsWith('/admin')
@@ -38,7 +40,24 @@ function App() {
     if(isAdminRoute) {
       checkAdminAuth()
     }
-    }, [checkAdminAuth, isAdminRoute])
+  }, [checkAdminAuth, isAdminRoute])
+
+  useEffect(() => {
+    if (authUser && !isAdminRoute) {
+      subscribeToMessages()
+      
+      getAllMessages()
+      getUnReadMessages()
+      
+      const interval = setInterval(() => {
+        getUnReadMessages()
+      }, 3000)
+      
+      return () => {
+        clearInterval(interval)
+      }
+    }
+  }, [authUser, isAdminRoute, subscribeToMessages, getAllMessages, getUnReadMessages])
 
   return (
     <div className='bg-gray-100 dark:bg-neutral-900 '>
@@ -54,9 +73,8 @@ function App() {
         <Route path="/signup" element={!authUser ? <Signup /> : <Navigate to="/" /> } />
         <Route path="/signin" element={!authUser ? <Signin /> : <Navigate to="/" /> } />
         <Route path="/" element={ authUser ? <Home /> : <Navigate to="/signin" />} />
-        {/* <Route path='/profile' element={<Profile />} /> */}
-        <Route path='/profile' element={authUser ? <Profile /> : <Navigate to="/admin/home"/>} />
-        <Route path="/profile/:id" element={<Profile />} />
+        <Route path='/profile' element={authUser ? <Profile /> : <Navigate to="/signin"/>} />
+        <Route path="/profile/:id" element={authUser ? <Profile /> : <Navigate to="/signin"/>} />
         <Route path='/message' element={<Messages />} />
         <Route path='verify-email' element={<EmailVerify />} />
         <Route path='/edit-profile' element={<EditProfile />} />

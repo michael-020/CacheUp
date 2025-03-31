@@ -278,7 +278,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
           <img
             src={post.postsImagePath}
             alt="Post content"
-            className="w-full h-auto aspect-video object-cover"
+            className="w-full h-auto aspect-auto object-cover hover:scale-105 transition-all duration-1000 ease-in-out"
             onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
               (e.target as HTMLImageElement).style.display = "none";
             }}
@@ -289,7 +289,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
       {/* Actions */}
       <div className="flex items-center text-red-400 dark:text-neutral-400 dark:border-gray-600 text-sm border-t border-gray-100 pt-3">
       <button
-            className="flex items-center mr-6 transition-colors text-red-600"
+            className={`flex items-center mr-6 transition-colors ${post.isLiked ? "text-red-500" : ""}`}
             onClick={() => toggleLike(post._id)}
           >
             <HeartIcon filled={post.isLiked} />
@@ -358,7 +358,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
                       <img 
                         src={user.profileImagePath || "/avatar.jpeg"} 
                         alt={user.username}
-                        className="size-8 rounded-full mr-3 object-cover"
+                        className="size-8 rounded-full mr-3 object-contain"
                         onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                           (e.target as HTMLImageElement).src = "/avatar.jpeg";
                         }}

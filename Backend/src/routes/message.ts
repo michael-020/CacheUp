@@ -4,10 +4,13 @@ import { userSocketMap } from "../websockets/index";
 import cloudinary from "../lib/cloudinary";
 import { authMiddleware } from "../middlewares/auth";
 import { WebSocket } from 'ws';
+import { mongo } from "mongoose";
 
 const messageRouter = Router()
 
-messageRouter.get("/:id", authMiddleware, async (req: Request, res: Response) => {
+messageRouter.use(authMiddleware)
+
+messageRouter.get("/chat/:id", async (req: Request, res: Response) => {
     try {
         const userId = req.user._id
         const user2Id = req.params.id
@@ -50,7 +53,7 @@ messageRouter.get("/:id", authMiddleware, async (req: Request, res: Response) =>
     }
 })  
 
-messageRouter.post("/:id", authMiddleware, async (req: Request, res: Response) => {
+messageRouter.post("/chat/:id", async (req: Request, res: Response) => {
     try {
         const myId = req.user._id;
         const otherUserId = req.params.id
@@ -133,6 +136,75 @@ messageRouter.post("/:id", authMiddleware, async (req: Request, res: Response) =
     catch(error) {
         console.error("Error while sending message", error)
         res.status(500).json({ msg: "Error while sending message"})
+    }
+})
+
+messageRouter.get("/get-all-messages", async (req: Request, res: Response) => {
+    try {
+        const userId = req.user
+        const chats = await chatModel.find({ receiver: userId })
+        if(!chats) {
+            res.json({
+                msg: "Messages not found"
+            })
+            return
+        }
+
+        res.json(chats)
+    } catch (error) {
+        console.error("Error while getting all messages", error)
+        res.status(500).json({ msg: "Error while getting all messages"})
+    }
+})
+
+messageRouter.get("/get-unread-messages", async (req: Request, res: Response) => {
+    try {
+        const userId = req.user
+        const chats = await chatModel.find({ 
+            $and: [
+                {receiver: userId},
+                {isRead: false}
+            ]
+        })
+
+        if(!chats) {
+            res.json({
+                msg: "Messages not found"
+            })
+            return
+        }
+
+        res.json(chats)
+    } catch (error) {
+        console.error("Error while getting all messages", error)
+        res.status(500).json({ msg: "Error while getting all messages"})
+    }
+})
+
+messageRouter.put("/read-message", async (req: Request, res: Response) => {
+    try {
+        const { messageIds } = req.body; 
+        if (!Array.isArray(messageIds) || messageIds.length === 0) {
+            res.status(400).json({ msg: "Invalid message IDs" });
+            return
+        }
+
+        const result = await chatModel.updateMany(
+            { _id: { $in: messageIds }, isRead: false }, 
+            { $set: { isRead: true } }
+        );
+
+        const updatedchats = await chatModel.find(
+            { _id: { $in: messageIds } }
+        );
+
+        res.json({
+            updatedCount: result.modifiedCount ,
+            updatedchats
+        });
+    } catch (error) {
+        console.error("Error while getting all messages", error)
+        res.status(500).json({ msg: "Error while getting all messages"})
     }
 })
 
