@@ -13,6 +13,7 @@ import { userPostForumdeleteHandler } from "../handlers/forums/userPostForumDele
 import { reportCommentForumHandler } from "../handlers/forums/reportCommentForumHandler";
 import { likePostForumHandler } from "../handlers/forums/likePostForumHandler";
 import { dislikePostForumHandler } from "../handlers/forums/dislikePostForumHandler";
+import { likeCommentForumHandler } from "../handlers/forums/likeCommentForumHandler";
 
 
 const forumsRouter = Router()
@@ -56,4 +57,7 @@ forumsRouter.put("/like-post/:mongoId", likePostForumHandler)
 
 // dislike post
 forumsRouter.put("/dislike-post/:mongoId", dislikePostForumHandler)
+
+// like comment
+forumsRouter.put("/like-comment/:mongoId", likeCommentForumHandler)
 export default forumsRouter
