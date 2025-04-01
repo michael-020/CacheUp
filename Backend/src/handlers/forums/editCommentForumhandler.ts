@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { z } from "zod";
 import { commentForumModel } from "../../models/db";
 import { weaviateClient } from "../../models/weaviate";
+import { embedtext } from "../../lib/vectorizeText";
 
 
 export const editCommentForumHandler = async (req: Request, res: Response)=> {
@@ -11,6 +12,12 @@ export const editCommentForumHandler = async (req: Request, res: Response)=> {
     try{
         const userId = req.user._id
         const { mongoId, weaviateId } = req.params;
+        if(!(mongoId || weaviateId)){
+            res.status(411).json({
+                msg: "Please provide ids"
+            })
+            return
+        }
         const response = commentSchema.safeParse(req.body)
         if(!response.success){
             res.status(411).json({
@@ -26,14 +33,19 @@ export const editCommentForumHandler = async (req: Request, res: Response)=> {
             })
             return
         }
+
+        const vector = await embedtext(content)
+        
         commentMongo.content = content;
         await commentMongo.save()
+
         const commentWeaviate = await weaviateClient.data.updater()
             .withClassName("Comment")
             .withId(weaviateId)
             .withProperties({
                 content
             })
+            .withVector(vector)
             .do()
         res.json({
             msg: "Comment Updated",

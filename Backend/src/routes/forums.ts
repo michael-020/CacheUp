@@ -16,6 +16,8 @@ import { dislikePostForumHandler } from "../handlers/forums/dislikePostForumHand
 import { likeCommentForumHandler } from "../handlers/forums/likeCommentForumHandler";
 import { dislikeCommentForumHandler } from "../handlers/forums/dislikeCommentForumHandler";
 import { editCommentForumHandler } from "../handlers/forums/editCommentForumhandler";
+import { editPostForumHandler } from "../handlers/forums/editPostForumHandler";
+import { editThreadForumHandler } from "../handlers/forums/editThreadForumHandler";
 
 
 const forumsRouter = Router()
@@ -68,4 +70,10 @@ forumsRouter.put("/dislike-comment/:mongoId", dislikeCommentForumHandler)
 
 // edit comment
 forumsRouter.put("/edit-comment/:mongoId/:weaviateId", editCommentForumHandler)
+
+// edit Post
+forumsRouter.put("/edit-post/:mongoId/:weaviateId", editPostForumHandler)
+
+// edit thread
+forumsRouter.put("/edit-thread/:mongoId/:weaviateId", editThreadForumHandler)
 export default forumsRouter
