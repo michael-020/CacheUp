@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { z } from "zod";
-import { commentForumModel } from "../../models/db";
+import { commentForumModel, postForumModel, threadForumModel, watchNotificationModel } from "../../models/db";
 import { weaviateClient } from "../../models/weaviate";
 import { embedtext } from "../../lib/vectorizeText";
 
@@ -42,7 +42,22 @@ export const createCommentForumHandler = async (req: Request, res: Response) => 
 
         commentMongo.weaviateId = commentWeaviate.id as string
         await commentMongo.save()
-
+        
+        const post = await postForumModel.findById(postMongo)
+        const thread = await threadForumModel.findById(post?.thread)
+       
+        const watchers = thread?.watchedBy?.filter((id) => id.toString() !== req.user._id.toString())
+        
+        if(watchers && watchers.length > 0){
+            await watchNotificationModel.create({
+                userIds: watchers,
+                message: `${req.user.name} created a comment under: ${post?._id} in ${thread?.title}`,
+                threadId: thread?._id,
+                seenBy: []
+            })
+        }
+        
+        
         res.json({
             msg: "Comment Uploaded Successfully",
             commentMongo,

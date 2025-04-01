@@ -128,6 +128,15 @@ export interface ICommentForum extends Document {
   weaviateId: string;
 }
 
+// Notification Schema
+interface INotification extends Document {
+  userIds: Schema.Types.ObjectId[]; 
+  message: string; 
+  threadId: Schema.Types.ObjectId;
+  seenBy: Schema.Types.ObjectId[];
+  createdAt: Date; 
+}
+
 // User Schema
 const userSchema = new Schema<IUser>({
   name: { 
@@ -449,6 +458,30 @@ const commentForumSchema = new Schema<ICommentForum>({
   }
 })
 
+// Watch Thread Notification Forum Schema
+const watchNotificationSchema = new Schema<INotification>({
+  userIds: [{
+    type: Schema.Types.ObjectId,
+    ref: 'users'
+  }],
+  message: {
+    type: String
+  },
+  threadId: {
+    type: Schema.Types.ObjectId,
+    ref: 'threads'
+  },
+  seenBy: [{
+    type: Schema.Types.ObjectId,
+    ref: 'users'
+  }],
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+})
+
+
 export const userModel = mongoose.model<IUser, Model<IUser>>('users', userSchema);
 export const postModel = mongoose.model<IPost, Model<IPost>>('posts', postSchema);
 export const adminModel = mongoose.model<IAdmin, Model<IAdmin>>('Admin', adminSchema);
@@ -459,3 +492,4 @@ export const forumModel = mongoose.model<IForum, Model<IForum>>('forums', forumS
 export const threadForumModel = mongoose.model<IThreadForum, Model<IThreadForum>>('threads', threadForumSchema);
 export const postForumModel = mongoose.model<IPostForum, Model<IPostForum>>('forumPosts', postForumSchema);
 export const commentForumModel = mongoose.model<ICommentForum, Model<ICommentForum>>('forumComments', commentForumSchema);
+export const watchNotificationModel = mongoose.model<INotification, Model<INotification>>('watchNotification', watchNotificationSchema)
