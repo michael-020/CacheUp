@@ -39,13 +39,13 @@ function App() {
     if(!isAdminRoute){
       checkAuth()
     }
-  }, [checkAuth, isAdminRoute])
+  }, [checkAuth])
 
   useEffect(() => {
     if(isAdminRoute) {
       checkAdminAuth()
     }
-  }, [checkAdminAuth, isAdminRoute])
+  }, [checkAdminAuth])
 
   useEffect(() => {
     if (authUser && !isAdminRoute && users.length === 0) {
@@ -81,7 +81,7 @@ function App() {
         <Route path="/" element={ authUser ? <Home /> : <Navigate to="/signin" />} />
         <Route path='/profile' element={authUser ? <Profile /> : <Navigate to="/signin"/>} />
         <Route path="/profile/:id" element={authUser ? <Profile /> : <Navigate to="/signin"/>} />
-        <Route path='/message' element={<Messages />} />
+        <Route path='/message' element={authUser ? <Messages /> : <Navigate to="/signin" />} />
         <Route path='verify-email' element={<EmailVerify />} />
         <Route path='/edit-profile' element={<EditProfile />} />
         <Route path='/friends' element={authUser ? <FriendsPage /> : <Navigate to="/signin" />} />

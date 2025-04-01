@@ -23,6 +23,22 @@ export interface IMessageData {
     image?: string;
 }
 
+// _id: string
+//     name: string;
+//     username: string;
+//     email: string;
+//     password: string;
+//     profilePicture?: string;
+//     department: string;
+//     graduationYear: number;
+//     bio?: string;
+//     posts: IPost[];
+//     friends?: IUser[];
+//     friendRequests?: IUser[];
+//     lastUsernameChangeDate?: string
+//     mutualFriends?: number;
+//     isFriend?: boolean;
+
 export const useChatStore = create<chatState & chatAction>((set, get) => ({
     messages: [],
     allMessages: [],
