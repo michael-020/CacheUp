@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "./ui/badge";
 import { Skeleton } from "./ui/skeleton";
 import { IUser } from "@/lib/utils"; 
+import { useChatStore } from "@/stores/chatStore/useChatStore";
 
 interface FriendsListProps {
   searchTerm?: string;
@@ -23,6 +24,7 @@ const FriendsList = ({ searchTerm = "" }: FriendsListProps) => {
     loading, 
     removeFriend, 
   } = useFriendsStore();
+  const { setSelectedUser } = useChatStore()
   
   const getInitials = (name: string) => {
     if (!name) return "??";
@@ -125,8 +127,11 @@ const FriendsList = ({ searchTerm = "" }: FriendsListProps) => {
                   variant="ghost"
                   className="h-8 w-8 rounded-full text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                   asChild
+                  onClick={() => {
+                    setSelectedUser(friend)
+                  }}
                 >
-                  <Link to={`/message/${friend._id}`}>
+                  <Link to={`/message`}>
                     <MessageSquare className="h-4 w-4" />
                   </Link>
                 </Button>

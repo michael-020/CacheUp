@@ -27,9 +27,9 @@ export interface IUser {
     department: string;
     graduationYear: number;
     bio?: string;
-    posts: IPost[];
+    posts?: IPost[];
     friends?: IUser[];
-    friendRequests: IUser[];
+    friendRequests?: IUser[];
     lastUsernameChangeDate?: string
     mutualFriends?: number;
     isFriend?: boolean;

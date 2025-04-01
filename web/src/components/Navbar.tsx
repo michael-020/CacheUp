@@ -36,7 +36,14 @@ export const Navbar = () => {
       document.body.classList.remove("dark");
     }
     checkAuth();
-    fetchRequests(); // Fetch friend requests when navbar loads
+    const interval = setInterval(async () => {
+      await fetchRequests()
+    }, 1000*120)   
+    
+    return () => {
+      clearInterval(interval)
+    }
+
   }, [checkAuth, fetchRequests]);
 
   if(!authUser)
@@ -96,19 +103,19 @@ export const Navbar = () => {
             </Link>
           </button>
 
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
-            <Link to={"/settings"}>
-              <SettingsIcon
-                className={`w-6 h-6 ${currentPath === "/settings" ? "text-blue-500 fill-current" : "text-gray-600"}`}
-              />
-            </Link>
-          </button>
-
           <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
             <Link to={"/forums"}>
                 <MdOutlineForum className={`size-6 ${
                   currentPath === "/forums" ? "text-blue-500 fill-current" : "text-gray-600"
                 }`} />
+            </Link>
+          </button>
+
+          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
+            <Link to={"/settings"}>
+              <SettingsIcon
+                className={`w-6 h-6 ${currentPath === "/settings" ? "text-blue-500 fill-current" : "text-gray-600"}`}
+              />
             </Link>
           </button>
         </div>

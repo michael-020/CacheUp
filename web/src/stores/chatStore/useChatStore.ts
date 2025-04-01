@@ -23,6 +23,22 @@ export interface IMessageData {
     image?: string;
 }
 
+// _id: string
+//     name: string;
+//     username: string;
+//     email: string;
+//     password: string;
+//     profilePicture?: string;
+//     department: string;
+//     graduationYear: number;
+//     bio?: string;
+//     posts: IPost[];
+//     friends?: IUser[];
+//     friendRequests?: IUser[];
+//     lastUsernameChangeDate?: string
+//     mutualFriends?: number;
+//     isFriend?: boolean;
+
 export const useChatStore = create<chatState & chatAction>((set, get) => ({
     messages: [],
     allMessages: [],
@@ -35,8 +51,8 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
     getUsers: async () => {
         set({ isUsersLoading: true });
         try {
-            const res = await axiosInstance.get("/user/usernames");
-            set({ users: res.data.users });
+            const res = await axiosInstance.get("/messages/previous-chats");
+            set({ users: res.data });
         } catch (error) {
             if (error instanceof AxiosError && error.response?.data?.msg) {
                 toast.error(error.response.data.msg as string);
