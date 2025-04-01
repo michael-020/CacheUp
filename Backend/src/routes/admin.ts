@@ -20,6 +20,7 @@ import { adminDeletePostForumHandler } from "../handlers/forums/adminDeletePostF
 import { adminDeleteCommentForumHandler } from "../handlers/forums/adminDeleteCommentForumhandler";
 import { adminDeleteThreadHandler } from "../handlers/forums/adminDeleteThreadHandler";
 import { adminDeleteForumHandler } from "../handlers/forums/adminDeleteForumHandler";
+import { editForumAdminHandler } from "../handlers/forums/editForumAdminHandler";
 
 const adminRouter: Router = Router();
 
@@ -83,5 +84,8 @@ adminRouter.delete("/delete-thread/:mongoId/:weaviateId", adminDeleteThreadHandl
 
 // delete forum
 adminRouter.delete("/delete-forum/:mongoId/:weaviateId", adminDeleteForumHandler)
+
+// edit forum
+adminRouter.put("/edit-forum/:mongoId/:weaviateId", editForumAdminHandler)
 
 export default adminRouter;

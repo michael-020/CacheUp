@@ -76,4 +76,5 @@ forumsRouter.put("/edit-post/:mongoId/:weaviateId", editPostForumHandler)
 
 // edit thread
 forumsRouter.put("/edit-thread/:mongoId/:weaviateId", editThreadForumHandler)
+
 export default forumsRouter
