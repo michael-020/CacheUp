@@ -6,7 +6,7 @@ import { Messages } from './pages/Messages'
 import { Signup } from './pages/Signup'
 import { Signin } from './pages/Signin'
 import { useAuthStore } from './stores/AuthStore/useAuthStore'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { EmailVerify } from './pages/EmailVerify'
 import { Navbar } from './components/Navbar'
@@ -19,13 +19,25 @@ import ReportedPosts from './pages/admin/ReportedPosts'
 import { EditProfile } from './pages/EditProfile'
 import FriendsPage from "./pages/Friends";
 
-import { useChatStore } from './stores/chatStore/useChatStore'
+import { IMessages, useChatStore } from './stores/chatStore/useChatStore'
 
 function App() {
   const { authUser, checkAuth } = useAuthStore()
   const { authAdmin, checkAdminAuth } = useAdminStore()
-  const { subscribeToMessages, getAllMessages, getUnReadMessages } = useChatStore()
+  const { 
+    subscribeToMessages, 
+    unSubscribeFromMessages, 
+    getAllMessages, 
+    unReadMessages,
+    sendNotification,
+    users,
+    getUsers
+  } = useChatStore()
   const location = useLocation()
+  
+  // Use refs to track previous unread messages for comparison
+  const prevUnreadMessagesCountRef = useRef(0);
+  const prevUnreadMessagesRef = useRef<IMessages[]>([]);
 
   const isAdminRoute = location.pathname.startsWith('/admin')
 
@@ -41,22 +53,59 @@ function App() {
     }
   }, [checkAdminAuth, isAdminRoute])
 
+  // Load users on initial authentication
+  useEffect(() => {
+    if (authUser && !isAdminRoute && users.length === 0) {
+      getUsers();
+    }
+  }, [authUser, isAdminRoute, getUsers, users.length]);
+
+  // Setup WebSocket connection and message fetching
   useEffect(() => {
     if (authUser && !isAdminRoute) {
+      // Subscribe to WebSocket messages
       subscribeToMessages()
       
+      // Get initial messages
       getAllMessages()
-      getUnReadMessages()
       
-      const interval = setInterval(() => {
-        getUnReadMessages()
-      }, 3000)
-      
+      // Clean up WebSocket on unmount
       return () => {
-        clearInterval(interval)
+        unSubscribeFromMessages()
       }
     }
-  }, [authUser, isAdminRoute, subscribeToMessages, getAllMessages, getUnReadMessages])
+  }, [authUser, isAdminRoute, subscribeToMessages, getAllMessages, unSubscribeFromMessages])
+
+  // Handle notifications for new unread messages
+  useEffect(() => {
+    if (authUser && !isAdminRoute) {
+      const currentCount = unReadMessages.length;
+      const prevCount = prevUnreadMessagesCountRef.current;
+      
+      // If we have more unread messages than before
+      if (currentCount > prevCount) {
+        // Find the new messages by comparing with previous state
+        const prevIds = new Set(prevUnreadMessagesRef.current.map(msg => msg._id));
+        const newMessages = unReadMessages.filter(msg => !prevIds.has(msg._id));
+        
+        // Send notifications for each new message
+        if (newMessages.length > 0) {
+          // Find the most recent message to notify about
+          const latestMessage = newMessages.reduce((latest, current) => {
+            const latestDate = new Date(latest.createdAt).getTime();
+            const currentDate = new Date(current.createdAt).getTime();
+            return currentDate > latestDate ? current : latest;
+          }, newMessages[0]);
+          
+          // sendNotification(latestMessage);
+        }
+      }
+      
+      // Update refs for next comparison
+      prevUnreadMessagesCountRef.current = currentCount;
+      prevUnreadMessagesRef.current = [...unReadMessages];
+    }
+  }, [authUser, isAdminRoute, unReadMessages, sendNotification]);
 
   return (
     <div className='bg-gray-100 dark:bg-neutral-900 '>
