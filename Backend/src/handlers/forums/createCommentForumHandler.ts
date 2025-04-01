@@ -7,7 +7,7 @@ import { embedtext } from "../../lib/vectorizeText";
 
 export const createCommentForumHandler = async (req: Request, res: Response) => {
     const commentSchema = z.object({
-        content: z.string()
+        content: z.string().min(1)
     })
     try{
         const response = commentSchema.safeParse(req.body);
