@@ -7,7 +7,7 @@ import { embedtext } from "../../lib/vectorizeText";
 
 export const createPostForumshandler = async (req: Request, res: Response) => {
     const createPostSchema = z.object({
-        content: z.string()
+        content: z.string().min(2)
     })
 
     try{

@@ -11,6 +11,16 @@ import { getAllCommentsFromAPostHandler } from "../handlers/forums/getAllComment
 import { userCommentForumDeleteHandler } from "../handlers/forums/userCommentForumDeleteHandler";
 import { userPostForumdeleteHandler } from "../handlers/forums/userPostForumDeleteHandler";
 import { reportCommentForumHandler } from "../handlers/forums/reportCommentForumHandler";
+import { likePostForumHandler } from "../handlers/forums/likePostForumHandler";
+import { dislikePostForumHandler } from "../handlers/forums/dislikePostForumHandler";
+import { likeCommentForumHandler } from "../handlers/forums/likeCommentForumHandler";
+import { dislikeCommentForumHandler } from "../handlers/forums/dislikeCommentForumHandler";
+import { editCommentForumHandler } from "../handlers/forums/editCommentForumhandler";
+import { editPostForumHandler } from "../handlers/forums/editPostForumHandler";
+import { editThreadForumHandler } from "../handlers/forums/editThreadForumHandler";
+import { watchThreadHandler } from "../handlers/forums/watchThreadHandler";
+import { reportPostForumHandler } from "../handlers/forums/reportPostForumHandler";
+import { reportThreadHandler } from "../handlers/forums/reportThreadHandler";
 
 
 const forumsRouter = Router()
@@ -47,5 +57,36 @@ forumsRouter.delete("/delete-comment/:mongoId/:weaviateId", userCommentForumDele
 forumsRouter.delete("/delete-post/:mongoId/:weaviateId", userPostForumdeleteHandler)
 
 // report comment
-forumsRouter.post("/report-comment/:mongoId", reportCommentForumHandler)
+forumsRouter.put("/report-comment/:mongoId", reportCommentForumHandler)
+
+// like post
+forumsRouter.put("/like-post/:mongoId", likePostForumHandler)
+
+// dislike post
+forumsRouter.put("/dislike-post/:mongoId", dislikePostForumHandler)
+
+// like comment
+forumsRouter.put("/like-comment/:mongoId", likeCommentForumHandler)
+
+// dislike comment
+forumsRouter.put("/dislike-comment/:mongoId", dislikeCommentForumHandler)
+
+// edit comment
+forumsRouter.put("/edit-comment/:mongoId/:weaviateId", editCommentForumHandler)
+
+// edit Post
+forumsRouter.put("/edit-post/:mongoId/:weaviateId", editPostForumHandler)
+
+// edit thread
+forumsRouter.put("/edit-thread/:mongoId/:weaviateId", editThreadForumHandler)
+
+// watch thread 
+forumsRouter.put("/watch-thread/:mongoId", watchThreadHandler)
+
+// report post
+forumsRouter.put("/report-post/:mongoId", reportPostForumHandler)
+
+// report thread
+forumsRouter.put("/report-thread/:mongoId", reportThreadHandler)
+
 export default forumsRouter
