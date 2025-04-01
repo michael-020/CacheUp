@@ -14,7 +14,7 @@ import { useFriendsStore } from "@/stores/FriendsStore/useFriendsStore";
 export const Navbar = () => {
   const { logout, authUser, checkAuth } = useAuthStore();
   const { requests, fetchRequests } = useFriendsStore();
-  const { unReadMessages, getUnReadMessages } = useChatStore()
+  const { unReadMessages } = useChatStore()
   const location = useLocation();
   const currentPath = location.pathname;
   const [dark, setDark] = useState<boolean>()
@@ -37,8 +37,7 @@ export const Navbar = () => {
     }
     checkAuth();
     fetchRequests(); // Fetch friend requests when navbar loads
-    getUnReadMessages()
-  }, [checkAuth, getUnReadMessages, fetchRequests]);
+  }, [checkAuth, fetchRequests]);
 
   if(!authUser)
     return <div>
@@ -111,9 +110,6 @@ export const Navbar = () => {
                   currentPath === "/forums" ? "text-blue-500 fill-current" : "text-gray-600"
                 }`} />
             </Link>
-            {unReadMessages.length > 0 && <div className="bg-red-500 text-white text-[0.7rem] px-1.5 rounded-full absolute top-0 right-1">
-                {unReadMessages.length < 99 ? unReadMessages.length : "99+"}
-            </div>}
           </button>
         </div>
         

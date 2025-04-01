@@ -15,7 +15,7 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
   fetchFriends: async () => {
     set({ loading: true });
     try {
-      const { data } = await axiosInstance.get<{ friends: IUser[] }>("user/friends");
+      const { data } = await axiosInstance.get<{ friends: IUser[] }>("/user/friends");
       set({ friends: data.friends || [] });
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
@@ -29,7 +29,7 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
   fetchRequests: async () => {
     set({ loading: true });
     try {
-      const { data } = await axiosInstance.get<{ friendRequests: IUser[] }>("user/friends/requests");
+      const { data } = await axiosInstance.get<{ friendRequests: IUser[] }>("/user/friends/requests");
       set({ requests: data.friendRequests || [] });
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
@@ -44,7 +44,7 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
   fetchSentRequests: async () => {
     set({ loading: true });
     try {
-      const { data } = await axiosInstance.get<{ sentRequests: IUser[] }>("user/friends/sent-requests");
+      const { data } = await axiosInstance.get<{ sentRequests: IUser[] }>("/user/friends/sent-requests");
       set({ sentRequests: data.sentRequests || [] });
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
@@ -96,7 +96,7 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
         sentRequests: [...state.sentRequests, { _id: userId } as IUser]
       }));
       
-      await axiosInstance.post("user/friends/send-request", { receiverId: userId });
+      await axiosInstance.post("/user/friends/send-request", { receiverId: userId });
       toast.success("Friend request sent");
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
@@ -115,7 +115,7 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
         friends: [...state.friends, state.requests.find(req => req._id === userId)!]
       }));
       
-      await axiosInstance.post("user/friends/accept-request", { senderId: userId });
+      await axiosInstance.post("/user/friends/accept-request", { senderId: userId });
       toast.success("Friend request accepted");
       
     } catch (error) {
@@ -132,7 +132,7 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
         requests: state.requests.filter(req => req._id !== userId)
       }));
       
-      await axiosInstance.post("user/friends/reject-request", { senderId: userId });
+      await axiosInstance.post("/user/friends/reject-request", { senderId: userId });
       toast.success("Friend request rejected");
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
@@ -148,7 +148,7 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
         sentRequests: state.sentRequests.filter(req => req._id !== userId)
       }));
       
-      await axiosInstance.delete("user/friends/cancel-request", {
+      await axiosInstance.delete("/user/friends/cancel-request", {
         data: { receiverId: userId }
       });
       toast.success("Request canceled");
@@ -166,7 +166,7 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
         friends: state.friends.filter(friend => friend._id !== userId)
       }));
       
-      await axiosInstance.delete(`user/friends/remove/${userId}`);
+      await axiosInstance.delete(`/user/friends/remove/${userId}`);
       toast.success("Friend removed");
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;

@@ -27,9 +27,16 @@ import CreateForum from './pages/admin/CreateForum'
 function App() {
   const { authUser, checkAuth } = useAuthStore()
   const { authAdmin, checkAdminAuth } = useAdminStore()
-  const { subscribeToMessages, getAllMessages, getUnReadMessages } = useChatStore()
+  const { 
+    subscribeToMessages, 
+    unSubscribeFromMessages, 
+    getAllMessages, 
+    sendNotification,
+    users,
+    getUsers
+  } = useChatStore()
   const location = useLocation()
-
+  
   const isAdminRoute = location.pathname.startsWith('/admin')
 
   useEffect(() => {
@@ -45,21 +52,22 @@ function App() {
   }, [checkAdminAuth, isAdminRoute])
 
   useEffect(() => {
+    if (authUser && !isAdminRoute && users.length === 0) {
+      getUsers();
+    }
+  }, [authUser, isAdminRoute, getUsers, users.length]);
+
+  useEffect(() => {
     if (authUser && !isAdminRoute) {
       subscribeToMessages()
       
       getAllMessages()
-      getUnReadMessages()
-      
-      const interval = setInterval(() => {
-        getUnReadMessages()
-      }, 3000)
       
       return () => {
-        clearInterval(interval)
+        unSubscribeFromMessages()
       }
     }
-  }, [authUser, isAdminRoute, subscribeToMessages, getAllMessages, getUnReadMessages])
+  }, [authUser, isAdminRoute, subscribeToMessages, getAllMessages, unSubscribeFromMessages, sendNotification])
 
   return (
     <div className='bg-gray-100 dark:bg-neutral-900 '>
