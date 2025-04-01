@@ -172,15 +172,15 @@ const userSchema = new Schema<IUser>({
   },
   posts: [{ 
     type: Schema.Types.ObjectId, 
-    ref: 'Post' 
+    ref: 'posts' 
   }],
   friends: [{ 
     type: Schema.Types.ObjectId, 
-    ref: 'User' 
+    ref: 'users' 
   }],
   friendRequests: [{ 
     type: Schema.Types.ObjectId, 
-    ref: 'User' 
+    ref: 'users' 
   }]
 }, { 
   timestamps: true,
@@ -215,7 +215,7 @@ const adminSchema = new Schema<IAdmin>({
 const postSchema = new Schema<IPost>({
   postedBy: { 
     type: Schema.Types.ObjectId, 
-    ref: 'User', 
+    ref: 'users', 
     required: [true, 'Post must have an author'] 
   },
   username: { 
@@ -230,11 +230,11 @@ const postSchema = new Schema<IPost>({
   },
   likes: [{ 
     type: Schema.Types.ObjectId, 
-    ref: 'User' 
+    ref: 'users' 
   }],
   reportedBy: [{ 
     type: Schema.Types.ObjectId, 
-    ref: 'User' 
+    ref: 'users' 
   }],
   comments: [{
     content: { 
@@ -243,7 +243,7 @@ const postSchema = new Schema<IPost>({
     },
     user: { 
       type: Schema.Types.ObjectId, 
-      ref: 'User', 
+      ref: 'users', 
       required: [true, 'Comment must have a user'] 
     },
     date: { 
@@ -275,7 +275,7 @@ const otpSchema = new Schema<IOTP>({
 const chatSchema = new Schema<IChat>({
   chatRoom: { 
       type: Schema.Types.ObjectId, 
-      ref: 'ChatRoom', 
+      ref: 'chatrooms', 
       required: true 
   },
   sender: { 
@@ -310,7 +310,7 @@ const chatRoomSchema = new Schema<IChatRoom>({
   }],
   messages: [{ 
       type: Schema.Types.ObjectId, 
-      ref: 'Message' 
+      ref: 'messages' 
   }]
 }, {
   timestamps: true
@@ -354,11 +354,11 @@ const threadForumSchema = new Schema<IThreadForum>({
   },
   forum: {
     type: Schema.Types.ObjectId,
-    ref: 'Forum'
+    ref: 'forums'
   },
   createdBy: {
     type: Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'users'
   },
   createdAt: {
     type: Date,
@@ -385,7 +385,7 @@ const postForumSchema = new Schema<IPostForum>({
   },
   thread: {
     type: Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'threads'
   },
   createdAt: {
     type: Date,
@@ -393,7 +393,7 @@ const postForumSchema = new Schema<IPostForum>({
   },
   createdBy: {
     type: Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'users'
   },
   likedBy: [{
     type: Schema.Types.ObjectId,
@@ -421,7 +421,7 @@ const commentForumSchema = new Schema<ICommentForum>({
   },
   post: {
     type: Schema.Types.ObjectId,
-    ref: 'ForumPost'
+    ref: 'forumPosts'
   },
   createdAt: {
     type: Date,
@@ -429,7 +429,7 @@ const commentForumSchema = new Schema<ICommentForum>({
   },
   createdBy: {
     type: Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'users'
   },
   likedBy: [{
     type: Schema.Types.ObjectId,
@@ -449,13 +449,13 @@ const commentForumSchema = new Schema<ICommentForum>({
   }
 })
 
-export const userModel = mongoose.model<IUser, Model<IUser>>('User', userSchema);
-export const postModel = mongoose.model<IPost, Model<IPost>>('Post', postSchema);
+export const userModel = mongoose.model<IUser, Model<IUser>>('users', userSchema);
+export const postModel = mongoose.model<IPost, Model<IPost>>('posts', postSchema);
 export const adminModel = mongoose.model<IAdmin, Model<IAdmin>>('Admin', adminSchema);
 export const otpModel = mongoose.model<IOTP, Model<IOTP>>('OTP', otpSchema);
-export const chatRoomModel = mongoose.model<IChatRoom, Model<IChatRoom>>('ChatRoom', chatRoomSchema);
-export const chatModel = mongoose.model<IChat, Model<IChat>>('Message', chatSchema);
-export const forumModel = mongoose.model<IForum, Model<IForum>>('Forum', forumSchema);
-export const threadForumModel = mongoose.model<IThreadForum, Model<IThreadForum>>('Thread', threadForumSchema);
-export const postForumModel = mongoose.model<IPostForum, Model<IPostForum>>('ForumPost', postForumSchema);
-export const commentForumModel = mongoose.model<ICommentForum, Model<ICommentForum>>('ForumComment', commentForumSchema);
+export const chatRoomModel = mongoose.model<IChatRoom, Model<IChatRoom>>('chatrooms', chatRoomSchema);
+export const chatModel = mongoose.model<IChat, Model<IChat>>('messages', chatSchema);
+export const forumModel = mongoose.model<IForum, Model<IForum>>('forums', forumSchema);
+export const threadForumModel = mongoose.model<IThreadForum, Model<IThreadForum>>('threads', threadForumSchema);
+export const postForumModel = mongoose.model<IPostForum, Model<IPostForum>>('forumPosts', postForumSchema);
+export const commentForumModel = mongoose.model<ICommentForum, Model<ICommentForum>>('forumComments', commentForumSchema);

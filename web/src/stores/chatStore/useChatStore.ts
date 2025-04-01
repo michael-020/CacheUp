@@ -35,8 +35,8 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
     getUsers: async () => {
         set({ isUsersLoading: true });
         try {
-            const res = await axiosInstance.get("/user/usernames");
-            set({ users: res.data.users });
+            const res = await axiosInstance.get("/messages/previous-chats");
+            set({ users: res.data });
         } catch (error) {
             if (error instanceof AxiosError && error.response?.data?.msg) {
                 toast.error(error.response.data.msg as string);

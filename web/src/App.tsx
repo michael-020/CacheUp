@@ -18,7 +18,6 @@ import UserList from './pages/admin/UserList'
 import ReportedPosts from './pages/admin/ReportedPosts'
 import { EditProfile } from './pages/EditProfile'
 import FriendsPage from "./pages/Friends";
-
 import { useChatStore } from './stores/chatStore/useChatStore'
 
 function App() {
