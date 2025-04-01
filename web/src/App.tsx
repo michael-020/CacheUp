@@ -19,7 +19,7 @@ import ReportedPosts from './pages/admin/ReportedPosts'
 import { EditProfile } from './pages/EditProfile'
 import FriendsPage from "./pages/Friends";
 
-import { IMessages, useChatStore } from './stores/chatStore/useChatStore'
+import { useChatStore } from './stores/chatStore/useChatStore'
 
 function App() {
   const { authUser, checkAuth } = useAuthStore()
@@ -28,17 +28,12 @@ function App() {
     subscribeToMessages, 
     unSubscribeFromMessages, 
     getAllMessages, 
-    unReadMessages,
     sendNotification,
     users,
     getUsers
   } = useChatStore()
   const location = useLocation()
   
-  // Use refs to track previous unread messages for comparison
-  const prevUnreadMessagesCountRef = useRef(0);
-  const prevUnreadMessagesRef = useRef<IMessages[]>([]);
-
   const isAdminRoute = location.pathname.startsWith('/admin')
 
   useEffect(() => {
@@ -53,59 +48,23 @@ function App() {
     }
   }, [checkAdminAuth, isAdminRoute])
 
-  // Load users on initial authentication
   useEffect(() => {
     if (authUser && !isAdminRoute && users.length === 0) {
       getUsers();
     }
   }, [authUser, isAdminRoute, getUsers, users.length]);
 
-  // Setup WebSocket connection and message fetching
   useEffect(() => {
     if (authUser && !isAdminRoute) {
-      // Subscribe to WebSocket messages
       subscribeToMessages()
       
-      // Get initial messages
       getAllMessages()
       
-      // Clean up WebSocket on unmount
       return () => {
         unSubscribeFromMessages()
       }
     }
-  }, [authUser, isAdminRoute, subscribeToMessages, getAllMessages, unSubscribeFromMessages])
-
-  // Handle notifications for new unread messages
-  useEffect(() => {
-    if (authUser && !isAdminRoute) {
-      const currentCount = unReadMessages.length;
-      const prevCount = prevUnreadMessagesCountRef.current;
-      
-      // If we have more unread messages than before
-      if (currentCount > prevCount) {
-        // Find the new messages by comparing with previous state
-        const prevIds = new Set(prevUnreadMessagesRef.current.map(msg => msg._id));
-        const newMessages = unReadMessages.filter(msg => !prevIds.has(msg._id));
-        
-        // Send notifications for each new message
-        if (newMessages.length > 0) {
-          // Find the most recent message to notify about
-          const latestMessage = newMessages.reduce((latest, current) => {
-            const latestDate = new Date(latest.createdAt).getTime();
-            const currentDate = new Date(current.createdAt).getTime();
-            return currentDate > latestDate ? current : latest;
-          }, newMessages[0]);
-          
-          // sendNotification(latestMessage);
-        }
-      }
-      
-      // Update refs for next comparison
-      prevUnreadMessagesCountRef.current = currentCount;
-      prevUnreadMessagesRef.current = [...unReadMessages];
-    }
-  }, [authUser, isAdminRoute, unReadMessages, sendNotification]);
+  }, [authUser, isAdminRoute, subscribeToMessages, getAllMessages, unSubscribeFromMessages, sendNotification])
 
   return (
     <div className='bg-gray-100 dark:bg-neutral-900 '>
