@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import HeartIcon from "@/icons/HeartIcon";
 import MessageIcon from "../icons/MessageIcon";
 import SaveIcon from "../icons/SaveIcon";
@@ -31,6 +31,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
   const { reportPost, unReportPost } = usePostStore();
   const [comments, setComments] = useState<Comment[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const reportRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
   const getComments = async (postId: string) => {
@@ -156,14 +157,19 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (!(e.target as Element).closest(".relative")) {
+      if (reportRef.current && !reportRef.current.contains(e.target as Node)) {
         setShowReport(false);
       }
     };
-
-    document.addEventListener("mousedown", handleClickOutside);
+  
+    if (showReport) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+  
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [comments]);
+  }, [showReport]);
 
   const handleProfileClick = () => {
     if (isAdmin) {
@@ -212,7 +218,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
         </div>
 
         {/* Report Button  */}
-        <div className="relative z-10">
+        <div className="relative z-10" ref={reportRef}>
           <button
             onClick={(e: React.MouseEvent) => {
               e.stopPropagation();

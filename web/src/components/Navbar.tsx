@@ -14,7 +14,7 @@ import { useFriendsStore } from "@/stores/FriendsStore/useFriendsStore";
 export const Navbar = () => {
   const { logout, authUser, checkAuth } = useAuthStore();
   const { requests, fetchRequests } = useFriendsStore();
-  const { unReadMessages, getUnReadMessages } = useChatStore()
+  const { unReadMessages } = useChatStore()
   const location = useLocation();
   const currentPath = location.pathname;
   const [dark, setDark] = useState<boolean>()
