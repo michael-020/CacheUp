@@ -84,6 +84,9 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
             const responseMessages = res.data as IMessages[]
             const receivedMessages = responseMessages.filter(msg => msg.receiver === currentUserId);
             set({ allMessages: receivedMessages });
+            
+            const unreadMessages = receivedMessages.filter(msg => !msg.isRead);
+            set({ unReadMessages: unreadMessages });
         } catch (error) {
             if (error instanceof AxiosError && error.response?.data?.msg) {
                 toast.error(error.response.data.msg as string);
@@ -122,7 +125,7 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
     },
 
     addIncomingMessage: (message: IMessages) => {
-        const { selectedUser, messages, allMessages } = get();
+        const { selectedUser, messages, allMessages, unReadMessages } = get();
         const currentUserId = useAuthStore.getState().authUser?._id;
         
         const isIncomingMessage = message.receiver === currentUserId;
@@ -154,8 +157,20 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
             if (!message.isRead) {
                 get().markMessagesAsRead([message._id]);
             }
-        } else if (isIncomingMessage && !isDuplicateInAll) {
+        } 
+        else if (isIncomingMessage && !isDuplicateInAll) {
             set({ allMessages: [...allMessages, message] });
+            
+            if (!message.isRead) {
+                const isAlreadyInUnread = unReadMessages.some(msg => msg._id === message._id);
+                
+                if (!isAlreadyInUnread) {
+                    const updatedUnreadMessages = [...unReadMessages, message];
+                    set({ unReadMessages: updatedUnreadMessages });
+                    
+                    get().sendNotification(message);
+                }
+            }
         }
     },
 
@@ -172,7 +187,6 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
                     
                     if (payload.receiver === currentUserId) {
                         get().addIncomingMessage(payload);
-                        get().getUnReadMessages();
                     }
                 }
             } catch (error) {
@@ -190,23 +204,9 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
 
     getUnReadMessages: async () => {
         try {
-            const previousCount = get().unReadMessages.length;
-            
             const res = await axiosInstance.get("/messages/get-unread-messages");
-            const newUnreadMessages = res.data as IMessages[];
-            
-            set({ unReadMessages: newUnreadMessages });
-            
-
-            if (newUnreadMessages.length > previousCount && newUnreadMessages.length > 0) {
-                const latestMessage = newUnreadMessages.reduce((latest, current) => {
-                    const latestDate = new Date(latest.createdAt).getTime();
-                    const currentDate = new Date(current.createdAt).getTime();
-                    return currentDate > latestDate ? current : latest;
-                }, newUnreadMessages[0]);
-                
-                get().sendNotification(latestMessage);
-            }
+            const unreadMessages = res.data as IMessages[];
+            set({ unReadMessages: unreadMessages });
         } catch (error) {
             if (error instanceof AxiosError && error.response?.data?.msg) {
                 toast.error(error.response.data.msg as string);
