@@ -232,15 +232,14 @@ friendHandler.get("/", async (req: Request, res: Response) => {
 
 // Friend removal endpoint
 friendHandler.delete("/remove/:friendId", async (req: Request, res: Response) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
+
 
   try {
     const userId = req.user._id;
     const friendId = req.params.friendId;
 
     if (!friendId || !isValidObjectId(friendId)) {
-      await session.abortTransaction();
+
        res.status(400).json({ message: "Invalid friend ID" });
        return
     }
@@ -251,26 +250,22 @@ friendHandler.delete("/remove/:friendId", async (req: Request, res: Response) =>
       userModel.findByIdAndUpdate(
         userId,
         { $pull: { friends: friendObjectId } },
-        { session, new: true }
       ),
       userModel.findByIdAndUpdate(
         friendObjectId,
         { $pull: { friends: userId } },
-        { session, new: true }
       )
     ]);
 
-    await session.commitTransaction();
+
      res.status(200).json({ message: "Friend removed" });
      return
   } catch (error) {
-    await session.abortTransaction();
+
     console.error("Error removing friend:", error);
      res.status(500).json({ message: "Internal server error" });
      return
-  } finally {
-    session.endSession();
-  }
+  } 
 });
 
 // Friend search endpoint

@@ -176,8 +176,8 @@ messageRouter.get("/get-unread-messages", async (req: Request, res: Response) =>
 
         res.json(chats)
     } catch (error) {
-        console.error("Error while getting all messages", error)
-        res.status(500).json({ msg: "Error while getting all messages"})
+        console.error("Error while getting unread messages", error)
+        res.status(500).json({ msg: "Error while getting unread messages"})
     }
 })
 
@@ -203,8 +203,41 @@ messageRouter.put("/read-message", async (req: Request, res: Response) => {
             updatedchats
         });
     } catch (error) {
-        console.error("Error while getting all messages", error)
-        res.status(500).json({ msg: "Error while getting all messages"})
+        console.error("Error while marking messages as read", error)
+        res.status(500).json({ msg: "Error while marking messages as read"})
+    }
+})
+
+messageRouter.get("/previous-chats", async (req: Request, res: Response) => {
+    try {
+        const userId = req.user._id
+        
+        // Fetch chat rooms where the user is a participant
+        const chatRooms = await chatRoomModel.find({ participants: userId }).populate("participants");
+
+        if (!chatRooms || chatRooms.length === 0) {
+            res.json({ msg: "No previous chats found" });
+            return
+        }
+
+        // Extract participants and remove duplicates
+        const usersSet = new Map();
+
+        chatRooms.forEach(room => {
+            room.participants.forEach(user => {
+                if (user._id.toString() !== userId.toString()) {
+                    usersSet.set(user._id.toString(), user);
+                }
+            });
+        });
+
+        // Convert Map values to array (unique users)
+        const uniqueUsers = Array.from(usersSet.values());
+
+        res.json(uniqueUsers);
+    } catch (error) {
+        console.error("Error while getting previous chats", error)
+        res.status(500).json({ msg: "Error while getting previous chats"})
     }
 })
 
