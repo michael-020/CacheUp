@@ -8,7 +8,8 @@ export type chatState = {
     selectedUser: IUser | null;
     isUsersLoading: boolean;
     isMessagesLoading: boolean;
-    unReadMessages: IMessages[]
+    unReadMessages: IMessages[],
+    messagesInitialized: boolean
 }
 
 export type chatAction = {

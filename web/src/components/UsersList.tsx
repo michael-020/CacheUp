@@ -7,7 +7,7 @@ import { axiosInstance } from "@/lib/axios";
 import { Skeleton } from "./ui/skeleton";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
-import { cn} from "@/lib/utils";
+import { cn, IUser} from "@/lib/utils";
 
 interface UserData {
   _id: string;
@@ -61,8 +61,9 @@ const UsersList = ({ searchTerm = "" }: UsersListProps) => {
       const res = await axiosInstance.get("user/friends/all-users");
       
       if (res.data && res.data.users) {
-        const formattedUsers = res.data.users
-          .filter(user => user._id !== currentUser?._id)
+        const formattedUsers = res.data.users as IUser[]
+
+        formattedUsers.filter(user => user._id !== currentUser?._id)
           .map(user => ({
             ...user,
             name: user.name || user.username || "User",

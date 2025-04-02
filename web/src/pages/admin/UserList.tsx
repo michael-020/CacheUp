@@ -16,7 +16,7 @@ const UserList = () => {
     fetchUsers();
   }, [fetchUsers]);
 
-  const handleProfileClick = (userId) => {
+  const handleProfileClick = (userId: string) => {
     navigate(`/admin/profile/${userId}`); 
   };
 
