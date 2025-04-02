@@ -1,6 +1,7 @@
 import { Briefcase, Users, Mail } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { IUser } from '@/lib/utils';
+import { useChatStore } from '@/stores/chatStore/useChatStore';
 
 interface ProfileCardProps {
   isOwnProfile: boolean;
@@ -11,6 +12,7 @@ interface ProfileCardProps {
 
 export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: ProfileCardProps) => {
   const location = useLocation();
+  const { setSelectedUser } = useChatStore()
   if (!userInfo) return null;
 
   const { profilePicture, name, username, email, bio, department, friends } = userInfo;
@@ -69,7 +71,7 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
               </div>
             </div>}
 
-            {isOwnProfile && (
+            {isOwnProfile ? (
               <Link to="/edit-profile" >
                 <button 
                   className="w-full py-2 px-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-xs font-medium rounded-md hover:from-blue-600 hover:to-indigo-600 transition-colors"
@@ -77,7 +79,14 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
                   Edit Profile
                 </button>
               </Link>
-            )}
+            ): <Link to="/message" >
+            <button 
+              className="w-full flex items-center justify-center space-x-2 py-2 px-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-xs font-medium rounded-md hover:from-blue-600 hover:to-indigo-600 transition-colors"
+              onClick={() => setSelectedUser(userInfo)}
+            >
+             <Mail className='size-4' /> <span> Message </span>
+            </button>
+          </Link>}
           </div>
         </div>
       </div>

@@ -13,6 +13,7 @@ export type authState = {
     onlineUsers: string[]
     socket: WebSocket | null
     token: string | ""
+    authChecked: boolean
 }
 
 export type authAction = {
