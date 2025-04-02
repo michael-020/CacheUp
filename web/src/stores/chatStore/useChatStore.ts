@@ -23,22 +23,6 @@ export interface IMessageData {
     image?: string;
 }
 
-// _id: string
-//     name: string;
-//     username: string;
-//     email: string;
-//     password: string;
-//     profilePicture?: string;
-//     department: string;
-//     graduationYear: number;
-//     bio?: string;
-//     posts: IPost[];
-//     friends?: IUser[];
-//     friendRequests?: IUser[];
-//     lastUsernameChangeDate?: string
-//     mutualFriends?: number;
-//     isFriend?: boolean;
-
 export const useChatStore = create<chatState & chatAction>((set, get) => ({
     messages: [],
     allMessages: [],
@@ -47,8 +31,12 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
     isUsersLoading: false,
     isMessagesLoading: false,
     unReadMessages: [],
+    messagesInitialized: false, // Add this to track if messages have been initialized
 
     getUsers: async () => {
+        // Skip if users are already loaded
+        if (get().users.length > 0) return;
+        
         set({ isUsersLoading: true });
         try {
             const res = await axiosInstance.get("/messages/previous-chats");
@@ -94,6 +82,9 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
     },
 
     getAllMessages: async () => {
+        // Skip if already initialized
+        if (get().messagesInitialized) return;
+        
         try {
             const res = await axiosInstance.get(`/messages/get-all-messages`);
             const currentUserId = useAuthStore.getState().authUser?._id;
@@ -102,7 +93,7 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
             set({ allMessages: receivedMessages });
             
             const unreadMessages = receivedMessages.filter(msg => !msg.isRead);
-            set({ unReadMessages: unreadMessages });
+            set({ unReadMessages: unreadMessages, messagesInitialized: true });
         } catch (error) {
             if (error instanceof AxiosError && error.response?.data?.msg) {
                 toast.error(error.response.data.msg as string);
@@ -193,12 +184,15 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
     subscribeToMessages: () => {
         const socket = useAuthStore.getState().socket;
         if (!socket) return;
-
+        
+        // Important: Remove existing handler before adding a new one
         socket.onmessage = (event) => {
             try {
                 const { type, payload } = JSON.parse(event.data);
                 
-                if (type === "NEW_MESSAGE") {
+                if (type === "ONLINE_USERS") {
+                    useAuthStore.getState().onlineUsers = payload;
+                } else if (type === "NEW_MESSAGE") {
                     const currentUserId = useAuthStore.getState().authUser?._id;
                     
                     if (payload.receiver === currentUserId) {
@@ -214,7 +208,7 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
     unSubscribeFromMessages: () => {
         const socket = useAuthStore.getState().socket;
         if (socket) {
-          socket.onmessage = null; 
+            socket.onmessage = null; 
         }
     },
 
@@ -285,4 +279,4 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
             
         toast.success(`${senderName}: ${displayContent}`);
     }
-}));
+}))
