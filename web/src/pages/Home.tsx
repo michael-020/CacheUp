@@ -1,6 +1,7 @@
 import { ProfileCard } from '@/components/ProfileCard';
 import { Feed } from '../components/feeds/Feed';
 import { useAuthStore } from '@/stores/AuthStore/useAuthStore';
+import { Link } from "react-router-dom";
 
 export const Home = () => {
   const { authUser } = useAuthStore()
@@ -8,7 +9,7 @@ export const Home = () => {
     return null;
   
   return (
-    <div className="relative px-8">
+    <div className="relative px-8 bg-white dark:bg-neutral-950 dark:border-neutral-900">
       {/* ProfileCard shifted to the right */}
       <div className="absolute left-40 -top-12 hidden md:block">
         <ProfileCard userInfo={authUser} isOwnProfile={true} />
