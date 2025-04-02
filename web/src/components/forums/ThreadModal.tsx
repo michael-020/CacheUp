@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import { useEffect, useState, FC } from 'react';
 
 interface ThreadModalProps {
   onClose: () => void;
   onSubmit: (data: { title: string; description: string }) => void;
 }
 
-const ThreadModal: React.FC<ThreadModalProps> = ({ onClose, onSubmit }) => {
+const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit }) => {
   const [threadData, setThreadData] = useState({ title: '', description: '' });
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<{title?: string; description?: string}>({});
@@ -38,7 +38,7 @@ const ThreadModal: React.FC<ThreadModalProps> = ({ onClose, onSubmit }) => {
   };
 
   // Close modal when Escape key is pressed
-  React.useEffect(() => {
+  useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose();

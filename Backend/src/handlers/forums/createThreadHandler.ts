@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { string, z } from "zod";
+import { z } from "zod";
 import { threadForumModel } from "../../models/db";
 import { weaviateClient } from "../../models/weaviate";
 import { embedtext } from "../../lib/vectorizeText";

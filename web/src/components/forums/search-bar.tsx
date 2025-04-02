@@ -1,18 +1,18 @@
-
-
 import type React from "react"
-
 import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Search } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 
 export function SearchBar() {
   const [searchQuery, setSearchQuery] = useState("")
-
-  const handleSearch = (e: React.FormEvent) => {
+  const naviagate = useNavigate()
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
-    // In a real app, you would implement search functionality here
+    if (!searchQuery.trim()) return
+    // await searchForums(searchQuery)
+    naviagate(`/forums/search?q=${encodeURIComponent(searchQuery)}`)
     console.log("Searching for:", searchQuery)
   }
 
