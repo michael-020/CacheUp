@@ -122,7 +122,7 @@ function App() {
         <Route path="/admin/get-forums" element={<ForumList />} />
       </Routes>
 
-      <Toaster />
+      <Toaster />  
     </div>
   )
 }

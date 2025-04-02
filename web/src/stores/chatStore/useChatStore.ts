@@ -5,6 +5,7 @@ import { useAuthStore } from "../AuthStore/useAuthStore";
 import { chatAction, chatState } from "./types";
 import { AxiosError } from "axios";
 import { IUser } from "@/lib/utils";
+import { showCustomMessageToast } from "@/components/Toast/CustomMessageToast";
 
 export interface IMessages {
     _id: string;
@@ -31,7 +32,8 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
     isUsersLoading: false,
     isMessagesLoading: false,
     unReadMessages: [],
-    messagesInitialized: false, // Add this to track if messages have been initialized
+    messagesInitialized: false, 
+    activeToasts: new Map(),
 
     getUsers: async () => {
         // Skip if users are already loaded
@@ -277,6 +279,35 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
             displayContent = "sent you an image";
         }
             
-        toast.success(`${senderName}: ${displayContent}`);
+        const toastId = showCustomMessageToast({
+            senderName: senderName,
+            message: displayContent,
+            imageUrl: sender?.profilePicture,
+            duration: 5000,
+            onClose: () => {
+                if (!message.isRead) {
+                    get().markMessagesAsRead([message._id]);
+                }
+                
+                const activeToasts = new Map(get().activeToasts);
+                if (activeToasts.has(message._id)) {
+                    activeToasts.delete(message._id);
+                    set({ activeToasts });
+                }
+            }
+        });
+        
+        const activeToasts = new Map(get().activeToasts);
+        activeToasts.set(message._id, toastId);
+        set({ activeToasts });
+    },
+
+    dismissAllToasts: () => {
+        const { activeToasts } = get();
+        activeToasts.forEach((toastId: string) => {
+            toast.dismiss(toastId);
+        });
+        set({ activeToasts: new Map() });
     }
+
 }))

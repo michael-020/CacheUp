@@ -10,6 +10,7 @@ export type chatState = {
     isMessagesLoading: boolean;
     unReadMessages: IMessages[],
     messagesInitialized: boolean
+    activeToasts: any
 }
 
 export type chatAction = {
@@ -29,4 +30,6 @@ export type chatAction = {
     markMessagesAsRead: (messageIds: string[]) => void;
 
     sendNotification: (data: IMessages) => void;
+
+    dismissAllToasts: () => void;
 }

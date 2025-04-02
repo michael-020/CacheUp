@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { usePostStore } from "../../stores/PostStore/usePostStore";
 import PostCard from "../PostCard";
 import Share from "../Share";
+import toast from "react-hot-toast";
 
 
 export function Feed() {
