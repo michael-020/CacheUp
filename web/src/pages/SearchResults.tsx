@@ -98,6 +98,11 @@ export function SearchResults() {
     return new Date(dateString).toLocaleDateString();
   };
 
+  const truncateText = (text: string | undefined) => {
+    if (!text) return "";
+    return text.length > 50 ? `${text.substring(0, 50)}...` : text;
+  };
+
   // Function to get a display title for each result type
   const getDisplayTitle = (item: SearchResultItem) => {
     switch (item.type) {
@@ -162,9 +167,9 @@ export function SearchResults() {
             </CardHeader>
             <CardContent className="p-4 pt-2">
               {item.type === 'Post' || item.type === 'Comment' ? (
-                <div className="line-clamp-2">{item.data.content}</div>
+                <div className="line-clamp-2">{truncateText(item.data.content)}</div>
               ) : (
-                item.data.description && <CardDescription>{item.data.description}</CardDescription>
+                item.data.description && <CardDescription>{truncateText(item.data.description)}</CardDescription>
               )}
               <div className="text-xs text-muted-foreground mt-2">
                 {formatDate(item.data.createdAt)} • Match confidence: {(item.certainty * 100).toFixed(1)}%
