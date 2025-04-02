@@ -143,8 +143,7 @@ export function SearchResults() {
       );
     }
 
-    return (
-    <div>
+    return (<div>
         <SearchBar />
       <div className="space-y-4">
         {results.map((item, index) => (
@@ -182,6 +181,7 @@ export function SearchResults() {
   return (
     <div className="container mx-auto py-6">
       {/* Search form at the top of results page */}
+      <SearchBar />
       <h1 className="text-2xl font-bold mb-4">
         Search Results {searchQuery ? `for "${searchQuery}"` : ""}
       </h1>
