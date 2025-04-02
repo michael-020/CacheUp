@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { userModel } from "../models/db";
+import { postModel, userModel } from "../models/db";
 import { z } from "zod";
 import cloudinary from "../lib/cloudinary";
 
@@ -49,6 +49,11 @@ export const editProfileHandler = async (req: Request, res: Response) => {
             });
 
             user.profilePicture = uploadResponse.url
+
+            await postModel.updateMany(
+                { postedBy: userId },
+                { $set: { userImagePath: uploadResponse.url } }
+            );
         }
 
 
