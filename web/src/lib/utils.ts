@@ -33,6 +33,7 @@ export interface IUser {
     lastUsernameChangeDate?: string
     mutualFriends?: number;
     isFriend?: boolean;
+    hasPendingRequest?: boolean;
 }
 
 export interface LikedUser {
