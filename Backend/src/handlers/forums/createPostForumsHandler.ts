@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { z } from "zod";
-import { postForumModel, threadForumModel } from "../../models/db";
+import { postForumModel, threadForumModel, watchNotificationModel } from "../../models/db";
 import { weaviateClient } from "../../models/weaviate";
 import { embedtext } from "../../lib/vectorizeText";
 
@@ -43,6 +43,17 @@ export const createPostForumshandler = async (req: Request, res: Response) => {
         
         postMongo.weaviateId = postWeaviate.id as string 
         await postMongo.save()
+
+        const thread = await threadForumModel.findById(threadMongo)
+        const watchers = thread?.watchedBy?.filter((id) => id.toString() !== req.user._id.toString())
+        if(watchers && watchers.length > 0) {
+            await watchNotificationModel.create({
+                userIds: watchers,
+                message: `${req.user.username} creates a new post ${postMongo._id} in ${thread?.title}`,
+                threadId: thread?._id,
+                seenBy: []
+            })
+        }
 
         res.json({
             msg: "Post created successfully",

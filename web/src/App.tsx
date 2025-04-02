@@ -19,9 +19,10 @@ import ReportedPosts from './pages/admin/ReportedPosts'
 import { EditProfile } from './pages/EditProfile'
 import FriendsPage from "./pages/Friends";
 import { useChatStore } from './stores/chatStore/useChatStore'
-import ForumList from './components/forums/ForumsList'
+import ForumList from './pages/ForumsList'
 import ForumPage from './pages/ForumPage'
 import CreateForum from './pages/admin/CreateForum'
+import { SearchResults } from './pages/SearchResults'
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore()
@@ -109,6 +110,7 @@ function App() {
         <Route path='/friends' element={authUser ? <FriendsPage /> : <Navigate to="/signin" />} />
         <Route path="/forums/get-forums" element={<ForumList />} />
         <Route path="/forums/:forumMongoId/:forumWeaviateId" element={<ForumPage />} />
+        <Route path="/forums/search" element={<SearchResults />} />
 
         {/* Admin Routes */}
         <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to="/admin/home" /> } />

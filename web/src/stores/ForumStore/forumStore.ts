@@ -15,6 +15,10 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   errorForums: '',
   loading: false,
   error: '',
+  searchResult: { 
+    msg: '',
+    searchResults: [] 
+  },
 
   
   fetchForums: async (isAdminRoute) => {
@@ -77,6 +81,25 @@ export const useForumStore = create<ForumStore>((set, get) => ({
       get().fetchThreads(forumId);
     } catch (err) {
       const error = err as AxiosError<{ msg: string }>;
+      throw error;
+    }
+  },
+
+  searchForums: async (query) => {
+    set({ loading: true, error: '' });
+    try {
+      const response = await axiosInstance.get(`/forums/search-forums/${query}`);
+      set({ 
+        searchResult: response.data, 
+        loading: false 
+      });
+      
+      return response.data;
+    } catch (err) {
+      const error = err as AxiosError<{ msg: string }>;
+      set({ 
+        loading: false 
+      });
       throw error;
     }
   }
