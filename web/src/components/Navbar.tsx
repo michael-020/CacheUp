@@ -104,7 +104,7 @@ export const Navbar = () => {
           </button>
 
           <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
-            <Link to={"/forums"}>
+            <Link to={"/forums/get-forums"}>
                 <MdOutlineForum className={`size-6 ${
                   currentPath === "/forums" ? "text-blue-500 fill-current" : "text-gray-600"
                 }`} />

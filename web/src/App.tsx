@@ -19,6 +19,9 @@ import ReportedPosts from './pages/admin/ReportedPosts'
 import { EditProfile } from './pages/EditProfile'
 import FriendsPage from "./pages/Friends";
 import { useChatStore } from './stores/chatStore/useChatStore'
+import ForumList from './components/forums/ForumsList'
+import ForumPage from './pages/ForumPage'
+import CreateForum from './pages/admin/CreateForum'
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore()
@@ -104,6 +107,8 @@ function App() {
         <Route path='/message' element={authUser ? <Messages /> : <Navigate to="/signin" />} />
         <Route path='/edit-profile' element={authUser ? <EditProfile /> : <Navigate to="/signin" />} />
         <Route path='/friends' element={authUser ? <FriendsPage /> : <Navigate to="/signin" />} />
+        <Route path="/forums/get-forums" element={<ForumList />} />
+        <Route path="/forums/:forumMongoId/:forumWeaviateId" element={<ForumPage />} />
 
         {/* Admin Routes */}
         <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to="/admin/home" /> } />
@@ -111,6 +116,8 @@ function App() {
         <Route path="/admin/reported-posts" element={authAdmin ? <ReportedPosts /> : <Navigate to="/admin/signin" /> } />
         <Route path="/admin/user-list" element={authAdmin ? <UserList /> : <Navigate to="/admin/signin" />} />
         <Route path="/admin/profile/:id" element={authAdmin ? <Profile /> : <Navigate to="/admin/signin" />} />
+        <Route path="/admin/home/forums" element={<CreateForum/>} />
+        <Route path="/admin/get-forums" element={<ForumList />} />
       </Routes>
 
       <Toaster />
