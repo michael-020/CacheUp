@@ -1,5 +1,12 @@
 import { IUser } from "@/lib/utils";
 
+interface CreatedBy {
+  username: string,
+  _id: string,
+  profilePicture?: string
+};
+
+
 export interface SearchResultItem {
   type: 'Forum' | 'Thread' | 'Post' | 'Comment';
   data: any;
@@ -11,12 +18,12 @@ export interface SearchResponseData {
   searchResults: SearchResultItem[];
 }
 
-export interface Post {
+export interface PostSchema {
   _id: string;
   content: string;
   thread: string;
   createdAt: Date;
-  createdBy: Object;
+  createdBy: CreatedBy
   likedBy?: string[];
   disLikedBy?: string[];
   reportedBy?: string[];
@@ -54,7 +61,7 @@ export interface ForumState {
   loading: boolean,
   error: '',
   searchResult: SearchResponseData
-  posts: Post[]
+  posts: PostSchema[] 
 }
 
 export interface ForumActions {

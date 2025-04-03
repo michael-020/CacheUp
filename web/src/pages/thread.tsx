@@ -5,9 +5,9 @@ import { useParams } from "react-router-dom";
 export const Thread = () => {
   const { id } = useParams();
   const { fetchPosts, posts: responseData, loading, error } = useForumStore();
-  
-  console.log("Full API response:", responseData);  // Debugging
-  
+
+  console.log("Full API response:", responseData); // Debugging
+
   useEffect(() => {
     if (!id) {
       console.error("No thread ID found in URL.");
@@ -15,7 +15,7 @@ export const Thread = () => {
     }
     fetchPosts(id);
   }, [id, fetchPosts]);
-  
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -23,7 +23,7 @@ export const Thread = () => {
       </div>
     );
   }
-  
+
   if (error) {
     return (
       <div className="p-6 mx-auto max-w-3xl bg-red-50 border border-red-200 rounded-lg text-center">
@@ -32,19 +32,11 @@ export const Thread = () => {
       </div>
     );
   }
-  
-  // Check if we're getting the posts directly or in a nested structure
-  const posts = responseData?.posts || responseData || [];
-  
-  if (!Array.isArray(posts)) {
-    console.error("Invalid data type for posts:", posts);
-    return (
-      <div className="p-6 mx-auto max-w-3xl bg-red-50 border border-red-200 rounded-lg text-center">
-        <div className="text-red-600 text-lg font-medium">Invalid data format received</div>
-      </div>
-    );
-  }
-  
+
+  // Ensure responseData is an array
+  const posts = Array.isArray(responseData) ? responseData : [];
+  console.log("Processed posts:", posts); // Debugging
+
   if (posts.length === 0) {
     return (
       <div className="p-8 mx-auto max-w-3xl bg-gray-50 border border-gray-200 rounded-lg text-center">
@@ -53,87 +45,84 @@ export const Thread = () => {
       </div>
     );
   }
-  
-  // Helper function to extract author name
-  const getAuthorName = (createdBy) => {
-    if (typeof createdBy === 'string') {
-      return createdBy;
-    } else if (createdBy && typeof createdBy === 'object') {
-      return createdBy.username || 'Unknown User';
-    }
-    return 'Unknown User';
-  };
 
-  // Helper function to get initials for avatar
-  const getInitials = (name) => {
+  const getInitials = (name: string) => {
     return name
-      .split(' ')
-      .map(part => part[0])
-      .join('')
+      .split(" ")
+      .map((part) => part[0])
+      .join("")
       .toUpperCase()
       .substring(0, 2);
   };
-  
-  // Helper function to get a deterministic color based on username
-  const getUserColor = (username) => {
+
+  const getUserColor = (username?: string) => {
+    if (!username) return "bg-gray-400"; // Default color for missing usernames
+
     const colors = [
-      'bg-blue-500', 'bg-green-500', 'bg-purple-500', 
-      'bg-yellow-500', 'bg-pink-500', 'bg-indigo-500'
+      "bg-blue-500",
+      "bg-green-500",
+      "bg-purple-500",
+      "bg-yellow-500",
+      "bg-pink-500",
+      "bg-indigo-500",
     ];
-    
-    // Simple hash function to get consistent colors for the same username
-    const hash = username.split('').reduce((acc, char) => {
-      return acc + char.charCodeAt(0);
-    }, 0);
-    
+
+    const hash = username.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return colors[hash % colors.length];
   };
-  
-  // Format date nicely
-  const formatDate = (dateString) => {
-    const options = { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+
+  const formatDate = (dateString: Date) => {
+    const options: Intl.DateTimeFormatOptions = {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
     };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
-  
+
   return (
     <div className="container mx-auto p-4 max-w-4xl">
       <div className="mb-8 border-b pb-4">
         <h1 className="text-3xl font-bold mb-2">Thread Discussion</h1>
-        <div className="text-gray-500">{posts.length} {posts.length === 1 ? 'post' : 'posts'} in this thread</div>
+        <div className="text-gray-500">{posts.length} {posts.length === 1 ? "post" : "posts"} in this thread</div>
       </div>
-      
+
       <div className="space-y-6">
         {posts.map((post, index) => {
-          const author = getAuthorName(post.createdBy);
-          
+          const author = post.createdBy?.username || "Unknown User";
+          const profileImage = post.createdBy?.profilePicture || null;
+
+          console.log("Post Author:", author); // Debugging
+
           return (
-            <div 
-              key={post._id} 
-              className={`rounded-lg shadow-sm border ${index === 0 ? 'border-blue-200 bg-blue-50' : 'border-gray-200'} overflow-hidden`}
+            <div
+              key={post._id}
+              className={`rounded-lg shadow-sm border ${index === 0 ? "border-blue-200 bg-blue-50" : "border-gray-200"} overflow-hidden`}
             >
               <div className="flex items-center gap-3 p-4 bg-gray-50 border-b">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${getUserColor(author)}`}>
+                {profileImage ? (
+                  <img src={profileImage} alt={`${author}'s profile`} className="w-10 h-10 rounded-full object-cover" />
+                ) : null}
+                <div
+                  className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${getUserColor(author)}`}
+                  style={{ display: profileImage ? "none" : "flex" }}
+                >
                   {getInitials(author)}
                 </div>
                 <div className="flex-1">
                   <div className="font-medium">{author}</div>
                   <div className="text-xs text-gray-500">{formatDate(post.createdAt)}</div>
                 </div>
-                {index === 0 && (
-                  <div className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">Original Post</div>
-                )}
+                {index === 0 && <div className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">Original Post</div>}
               </div>
-              
+
               <div className="p-5">
                 <div className="prose max-w-none whitespace-pre-wrap">{post.content}</div>
               </div>
-              
+
               <div className="flex items-center gap-4 px-4 py-3 bg-gray-50 border-t text-sm text-gray-500">
                 <button className="flex items-center gap-1 hover:text-blue-600">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -150,10 +139,13 @@ export const Thread = () => {
                 </button>
                 
                 <button className="flex items-center gap-1 hover:text-gray-700 ml-auto">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M3 6a3 3 0 013-3h10a1 1 0 011 1v10a1 1 0 01-1 1H6a3 3 0 01-3-3V6zm3-1a1 1 0 00-1 1v8a1 1 0 001 1h10V5H6z" clipRule="evenodd" />
-                  </svg>
-                  Reply
+                <svg xmlns="http://www.w3.org/2000/svg" xmlSpace="preserve" width="20" height="20" viewBox="0 0 32 32" id="comment">
+                <g fill="#1C1C1C">
+                    <path d="M8.5 15h15a.5.5 0 0 1 0 1h-15a.5.5 0 0 1 0-1zM8.5 12h15a.5.5 0 0 1 0 1h-15a.5.5 0 0 1 0-1zM8.5 9h15a.5.5 0 0 1 0 1h-15a.5.5 0 0 1 0-1z"></path>
+                    <path d="M0 2v21a2 2 0 0 0 2 2h18l8 7v-7h2a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2zm1 1a2 2 0 0 1 2-2h26a2 2 0 0 1 2 2v19a2 2 0 0 1-2 2h-2v6l-5.833-5L20 24H3a2 2 0 0 1-2-2V3z"></path>
+                </g>
+                </svg>                  
+                Reply
                 </button>
               </div>
             </div>
