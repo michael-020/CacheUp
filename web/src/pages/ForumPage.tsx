@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, Link } from 'react-router-dom';
 import { useForumStore } from '@/stores/ForumStore/forumStore';
 import ThreadModal from '../components/forums/ThreadModal';
 
@@ -61,13 +61,15 @@ const ForumPage: React.FC = () => {
       ) : (
         <div className="space-y-4">
           {currentForum.threads.map((thread) => (
-            <div key={thread._id} className="border p-4 rounded hover:bg-gray-50">
+            <Link key={thread._id} to={`/forums/thread/${thread._id}`}>
+            <div className="border p-4 rounded hover:bg-gray-50">
               <h2 className="text-xl font-semibold">{thread.title}</h2>
               <p className="mt-2 text-gray-600">{thread.description}</p>
               <div className="mt-3 flex justify-between text-sm text-gray-500">
                 <span>Created: {new Date(thread.createdAt).toLocaleString()}</span>
               </div>
             </div>
+          </Link>
           ))}
         </div>
       )}

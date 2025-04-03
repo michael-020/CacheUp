@@ -23,6 +23,8 @@ import ForumList from './pages/ForumsList'
 import ForumPage from './pages/ForumPage'
 import CreateForum from './pages/admin/CreateForum'
 import { SearchResults } from './pages/SearchResults'
+import Thread from './pages/thread'
+import SettingsPage from './pages/SettingsPage'
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore()
@@ -108,9 +110,11 @@ function App() {
         <Route path='/message' element={authUser ? <Messages /> : <Navigate to="/signin" />} />
         <Route path='/edit-profile' element={authUser ? <EditProfile /> : <Navigate to="/signin" />} />
         <Route path='/friends' element={authUser ? <FriendsPage /> : <Navigate to="/signin" />} />
+        <Route path='/settings' element={authUser ? <SettingsPage /> : <Navigate to="/signin" />} />
         <Route path="/forums/get-forums" element={<ForumList />} />
         <Route path="/forums/:forumMongoId/:forumWeaviateId" element={<ForumPage />} />
         <Route path="/forums/search" element={<SearchResults />} />
+        <Route path='/forums/thread/:id' element={<Thread />} />
 
         {/* Admin Routes */}
         <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to="/admin/home" /> } />

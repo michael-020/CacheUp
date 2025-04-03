@@ -4,9 +4,6 @@ import { useForumStore } from "@/stores/ForumStore/forumStore"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Loader2, MessageSquare, Folder, FileText, MessageCircle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Search } from "lucide-react"
 import { SearchBar } from "@/components/forums/search-bar"
 
 // Define the structure of search results based on your backend response
@@ -50,15 +47,6 @@ export function SearchResults() {
       console.error("Search failed:", err);
     }
   };
-  
-  // Handle search form submission on the results page
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
-    
-    navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-    performSearch(searchQuery.trim());
-  };
 
   const handleItemClick = (item: SearchResultItem) => {
     switch (item.type) {
@@ -96,6 +84,11 @@ export function SearchResults() {
   // Function to format dates
   const formatDate = (dateString: Date) => {
     return new Date(dateString).toLocaleDateString();
+  };
+
+  const truncateText = (text: string | undefined) => {
+    if (!text) return "";
+    return text.length > 50 ? `${text.substring(0, 50)}...` : text;
   };
 
   // Function to get a display title for each result type
@@ -144,7 +137,6 @@ export function SearchResults() {
     }
 
     return (<div>
-        <SearchBar />
       <div className="space-y-4">
         {results.map((item, index) => (
           <Card 
@@ -163,9 +155,9 @@ export function SearchResults() {
             </CardHeader>
             <CardContent className="p-4 pt-2">
               {item.type === 'Post' || item.type === 'Comment' ? (
-                <div className="line-clamp-2">{item.data.content}</div>
+                <div className="line-clamp-2">{truncateText(item.data.content)}</div>
               ) : (
-                item.data.description && <CardDescription>{item.data.description}</CardDescription>
+                item.data.description && <CardDescription>{truncateText(item.data.description)}</CardDescription>
               )}
               <div className="text-xs text-muted-foreground mt-2">
                 {formatDate(item.data.createdAt)} • Match confidence: {(item.certainty * 100).toFixed(1)}%
@@ -179,13 +171,11 @@ export function SearchResults() {
   };
 
   return (
-    <div className="container mx-auto py-6">
-      {/* Search form at the top of results page */}
-      <SearchBar />
-      <h1 className="text-2xl font-bold mb-4">
+    <div className="container mx-auto p-10">      
+      <h1 className="text-2xl font-bold mb-4 pt-10">
         Search Results {searchQuery ? `for "${searchQuery}"` : ""}
       </h1>
-      
+      <SearchBar />
       {renderResults()}
     </div>
   );
