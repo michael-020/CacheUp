@@ -5,11 +5,12 @@ import SettingsIcon from "../icons/SettingsIcon";
 import UserIcon from "../icons/UserIcon";
 import { useAuthStore } from "../stores/AuthStore/useAuthStore";
 import { Moon, Sun } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useChatStore } from "@/stores/chatStore/useChatStore";
 import { MdOutlineForum } from "react-icons/md";
 import FriendsIcon from "@/icons/FriendsIcon";
 import { useFriendsStore } from "@/stores/FriendsStore/useFriendsStore";
+import { useThemeStore } from "@/stores/ThemeStore/useThemeStore";
 
 export const Navbar = () => {
   const { logout, authUser, checkAuth } = useAuthStore();
@@ -17,24 +18,9 @@ export const Navbar = () => {
   const { unReadMessages } = useChatStore()
   const location = useLocation();
   const currentPath = location.pathname;
-  const [dark, setDark] = useState<boolean>()
-
-  const toggleDarkMode = () => {
-    setDark((prevState) => !prevState);
-    const newTheme = !dark ? "dark" : "light";
-    document.body.classList.toggle("dark", newTheme === "dark");
-    localStorage.setItem("theme", newTheme);
-  }
+  const { isDark, toggleTheme } = useThemeStore();
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "dark") {
-      setDark(true);
-      document.body.classList.add("dark");
-    } else {
-      setDark(false);
-      document.body.classList.remove("dark");
-    }
     checkAuth();
     const interval = setInterval(async () => {
       await fetchRequests()
@@ -121,9 +107,9 @@ export const Navbar = () => {
         </div>
         
         <div className="w-1/4 flex items-center justify-end space-x-4">
-          <button onClick={toggleDarkMode} className="hover:bg-neutral-200 py-1.5 px-1.5 rounded-md dark:hover:bg-gray-700">
+          <button onClick={toggleTheme} className="hover:bg-neutral-200 py-1.5 px-1.5 rounded-md dark:hover:bg-gray-700">
             {
-              dark ? <Sun /> : <Moon />
+              isDark ? <Sun /> : <Moon />
             }
           </button>
           <button className="hover:-translate-y-0.5 hover:scale-105">

@@ -1,17 +1,14 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { ArrowLeft, Bell, Lock, Eye, Moon, Sun, LogOut, Shield, Trash2 } from "lucide-react"
 import { useAuthStore } from "../stores/AuthStore/useAuthStore"
 import toast from "react-hot-toast"
+import { useThemeStore } from "@/stores/ThemeStore/useThemeStore"
 
 export default function SettingsPage() {
   const navigate = useNavigate()
   const { logout } = useAuthStore()
-  const [darkMode, setDarkMode] = useState(() => {
-    // Check if user has a preference stored
-    const savedPreference = localStorage.getItem("theme")
-    return savedPreference === "dark"
-  })
+  const { isDark, toggleTheme } = useThemeStore();
 
   const [settings, setSettings] = useState({
     emailNotifications: true,
@@ -24,14 +21,6 @@ export default function SettingsPage() {
     showReadReceipts: true,
     showLastSeen: true,
   })
-
-  // Toggle dark mode
-  const toggleDarkMode = () => {
-    const newMode = !darkMode
-    setDarkMode(newMode)
-    document.documentElement.classList.toggle("dark", newMode)
-    localStorage.setItem("theme", newMode ? "dark" : "light")
-  }
 
   // Handle settings changes
   const handleSettingChange = (setting: string, value: any) => {
@@ -55,11 +44,6 @@ export default function SettingsPage() {
       }, 2000)
     }
   }
-
-  // Apply dark mode on initial load
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", darkMode)
-  }, [darkMode])
 
   return (
     <div className="pt-16 min-h-screen bg-gray-100 dark:bg-neutral-900">
@@ -113,8 +97,8 @@ export default function SettingsPage() {
                   <p className="text-gray-800 dark:text-white font-medium">Dark Mode</p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Toggle dark/light theme</p>
                 </div>
-                <button onClick={toggleDarkMode} className="p-2 rounded-full bg-gray-200 dark:bg-neutral-700">
-                  {darkMode ? <Sun className="h-5 w-5 text-yellow-500" /> : <Moon className="h-5 w-5 text-gray-600" />}
+                <button onClick={toggleTheme} className="p-2 rounded-full bg-gray-200 dark:bg-neutral-700">
+                  {isDark ? <Sun className="h-5 w-5 text-yellow-500" /> : <Moon className="h-5 w-5 text-gray-600" />}
                 </button>
               </div>
             </div>
