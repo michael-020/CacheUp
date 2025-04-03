@@ -22,7 +22,7 @@ export const createAdminHandler = async (req: Request, res: Response) => {
     catch(e) {
         console.error("Error while creating admin", e)
         res.status(401).json({
-            msg: "rror while creating admin"
+            msg: "Error while creating admin"
         })
     }
 }

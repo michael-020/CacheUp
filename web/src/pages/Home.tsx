@@ -1,7 +1,6 @@
 import { ProfileCard } from '@/components/ProfileCard';
 import { Feed } from '../components/feeds/Feed';
 import { useAuthStore } from '@/stores/AuthStore/useAuthStore';
-import { Link } from "react-router-dom";
 
 export const Home = () => {
   const { authUser } = useAuthStore()
