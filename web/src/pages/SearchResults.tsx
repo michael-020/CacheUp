@@ -4,9 +4,6 @@ import { useForumStore } from "@/stores/ForumStore/forumStore"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Loader2, MessageSquare, Folder, FileText, MessageCircle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Search } from "lucide-react"
 import { SearchBar } from "@/components/forums/search-bar"
 
 // Define the structure of search results based on your backend response
@@ -49,15 +46,6 @@ export function SearchResults() {
     } catch (err) {
       console.error("Search failed:", err);
     }
-  };
-  
-  // Handle search form submission on the results page
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
-    
-    navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-    performSearch(searchQuery.trim());
   };
 
   const handleItemClick = (item: SearchResultItem) => {
@@ -183,9 +171,7 @@ export function SearchResults() {
   };
 
   return (
-    <div className="container mx-auto p-10">
-      {/* Search form at the top of results page */}
-      
+    <div className="container mx-auto p-10">      
       <h1 className="text-2xl font-bold mb-4 pt-10">
         Search Results {searchQuery ? `for "${searchQuery}"` : ""}
       </h1>

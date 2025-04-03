@@ -5,7 +5,7 @@ import { postForumModel } from "../../models/db";
 export const getAllPostsFromAThreadHandler = async (req: Request, res: Response) => {
     try{
         const { threadId } = req.params;
-        const posts = await postForumModel.find({thread: threadId})
+        const posts = await postForumModel.find({thread: threadId}).sort({ createdAt: -1 })
         res.json({
             msg: "Posts Fetched successfully",
             posts

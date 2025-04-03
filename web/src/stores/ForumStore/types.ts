@@ -11,6 +11,18 @@ export interface SearchResponseData {
   searchResults: SearchResultItem[];
 }
 
+export interface Post {
+  _id: string;
+  content: string;
+  thread: string;
+  createdAt: Date;
+  createdBy: Object;
+  likedBy?: string[];
+  disLikedBy?: string[];
+  reportedBy?: string[];
+  weaviateId: string
+}
+
 export interface Thread {
   _id: string;
   title: string;
@@ -42,6 +54,7 @@ export interface ForumState {
   loading: boolean,
   error: '',
   searchResult: SearchResponseData
+  posts: Post[]
 }
 
 export interface ForumActions {
@@ -56,6 +69,8 @@ export interface ForumActions {
     isAdminRoute: boolean
   ) => Promise<void>;
   searchForums: (query: string) => Promise<void>;
+  fetchPosts: (threadId: string) => Promise<void>
+  createPost: (post: string, postData:string) => Promise<void>
 }
 
 export type ForumStore = ForumState & ForumActions;

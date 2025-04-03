@@ -19,14 +19,14 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     msg: '',
     searchResults: [] 
   },
-
+  posts: [],
   
   fetchForums: async (isAdminRoute) => {
     set({ loadingForums: true, errorForums: '' });
     try {
       const endpoint = isAdminRoute ? '/admin/get-forums' : '/forums/get-forums';
       const response = await axiosInstance.get(endpoint);
-      set({ forums: response.data.allForums, loadingForums: false });
+      set({ forums: response.data.allForums || [], loadingForums: false });
     } catch (err) {
       const error = err as AxiosError<{ msg: string }>;
       set({ 
@@ -102,5 +102,50 @@ export const useForumStore = create<ForumStore>((set, get) => ({
       });
       throw error;
     }
-  }
+  },
+  fetchPosts: async (threadId: string) => {
+    if (!threadId) {
+      throw new Error("Thread ID is required");
+    }
+  
+    try {
+      const response = await axiosInstance.get(`/forums/get-posts/${threadId}`);
+  
+      console.log("API Response:", response.data); // Debugging
+  
+      // ✅ Extract the `posts` array
+      const fetchedPosts = response.data.posts || []; 
+  
+      set({ 
+        posts: fetchedPosts, // ✅ Store only the array
+        loading: false 
+      });
+  
+      return fetchedPosts; // ✅ Return only the posts array
+    } catch (error) {
+      set({ loading: false });
+      throw error;
+    }
+  },
+  
+
+  // Create a new post in a thread
+  createPost: async (threadId, postData) => {
+    try {
+      set({ loading: true });
+      const response = await axiosInstance.post(``, postData);
+      
+      // Add the new post to the existing posts array
+      const updatedPosts = [...get().posts, response.data];
+      set({ posts: updatedPosts, loading: false });
+      
+      return response.data;
+    } catch (error) {
+      set({ 
+        loading: false
+      });
+      throw error;
+    }
+  },
+  
 }));

@@ -98,7 +98,7 @@ export interface IThreadForum extends Document {
   description?: string;
   forum: mongoose.Types.ObjectId;
   createdAt: Date;
-  createdBy: mongoose.Types.ObjectId;
+  createdBy: String;
   watchedBy?: mongoose.Types.ObjectId[];
   reportedBy?: mongoose.Types.ObjectId[];
   weaviateId?: string
@@ -109,7 +109,7 @@ export interface IPostForum extends Document {
   content: string;
   thread: mongoose.Types.ObjectId;
   createdAt: Date;
-  createdBy: mongoose.Types.ObjectId;
+  createdBy: string;
   likedBy?: mongoose.Types.ObjectId[];
   disLikedBy?: mongoose.Types.ObjectId[];
   reportedBy?: mongoose.Types.ObjectId[];
@@ -366,7 +366,7 @@ const threadForumSchema = new Schema<IThreadForum>({
     ref: 'forums'
   },
   createdBy: {
-    type: Schema.Types.ObjectId,
+    type: String,
     ref: 'users'
   },
   createdAt: {
@@ -401,7 +401,7 @@ const postForumSchema = new Schema<IPostForum>({
     default: Date.now
   },
   createdBy: {
-    type: Schema.Types.ObjectId,
+    type: String,
     ref: 'users'
   },
   likedBy: [{
