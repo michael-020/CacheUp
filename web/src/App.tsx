@@ -23,6 +23,7 @@ import ForumList from './pages/ForumsList'
 import ForumPage from './pages/ForumPage'
 import CreateForum from './pages/admin/CreateForum'
 import { SearchResults } from './pages/SearchResults'
+import Thread from './pages/thread'
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore()
@@ -111,6 +112,7 @@ function App() {
         <Route path="/forums/get-forums" element={<ForumList />} />
         <Route path="/forums/:forumMongoId/:forumWeaviateId" element={<ForumPage />} />
         <Route path="/forums/search" element={<SearchResults />} />
+        <Route path='/forums/thread/:id' element={<Thread />} />
 
         {/* Admin Routes */}
         <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to="/admin/home" /> } />

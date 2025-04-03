@@ -20,11 +20,16 @@ export const createPostForumshandler = async (req: Request, res: Response) => {
         }
         const { content } = req.body
         const {threadMongo, threadWeaviate} = req.params
+        const createdBy = {
+            _id: req.user._id,
+            username: req.user.username,
+            profileImage: req.user.profilePicture || "",
+        }
 
         const postMongo = await postForumModel.create({
             content,
             thread: threadMongo,
-            createdBy: req.user._id,
+            createdBy,
             weaviateId: "temp"
         })
 
