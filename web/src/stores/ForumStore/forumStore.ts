@@ -20,6 +20,8 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     searchResults: [] 
   },
   posts: [],
+  threadTitle: "",
+  threadDescription: "",
   
   fetchForums: async (isAdminRoute) => {
     set({ loadingForums: true, errorForums: '' });
@@ -115,9 +117,12 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   
       // ✅ Extract the `posts` array
       const fetchedPosts = response.data.posts || []; 
-  
+      const threadTitle = response.data.threadTitle || ''
+      const threadDescription = response.data.threadDescription || ''
       set({ 
-        posts: fetchedPosts, // ✅ Store only the array
+        posts: fetchedPosts,
+        threadTitle: threadTitle,
+        threadDescription: threadDescription,
         loading: false 
       });
   

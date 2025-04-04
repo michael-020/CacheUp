@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 
 export const Thread = () => {
   const { id } = useParams();
-  const { fetchPosts, posts: responseData, loading, error } = useForumStore();
+  const { fetchPosts, posts: responseData, loading, error, threadTitle, threadDescription } = useForumStore();
 
   console.log("Full API response:", responseData); // Debugging
 
@@ -86,7 +86,8 @@ export const Thread = () => {
   return (
     <div className="container mx-auto p-4 max-w-4xl mt-20">
       <div className="mb-8 border-b pb-4">
-        <h1 className="text-3xl font-bold mb-2">Thread Discussion</h1>
+        <h1 className="text-3xl font-bold mb-2">{threadTitle}</h1>
+        <p>{threadDescription}</p>
         <div className="text-gray-500">{posts.length} {posts.length === 1 ? "post" : "posts"} in this thread</div>
       </div>
 
@@ -116,7 +117,7 @@ export const Thread = () => {
                   <div className="font-medium">{author}</div>
                   <div className="text-xs text-gray-500">{formatDate(post.createdAt)}</div>
                 </div>
-                {index === 0 && <div className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">Original Post</div>}
+                {index === 0 && <div className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">Latest Post</div>}
               </div>
 
               <div className="p-5">

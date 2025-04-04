@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { postForumModel, userModel } from "../../models/db";
+import { postForumModel, threadForumModel, userModel } from "../../models/db";
 
 export const getAllPostsFromAThreadHandler = async (req: Request, res: Response) => {
     try {
@@ -12,10 +12,14 @@ export const getAllPostsFromAThreadHandler = async (req: Request, res: Response)
                 path: "createdBy",
                 select: "_id username profilePicture" 
             });
+        
+        const thread = await threadForumModel.findById(threadId)
 
         res.json({
             msg: "Posts Fetched successfully",
-            posts
+            posts,
+            threadTitle: thread?.title,
+            threadDescription: thread?.description
         });
 
     } catch (e) {

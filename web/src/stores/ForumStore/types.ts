@@ -27,7 +27,7 @@ export interface PostSchema {
   likedBy?: string[];
   disLikedBy?: string[];
   reportedBy?: string[];
-  weaviateId: string
+  weaviateId: string;
 }
 
 export interface Thread {
@@ -61,7 +61,9 @@ export interface ForumState {
   loading: boolean,
   error: '',
   searchResult: SearchResponseData
-  posts: PostSchema[] 
+  posts: PostSchema[] ,
+  threadTitle: string,
+  threadDescription: string
 }
 
 export interface ForumActions {
