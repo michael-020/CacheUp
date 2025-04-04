@@ -1,16 +1,15 @@
 import { IUser } from "@/lib/utils";
 
-interface CreatedBy {
-  username: string,
-  _id: string,
-  profileImage?: string
-};
-
-
 export interface SearchResultItem {
   type: 'Forum' | 'Thread' | 'Post' | 'Comment';
   data: any;
   certainty: number;
+}
+
+export interface CreatedBy {
+  _id: string;
+  username: string;
+  profilePicture: string
 }
 
 export interface SearchResponseData {
@@ -63,7 +62,9 @@ export interface ForumState {
   searchResult: SearchResponseData
   posts: PostSchema[] ,
   threadTitle: string,
-  threadDescription: string
+  threadDescription: string,
+  threadMongo: string,
+  threadWeaviate: string
 }
 
 export interface ForumActions {
@@ -79,7 +80,8 @@ export interface ForumActions {
   ) => Promise<void>;
   searchForums: (query: string) => Promise<void>;
   fetchPosts: (threadId: string) => Promise<void>
-  createPost: (post: string, postData:string) => Promise<void>
+  createPost: (threadMongo: string, threadWeaviate: string, content:string) => Promise<void>
+  likePost: (mongoId: string) => Promise<void>
 }
 
 export type ForumStore = ForumState & ForumActions;

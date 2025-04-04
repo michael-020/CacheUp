@@ -1,19 +1,16 @@
-import { useEffect, useState } from "react";
+import { MouseEvent, ReactHTMLElement, useEffect, useState } from "react";
 import { useForumStore } from "@/stores/ForumStore/forumStore";
 import { useParams } from "react-router-dom";
+import CreatePostModal from "@/components/CreatePostModalForums"; 
+import { Button } from "@/components/ui/button"; 
 
 export const Thread = () => {
   const { id } = useParams();
-  const { fetchPosts, posts: responseData, loading, error, threadTitle, threadDescription } = useForumStore();
-
-  console.log("Full API response:", responseData); // Debugging
+  const { fetchPosts, posts: responseData, loading, error, threadTitle, threadDescription, threadWeaviate } = useForumStore();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    if (!id) {
-      console.error("No thread ID found in URL.");
-      return;
-    }
-    fetchPosts(id);
+    fetchPosts(id as string);
   }, [id, fetchPosts]);
 
   if (loading) {
@@ -35,7 +32,6 @@ export const Thread = () => {
 
   // Ensure responseData is an array
   const posts = Array.isArray(responseData) ? responseData : [];
-  console.log("Processed posts:", posts); // Debugging
 
   if (posts.length === 0) {
     return (
@@ -85,18 +81,23 @@ export const Thread = () => {
 
   return (
     <div className="container mx-auto p-4 max-w-4xl mt-20">
-      <div className="mb-8 border-b pb-4">
+      <div className="mb-4 border-b pb-4">
         <h1 className="text-3xl font-bold mb-2">{threadTitle}</h1>
         <p>{threadDescription}</p>
         <div className="text-gray-500">{posts.length} {posts.length === 1 ? "post" : "posts"} in this thread</div>
+        <Button onClick={() => setIsModalOpen(true)} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 mt-3">
+          + New Post
+        </Button>
       </div>
-
+      {isModalOpen && (
+        <CreatePostModal threadMongo={id as string} threadWeaviate={threadWeaviate} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      )}
+        
       <div className="space-y-6">
+        
         {posts.map((post, index) => {
           const author = post.createdBy?.username || "Unknown User";
-          const profileImage = post.createdBy?.profileImage || null;
-
-          console.log("Post Author:", author); // Debugging
+          const profileImage = post.createdBy?.profilePicture || null;
 
           return (
             <div

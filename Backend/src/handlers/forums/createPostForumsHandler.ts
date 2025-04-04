@@ -19,8 +19,6 @@ export const createPostForumshandler = async (req: Request, res: Response) => {
             return;
         }
 
-        const user = await userModel.findById(req.user._id)
-
         const { content } = req.body
         const {threadMongo, threadWeaviate} = req.params
         

@@ -19,7 +19,10 @@ export const getAllPostsFromAThreadHandler = async (req: Request, res: Response)
             msg: "Posts Fetched successfully",
             posts,
             threadTitle: thread?.title,
-            threadDescription: thread?.description
+            threadDescription: thread?.description,
+            threadMongo: thread?._id,
+            threadWeaviate: thread?.weaviateId,
+            watchedBy: thread?.watchedBy
         });
 
     } catch (e) {

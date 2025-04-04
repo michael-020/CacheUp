@@ -22,6 +22,9 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   posts: [],
   threadTitle: "",
   threadDescription: "",
+  threadMongo: "",
+  threadWeaviate: "",
+
   
   fetchForums: async (isAdminRoute) => {
     set({ loadingForums: true, errorForums: '' });
@@ -117,12 +120,16 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   
       // ✅ Extract the `posts` array
       const fetchedPosts = response.data.posts || []; 
-      const threadTitle = response.data.threadTitle || ''
-      const threadDescription = response.data.threadDescription || ''
+      const threadTitle = response.data.threadTitle
+      const threadDescription = response.data.threadDescription 
+      const threadMongo = response.data.threadMongo;
+      const threadWeaviate = response.data.threadWeaviate
       set({ 
         posts: fetchedPosts,
         threadTitle: threadTitle,
         threadDescription: threadDescription,
+        threadMongo: threadMongo,
+        threadWeaviate: threadWeaviate,
         loading: false 
       });
   
@@ -135,16 +142,17 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   
 
   // Create a new post in a thread
-  createPost: async (threadId, postData) => {
+  createPost: async (threadMongo, threadWeaviate, content) => {
     try {
       set({ loading: true });
-      const response = await axiosInstance.post(``, postData);
-      
-      // Add the new post to the existing posts array
-      const updatedPosts = [...get().posts, response.data];
-      set({ posts: updatedPosts, loading: false });
-      
-      return response.data;
+      const response = await axiosInstance.post(`/forums/create-post/${threadMongo}/${threadWeaviate}`, {content}, {withCredentials: true});
+      const newPost = response.data.postMongo 
+      set((state) => ({
+        posts: [...state.posts, newPost],
+        loading: false
+      }));
+  
+      return newPost;
     } catch (error) {
       set({ 
         loading: false
@@ -152,5 +160,13 @@ export const useForumStore = create<ForumStore>((set, get) => ({
       throw error;
     }
   },
+  likePost: async(mongoId) => {
+    try{
+      const response = await axiosInstance.put(`/forums/${mongoId}`)
+      
+    }catch{
+
+    }
+  }
   
 }));

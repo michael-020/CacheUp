@@ -366,7 +366,7 @@ const threadForumSchema = new Schema<IThreadForum>({
     ref: 'forums'
   },
   createdBy: {
-    type: String,
+    type: Schema.Types.ObjectId,
     ref: 'users'
   },
   createdAt: {
@@ -400,9 +400,8 @@ const postForumSchema = new Schema<IPostForum>({
     type: Date,
     default: Date.now
   },
-  createdBy: {
-    id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }
-},
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "users", required: true }
+,
   likedBy: [{
     type: Schema.Types.ObjectId,
     ref: 'users'
