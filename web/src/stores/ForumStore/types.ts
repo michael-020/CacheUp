@@ -3,7 +3,7 @@ import { IUser } from "@/lib/utils";
 interface CreatedBy {
   username: string,
   _id: string,
-  profilePicture?: string
+  profileImage?: string
 };
 
 

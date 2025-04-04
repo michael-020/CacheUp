@@ -109,7 +109,7 @@ export interface IPostForum extends Document {
   content: string;
   thread: mongoose.Types.ObjectId;
   createdAt: Date;
-  createdBy: Object;
+  createdBy: mongoose.Types.ObjectId;
   likedBy?: mongoose.Types.ObjectId[];
   disLikedBy?: mongoose.Types.ObjectId[];
   reportedBy?: mongoose.Types.ObjectId[];
@@ -401,9 +401,7 @@ const postForumSchema = new Schema<IPostForum>({
     default: Date.now
   },
   createdBy: {
-    id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    username: { type: String, required: true },
-    profileImage: { type: String },
+    id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }
 },
   likedBy: [{
     type: Schema.Types.ObjectId,

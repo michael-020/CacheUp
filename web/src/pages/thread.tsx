@@ -84,7 +84,7 @@ export const Thread = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-4xl">
+    <div className="container mx-auto p-4 max-w-4xl mt-20">
       <div className="mb-8 border-b pb-4">
         <h1 className="text-3xl font-bold mb-2">Thread Discussion</h1>
         <div className="text-gray-500">{posts.length} {posts.length === 1 ? "post" : "posts"} in this thread</div>
@@ -93,7 +93,7 @@ export const Thread = () => {
       <div className="space-y-6">
         {posts.map((post, index) => {
           const author = post.createdBy?.username || "Unknown User";
-          const profileImage = post.createdBy?.profilePicture || null;
+          const profileImage = post.createdBy?.profileImage || null;
 
           console.log("Post Author:", author); // Debugging
 
