@@ -57,14 +57,15 @@ export interface ForumState {
   };
   loadingForums: boolean;
   errorForums: string;
-  loading: boolean,
-  error: '',
+  loading: boolean;
+  error: '';
   searchResult: SearchResponseData
-  posts: PostSchema[] ,
-  threadTitle: string,
-  threadDescription: string,
-  threadMongo: string,
-  threadWeaviate: string
+  posts: PostSchema[] ;
+  threadTitle: string;
+  threadDescription: string;
+  threadMongo: string;
+  threadWeaviate: string;
+  likedPosts: Set<string>;
 }
 
 export interface ForumActions {
@@ -81,7 +82,8 @@ export interface ForumActions {
   searchForums: (query: string) => Promise<void>;
   fetchPosts: (threadId: string) => Promise<void>
   createPost: (threadMongo: string, threadWeaviate: string, content:string) => Promise<void>
-  likePost: (mongoId: string) => Promise<void>
+  toggleLike: (mongoId: string) => Promise<number | undefined>
+  isLiked: (postId: string) => boolean;
 }
 
 export type ForumStore = ForumState & ForumActions;

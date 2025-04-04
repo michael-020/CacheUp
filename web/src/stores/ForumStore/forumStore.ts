@@ -24,6 +24,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   threadDescription: "",
   threadMongo: "",
   threadWeaviate: "",
+  likedPosts: new Set<string>(),
 
   
   fetchForums: async (isAdminRoute) => {
@@ -160,13 +161,27 @@ export const useForumStore = create<ForumStore>((set, get) => ({
       throw error;
     }
   },
-  likePost: async(mongoId) => {
-    try{
-      const response = await axiosInstance.put(`/forums/${mongoId}`)
-      
-    }catch{
+  toggleLike: async (postId: string) => {
+    try {
+      const isLiked = get().likedPosts.has(postId);
+      const res = await axiosInstance(`/forums/like-post/${postId}`);
 
+      set((state) => {
+        const updated = new Set(state.likedPosts);
+        if (isLiked) {
+          updated.delete(postId);
+        } else {
+          updated.add(postId);
+        }
+        return { likedPosts: updated };
+      });
+
+      return res.data.like;
+    } catch (err) {
+      console.error("Like API error:", err);
     }
-  }
+  },
+
+  isLiked: (postId: string) => get().likedPosts.has(postId),
   
 }));
