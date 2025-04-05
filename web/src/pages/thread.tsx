@@ -4,16 +4,67 @@ import { Link, useParams } from "react-router-dom";
 import CreatePostModal from "@/components/CreatePostModalForums"; 
 import { Button } from "@/components/ui/button"; 
 import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
+import { axiosInstance } from "@/lib/axios";
 
 export const Thread = () => {
   const { id } = useParams();
   const { fetchPosts, posts: responseData, loading, error, threadTitle, threadDescription, threadWeaviate } = useForumStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { authAdmin } = useAdminStore()
+  const { authAdmin } = useAdminStore();
+  const [likeLoading, setLikeLoading] = useState<{[key: string]: boolean}>({});
 
   useEffect(() => {
     fetchPosts(id as string);
   }, [id, fetchPosts]);
+
+  const currentUserId = authAdmin?._id || null;
+
+  const checkIfLiked = (post: any) => {
+    if (!currentUserId || !post.likedBy) return false;
+    if(post.likedBy.some((id: string) => id.toString() === currentUserId.toString())){
+      return true
+    }
+  };
+  
+  const checkIfDisliked = (post: any) => {
+    if (!currentUserId || !post.disLikedBy) return false;
+    if(post.disLikedBy.some((id: string) => id.toString() === currentUserId.toString())){
+      return true
+    };
+  };
+
+  
+  const handleLikePost = async (postId: string) => {
+    try {
+      setLikeLoading(prev => ({ ...prev, [postId]: true }));
+      
+      const response = await axiosInstance.put(`/forums/like-post/${postId}`);
+      
+      if (response.status === 200) {
+        fetchPosts(id as string);
+      }
+    } catch (error) {
+      console.error("Error liking post:", error);
+    } finally {
+      setLikeLoading(prev => ({ ...prev, [postId]: false }));
+    }
+  };
+
+  const handleDislikePost = async (postId: string) => {
+    try {
+      setLikeLoading(prev => ({ ...prev, [postId]: true }));
+      
+      const response = await axiosInstance.put(`/forums/dislike-post/${postId}`);
+
+      if (response.status === 200) {
+        fetchPosts(id as string);
+      }
+    } catch (error) {
+      console.error("Error disliking post:", error);
+    } finally {
+      setLikeLoading(prev => ({ ...prev, [postId]: false }));
+    }
+  };
 
   if (loading) {
     return (
@@ -32,7 +83,6 @@ export const Thread = () => {
     );
   }
 
-  // Ensure responseData is an array
   const posts = Array.isArray(responseData) ? responseData : [];
 
   if (posts.length === 0) {
@@ -54,7 +104,7 @@ export const Thread = () => {
   };
 
   const getUserColor = (username?: string) => {
-    if (!username) return "bg-gray-400"; // Default color for missing usernames
+    if (!username) return "bg-gray-400"; 
 
     const colors = [
       "bg-blue-500",
@@ -100,7 +150,8 @@ export const Thread = () => {
         {posts.map((post, index) => {
           const author = post.createdBy?.username || "Unknown User";
           const profileImage = post.createdBy?.profilePicture || null;
-
+          const isLiked = checkIfLiked(post)
+          const isDisliked = checkIfDisliked(post)
           return (
             <div
               key={post._id}
@@ -134,18 +185,26 @@ export const Thread = () => {
               
 
               <div className="flex items-center gap-4 px-4 py-3 bg-gray-50 border-t text-sm text-gray-500">
-                <button className="flex items-center gap-1 hover:text-blue-600">
+                <button 
+                  className={`flex items-center gap-1 cursor-pointer hover:text-blue-600 ${isLiked ? 'text-blue-600' : ''}`}
+                  onClick={() => handleLikePost(post._id)}
+                  disabled={likeLoading[post._id]}
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
                   </svg>
-                  Like ({post.likedBy?.length || 0})
+                  {likeLoading[post._id] ? 'Updating...' : `Like (${post.likedBy?.length || 0})`}
                 </button>
                 
-                <button className="flex items-center gap-1 hover:text-red-600">
+                <button 
+                  className={`flex items-center gap-1 cursor-pointer hover:text-red-600 ${isDisliked ? 'text-red-600' : ''}`}
+                  onClick={() => handleDislikePost(post._id)}
+                  disabled={likeLoading[post._id]}
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M18 9.5a1.5 1.5 0 11-3 0v-6a1.5 1.5 0 013 0v6zM14 9.667v-5.43a2 2 0 00-1.105-1.79l-.05-.025A4 4 0 0011.055 2H5.64a2 2 0 00-1.962 1.608l-1.2 6A2 2 0 004.44 12H8v4a2 2 0 002 2 1 1 0 001-1v-.667a4 4 0 01.8-2.4l1.4-1.866a4 4 0 00.8-2.4z" />
                   </svg>
-                  Dislike ({post.disLikedBy?.length || 0})
+                  {likeLoading[post._id] ? 'Updating...' : `Dislike (${post.disLikedBy?.length || 0})`}
                 </button>
                 
                 <button className="flex items-center gap-1 hover:text-gray-700 ml-auto">
