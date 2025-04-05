@@ -1,13 +1,15 @@
-import { MouseEvent, ReactHTMLElement, useEffect, useState } from "react";
+import {  useEffect, useState } from "react";
 import { useForumStore } from "@/stores/ForumStore/forumStore";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import CreatePostModal from "@/components/CreatePostModalForums"; 
 import { Button } from "@/components/ui/button"; 
+import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
 
 export const Thread = () => {
   const { id } = useParams();
   const { fetchPosts, posts: responseData, loading, error, threadTitle, threadDescription, threadWeaviate } = useForumStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { authAdmin } = useAdminStore()
 
   useEffect(() => {
     fetchPosts(id as string);
@@ -80,7 +82,7 @@ export const Thread = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-4xl mt-20">
+    <div className="container mx-auto p-4 max-w-4xl mt-16">
       <div className="mb-4 border-b pb-4">
         <h1 className="text-3xl font-bold mb-2">{threadTitle}</h1>
         <p>{threadDescription}</p>
@@ -106,16 +108,21 @@ export const Thread = () => {
             >
               <div className="flex items-center gap-3 p-4 bg-gray-50 border-b">
                 {profileImage ? (
-                  <img src={profileImage} alt={`${author}'s profile`} className="w-10 h-10 rounded-full object-cover" />
-                ) : null}
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${getUserColor(author)}`}
-                  style={{ display: profileImage ? "none" : "flex" }}
+                  <Link 
+                  to={authAdmin ? `/admin/profile/${post.createdBy._id}` : `/profile/${post.createdBy._id}`} 
                 >
+                  <img 
+                    src={profileImage} 
+                    alt={`${author}'s profile`} 
+                    className="w-10 h-10 rounded-full object-cover cursor-pointer" 
+                  />
+                </Link>
+                ) : null}
+                <div className={`w-10 h-10 rounded-full cursor-pointer items-center justify-center text-white ${getUserColor(author)} ${profileImage ? "hidden" : "flex"}`}>
                   {getInitials(author)}
                 </div>
                 <div className="flex-1">
-                  <div className="font-medium">{author}</div>
+                <Link to={authAdmin ? `/admin/profile/${post.createdBy?._id}` : `/profile/${post.createdBy?._id}`}><div className="font-medium cursor-pointer">{author}</div> </Link>
                   <div className="text-xs text-gray-500">{formatDate(post.createdAt)}</div>
                 </div>
                 {index === 0 && <div className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">Latest Post</div>}
@@ -124,6 +131,7 @@ export const Thread = () => {
               <div className="p-5">
                 <div className="prose max-w-none whitespace-pre-wrap">{post.content}</div>
               </div>
+              
 
               <div className="flex items-center gap-4 px-4 py-3 bg-gray-50 border-t text-sm text-gray-500">
                 <button className="flex items-center gap-1 hover:text-blue-600">
