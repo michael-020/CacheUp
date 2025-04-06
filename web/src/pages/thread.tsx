@@ -1,6 +1,6 @@
-import {  useEffect, useState } from "react";
+import {  useEffect, useState, useRef } from "react";
 import { useForumStore } from "@/stores/ForumStore/forumStore";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useLocation } from "react-router-dom";
 import CreatePostModal from "@/components/CreatePostModalForums"; 
 import { Button } from "@/components/ui/button"; 
 import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
@@ -8,14 +8,69 @@ import { axiosInstance } from "@/lib/axios";
 
 export const Thread = () => {
   const { id } = useParams();
+  const location = useLocation();
   const { fetchPosts, posts: responseData, loading, error, threadTitle, threadDescription, threadWeaviate } = useForumStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { authAdmin } = useAdminStore();
   const [likeLoading, setLikeLoading] = useState<{[key: string]: boolean}>({});
+  const postRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
+  const [highlightedPostId, setHighlightedPostId] = useState<string | null>(null);
+  const [expandedPosts, setExpandedPosts] = useState<{[key: string]: boolean}>({});
 
   useEffect(() => {
     fetchPosts(id as string);
   }, [id, fetchPosts]);
+
+  // Handle scrolling to post when data is loaded
+  useEffect(() => {
+    if (!loading && responseData && responseData.length > 0) {
+      const pathParts = location.pathname.split('/');
+      const searchParams = new URLSearchParams(location.search);
+      let postId = null;
+      
+      const postIndex = pathParts.indexOf('post');
+      if (postIndex !== -1 && postIndex < pathParts.length - 1) {
+        postId = pathParts[postIndex + 1];
+      }
+      
+      if (!postId) {
+        postId = searchParams.get('post');
+      }
+      
+      if (!postId && location.search) {
+        if (location.search.includes('post/')) {
+          const matches = location.search.match(/post\/([^/?&]+)/);
+          if (matches && matches[1]) {
+            postId = matches[1];
+          }
+        }
+      }
+      
+      if (postId) {
+        console.log("Found post ID:", postId);
+        
+        const scrollTimeout = setTimeout(() => {
+          if (postRefs.current[postId]) {
+            console.log("Scrolling to post:", postId);
+            postRefs.current[postId]?.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start' 
+            });
+            
+            setHighlightedPostId(postId);
+            setExpandedPosts(prev => ({...prev, [postId]: true}));
+            setTimeout(() => {
+              setHighlightedPostId(null);
+            }, 2000);
+          } else {
+            console.log("Post ref not found for:", postId);
+          }
+        }, 500); // Increased delay to ensure DOM is ready
+        
+        return () => clearTimeout(scrollTimeout);
+      }
+    }
+  }, [location, loading, responseData]);
 
   const currentUserId = authAdmin?._id || null;
 
@@ -33,7 +88,6 @@ export const Thread = () => {
     };
   };
 
-  
   const handleLikePost = async (postId: string) => {
     try {
       setLikeLoading(prev => ({ ...prev, [postId]: true }));
@@ -64,6 +118,20 @@ export const Thread = () => {
     } finally {
       setLikeLoading(prev => ({ ...prev, [postId]: false }));
     }
+  };
+
+  const toggleExpandPost = (postId: string) => {
+    setExpandedPosts(prev => ({
+      ...prev,
+      [postId]: !prev[postId]
+    }));
+  };
+
+  const truncateContent = (content: string, postId: string) => {
+    if (content.length <= 500 || expandedPosts[postId]) {
+      return content;
+    }
+    return content.substring(0, 500);
   };
 
   if (loading) {
@@ -157,10 +225,18 @@ export const Thread = () => {
           const profileImage = post.createdBy?.profilePicture || null;
           const isLiked = checkIfLiked(post)
           const isDisliked = checkIfDisliked(post)
+          const isHighlighted = highlightedPostId === post._id;
+          const isExpanded = expandedPosts[post._id] || false;
+          const contentIsTruncated = post.content.length > 200;
+          
           return (
             <div
               key={post._id}
-              className={`rounded-lg shadow-sm border ${index === 0 ? "border-blue-200 bg-blue-50" : "border-gray-200"} overflow-hidden`}
+              ref={(el) => postRefs.current[post._id] = el}
+              id={`post-${post._id}`}
+              className={`rounded-lg shadow-sm border ${index === 0 ? "border-blue-200 bg-blue-50" : "border-gray-200"} overflow-hidden transition-all duration-300 ${
+                isHighlighted ? "ring-4 ring-blue-300 ring-opacity-70" : ""
+              }`}
             >
               <div className="flex items-center gap-3 p-4 bg-gray-50 border-b">
                 {profileImage ? (
@@ -185,7 +261,25 @@ export const Thread = () => {
               </div>
 
               <div className="p-5">
-                <div className="prose max-w-none whitespace-pre-wrap">{post.content}</div>
+                <div className="prose max-w-none whitespace-pre-wrap">
+                  {truncateContent(post.content, post._id)}
+                  {contentIsTruncated && !isExpanded && (
+                    <span 
+                      className="text-blue-500 font-medium cursor-pointer ml-1"
+                      onClick={() => toggleExpandPost(post._id)}
+                    >
+                      ... See more
+                    </span>
+                  )}
+                  {contentIsTruncated && isExpanded && (
+                    <span 
+                      className="text-blue-500 font-medium cursor-pointer block mt-2"
+                      onClick={() => toggleExpandPost(post._id)}
+                    >
+                      Show less
+                    </span>
+                  )}
+                </div>
               </div>
               
 
