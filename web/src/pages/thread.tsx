@@ -90,7 +90,12 @@ export const Thread = () => {
       <div className="p-8 mx-auto max-w-3xl bg-gray-50 border border-gray-200 rounded-lg text-center">
         <div className="text-gray-500 text-lg">No posts found in this thread</div>
         <div className="mt-4 text-sm text-gray-400">Be the first to post in this discussion</div>
-      </div>
+        <Button onClick={() => setIsModalOpen(true)} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 mt-3">
+          + New Post
+        </Button>
+        {isModalOpen && (
+        <CreatePostModal threadMongo={id as string} threadWeaviate={threadWeaviate} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      )}      </div>
     );
   }
 

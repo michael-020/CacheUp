@@ -57,10 +57,10 @@ export function SearchResults() {
         navigate(`/forums/thread/${item.data._id}`);
         break;
       case 'Post':
-        navigate(`/forums/thread/${item.data.thread}/post/${item.data._id}`);
+        navigate(`/forums/thread/${item.data.thread}?post/${item.data._id}`);
         break;
       case 'Comment':
-        navigate(`/forums/thread/${item.data.thread}/post/${item.data.post}#comment-${item.data._id}`);
+        navigate(`/forums/thread/${item.data.thread}?post/${item.data.post}`);
         break;
     }
   };
@@ -86,7 +86,7 @@ export function SearchResults() {
     return new Date(dateString).toLocaleDateString();
   };
 
-  const truncateText = (text: string | undefined) => {
+  const truncateText = (text: string) => {
     if (!text) return "";
     return text.length > 50 ? `${text.substring(0, 50)}...` : text;
   };
@@ -155,7 +155,7 @@ export function SearchResults() {
             </CardHeader>
             <CardContent className="p-4 pt-2">
               {item.type === 'Post' || item.type === 'Comment' ? (
-                <div className="line-clamp-2">{truncateText(item.data.content)}</div>
+                <div className="line-clamp-2">{truncateText(item.data.content as string)}</div>
               ) : (
                 item.data.description && <CardDescription>{truncateText(item.data.description)}</CardDescription>
               )}
