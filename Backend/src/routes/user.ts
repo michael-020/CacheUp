@@ -16,8 +16,17 @@ import { getTokenHandler } from "../handlers/getTokenHandler";
 import { getUsernameHandler } from "../handlers/getUsernameHandler";
 import { createThreadHandler } from "../handlers/forums/createThreadHandler";
 import { getAllForumsHandler } from "../handlers/forums/getAllForumsHandler";
+import { 
+    sendPasswordResetOTP, 
+    verifyPasswordResetOTP, 
+    resetPassword 
+  } from "../handlers/changePasswordHandler";
 
 const userRouter: Router = Router();
+
+userRouter.post("/send-password-reset-otp", sendPasswordResetOTP);
+userRouter.post("/verify-password-reset-otp", verifyPasswordResetOTP);
+userRouter.post("/reset-password", resetPassword);
 
 // signup
 // step 1: initiate signup
@@ -62,6 +71,8 @@ userRouter.use("/profilePicture", PfpHanler)
 
 // get token
 userRouter.get("/get-token", getTokenHandler)
+
+
 
 
 export default userRouter;
