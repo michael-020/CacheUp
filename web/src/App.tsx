@@ -25,6 +25,8 @@ import CreateForum from './pages/admin/CreateForum'
 import { SearchResults } from './pages/SearchResults'
 import Thread from './pages/Thread'
 import SettingsPage from './pages/SettingsPage'
+import ChangePassword from './components/ChangePassword' 
+
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore()
@@ -115,6 +117,8 @@ function App() {
         <Route path="/forums/:forumMongoId/:forumWeaviateId" element={authUser ? <ForumPage /> : <Navigate to='/signin' />} />
         <Route path="/forums/search" element={authUser ? <SearchResults /> : <Navigate to='/signin' />} />
         <Route path='/forums/thread/:id' element={authUser ? <Thread /> : <Navigate to='/signin' />} />
+        <Route path="/change-password" element={authUser ? <ChangePassword /> : <Navigate to="/signin" />} />
+
 
         {/* Admin Routes */}
         <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to="/admin/home" /> } />

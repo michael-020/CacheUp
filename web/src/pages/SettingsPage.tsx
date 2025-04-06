@@ -15,28 +15,28 @@ export default function SettingsPage() {
     messageNotifications: true,
     friendRequestNotifications: true,
     postNotifications: true,
-    profileVisibility: "everyone", // 'everyone', 'friends', 'none'
-    messagePermission: "everyone", // 'everyone', 'friends', 'none'
+    profileVisibility: "everyone",
+    messagePermission: "everyone", 
     showOnlineStatus: true,
     showReadReceipts: true,
     showLastSeen: true,
   })
 
-  // Handle settings changes
   const handleSettingChange = (setting: string, value: any) => {
     setSettings((prev) => ({
       ...prev,
       [setting]: value,
     }))
 
-    // In a real app, you would save this to the backend
     toast.success(`${setting} setting updated!`)
   }
 
-  // Handle account deletion
+  const handleChangePassword = () => {
+    navigate("/change-password")
+  }
+
   const handleDeleteAccount = () => {
     if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
-      // In a real app, you would call an API to delete the account
       toast.success("Account deletion request submitted")
       setTimeout(() => {
         logout()
@@ -85,9 +85,12 @@ export default function SettingsPage() {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-gray-800 dark:text-white font-medium">Change Password</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Update your password</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Update your password securely</p>
                 </div>
-                <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition">
+                <button 
+                  onClick={handleChangePassword} 
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+                >
                   Change
                 </button>
               </div>
@@ -365,4 +368,3 @@ export default function SettingsPage() {
     </div>
   )
 }
-
