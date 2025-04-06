@@ -15,6 +15,7 @@ export const Thread = () => {
   const [likeLoading, setLikeLoading] = useState<{[key: string]: boolean}>({});
   const postRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
   const [highlightedPostId, setHighlightedPostId] = useState<string | null>(null);
+  const [expandedPosts, setExpandedPosts] = useState<{[key: string]: boolean}>({});
 
   useEffect(() => {
     fetchPosts(id as string);
@@ -23,7 +24,6 @@ export const Thread = () => {
   // Handle scrolling to post when data is loaded
   useEffect(() => {
     if (!loading && responseData && responseData.length > 0) {
-      // Check if we have a post ID in the URL
       const pathParts = location.pathname.split('/');
       const searchParams = new URLSearchParams(location.search);
       let postId = null;
@@ -32,12 +32,11 @@ export const Thread = () => {
       if (postIndex !== -1 && postIndex < pathParts.length - 1) {
         postId = pathParts[postIndex + 1];
       }
-    
+      
       if (!postId) {
         postId = searchParams.get('post');
       }
       
-      // Also check for post parameter in different formats
       if (!postId && location.search) {
         if (location.search.includes('post/')) {
           const matches = location.search.match(/post\/([^/?&]+)/);
@@ -55,17 +54,18 @@ export const Thread = () => {
             console.log("Scrolling to post:", postId);
             postRefs.current[postId]?.scrollIntoView({ 
               behavior: 'smooth', 
-              block: 'center' 
+              block: 'start' 
             });
-  
+            
             setHighlightedPostId(postId);
+            setExpandedPosts(prev => ({...prev, [postId]: true}));
             setTimeout(() => {
               setHighlightedPostId(null);
             }, 2000);
           } else {
             console.log("Post ref not found for:", postId);
           }
-        }, 500); 
+        }, 500); // Increased delay to ensure DOM is ready
         
         return () => clearTimeout(scrollTimeout);
       }
@@ -88,7 +88,6 @@ export const Thread = () => {
     };
   };
 
-  
   const handleLikePost = async (postId: string) => {
     try {
       setLikeLoading(prev => ({ ...prev, [postId]: true }));
@@ -119,6 +118,20 @@ export const Thread = () => {
     } finally {
       setLikeLoading(prev => ({ ...prev, [postId]: false }));
     }
+  };
+
+  const toggleExpandPost = (postId: string) => {
+    setExpandedPosts(prev => ({
+      ...prev,
+      [postId]: !prev[postId]
+    }));
+  };
+
+  const truncateContent = (content: string, postId: string) => {
+    if (content.length <= 500 || expandedPosts[postId]) {
+      return content;
+    }
+    return content.substring(0, 500);
   };
 
   if (loading) {
@@ -213,6 +226,8 @@ export const Thread = () => {
           const isLiked = checkIfLiked(post)
           const isDisliked = checkIfDisliked(post)
           const isHighlighted = highlightedPostId === post._id;
+          const isExpanded = expandedPosts[post._id] || false;
+          const contentIsTruncated = post.content.length > 200;
           
           return (
             <div
@@ -246,7 +261,25 @@ export const Thread = () => {
               </div>
 
               <div className="p-5">
-                <div className="prose max-w-none whitespace-pre-wrap">{post.content}</div>
+                <div className="prose max-w-none whitespace-pre-wrap">
+                  {truncateContent(post.content, post._id)}
+                  {contentIsTruncated && !isExpanded && (
+                    <span 
+                      className="text-blue-500 font-medium cursor-pointer ml-1"
+                      onClick={() => toggleExpandPost(post._id)}
+                    >
+                      ... See more
+                    </span>
+                  )}
+                  {contentIsTruncated && isExpanded && (
+                    <span 
+                      className="text-blue-500 font-medium cursor-pointer block mt-2"
+                      onClick={() => toggleExpandPost(post._id)}
+                    >
+                      Show less
+                    </span>
+                  )}
+                </div>
               </div>
               
 
