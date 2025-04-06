@@ -147,20 +147,33 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     try {
       set({ loading: true });
       const response = await axiosInstance.post(`/forums/create-post/${threadMongo}/${threadWeaviate}`, {content}, {withCredentials: true});
-      const newPost = response.data.postMongo 
+      const newPost = response.data.postMongo;
+      
       set((state) => ({
+        threadTitle: state.threadTitle,
+        threadDescription: state.threadDescription,
+        threadMongo: state.threadMongo,
+        threadWeaviate: state.threadWeaviate,
         posts: [...state.posts, newPost],
         loading: false
       }));
   
+      if (threadMongo) {
+        setTimeout(() => {
+          get().fetchPosts(threadMongo);
+        }, 300);
+      }
+    
       return newPost;
     } catch (error) {
       set({ 
-        loading: false
+        loading: false,
       });
       throw error;
     }
   },
+
+  
   toggleLike: async (postId: string) => {
     try {
       const isLiked = get().likedPosts.has(postId);
