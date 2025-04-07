@@ -16,7 +16,7 @@ const AdminHome = () => {
         {/* Right side link */}
         <div className="fixed right-6 top-6">
           <Link
-            to="/admin/home/forums"
+            to="/admin/forums"
             className="inline-block rounded-md bg-blue-500 px-4 py-2 text-white shadow-md transition-colors hover:bg-blue-600 no-underline mt-20"
           >
             Create Forums +

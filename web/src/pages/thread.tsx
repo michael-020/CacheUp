@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForumStore } from "@/stores/ForumStore/forumStore";
 import { useParams } from "react-router-dom";
 
@@ -39,7 +39,7 @@ export const Thread = () => {
 
   if (posts.length === 0) {
     return (
-      <div className="p-8 mx-auto max-w-3xl bg-gray-50 border border-gray-200 rounded-lg text-center">
+      <div className="translate-y-24 p-8 mx-auto max-w-3xl bg-gray-50 border border-gray-200 rounded-lg text-center">
         <div className="text-gray-500 text-lg">No posts found in this thread</div>
         <div className="mt-4 text-sm text-gray-400">Be the first to post in this discussion</div>
       </div>
@@ -84,7 +84,7 @@ export const Thread = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-4xl">
+    <div className="container mx-auto p-4 max-w-4xl translate-y-20">
       <div className="mb-8 border-b pb-4">
         <h1 className="text-3xl font-bold mb-2">Thread Discussion</h1>
         <div className="text-gray-500">{posts.length} {posts.length === 1 ? "post" : "posts"} in this thread</div>
@@ -100,9 +100,9 @@ export const Thread = () => {
           return (
             <div
               key={post._id}
-              className={`rounded-lg shadow-sm border ${index === 0 ? "border-blue-200 bg-blue-50" : "border-gray-200"} overflow-hidden`}
+              className={`rounded-lg shadow-sm border ${index === 0 ? "border-gray-100 bg-gray-50 dark:bg-neutral-800 dark:border-neutral-700" : "border-gray-200 dark:border-neutral-800"} overflow-hidden`}
             >
-              <div className="flex items-center gap-3 p-4 bg-gray-50 border-b">
+              <div className="flex items-center gap-3 p-4 ">
                 {profileImage ? (
                   <img src={profileImage} alt={`${author}'s profile`} className="w-10 h-10 rounded-full object-cover" />
                 ) : null}
@@ -123,7 +123,7 @@ export const Thread = () => {
                 <div className="prose max-w-none whitespace-pre-wrap">{post.content}</div>
               </div>
 
-              <div className="flex items-center gap-4 px-4 py-3 bg-gray-50 border-t text-sm text-gray-500">
+              <div className="flex items-center gap-4 px-4 py-3 text-sm text-gray-500">
                 <button className="flex items-center gap-1 hover:text-blue-600">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />

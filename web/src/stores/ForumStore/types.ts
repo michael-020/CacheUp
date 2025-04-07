@@ -9,7 +9,7 @@ interface CreatedBy {
 
 export interface SearchResultItem {
   type: 'Forum' | 'Thread' | 'Post' | 'Comment';
-  data: any;
+  data: string;
   certainty: number;
 }
 
@@ -68,7 +68,7 @@ export interface ForumActions {
   fetchForums: (isAdminRoute: boolean) => Promise<void>;
   deleteForum: (forumId: string, weaviateId: string) => Promise<void>;
   fetchForumDetails: (forumId: string) => Promise<void>;
-  fetchThreads: (forumId: string) => Promise<void>;
+  fetchThreads: (forumId: string, isAdminRoute: boolean) => Promise<void>;
   createThread: (
     forumId: string,
     weaviateId: string,

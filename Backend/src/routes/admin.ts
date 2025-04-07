@@ -21,6 +21,8 @@ import { adminDeleteCommentForumHandler } from "../handlers/forums/adminDeleteCo
 import { adminDeleteThreadHandler } from "../handlers/forums/adminDeleteThreadHandler";
 import { adminDeleteForumHandler } from "../handlers/forums/adminDeleteForumHandler";
 import { editForumAdminHandler } from "../handlers/forums/editForumAdminHandler";
+import { getAllThreadsFromAForumHandler } from "../handlers/forums/getAllThreadsFromAForumHandler";
+import { viewAllThreadsHandler } from "../handlers/admin/viewThreadsHandler";
 
 const adminRouter: Router = Router();
 
@@ -69,6 +71,9 @@ adminRouter.post("/create-forum", createForumhandler)
 
 // get all forums
 adminRouter.get("/get-forums", getAllForumsHandler)
+
+// get all threads in a forum
+adminRouter.get("/get-threads/:forumId", viewAllThreadsHandler)
 
 // delete post
 adminRouter.delete("/delete-post/:mongoId/:weaviateId", adminDeletePostForumHandler)
