@@ -23,8 +23,10 @@ import ForumList from './pages/ForumsList'
 import ForumPage from './pages/ForumPage'
 import CreateForum from './pages/admin/CreateForum'
 import { SearchResults } from './pages/SearchResults'
-import Thread from './pages/thread'
+import Thread from './pages/Thread'
 import SettingsPage from './pages/SettingsPage'
+import ChangePassword from './components/ChangePassword' 
+
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore()
@@ -111,10 +113,12 @@ function App() {
         <Route path='/edit-profile' element={authUser ? <EditProfile /> : <Navigate to="/signin" />} />
         <Route path='/friends' element={authUser ? <FriendsPage /> : <Navigate to="/signin" />} />
         <Route path='/settings' element={authUser ? <SettingsPage /> : <Navigate to="/signin" />} />
-        <Route path="/forums/get-forums" element={<ForumList />} />
-        <Route path="/forums/:forumMongoId/:forumWeaviateId" element={<ForumPage />} />
-        <Route path="/forums/search" element={<SearchResults />} />
-        <Route path='/forums/thread/:id' element={<Thread />} />
+        <Route path="/forums/get-forums" element={authUser ? <ForumList /> : <Navigate to='/signin'/>} />
+        <Route path="/forums/:forumMongoId/:forumWeaviateId" element={authUser ? <ForumPage /> : <Navigate to='/signin' />} />
+        <Route path="/forums/search" element={authUser ? <SearchResults /> : <Navigate to='/signin' />} />
+        <Route path='/forums/thread/:id' element={authUser ? <Thread /> : <Navigate to='/signin' />} />
+        <Route path="/change-password" element={authUser ? <ChangePassword /> : <Navigate to="/signin" />} />
+
 
         {/* Admin Routes */}
         <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to="/admin/home" /> } />

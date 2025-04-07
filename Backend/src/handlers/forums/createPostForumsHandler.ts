@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { z } from "zod";
-import { postForumModel, threadForumModel, watchNotificationModel } from "../../models/db";
+import { postForumModel, threadForumModel, userModel, watchNotificationModel } from "../../models/db";
 import { weaviateClient } from "../../models/weaviate";
 import { embedtext } from "../../lib/vectorizeText";
 
@@ -18,18 +18,15 @@ export const createPostForumshandler = async (req: Request, res: Response) => {
             })
             return;
         }
+
         const { content } = req.body
         const {threadMongo, threadWeaviate} = req.params
-        const createdBy = {
-            _id: req.user._id,
-            username: req.user.username,
-            profileImage: req.user.profilePicture || "",
-        }
+        
 
         const postMongo = await postForumModel.create({
             content,
             thread: threadMongo,
-            createdBy,
+            createdBy: req.user._id,
             weaviateId: "temp"
         })
 

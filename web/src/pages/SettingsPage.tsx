@@ -1,53 +1,42 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { ArrowLeft, Bell, Lock, Eye, Moon, Sun, LogOut, Shield, Trash2 } from "lucide-react"
 import { useAuthStore } from "../stores/AuthStore/useAuthStore"
 import toast from "react-hot-toast"
+import { useThemeStore } from "@/stores/ThemeStore/useThemeStore"
 
 export default function SettingsPage() {
   const navigate = useNavigate()
   const { logout } = useAuthStore()
-  const [darkMode, setDarkMode] = useState(() => {
-    // Check if user has a preference stored
-    const savedPreference = localStorage.getItem("theme")
-    return savedPreference === "dark"
-  })
+  const { isDark, toggleTheme } = useThemeStore();
 
   const [settings, setSettings] = useState({
     emailNotifications: true,
     messageNotifications: true,
     friendRequestNotifications: true,
     postNotifications: true,
-    profileVisibility: "everyone", // 'everyone', 'friends', 'none'
-    messagePermission: "everyone", // 'everyone', 'friends', 'none'
+    profileVisibility: "everyone",
+    messagePermission: "everyone", 
     showOnlineStatus: true,
     showReadReceipts: true,
     showLastSeen: true,
   })
 
-  // Toggle dark mode
-  const toggleDarkMode = () => {
-    const newMode = !darkMode
-    setDarkMode(newMode)
-    document.documentElement.classList.toggle("dark", newMode)
-    localStorage.setItem("theme", newMode ? "dark" : "light")
-  }
-
-  // Handle settings changes
   const handleSettingChange = (setting: string, value: any) => {
     setSettings((prev) => ({
       ...prev,
       [setting]: value,
     }))
 
-    // In a real app, you would save this to the backend
     toast.success(`${setting} setting updated!`)
   }
 
-  // Handle account deletion
+  const handleChangePassword = () => {
+    navigate("/change-password")
+  }
+
   const handleDeleteAccount = () => {
     if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
-      // In a real app, you would call an API to delete the account
       toast.success("Account deletion request submitted")
       setTimeout(() => {
         logout()
@@ -55,11 +44,6 @@ export default function SettingsPage() {
       }, 2000)
     }
   }
-
-  // Apply dark mode on initial load
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", darkMode)
-  }, [darkMode])
 
   return (
     <div className="pt-16 min-h-screen bg-gray-100 dark:bg-neutral-900">
@@ -101,9 +85,12 @@ export default function SettingsPage() {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-gray-800 dark:text-white font-medium">Change Password</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Update your password</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Update your password securely</p>
                 </div>
-                <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition">
+                <button 
+                  onClick={handleChangePassword} 
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+                >
                   Change
                 </button>
               </div>
@@ -113,8 +100,8 @@ export default function SettingsPage() {
                   <p className="text-gray-800 dark:text-white font-medium">Dark Mode</p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Toggle dark/light theme</p>
                 </div>
-                <button onClick={toggleDarkMode} className="p-2 rounded-full bg-gray-200 dark:bg-neutral-700">
-                  {darkMode ? <Sun className="h-5 w-5 text-yellow-500" /> : <Moon className="h-5 w-5 text-gray-600" />}
+                <button onClick={toggleTheme} className="p-2 rounded-full bg-gray-200 dark:bg-neutral-700">
+                  {isDark ? <Sun className="h-5 w-5 text-yellow-500" /> : <Moon className="h-5 w-5 text-gray-600" />}
                 </button>
               </div>
             </div>
@@ -381,4 +368,3 @@ export default function SettingsPage() {
     </div>
   )
 }
-

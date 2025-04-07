@@ -1,16 +1,15 @@
 import { IUser } from "@/lib/utils";
 
-interface CreatedBy {
-  username: string,
-  _id: string,
-  profilePicture?: string
-};
-
-
 export interface SearchResultItem {
   type: 'Forum' | 'Thread' | 'Post' | 'Comment';
   data: string;
   certainty: number;
+}
+
+export interface CreatedBy {
+  _id: string;
+  username: string;
+  profilePicture: string
 }
 
 export interface SearchResponseData {
@@ -27,7 +26,7 @@ export interface PostSchema {
   likedBy?: string[];
   disLikedBy?: string[];
   reportedBy?: string[];
-  weaviateId: string
+  weaviateId: string;
 }
 
 export interface Thread {
@@ -58,10 +57,15 @@ export interface ForumState {
   };
   loadingForums: boolean;
   errorForums: string;
-  loading: boolean,
-  error: '',
+  loading: boolean;
+  error: '';
   searchResult: SearchResponseData
-  posts: PostSchema[] 
+  posts: PostSchema[] ;
+  threadTitle: string;
+  threadDescription: string;
+  threadMongo: string;
+  threadWeaviate: string;
+  likedPosts: Set<string>;
 }
 
 export interface ForumActions {
@@ -77,7 +81,9 @@ export interface ForumActions {
   ) => Promise<void>;
   searchForums: (query: string) => Promise<void>;
   fetchPosts: (threadId: string) => Promise<void>
-  createPost: (post: string, postData:string) => Promise<void>
+  createPost: (threadMongo: string, threadWeaviate: string, content:string) => Promise<void>
+  toggleLike: (mongoId: string) => Promise<number | undefined>
+  isLiked: (postId: string) => boolean;
 }
 
 export type ForumStore = ForumState & ForumActions;

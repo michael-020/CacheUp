@@ -60,6 +60,7 @@ interface IOTP extends Document {
   otp: string;
   _doc?: Omit<IOTP, '_doc'>;
   createdAt: Date;
+  expiresAt: Date;
 }
 
 interface IChat extends Document {
@@ -109,7 +110,7 @@ export interface IPostForum extends Document {
   content: string;
   thread: mongoose.Types.ObjectId;
   createdAt: Date;
-  createdBy: Object;
+  createdBy: mongoose.Types.ObjectId;
   likedBy?: mongoose.Types.ObjectId[];
   disLikedBy?: mongoose.Types.ObjectId[];
   reportedBy?: mongoose.Types.ObjectId[];
@@ -278,6 +279,10 @@ const otpSchema = new Schema<IOTP>({
     type: Date, 
     default: Date.now, 
     expires: 600 
+  },
+  expiresAt: {
+    type: Date,
+    required: true,
   }
 });
 
@@ -366,7 +371,7 @@ const threadForumSchema = new Schema<IThreadForum>({
     ref: 'forums'
   },
   createdBy: {
-    type: String,
+    type: Schema.Types.ObjectId,
     ref: 'users'
   },
   createdAt: {
@@ -400,11 +405,8 @@ const postForumSchema = new Schema<IPostForum>({
     type: Date,
     default: Date.now
   },
-  createdBy: {
-    id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    username: { type: String, required: true },
-    profileImage: { type: String },
-},
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "users", required: true }
+,
   likedBy: [{
     type: Schema.Types.ObjectId,
     ref: 'users'

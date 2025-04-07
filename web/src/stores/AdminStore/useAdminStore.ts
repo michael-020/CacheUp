@@ -178,9 +178,7 @@ export const useAdminStore = create<AdminStates & AdminActions>((set,get) => ({
       } catch (error) {
         const axiosError = error instanceof AxiosError && error.response?.data?.msg
         if (axiosError.response?.data) {
-          const errorMessage = axiosError.response.status === 411
-            ? axiosError.response.data.error.map(e => e.message).join(', ')
-            : axiosError.response.data.msg || 'An error occurred';
+          const errorMessage = axiosError.response.data.msg || 'An error occurred';
           toast.error(errorMessage);
         } else {
           toast.error('❌ Failed to create forum. Please try again.');

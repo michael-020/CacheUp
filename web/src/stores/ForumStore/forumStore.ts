@@ -20,6 +20,12 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     searchResults: [] 
   },
   posts: [],
+  threadTitle: "",
+  threadDescription: "",
+  threadMongo: "",
+  threadWeaviate: "",
+  likedPosts: new Set<string>(),
+
   
   fetchForums: async (isAdminRoute) => {
     set({ loadingForums: true, errorForums: '' });
@@ -119,9 +125,16 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   
       // ✅ Extract the `posts` array
       const fetchedPosts = response.data.posts || []; 
-  
+      const threadTitle = response.data.threadTitle
+      const threadDescription = response.data.threadDescription 
+      const threadMongo = response.data.threadMongo;
+      const threadWeaviate = response.data.threadWeaviate
       set({ 
-        posts: fetchedPosts, // ✅ Store only the array
+        posts: fetchedPosts,
+        threadTitle: threadTitle,
+        threadDescription: threadDescription,
+        threadMongo: threadMongo,
+        threadWeaviate: threadWeaviate,
         loading: false 
       });
   
@@ -134,22 +147,58 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   
 
   // Create a new post in a thread
-  createPost: async (postData) => {
+  createPost: async (threadMongo, threadWeaviate, content) => {
     try {
       set({ loading: true });
-      const response = await axiosInstance.post(``, postData);
+      const response = await axiosInstance.post(`/forums/create-post/${threadMongo}/${threadWeaviate}`, {content}, {withCredentials: true});
+      const newPost = response.data.postMongo;
       
-      // Add the new post to the existing posts array
-      const updatedPosts = [...get().posts, response.data];
-      set({ posts: updatedPosts, loading: false });
-      
-      return response.data;
+      set((state) => ({
+        threadTitle: state.threadTitle,
+        threadDescription: state.threadDescription,
+        threadMongo: state.threadMongo,
+        threadWeaviate: state.threadWeaviate,
+        posts: [...state.posts, newPost],
+        loading: false
+      }));
+  
+      if (threadMongo) {
+        setTimeout(() => {
+          get().fetchPosts(threadMongo);
+        }, 300);
+      }
+    
+      return newPost;
     } catch (error) {
       set({ 
-        loading: false
+        loading: false,
       });
       throw error;
     }
   },
+
+  
+  toggleLike: async (postId: string) => {
+    try {
+      const isLiked = get().likedPosts.has(postId);
+      const res = await axiosInstance(`/forums/like-post/${postId}`);
+
+      set((state) => {
+        const updated = new Set(state.likedPosts);
+        if (isLiked) {
+          updated.delete(postId);
+        } else {
+          updated.add(postId);
+        }
+        return { likedPosts: updated };
+      });
+
+      return res.data.like;
+    } catch (err) {
+      console.error("Like API error:", err);
+    }
+  },
+
+  isLiked: (postId: string) => get().likedPosts.has(postId),
   
 }));
