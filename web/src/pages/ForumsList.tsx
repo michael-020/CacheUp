@@ -115,12 +115,12 @@ const ForumList: React.FC = () => {
 
                   {deleteMenuOpen === forum._id && (
                     <div
-                      className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200"
+                      className="absolute right-0 mt-2 w-48 bg-white dark:border-gray-500 dark:bg-neutral-700 rounded-md shadow-lg z-10 border border-gray-200"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <button
                         onClick={() => setEditingForum(forum)}
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="block border-b border-gray-400 dark:border-neutral-600 w-full text-left px-4 py-2 dark:text-gray-200 text-sm text-gray-700 hover:bg-gray-100"
                       >
                         Edit Forum
                       </button>
@@ -136,8 +136,8 @@ const ForumList: React.FC = () => {
               )}
 
               {editingForum && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                  <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
+                  <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-full max-w-md">
                     <h2 className="text-xl font-bold mb-4">Edit Forum</h2>
                     <form onSubmit={handleEditSubmit}>
                       <div className="mb-4">
@@ -148,7 +148,7 @@ const ForumList: React.FC = () => {
                           type="text"
                           value={editedTitle}
                           onChange={(e) => setEditedTitle(e.target.value)}
-                          className="w-full px-3 py-2 border rounded-md"
+                          className="w-full px-3 py-2 rounded-md dark:bg-neutral-600"
                           required
                         />
                       </div>
@@ -159,7 +159,7 @@ const ForumList: React.FC = () => {
                         <textarea
                           value={editedDescription}
                           onChange={(e) => setEditedDescription(e.target.value)}
-                          className="w-full px-3 py-2 border rounded-md h-32"
+                          className="w-full px-3 py-2 rounded-md h-32 dark:bg-neutral-600"
                           required
                         />
                       </div>

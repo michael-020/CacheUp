@@ -2,6 +2,7 @@ import {create} from 'zustand';
 import { axiosInstance } from '@/lib/axios';
 import type { ForumStore } from '@/stores/ForumStore/types';
 import { AxiosError } from "axios";
+import toast from 'react-hot-toast';
 
 export const useForumStore = create<ForumStore>((set, get) => ({
   forums: [],
@@ -135,17 +136,15 @@ commentsError: {},
       throw error;
     }
   },
-  fetchPosts: async (threadId: string) => {
+  fetchPosts: async (threadId: string, isAdmin?: boolean) => {
     if (!threadId) {
       throw new Error("Thread ID is required");
     }
   
     try {
-      const response = await axiosInstance.get(`/forums/get-posts/${threadId}`);
-  
-      console.log("API Response:", response.data); // Debugging
-  
-      // ✅ Extract the `posts` array
+      const endpoint = isAdmin ? "admin/get-thread-posts/" : "/forums/get-posts/"
+      const response = await axiosInstance.get(`${endpoint + threadId}`);
+    
       const fetchedPosts = response.data.posts || []; 
       const threadTitle = response.data.threadTitle
       const threadDescription = response.data.threadDescription 
@@ -160,7 +159,7 @@ commentsError: {},
         loading: false 
       });
   
-      return fetchedPosts; // ✅ Return only the posts array
+      return fetchedPosts; 
     } catch (error) {
       set({ loading: false });
       throw error;
@@ -346,6 +345,16 @@ commentsError: {},
     } catch (err) {
       const error = err as AxiosError<{ msg: string }>;
       throw error;
+    }
+  },
+
+  deleteThread : async (threadId: string) => {
+    try {
+      axiosInstance.delete(`/admin/forums/thread/${threadId}`)
+
+    } catch (error) {
+      toast.error("Could not delete the thread")
+      console.error(error)
     }
   }
   

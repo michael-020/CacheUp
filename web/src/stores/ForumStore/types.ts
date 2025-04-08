@@ -103,7 +103,7 @@ export interface ForumActions {
     isAdminRoute: boolean
   ) => Promise<void>;
   searchForums: (query: string) => Promise<void>;
-  fetchPosts: (threadId: string) => Promise<void>
+  fetchPosts: (threadId: string, isAdmin?: boolean) => Promise<void>
   createPost: (threadMongo: string, threadWeaviate: string, content:string) => Promise<void>
   toggleLike: (mongoId: string) => Promise<number | undefined>
   isLiked: (postId: string) => boolean;
@@ -113,6 +113,7 @@ export interface ForumActions {
   dislikeComment: (commentId: string) => Promise<void>;
   editComment: (commentId: string, weaviateId: string, content: string) => Promise<void>;
   deleteComment: (commentId: string, weaviateId: string) => Promise<void>;
+  deleteThread: (threadId: string) => void;
 }
 
 export type ForumStore = ForumState & ForumActions;
