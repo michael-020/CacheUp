@@ -21,7 +21,7 @@ const ForumPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate()
   const isAdminRoute = location.pathname.includes('/admin');
-
+  const linkToPosts = isAdminRoute ? "/admin/forums/thread/" : "/forums/thread/"
   useEffect(() => {
     if (forumMongoId) {
       fetchForumDetails(forumMongoId);
@@ -70,7 +70,7 @@ const ForumPage: React.FC = () => {
         <div className="space-y-4">
           {currentForum.threads.map((thread) => (
             <div key={thread._id}>
-              <Link to={`/forums/thread/${thread._id}`}>
+              <Link to={linkToPosts+thread._id}>
                 <div className="border p-4 rounded hover:bg-gray-50 dark:hover:bg-neutral-700">
                   <h2 className="text-xl font-semibold">{thread.title}</h2>
                   <p className="mt-2 text-gray-600">{thread.description}</p>
