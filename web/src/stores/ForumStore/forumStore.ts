@@ -54,6 +54,24 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     }
   },
 
+  editForum: async (mongoId, weaviateId, { title, description }) => {
+    try {
+      const response = await axiosInstance.put(
+        `/admin/edit-forum/${mongoId}/${weaviateId}`,
+        { title, description }
+      );
+      const updatedForum = response.data.forumMongo;
+      set((state) => ({
+        forums: state.forums.map((forum) =>
+          forum._id === updatedForum._id ? updatedForum : forum
+        ),
+      }));
+    } catch (err) {
+      const error = err as AxiosError<{ msg: string }>;
+      throw error;
+    }
+  },
+
   
   fetchForumDetails: async (forumId) => {
     set({ currentForum: { ...get().currentForum, loading: true, error: '' } });
