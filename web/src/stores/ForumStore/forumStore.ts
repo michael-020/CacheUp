@@ -62,18 +62,22 @@ commentsError: {},
   fetchForumDetails: async (forumId) => {
     set({ currentForum: { ...get().currentForum, loading: true, error: '' } });
     try {
-      const response = await axiosInstance.get(`/forums/${forumId}`);
+      const response = await axiosInstance.get(`/get-threads/${forumId}`);
       set({ currentForum: { ...get().currentForum, title: response.data.forum.title } });
     } catch (err) {
     //   const error = err as AxiosError<{ msg: string }>;
     //   set({ currentForum: { ...get().currentForum, error: error.response?.data?.msg || 'Failed to fetch forum' } });
+      console.error(err)
     }
   },
 
-  fetchThreads: async (forumId) => {
+  fetchThreads: async (forumId, isAdminRoute) => {
     set({ currentForum: { ...get().currentForum, loading: true } });
     try {
-      const response = await axiosInstance.get(`/forums/get-threads/${forumId}`);
+      const endpoint = isAdminRoute 
+        ? `/admin/get-threads/`
+        : `/forums/get-threads/`;
+      const response = await axiosInstance.get(`${endpoint + forumId}`);
       set({ currentForum: { ...get().currentForum, threads: response.data.allThreads, loading: false } });
     } catch (err) {
       const error = err as AxiosError<{ msg: string }>;
@@ -88,7 +92,7 @@ commentsError: {},
         : `/forums/create-thread/${forumId}/${weaviateId}`;
 
       await axiosInstance.post(endpoint, threadData);
-      get().fetchThreads(forumId);
+      get().fetchThreads(forumId, isAdminRoute);
     } catch (err) {
       const error = err as AxiosError<{ msg: string }>;
       throw error;

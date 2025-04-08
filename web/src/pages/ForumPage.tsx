@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useLocation, Link } from 'react-router-dom';
+import { useParams, useLocation, Link, useNavigate } from 'react-router-dom';
 import { useForumStore } from '@/stores/ForumStore/forumStore';
 import ThreadModal from '../components/forums/ThreadModal';
+import { ArrowLeft } from 'lucide-react';
 
 const ForumPage: React.FC = () => {
   const { forumMongoId, forumWeaviateId } = useParams<{
@@ -18,14 +19,15 @@ const ForumPage: React.FC = () => {
   
   const [showModal, setShowModal] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate()
   const isAdminRoute = location.pathname.includes('/admin');
 
   useEffect(() => {
     if (forumMongoId) {
       fetchForumDetails(forumMongoId);
-      fetchThreads(forumMongoId);
+      fetchThreads(forumMongoId, isAdminRoute);
     }
-  }, [forumMongoId, fetchForumDetails, fetchThreads]);
+  }, [forumMongoId, fetchForumDetails, fetchThreads, isAdminRoute]);
 
   const handleCreateThread = async (threadData: { title: string; description: string }) => {
     try {
@@ -38,8 +40,20 @@ const ForumPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 mt-20">
+    <div className="max-w-6xl mx-auto p-6 translate-y-24">
+       {/* <button
+          onClick={() => navigate(-1)}
+          className="mr-4 px-3 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700"
+        >
+          <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
+        </button> */}
       <div className="flex justify-between items-center mb-6">
+        <button
+            onClick={() => navigate(-1)}
+            className="mr-4 p-3 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700"
+        >
+          <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
+        </button>
         <h1 className="text-2xl font-bold">{currentForum.title}</h1>
         <button
           onClick={() => setShowModal(true)}
@@ -61,15 +75,17 @@ const ForumPage: React.FC = () => {
       ) : (
         <div className="space-y-4">
           {currentForum.threads.map((thread) => (
-            <Link key={thread._id} to={`/forums/thread/${thread._id}`}>
-            <div className="border p-4 rounded hover:bg-gray-50">
-              <h2 className="text-xl font-semibold">{thread.title}</h2>
-              <p className="mt-2 text-gray-600">{thread.description}</p>
-              <div className="mt-3 flex justify-between text-sm text-gray-500">
-                <span>Created: {new Date(thread.createdAt).toLocaleString()}</span>
-              </div>
+            <div key={thread._id}>
+              <Link to={`/forums/thread/${thread._id}`}>
+                <div className="border p-4 rounded hover:bg-gray-50 dark:hover:bg-neutral-700">
+                  <h2 className="text-xl font-semibold">{thread.title}</h2>
+                  <p className="mt-2 text-gray-600">{thread.description}</p>
+                  <div className="mt-3 flex justify-between text-sm text-gray-500">
+                    <span>Created: {new Date(thread.createdAt).toLocaleString()}</span>
+                  </div>
+                </div>
+              </Link>
             </div>
-          </Link>
           ))}
         </div>
       )}

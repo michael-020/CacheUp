@@ -3,7 +3,7 @@ import { ProfileCard } from "@/components/ProfileCard";
 import { axiosInstance } from "@/lib/axios";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { useEffect, useState } from "react";
-import { useParams, useLocation, Navigate } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { Post, IUser } from "@/lib/utils";
 
 export const Profile = () => {

@@ -23,9 +23,10 @@ import ForumList from './pages/ForumsList'
 import ForumPage from './pages/ForumPage'
 import CreateForum from './pages/admin/CreateForum'
 import { SearchResults } from './pages/SearchResults'
-import Thread from './pages/Thread'
 import SettingsPage from './pages/SettingsPage'
 import ChangePassword from './components/ChangePassword' 
+import Thread from './pages/thread'
+import { useThemeStore } from './stores/ThemeStore/useThemeStore'
 
 
 function App() {
@@ -79,6 +80,21 @@ function App() {
     }
   }, [authUser, isAdminRoute, returnPath, navigate])
 
+  useEffect(() => {
+    const theme = localStorage.getItem('theme')
+    const isDark = theme === 'dark'
+  
+    // Ensure Zustand theme state syncs
+    useThemeStore.getState().setTheme(isDark)
+  
+    if (isDark) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  }, [])
+  
+
   if ((isAdminRoute && isAdminCheckingAuth) || (!isAdminRoute && isCheckingAuth)) {
     return (
       <div className="h-screen w-screen flex items-center justify-center bg-gray-100 dark:bg-neutral-900">
@@ -126,8 +142,9 @@ function App() {
         <Route path="/admin/reported-posts" element={authAdmin ? <ReportedPosts /> : <Navigate to="/admin/signin" /> } />
         <Route path="/admin/user-list" element={authAdmin ? <UserList /> : <Navigate to="/admin/signin" />} />
         <Route path="/admin/profile/:id" element={authAdmin ? <Profile /> : <Navigate to="/admin/signin" />} />
-        <Route path="/admin/home/forums" element={<CreateForum/>} />
-        <Route path="/admin/get-forums" element={<ForumList />} />
+        <Route path="/admin/forums" element={authAdmin ? <CreateForum/> : <Navigate to="/admin/signin" />} />
+        <Route path="/admin/forums/get-forums" element={authAdmin ? <ForumList /> : <Navigate to="/admin/signin" />} />
+        <Route path="/admin/forums/:forumMongoId/:forumWeaviateId" element={authAdmin ? <ForumPage /> : <Navigate to="/admin/signin" />} />
       </Routes>
 
       <Toaster />  

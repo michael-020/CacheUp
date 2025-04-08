@@ -1,7 +1,8 @@
 import { GrGallery } from "react-icons/gr";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useRef, useState } from "react";
 import { usePostStore } from "@/stores/PostStore/usePostStore";
 import { Loader } from "lucide-react";
+import { Textarea } from "./ui/textarea";
 
 export default function Share() {
   const { createPost, isUploadingPost } = usePostStore();
@@ -9,6 +10,7 @@ export default function Share() {
   const [image, setImage] = useState("");
   const [imagePreview, setImagePreview] = useState("");
   const [isProcessingImage, setIsProcessingImage] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null)
   
   const isLoading = isUploadingPost || isProcessingImage;
 
@@ -70,16 +72,15 @@ export default function Share() {
       <div className="relative">
         <form onSubmit={handleSubmit} className="bg-white dark:bg-neutral-800 rounded-lg shadow p-4">
           <div className="border-b dark:border-gray-700 pb-1">
-            <textarea
-              className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 dark:placeholder:text-gray-600 dark:bg-neutral-600 focus:ring-blue-500"
-              placeholder="What's on your mind?"
-              rows={1}
-              value={text}
-              onChange={handleTextChange}
-              maxLength={200}
-              readOnly={isLoading}
+            <Textarea
+                  ref={textareaRef}
+                  value={text}
+                  onChange={handleTextChange}
+                  readOnly={isLoading}
+                  placeholder="What's on your mind?"
+                  className="w-full px-3 border dark:bg-neutral-600 rounded-md resize-none overflow-y-auto min-h-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <div className="text-right text-xs text-gray-500 ">
+            <div className="text-right text-xs pt-1 text-gray-500 ">
               {text.length}/200
             </div>
           </div>
