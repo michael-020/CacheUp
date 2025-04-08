@@ -40,13 +40,7 @@ const ForumPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 translate-y-24">
-       {/* <button
-          onClick={() => navigate(-1)}
-          className="mr-4 px-3 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700"
-        >
-          <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
-        </button> */}
+    <div className="max-w-6xl mx-auto p-6 translate-y-24 h-full">
       <div className="flex justify-between items-center mb-6">
         <button
             onClick={() => navigate(-1)}

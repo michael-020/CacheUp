@@ -204,7 +204,7 @@ export const Thread = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-4xl translate-y-20">
+    <div className="container mx-auto p-4 max-w-4xl translate-y-20 h-full">
       <div className="mb-4 border-b pb-4">
         <div className="flex">
              <button

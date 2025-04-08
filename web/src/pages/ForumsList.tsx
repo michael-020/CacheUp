@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { AxiosError } from "axios";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import {  useLocation, useNavigate } from "react-router-dom";
 import { SearchBar } from "@/components/forums/search-bar";
 import { useForumStore } from "@/stores/ForumStore/forumStore";
 import type { Forum } from "@/stores/ForumStore/types";
@@ -81,7 +81,7 @@ const ForumList: React.FC = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6 mt-20">
+    <div className="max-w-6xl mx-auto p-6 translate-y-20 h-full">
       <h1 className="text-2xl font-bold mb-6">
         {isAdminRoute ? "All Forums (Admin View)" : "All Forums"}
       </h1>
@@ -227,7 +227,7 @@ const ForumList: React.FC = () => {
                 </div>
               )}
 
-              <h2 className="text-xl font-semibold mb-2 text-gray-800">
+              <h2 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-300">
                 {forum.title}
               </h2>
               <p className="text-gray-600 mb-4 line-clamp-3">
