@@ -38,6 +38,21 @@ export interface Thread {
   createdBy: IUser;
 }
 
+export interface Comment {
+  _id: string;
+  content: string;
+  createdAt: Date;
+  createdBy: {
+    _id: string;
+    username: string;
+    profilePicture?: string;
+  };
+  likedBy: string[];
+  disLikedBy: string[];
+  reportedBy: string[];
+  weaviateId: string;
+}
+
 export interface Forum {
         _id: string;
         title: string;
@@ -66,6 +81,9 @@ export interface ForumState {
   threadMongo: string;
   threadWeaviate: string;
   likedPosts: Set<string>;
+  comments: {[postId: string]: Comment[]};
+  commentsLoading: {[postId: string]: boolean};
+  commentsError: {[postId: string]: string};
 }
 
 export interface ForumActions {
@@ -84,6 +102,12 @@ export interface ForumActions {
   createPost: (threadMongo: string, threadWeaviate: string, content:string) => Promise<void>
   toggleLike: (mongoId: string) => Promise<number | undefined>
   isLiked: (postId: string) => boolean;
+  fetchComments: (postId: string) => Promise<Comment[]>;
+  createComment: (postId: string, postWeaviateId: string, content: string) => Promise<Comment>;
+  likeComment: (commentId: string) => Promise<void>;
+  dislikeComment: (commentId: string) => Promise<void>;
+  editComment: (commentId: string, weaviateId: string, content: string) => Promise<void>;
+  deleteComment: (commentId: string, weaviateId: string) => Promise<void>;
 }
 
 export type ForumStore = ForumState & ForumActions;

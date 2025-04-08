@@ -26,6 +26,10 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   threadWeaviate: "",
   likedPosts: new Set<string>(),
 
+  comments: {},
+commentsLoading: {},
+commentsError: {},
+
   
   fetchForums: async (isAdminRoute) => {
     set({ loadingForums: true, errorForums: '' });
@@ -196,5 +200,131 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   },
 
   isLiked: (postId: string) => get().likedPosts.has(postId),
+
+  fetchComments: async (postId) => {
+    if (!postId) return [];
+    
+    set((state) => ({
+      commentsLoading: { ...state.commentsLoading, [postId]: true },
+      commentsError: { ...state.commentsError, [postId]: '' }
+    }));
+    
+    try {
+      const response = await axiosInstance.get(`/forums/get-comments/${postId}`);
+      const fetchedComments = response.data.comments || [];
+      
+      set((state) => ({
+        comments: { ...state.comments, [postId]: fetchedComments },
+        commentsLoading: { ...state.commentsLoading, [postId]: false }
+      }));
+      
+      return fetchedComments;
+    } catch (err) {
+      const error = err as AxiosError<{ msg: string }>;
+      set((state) => ({
+        commentsLoading: { ...state.commentsLoading, [postId]: false },
+        commentsError: { 
+          ...state.commentsError, 
+          [postId]: error.response?.data?.msg || 'Failed to fetch comments' 
+        }
+      }));
+      return [];
+    }
+  },
+  
+  createComment: async (postId, postWeaviateId, content) => {
+    try {
+      const response = await axiosInstance.post(`/forums/create-comment/${postId}/${postWeaviateId}`, {
+        content
+      });
+      
+      const newComment = response.data.comment;
+      
+      set((state) => {
+        const currentPostComments = state.comments[postId] || [];
+        return {
+          comments: {
+            ...state.comments,
+            [postId]: [...currentPostComments, newComment]
+          }
+        };
+      });
+      
+      get().fetchComments(postId);
+      
+      return newComment;
+    } catch (err) {
+      const error = err as AxiosError<{ msg: string }>;
+      throw error;
+    }
+  },
+  
+  likeComment: async (commentId) => {
+    try {
+      await axiosInstance.put(`/forums/like-comment/${commentId}`);
+      
+      const comments = get().comments;
+      for (const postId in comments) {
+        if (comments[postId].some(comment => comment._id === commentId)) {
+          get().fetchComments(postId);
+        }
+      }
+    } catch (err) {
+      const error = err as AxiosError<{ msg: string }>;
+      throw error;
+    }
+  },
+  
+  dislikeComment: async (commentId) => {
+    try {
+      await axiosInstance.put(`/forums/dislike-comment/${commentId}`);
+      
+      const comments = get().comments;
+      for (const postId in comments) {
+        if (comments[postId].some(comment => comment._id === commentId)) {
+          get().fetchComments(postId);
+        }
+      }
+    } catch (err) {
+      const error = err as AxiosError<{ msg: string }>;
+      throw error;
+    }
+  },
+  
+
+  
+  editComment: async (commentId, weaviateId, content) => {
+    try {
+      await axiosInstance.put(`/forums/edit-comment/${commentId}/${weaviateId}`, {
+        content
+      });
+      
+      const comments = get().comments;
+      for (const postId in comments) {
+        if (comments[postId].some(comment => comment._id === commentId)) {
+          get().fetchComments(postId);
+        }
+      }
+    } catch (err) {
+      const error = err as AxiosError<{ msg: string }>;
+      throw error;
+    }
+  },
+  
+  deleteComment: async (commentId, weaviateId) => {
+    try {
+      await axiosInstance.delete(`/forums/delete-comment/${commentId}/${weaviateId}`);
+      
+      const comments = get().comments;
+      for (const postId in comments) {
+        if (comments[postId].some(comment => comment._id === commentId)) {
+          get().fetchComments(postId);
+        }
+      }
+    } catch (err) {
+      const error = err as AxiosError<{ msg: string }>;
+      throw error;
+    }
+  }
   
 }));
