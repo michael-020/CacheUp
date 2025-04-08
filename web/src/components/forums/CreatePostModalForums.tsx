@@ -41,7 +41,7 @@ const CreatePostModal = ({ threadMongo, threadWeaviate, isOpen, onClose }: { thr
                     onChange={(e) => setContent(e.target.value)}
                     rows={3}
                     placeholder="Write something..."
-                    className="w-full p-3 border border-gray-300 rounded-md resize-none overflow-y-auto max-h-[150px] text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full p-3 border dark:bg-neutral-800 rounded-md resize-none overflow-y-auto max-h-[150px] text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <div className="flex justify-end mt-4">
                     <Button onClick={handleSubmit} disabled={loading} className="bg-blue-500 text-white px-4 py-2 rounded-md">
