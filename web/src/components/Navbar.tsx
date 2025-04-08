@@ -13,24 +13,38 @@ import { useFriendsStore } from "@/stores/FriendsStore/useFriendsStore";
 import { useThemeStore } from "@/stores/ThemeStore/useThemeStore";
 
 export const Navbar = () => {
-  const { logout, authUser, checkAuth } = useAuthStore();
+  const { logout, authUser } = useAuthStore();
   const { requests, fetchRequests } = useFriendsStore();
   const { unReadMessages } = useChatStore()
   const location = useLocation();
   const currentPath = location.pathname;
   const { isDark, toggleTheme } = useThemeStore();
 
+  const handleToggleTheme = () => {
+    toggleTheme()
+    const isDarkNow = !isDark
+    if (isDarkNow) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  }
+  
+
   useEffect(() => {
-    checkAuth();
-    const interval = setInterval(async () => {
-      await fetchRequests()
-    }, 1000*120)   
+    const interval = setInterval(fetchRequests, 1000 * 120);
+  
+    const handleVisibilityChange = () => {
+      if (document.hidden) clearInterval(interval);
+    };
+    
+    document.addEventListener("visibilitychange", handleVisibilityChange);
     
     return () => {
-      clearInterval(interval)
-    }
-
-  }, [checkAuth, fetchRequests]);
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [fetchRequests]);
 
   if(!authUser)
     return <div>
@@ -107,7 +121,7 @@ export const Navbar = () => {
         </div>
         
         <div className="w-1/4 flex items-center justify-end space-x-4">
-          <button onClick={toggleTheme} className="hover:bg-neutral-200 py-1.5 px-1.5 rounded-md dark:hover:bg-gray-700">
+          <button onClick={handleToggleTheme} className="hover:bg-neutral-200 py-1.5 px-1.5 rounded-md dark:hover:bg-gray-700">
             {
               isDark ? <Sun /> : <Moon />
             }

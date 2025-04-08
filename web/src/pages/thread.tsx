@@ -1,10 +1,12 @@
 import {  useEffect, useState, useRef } from "react";
 import { useForumStore } from "@/stores/ForumStore/forumStore";
-import { Link, useParams, useLocation } from "react-router-dom";
-import CreatePostModal from "@/components/CreatePostModalForums"; 
+import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
+import CreatePostModal from "@/components/forums/CreatePostModalForums"; 
 import { Button } from "@/components/ui/button"; 
 import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
 import { axiosInstance } from "@/lib/axios";
+import { ArrowLeft, MessageSquareMore } from "lucide-react";
+import { PostSchema } from "@/stores/ForumStore/types";
 
 export const Thread = () => {
   const { id } = useParams();
@@ -16,6 +18,7 @@ export const Thread = () => {
   const postRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
   const [highlightedPostId, setHighlightedPostId] = useState<string | null>(null);
   const [expandedPosts, setExpandedPosts] = useState<{[key: string]: boolean}>({});
+  const navigate = useNavigate()
 
   useEffect(() => {
     fetchPosts(id as string);
@@ -74,12 +77,12 @@ export const Thread = () => {
 
   const currentUserId = authAdmin?._id || null;
 
-  const checkIfLiked = (post: any) => {
+  const checkIfLiked = (post: PostSchema) => {
     if (!currentUserId || !post.likedBy) return false;
     return post.likedBy.some((id: string) => id.toString() === currentUserId.toString());
   };
     
-  const checkIfDisliked = (post: any) => {
+  const checkIfDisliked = (post: PostSchema) => {
     if (!currentUserId || !post.disLikedBy) return false;
     return post.disLikedBy.some((id: string) => id.toString() === currentUserId.toString());
   };
@@ -201,9 +204,17 @@ export const Thread = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-4xl mt-16">
+    <div className="container mx-auto p-4 max-w-4xl translate-y-20">
       <div className="mb-4 border-b pb-4">
-        <h1 className="text-3xl font-bold mb-2">{threadTitle}</h1>
+        <div className="flex">
+             <button
+              onClick={() => navigate(-1)}
+              className="mr-4 px-3 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700"
+            >
+              <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
+            </button>
+          <h1 className="text-3xl font-bold mb-2">{threadTitle}</h1>
+        </div>
         <p>{threadDescription}</p>
         <div className="text-gray-500">{posts.length} {posts.length === 1 ? "post" : "posts"} in this thread</div>
         <Button onClick={() => setIsModalOpen(true)} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 mt-3">
@@ -230,7 +241,7 @@ export const Thread = () => {
               key={post._id}
               ref={(el) => postRefs.current[post._id] = el}
               id={`post-${post._id}`}
-              className={`rounded-lg shadow-sm border ${index === 0 ? "border-blue-200 bg-blue-50" : "border-gray-200"} overflow-hidden transition-all duration-300 ${
+              className={`rounded-lg shadow-sm border ${index === 0 ? "border-blue-200 dark:bg-neutral-800" : "border-gray-200"} overflow-hidden transition-all duration-300 ${
                 isHighlighted ? "ring-4 ring-blue-300 ring-opacity-70" : ""
               }`}
             >
@@ -242,12 +253,12 @@ export const Thread = () => {
                   <img 
                     src={profileImage} 
                     alt={`${author}'s profile`} 
-                    className="w-10 h-10 rounded-full object-cover cursor-pointer" 
+                    className="w-10 h-10 rounded-full object-cover cursor-pointer hover:scale-110 duration-200 ease-in-out" 
                   />
                 </Link>
                 ) : null}
                 <div className={`w-10 h-10 rounded-full cursor-pointer items-center justify-center text-white ${getUserColor(author)} ${profileImage ? "hidden" : "flex"}`}>
-                  {getInitials(author)}
+                  <h3>{getInitials(author)} !</h3>
                 </div>
                 <div className="flex-1">
                 <Link to={authAdmin ? `/admin/profile/${post.createdBy?._id}` : `/profile/${post.createdBy?._id}`}><div className="font-medium cursor-pointer">{author}</div> </Link>
@@ -279,7 +290,7 @@ export const Thread = () => {
               </div>
               
 
-              <div className="flex items-center gap-4 px-4 py-3 bg-gray-50 border-t text-sm text-gray-500">
+              <div className="flex items-center gap-4 px-4 py-3 dark:border-neutral-600 border-t text-sm text-gray-500">
               <button 
               className={`flex items-center gap-1 cursor-pointer ${isLiked ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500 hover:text-blue-600 hover:fill-blue-600'}`}
               onClick={() => handleLikePost(post._id)}
@@ -310,13 +321,8 @@ export const Thread = () => {
               {likeLoading[post._id] ? 'Updating...' : `${post.disLikedBy?.length || 0}`}
             </button>
                 
-                <button className="flex items-center gap-1 hover:text-gray-700 ml-auto">
-                <svg xmlns="http://www.w3.org/2000/svg" xmlSpace="preserve" width="20" height="20" viewBox="0 0 32 32" id="comment">
-                <g fill="#1C1C1C">
-                    <path d="M8.5 15h15a.5.5 0 0 1 0 1h-15a.5.5 0 0 1 0-1zM8.5 12h15a.5.5 0 0 1 0 1h-15a.5.5 0 0 1 0-1zM8.5 9h15a.5.5 0 0 1 0 1h-15a.5.5 0 0 1 0-1z"></path>
-                    <path d="M0 2v21a2 2 0 0 0 2 2h18l8 7v-7h2a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2zm1 1a2 2 0 0 1 2-2h26a2 2 0 0 1 2 2v19a2 2 0 0 1-2 2h-2v6l-5.833-5L20 24H3a2 2 0 0 1-2-2V3z"></path>
-                </g>
-                </svg>                  
+                <button className="flex items-center gap-1 hover:text-gray-700 dark:text-gray-200 ml-auto">
+                <MessageSquareMore className="size-5" />            
                 Reply
                 </button>
               </div>

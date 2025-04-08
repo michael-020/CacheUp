@@ -74,7 +74,7 @@ const ForumList: React.FC = () => {
               {forums.map((forum) => (
                 <div
                   key={forum._id}
-                  className="bg-white dark:bg-neutral-700 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-200 relative"
+                  className="bg-white dark:bg-neutral-800 dark:border dark:shadow-neutral-700 dark:border-neutral-700 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-200 relative"
                 >
                   {isAdminRoute && (
                     <div className="absolute top-4 right-4">

@@ -23,9 +23,10 @@ import ForumList from './pages/ForumsList'
 import ForumPage from './pages/ForumPage'
 import CreateForum from './pages/admin/CreateForum'
 import { SearchResults } from './pages/SearchResults'
-import Thread from './pages/Thread'
 import SettingsPage from './pages/SettingsPage'
 import ChangePassword from './components/ChangePassword' 
+import Thread from './pages/thread'
+import { useThemeStore } from './stores/ThemeStore/useThemeStore'
 
 
 function App() {
@@ -78,6 +79,21 @@ function App() {
       }
     }
   }, [authUser, isAdminRoute, returnPath, navigate])
+
+  useEffect(() => {
+    const theme = localStorage.getItem('theme')
+    const isDark = theme === 'dark'
+  
+    // Ensure Zustand theme state syncs
+    useThemeStore.getState().setTheme(isDark)
+  
+    if (isDark) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  }, [])
+  
 
   if ((isAdminRoute && isAdminCheckingAuth) || (!isAdminRoute && isCheckingAuth)) {
     return (

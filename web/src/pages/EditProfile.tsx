@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useEffect } from "react";
-import { ArrowLeft, Camera, Loader2, User, AtSign, FileText, Mail, Building } from "lucide-react";
+import { ArrowLeft, Camera, Loader2} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export const EditProfile = () => {
@@ -71,6 +71,7 @@ export const EditProfile = () => {
                 setImagePreview(base64);
             } catch (error) {
                 toast.error("Failed to process image.");
+                console.error(error)
             }
         }
     };
@@ -90,6 +91,7 @@ export const EditProfile = () => {
             
         } catch (error) {
             toast.error("Profile update failed");
+            console.error(error)
         }
     };
 
@@ -107,10 +109,10 @@ export const EditProfile = () => {
 
     return (
         <div 
-            className="max-w-2xl mx-auto py-6 px-4 sm:px-6 lg:px-8 mt-16" 
+            className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 translate-y-28" 
             style={containerStyle}
         >
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md overflow-hidden">
                 {/* Header */}
                 <div className="bg-gradient-to-r from-blue-600 to-indigo-600 py-3 px-4">
                     <div className="flex items-center">
@@ -157,13 +159,13 @@ export const EditProfile = () => {
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         {/* Name Field */}
                         <div>
-                            <label className="inline-flex items-center text-sm font-medium text-gray-700 mb-1">
-                                <User size={14} className="mr-1 text-blue-500" /> Full Name
+                            <label className="inline-flex ml-1 items-center text-sm font-medium text-gray-700 mb-1">
+                                Full Name
                             </label>
                             <input
                                 type="text"
                                 {...register("name")}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                className="w-full px-3 py-2 border dark:placeholder:text-neutral-500 border-gray-300 dark:bg-neutral-700 dark:border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                 placeholder="Enter your full name"
                             />
                             {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
@@ -171,13 +173,13 @@ export const EditProfile = () => {
 
                         {/* Username */}
                         <div>
-                            <label className="inline-flex items-center text-sm font-medium text-gray-700 mb-1">
-                                <AtSign size={14} className="mr-1 text-blue-500" /> Username
+                            <label className="inline-flex ml-1 items-center text-sm font-medium text-gray-700 mb-1">
+                                Username
                             </label>
                             <input
                                 type="text"
                                 {...register("username")}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                className="w-full px-3 py-2 border dark:placeholder:text-neutral-500 border-gray-300 dark:bg-neutral-700 dark:border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                 placeholder="Enter your username"
                             />
                             {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username.message}</p>}
@@ -185,39 +187,39 @@ export const EditProfile = () => {
 
                         {/* Email - Read Only */}
                         <div>
-                            <label className="inline-flex items-center text-sm font-medium text-gray-700 mb-1">
-                                <Mail size={14} className="mr-1 text-blue-500" /> Email
+                            <label className="inline-flex ml-1 items-center text-sm font-medium text-gray-700 mb-1">
+                                Email
                             </label>
                             <input
                                 type="email"
                                 value={authUser?.email || ""}
-                                className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
+                                className="w-full px-3 py-2 border dark:text-gray-300 border-gray-200 dark:bg-gray-700 dark:border-neutral-600 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
                                 disabled
                             />
                         </div>
 
                         {/* Department - Read Only */}
                         <div>
-                            <label className="inline-flex items-center text-sm font-medium text-gray-700 mb-1">
-                                <Building size={14} className="mr-1 text-blue-500" /> Department
+                            <label className="inline-flex ml-1 items-center text-sm font-medium text-gray-700 mb-1">
+                                Department
                             </label>
                             <input
                                 type="text"
                                 value={authUser?.department || ""}
-                                className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
+                                className="w-full px-3 py-2 border dark:text-gray-300 border-gray-200 rounded-lg dark:bg-gray-700 dark:border-neutral-600 bg-gray-50 text-gray-500 cursor-not-allowed"
                                 disabled
                             />
                         </div>
 
                         {/* Bio - Full width */}
                         <div className="md:col-span-2">
-                            <label className="inline-flex items-center text-sm font-medium text-gray-700 mb-1">
-                                <FileText size={14} className="mr-1 text-blue-500" /> Bio
+                            <label className="inline-flex ml-1 items-center text-sm font-medium text-gray-700 mb-1">
+                                Bio
                             </label>
                             <textarea
                                 {...register("bio")}
                                 rows={3}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                className="w-full px-3 py-2 border dark:placeholder:text-neutral-500 dark:bg-neutral-700 dark:border-neutral-600 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                 placeholder="Tell us about yourself"
                             />
                             {errors.bio && <p className="text-red-500 text-xs mt-1">{errors.bio.message}</p>}

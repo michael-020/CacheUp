@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useLocation, Link } from 'react-router-dom';
+import { useParams, useLocation, Link, useNavigate } from 'react-router-dom';
 import { useForumStore } from '@/stores/ForumStore/forumStore';
 import ThreadModal from '../components/forums/ThreadModal';
+import { ArrowLeft } from 'lucide-react';
 
 const ForumPage: React.FC = () => {
   const { forumMongoId, forumWeaviateId } = useParams<{
@@ -18,6 +19,7 @@ const ForumPage: React.FC = () => {
   
   const [showModal, setShowModal] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate()
   const isAdminRoute = location.pathname.includes('/admin');
 
   useEffect(() => {
@@ -39,7 +41,19 @@ const ForumPage: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto p-6 translate-y-24">
+       {/* <button
+          onClick={() => navigate(-1)}
+          className="mr-4 px-3 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700"
+        >
+          <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
+        </button> */}
       <div className="flex justify-between items-center mb-6">
+        <button
+            onClick={() => navigate(-1)}
+            className="mr-4 p-3 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700"
+        >
+          <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
+        </button>
         <h1 className="text-2xl font-bold">{currentForum.title}</h1>
         <button
           onClick={() => setShowModal(true)}
