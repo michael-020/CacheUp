@@ -71,6 +71,11 @@ export interface ForumState {
 export interface ForumActions {
   fetchForums: (isAdminRoute: boolean) => Promise<void>;
   deleteForum: (forumId: string, weaviateId: string) => Promise<void>;
+  editForum: (
+    mongoId: string, 
+    weaviateId: string, 
+    data: { title: string; description: string }
+  ) => Promise<void>;
   fetchForumDetails: (forumId: string) => Promise<void>;
   fetchThreads: (forumId: string, isAdminRoute: boolean) => Promise<void>;
   createThread: (
