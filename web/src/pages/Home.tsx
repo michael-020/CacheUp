@@ -4,9 +4,10 @@ import { useAuthStore } from '@/stores/AuthStore/useAuthStore';
 
 export const Home = () => {
   const { authUser } = useAuthStore()
+
   if(!authUser)
     return null;
-  
+
   return (
     <div className="relative px-8 bg-gray-100 dark:bg-neutral-950 dark:border-neutral-900">
       {/* ProfileCard shifted to the right */}

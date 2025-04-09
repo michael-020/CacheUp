@@ -70,7 +70,7 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
             set({authUser: null, token: ""})
             toast.success("Logged out successfully")
         } catch (error) {
-            console.error("Error in logout")
+            console.error("Error in logout", error)
             toast.error("Logging out failed")
         } finally {
             set({isLoggingOut: false})
@@ -92,7 +92,7 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
                 get().connectSocket()
             }
         } catch (error) {
-            console.error("Error in check auth")
+            console.error("Error in check auth", error)
             set({authUser: null})
         } finally {
             set({isCheckingAuth: false, authChecked: true})

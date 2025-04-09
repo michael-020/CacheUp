@@ -55,6 +55,7 @@ export const loginHandler: RequestHandler = async (req: Request, res: Response) 
             email: user.email,
             department: user.department,
             graduationYear: user.graduationYear,
+            profilePicture: user.profilePicture
         })
     }
     catch (e) {
