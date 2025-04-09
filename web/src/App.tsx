@@ -78,6 +78,7 @@ function App() {
         authenticated.current = true
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authUser, isAdminRoute, returnPath, navigate])
 
   useEffect(() => {

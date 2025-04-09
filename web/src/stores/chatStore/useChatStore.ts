@@ -5,7 +5,7 @@ import { useAuthStore } from "../AuthStore/useAuthStore";
 import { chatAction, chatState } from "./types";
 import { AxiosError } from "axios";
 import { IUser } from "@/lib/utils";
-import { showCustomMessageToast } from "@/components/Toast/CustomMessageToast";
+import { ShowCustomMessageToast } from "@/components/Toast/CustomMessageToast";
 
 export interface IMessages {
     _id: string;
@@ -268,38 +268,59 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
 
     sendNotification: (message) => {        
         if (!message) return;
+    
+    const sender = get().users.find(user => user._id === message.sender);
+    if(!sender?.username)
+        return
+
+    const senderName = sender.username;
+    
+    let displayContent = "sent you a message";
+    if (message.content) {
+        displayContent = `${message.content.substring(0, 30)}${message.content.length > 30 ? '...' : ''}`;
+    } else if (message.image) {
+        displayContent = "sent you an image";
+    }
         
-        const sender = get().users.find(user => user._id === message.sender);
-        const senderName = sender ? sender.username : "Someone";
-        
-        let displayContent = "sent you a message";
-        if (message.content) {
-            displayContent = `${message.content.substring(0, 30)}${message.content.length > 30 ? '...' : ''}`;
-        } else if (message.image) {
-            displayContent = "sent you an image";
-        }
-            
-        const toastId = showCustomMessageToast({
-            senderName: senderName,
-            message: displayContent,
-            imageUrl: sender?.profilePicture,
-            duration: 5000,
-            onClose: () => {
-                if (!message.isRead) {
-                    get().markMessagesAsRead([message._id]);
-                }
-                
-                const activeToasts = new Map(get().activeToasts);
-                if (activeToasts.has(message._id)) {
-                    activeToasts.delete(message._id);
-                    set({ activeToasts });
-                }
+    const toastId = ShowCustomMessageToast({
+        sender,
+        senderName: senderName,
+        message: displayContent,
+        imageUrl: sender?.profilePicture,
+        duration: 5000,
+        onClose: () => {
+            if (!message.isRead) {
+                get().markMessagesAsRead([message._id]);
             }
-        });
-        
-        const activeToasts = new Map(get().activeToasts);
-        activeToasts.set(message._id, toastId);
-        set({ activeToasts });
+            
+            const activeToasts = new Map(get().activeToasts);
+            if (activeToasts.has(message._id)) {
+                activeToasts.delete(message._id);
+                set({ activeToasts });
+            }
+        },
+        // Add this new prop that will be passed to ShowCustomMessageToast
+        onSelectUser: (user) => {
+            // Mark message as read
+            if (!message.isRead) {
+                get().markMessagesAsRead([message._id]);
+            }
+            
+            // Set selected user - this happens BEFORE navigation via the Link component
+            get().setSelectedUser(user);
+            
+            // Clean up the toast from active toasts
+            const activeToasts = new Map(get().activeToasts);
+            if (activeToasts.has(message._id)) {
+                activeToasts.delete(message._id);
+                set({ activeToasts });
+            }
+        }
+    });
+    
+    const activeToasts = new Map(get().activeToasts);
+    activeToasts.set(message._id, toastId);
+    set({ activeToasts });
     },
 
     dismissAllToasts: () => {
