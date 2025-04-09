@@ -18,6 +18,9 @@ export const Navbar = () => {
   const { unReadMessages } = useChatStore()
   const location = useLocation();
   const currentPath = location.pathname;
+  const isForumPath = 
+  currentPath === "/forums/get-forums" || 
+  /^\/forums\/[^/]+\/[^/]+$/.test(currentPath);
   const { isDark, toggleTheme } = useThemeStore();
 
   const handleToggleTheme = () => {
@@ -106,7 +109,7 @@ export const Navbar = () => {
           <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
             <Link to={"/forums/get-forums"}>
                 <MdOutlineForum className={`size-6 ${
-                  currentPath === "/forums/get-forums" ? "text-blue-500 fill-current" : "text-gray-600"
+                 isForumPath ? "text-blue-500 fill-current" : "text-gray-600"
                 }`} />
             </Link>
           </button>
