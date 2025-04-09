@@ -274,7 +274,7 @@ export const Thread = () => {
                 isHighlighted ? "ring-4 ring-blue-300 ring-opacity-70" : ""
               }`}
             >
-              <div className="flex items-center gap-3 p-4 ">
+              <div className="flex items-center gap-3 p-4 dark:bg-neutral-950 ">
                 {profileImage ? (
                   <Link 
                     to={authAdmin ? `/admin/profile/${post.createdBy._id}` : `/profile/${post.createdBy._id}`} 
@@ -305,8 +305,8 @@ export const Thread = () => {
                 )}
               </div>
 
-              <div className="p-5">
-                <div className="prose max-w-none whitespace-pre-wrap text-gray-800">
+              <div className="p-5 dark:bg-neutral-950">
+                <div className="prose max-w-none whitespace-pre-wrap text-gray-800 dark:text-white">
                   {truncateContent(post.content, post._id)}
                   {contentIsTruncated && !isExpanded && (
                     <span 
@@ -327,10 +327,10 @@ export const Thread = () => {
                 </div>
               </div>
               
-              <div className="flex items-center gap-4 px-5 py-3  dark:border-neutral-600 bg-gray-50 border-t text-sm text-gray-500">
+              <div className="flex items-center gap-4 px-5 py-3  dark:border-neutral-600 bg-gray-50 border-t text-sm text-gray-500 dark:bg-neutral-950">
                 
                 <button 
-                  className={`flex items-center gap-1.5 cursor-pointer transition-colors ${
+                  className={`flex items-center gap-1.5 cursor-pointer transition-colors dark:text-gray-300 ${
                     isLiked 
                       ? 'text-blue-600 fill-blue-600' 
                       : 'text-gray-500 fill-gray-500 hover:text-blue-600 hover:fill-blue-600'
@@ -351,7 +351,7 @@ export const Thread = () => {
                   <span>{post.likedBy?.length || 0}</span>
                               </button>
                 <button 
-                  className={`flex items-center gap-1.5 cursor-pointer transition-colors mt-1 ${
+                  className={`flex items-center gap-1.5 cursor-pointer transition-colors mt-1 dark:text-gray-300 ${
                     isDisliked 
                       ? 'text-red-600 fill-red-600' 
                       : 'text-gray-500 fill-gray-500 hover:text-red-600 hover:fill-red-600'
