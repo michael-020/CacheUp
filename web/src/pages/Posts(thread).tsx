@@ -19,16 +19,14 @@ export const Thread = () => {
   const postRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
   const [highlightedPostId, setHighlightedPostId] = useState<string | null>(null);
   const [expandedPosts, setExpandedPosts] = useState<{[key: string]: boolean}>({});
-  const navigate = useNavigate();
+  const navigate = useNavigate()
   const [expandedComments, setExpandedComments] = useState<{[key: string]: boolean}>({});
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
-  const isAdmin = authAdmin ? true : false
 
   useEffect(() => {
-    fetchPosts(id as string, isAdmin);
-  }, [id, fetchPosts, isAdmin]);
+    fetchPosts(id as string);
+  }, [id, fetchPosts]);
 
-  // Handle scrolling to post when data is loaded
   useEffect(() => {
     if (!loading && responseData && responseData.length > 0) {
       const pathParts = location.pathname.split('/');
@@ -54,11 +52,8 @@ export const Thread = () => {
       }
       
       if (postId) {
-        console.log("Found post ID:", postId);
-        
         const scrollTimeout = setTimeout(() => {
           if (postRefs.current[postId]) {
-            console.log("Scrolling to post:", postId);
             postRefs.current[postId]?.scrollIntoView({ 
               behavior: 'smooth', 
               block: 'start' 
@@ -69,10 +64,8 @@ export const Thread = () => {
             setTimeout(() => {
               setHighlightedPostId(null);
             }, 2000);
-          } else {
-            console.log("Post ref not found for:", postId);
           }
-        }, 500); // Increased delay to ensure DOM is ready
+        }, 500);
         
         return () => clearTimeout(scrollTimeout);
       }
@@ -98,7 +91,7 @@ export const Thread = () => {
       const response = await axiosInstance.put(`/forums/like-post/${postId}`);
       
       if (response.status === 200) {
-        fetchPosts(id as string, isAdmin);
+        fetchPosts(id as string);
       }
     } catch (error) {
       console.error("Error liking post:", error);
@@ -114,7 +107,7 @@ export const Thread = () => {
       const response = await axiosInstance.put(`/forums/dislike-post/${postId}`);
 
       if (response.status === 200) {
-        fetchPosts(id as string, isAdmin);
+        fetchPosts(id as string);
       }
     } catch (error) {
       console.error("Error disliking post:", error);
@@ -144,6 +137,8 @@ export const Thread = () => {
     }
   };
 
+
+
   const truncateContent = (content: string, postId: string) => {
     if (content.length <= 500 || expandedPosts[postId]) {
       return content;
@@ -161,9 +156,9 @@ export const Thread = () => {
 
   if (error) {
     return (
-      <div className="p-6 mx-auto max-w-3xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-center">
-        <div className="text-red-600 dark:text-red-400 text-lg font-medium mb-2">Error Loading Posts</div>
-        <div className="text-red-500 dark:text-red-300">{error}</div>
+      <div className="p-6 mx-auto max-w-3xl bg-red-50 border border-red-200 rounded-lg text-center">
+        <div className="text-red-600 text-lg font-medium mb-2">Error Loading Posts</div>
+        <div className="text-red-500">{error}</div>
       </div>
     );
   }
@@ -172,9 +167,9 @@ export const Thread = () => {
 
   if (posts.length === 0) {
     return (
-      <div className="p-8 mx-auto max-w-3xl bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-lg text-center translate-y-24">
-        <div className="text-gray-500 dark:text-gray-300 text-lg">No posts found in this thread</div>
-        <div className="mt-4 text-sm text-gray-400 dark:text-gray-500">Be the first to post in this discussion</div>
+      <div className="p-8 mx-auto max-w-3xl bg-gray-50 border border-gray-200 rounded-lg text-center mt-16">
+        <div className="text-gray-500 text-lg">No posts found in this thread</div>
+        <div className="mt-4 text-sm text-gray-400">Be the first to post in this discussion</div>
         <Button onClick={() => setIsModalOpen(true)} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 mt-3">
           + New Post
         </Button>
@@ -229,19 +224,19 @@ export const Thread = () => {
 
   return (
     <div className="container mx-auto p-4 max-w-4xl translate-y-20 h-full">
-      <div className="mb-4 border-b dark:border-neutral-700 pb-4">
+      <div className="mb-4 border-b pb-4">
         <div className="flex">
-          <button
-            onClick={() => navigate(-1)}
-            className="mr-4 px-3 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700"
-          >
-            <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
-          </button>
-          <h1 className="text-3xl font-bold mb-2 dark:text-white">{threadTitle}</h1>
+             <button
+              onClick={() => navigate(-1)}
+              className="mr-4 px-3 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 "
+            >
+              <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
+            </button>
+          <h1 className="text-3xl font-bold mb-2">{threadTitle}</h1>
         </div>
-        <p className="text-gray-600 dark:text-gray-300 mb-3">{threadDescription}</p>
+        <p className="text-gray-600 mb-3">{threadDescription}</p>
         <div className="flex items-center justify-between">
-          <div className="text-gray-500 dark:text-gray-400">{posts.length} {posts.length === 1 ? "post" : "posts"} in this thread</div>
+          <div className="text-gray-500">{posts.length} {posts.length === 1 ? "post" : "posts"} in this thread</div>
           <Button 
             onClick={() => setIsModalOpen(true)} 
             className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
@@ -250,7 +245,7 @@ export const Thread = () => {
           </Button>
         </div>
       </div>
-      
+
       {isModalOpen && (
         <CreatePostModal 
           threadMongo={id as string} 
@@ -264,8 +259,8 @@ export const Thread = () => {
         {posts.map((post, index) => {
           const author = post.createdBy?.username || "Unknown User";
           const profileImage = post.createdBy?.profilePicture || null;
-          const isLiked = checkIfLiked(post);
-          const isDisliked = checkIfDisliked(post);
+          const isLiked = checkIfLiked(post)
+          const isDisliked = checkIfDisliked(post)
           const isHighlighted = highlightedPostId === post._id;
           const isExpanded = expandedPosts[post._id] || false;
           const contentIsTruncated = post.content.length > 500;
@@ -275,14 +270,11 @@ export const Thread = () => {
               key={post._id}
               ref={(el) => postRefs.current[post._id] = el}
               id={`post-${post._id}`}
-              className={`rounded-lg shadow-sm border ${index === 0 
-                ? "border-blue-200 dark:border-blue-800 dark:bg-neutral-800" 
-                : "border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800"} 
-                overflow-hidden transition-all duration-300 ${
-                isHighlighted ? "ring-4 ring-blue-300 dark:ring-blue-600 ring-opacity-70" : ""
+              className={`rounded-lg shadow border ${index === 0 ? "border-blue-200 dark:bg-neutral-800" : "border-gray-100 bg-white"} overflow-hidden transition-all duration-300 ${
+                isHighlighted ? "ring-4 ring-blue-300 ring-opacity-70" : ""
               }`}
             >
-              <div className="flex items-center gap-3 p-4">
+              <div className="flex items-center gap-3 p-4 ">
                 {profileImage ? (
                   <Link 
                     to={authAdmin ? `/admin/profile/${post.createdBy._id}` : `/profile/${post.createdBy._id}`} 
@@ -290,7 +282,7 @@ export const Thread = () => {
                     <img 
                       src={profileImage} 
                       alt={`${author}'s profile`} 
-                      className="w-10 h-10 rounded-full object-cover cursor-pointer hover:scale-110 duration-200 ease-in-out border border-gray-200 dark:border-neutral-700" 
+                      className="w-10 h-10 rounded-full object-cover cursor-pointer hover:scale-110 duration-200 ease-in-out border border-gray-200" 
                     />
                   </Link>
                 ) : (
@@ -304,21 +296,21 @@ export const Thread = () => {
                 )}
                 <div className="flex-1">
                   <Link to={authAdmin ? `/admin/profile/${post.createdBy?._id}` : `/profile/${post.createdBy?._id}`}>
-                    <div className="font-medium text-blue-600 dark:text-blue-400 hover:underline cursor-pointer">{author}</div>
+                    <div className="font-medium text-blue-600 hover:underline cursor-pointer">{author}</div>
                   </Link>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">{formatDate(post.createdAt)}</div>
+                  <div className="text-xs text-gray-500">{formatDate(post.createdAt)}</div>
                 </div>
                 {index === 0 && (
-                  <div className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs rounded-full font-medium">Latest Post</div>
+                  <div className="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">Latest Post</div>
                 )}
               </div>
 
               <div className="p-5">
-                <div className="prose max-w-none whitespace-pre-wrap text-gray-800 dark:text-gray-200">
+                <div className="prose max-w-none whitespace-pre-wrap text-gray-800">
                   {truncateContent(post.content, post._id)}
                   {contentIsTruncated && !isExpanded && (
                     <span 
-                      className="text-blue-600 dark:text-blue-400 font-medium cursor-pointer ml-1 hover:underline"
+                      className="text-blue-600 font-medium cursor-pointer ml-1 hover:underline"
                       onClick={() => toggleExpandPost(post._id)}
                     >
                       ... See more
@@ -326,7 +318,7 @@ export const Thread = () => {
                   )}
                   {contentIsTruncated && isExpanded && (
                     <span 
-                      className="text-blue-600 dark:text-blue-400 font-medium cursor-pointer block mt-2 hover:underline"
+                      className="text-blue-600 font-medium cursor-pointer block mt-2 hover:underline"
                       onClick={() => toggleExpandPost(post._id)}
                     >
                       Show less
@@ -335,12 +327,13 @@ export const Thread = () => {
                 </div>
               </div>
               
-              <div className="flex items-center gap-4 px-5 py-3 border-t dark:border-neutral-700 bg-gray-50 dark:bg-neutral-900 text-sm text-gray-500 dark:text-gray-400">
+              <div className="flex items-center gap-4 px-5 py-3  dark:border-neutral-600 bg-gray-50 border-t text-sm text-gray-500">
+                
                 <button 
                   className={`flex items-center gap-1.5 cursor-pointer transition-colors ${
                     isLiked 
-                      ? 'text-blue-600 fill-blue-600 dark:text-blue-400 dark:fill-blue-400' 
-                      : 'text-gray-500 fill-gray-500 dark:text-gray-400 dark:fill-gray-400 hover:text-blue-600 hover:fill-blue-600 dark:hover:text-blue-400 dark:hover:fill-blue-400'
+                      ? 'text-blue-600 fill-blue-600' 
+                      : 'text-gray-500 fill-gray-500 hover:text-blue-600 hover:fill-blue-600'
                   }`}
                   onClick={() => {
                     if (likeLoading[post._id]) return;
@@ -356,13 +349,12 @@ export const Thread = () => {
                     <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
                   </svg>
                   <span>{post.likedBy?.length || 0}</span>
-                </button>
-
+                              </button>
                 <button 
-                  className={`flex items-center gap-1.5 cursor-pointer transition-colors ${
+                  className={`flex items-center gap-1.5 cursor-pointer transition-colors mt-1 ${
                     isDisliked 
-                      ? 'text-red-600 fill-red-600 dark:text-red-400 dark:fill-red-400' 
-                      : 'text-gray-500 fill-gray-500 dark:text-gray-400 dark:fill-gray-400 hover:text-red-600 hover:fill-red-600 dark:hover:text-red-400 dark:hover:fill-red-400'
+                      ? 'text-red-600 fill-red-600' 
+                      : 'text-gray-500 fill-gray-500 hover:text-red-600 hover:fill-red-600'
                   }`}
                   onClick={() => handleDislikePost(post._id)}
                   disabled={likeLoading[post._id]}
@@ -380,20 +372,22 @@ export const Thread = () => {
                 <button 
                   className={`flex items-center gap-1.5 cursor-pointer transition-colors ${
                     expandedComments[post._id] 
-                      ? 'text-blue-600 fill-blue-600 dark:text-blue-400 dark:fill-blue-400' 
-                      : 'text-gray-600 fill-gray-600 dark:text-gray-300 dark:fill-gray-300 hover:text-blue-600 hover:fill-blue-600 dark:hover:text-blue-400 dark:hover:fill-blue-400'
+                      ? 'text-blue-600 fill-blue-600' 
+                      : 'text-gray-600 fill-gray-600 hover:text-blue-600 hover:fill-blue-600'
                   }`}
                   onClick={() => toggleComments(post._id)}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
                   </svg>
-                  <span>{expandedComments[post._id] ? "Hide Comments" : "Comments"}</span>
+                  <span>{expandedComments[post._id] ? "" : ""}</span>
                 </button>
+                
+               
               </div>
 
               {expandedComments[post._id] && (
-                <div className="border-t border-gray-100 dark:border-neutral-700 bg-gray-50 dark:bg-neutral-900">
+                <div className="border-t border-gray-100 bg-gray-50">
                   <ForumComment 
                     postId={post._id} 
                     postWeaviateId={post.weaviateId} 
