@@ -20,12 +20,12 @@ import { EditProfile } from './pages/EditProfile'
 import FriendsPage from "./pages/Friends";
 import { useChatStore } from './stores/chatStore/useChatStore'
 import ForumList from './pages/ForumsList'
-import ForumPage from './pages/ForumPage'
+import ForumPage from './pages/ThreadsPage'
 import CreateForum from './pages/admin/CreateForum'
 import { SearchResults } from './pages/SearchResults'
 import SettingsPage from './pages/SettingsPage'
 import ChangePassword from './components/ChangePassword' 
-import Thread from './pages/thread'
+import Thread from './pages/Posts(thread)'
 import { useThemeStore } from './stores/ThemeStore/useThemeStore'
 
 
