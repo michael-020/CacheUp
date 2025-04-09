@@ -2,7 +2,6 @@ import { Link, useLocation} from "react-router-dom";
 import HomeIcont from "../icons/HomeIcon";
 import MessageIcon from "../icons/MessageIcon";
 import SettingsIcon from "../icons/SettingsIcon";
-import UserIcon from "../icons/UserIcon";
 import { useAuthStore } from "../stores/AuthStore/useAuthStore";
 import { Moon, Sun } from "lucide-react";
 import { useEffect } from "react";
@@ -74,13 +73,7 @@ export const Navbar = () => {
             </Link>
           </button>
 
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
-            <Link to={"/profile"}>
-              <UserIcon
-                className={`w-6 h-6 ${currentPath === "/profile" ? "text-blue-500 fill-current" : "text-gray-600"}`}
-              />
-            </Link>
-          </button>
+
 
           <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
             <Link to={"/message"}>

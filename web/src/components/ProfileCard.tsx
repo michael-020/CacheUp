@@ -132,15 +132,16 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
             </div>
             
             <div className="flex gap-2 mb-3">
-              <div className="flex-1 p-2 rounded-md bg-blue-50 border border-blue-100">
-                <Briefcase className="mx-auto mb-1 text-blue-500" size={14} />
-                <p className="text-xs text-gray-700">{department}</p>
+                <div className="flex items-center justify-center gap-2 flex-1 p-2 rounded-md bg-blue-50 border border-blue-100">
+                  <Briefcase className="text-blue-500" size={16} />
+                  <p className="text-sm text-gray-700">{department}</p>
+                </div>
+                <div className="flex items-center justify-center gap-2 flex-1 p-2 rounded-md bg-indigo-50 border border-indigo-100">
+                  <Users className="text-indigo-500" size={16} />
+                  <p className="text-sm text-gray-700">{userFriends?.length || 0}</p>
+                </div>
               </div>
-              <div className="flex-1 p-2 rounded-md bg-indigo-50 border border-indigo-100">
-                <Users className="mx-auto mb-1 text-indigo-500" size={14} />
-                <p className="text-xs text-gray-700">{userFriends?.length || 0}</p>
-              </div>
-            </div>
+
             {shouldRender && <div className="mb-3 p-2 rounded-md bg-gray-50 dark:bg-neutral-600  border border-gray-100">
               <div className="flex items-center justify-center gap-1 text-xs text-gray-600 dark:text-gray-300">
                 <Mail size={12} className="text-blue-500" />
