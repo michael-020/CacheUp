@@ -53,7 +53,7 @@ export const Navbar = () => {
 
   return (
     <div className="h-16 z-50 border-b-2"> 
-      <nav className="fixed top-0 left-0 right-0 z-10 flex items-center justify-between px-6 py-3 dark:bg-neutral-900/80 dark:border-b-2 dark:border-b-neutral-800/50 dark:backdrop-blur-xl bg-white/80 backdrop-blur-md">
+      <nav className="fixed top-0 left-0 right-0 z-10 flex items-center justify-between px-6 py-3 border-gray-100 border-b-2 dark:bg-neutral-900/80 dark:border-b-2 dark:border-b-neutral-800/50 dark:backdrop-blur-xl bg-white/80 backdrop-blur-md">
         <div className="w-1/4">
           <h1 className="font-extrabold text-3xl text-black dark:text-gray-100">
             <Link to={"/"}>

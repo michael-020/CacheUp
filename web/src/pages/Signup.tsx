@@ -80,12 +80,13 @@ export const Signup = () => {
             setError("root", {
                 message: "Registration failed"
             })
+            console.error(error)
             toast.error("Registration failed")
         }
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 via-purple-600 to-purple-400 p-4">
+        <div className="min-h-screen flex items-center justify-center">
     <div className="w-full max-w-xl bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl p-6 border border-white/20">
         <div className="text-center mb-6">
             <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Sign Up</h1>

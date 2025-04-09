@@ -15,7 +15,7 @@ export const Signin = () => {
     }
     
     return (
-        <div className="min-h-screen grid dark:text-black place-items-center bg-gradient-to-br from-indigo-600 via-purple-600 to-purple-400">
+        <div className="min-h-screen grid dark:text-black place-items-center">
             <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
                 <div className="grid gap-6">
                     <div className="text-center">

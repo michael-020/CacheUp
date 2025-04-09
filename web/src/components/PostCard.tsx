@@ -293,7 +293,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
       )}
 
       {/* Actions */}
-      <div className="flex items-center text-red-400 dark:text-neutral-400 dark:border-gray-600 text-sm border-t border-gray-100 pt-3">
+      <div className="flex items-center dark:text-neutral-400 dark:border-gray-600 text-sm border-t border-gray-100 pt-3">
       <button
             className={`flex items-center mr-6 transition-colors ${post.isLiked ? "text-red-500" : ""}`}
             onClick={() => toggleLike(post._id)}

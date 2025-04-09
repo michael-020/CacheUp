@@ -4,6 +4,7 @@ import { IUser } from '@/lib/utils';
 import { useChatStore } from '@/stores/chatStore/useChatStore';
 import { useState, useEffect } from 'react';
 import { useFriendsStore } from '@/stores/FriendsStore/useFriendsStore';
+import { useAuthStore } from '@/stores/AuthStore/useAuthStore';
 
 interface ProfileCardProps {
   isOwnProfile: boolean;
@@ -27,18 +28,21 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
     fetchSentRequests 
   } = useFriendsStore();
   
-  if (!userInfo) return null;
 
-  const { profilePicture, name, username, email, bio, department, friends: userFriends, _id: userId } = userInfo;
-  const shouldRender = (location.pathname.endsWith("/profile") || isOwnProfile || isAdmin) && location.pathname !== "/" ;
-  
+  const { authUser } = useAuthStore()
   useEffect(() => {
     if (!isOwnProfile) {
       fetchFriends();
       fetchSentRequests();
     }
-  }, [isOwnProfile, userId, fetchFriends, fetchSentRequests]);
-
+    
+  }, [isOwnProfile, fetchFriends, fetchSentRequests]);
+  
+  if (!userInfo) return null;
+  const { profilePicture, name, username, email, bio, department, friends: userFriends, _id: userId } = userInfo;
+  const shouldRender = (location.pathname.endsWith("/profile") || isOwnProfile || isAdmin) && location.pathname !== "/" ;
+  console.log(profilePicture)
+  
   // Determine friend status
   const isFriend = friends?.some(friend => friend._id === userId);
   const isPendingRequest = sentRequests?.some(request => request._id === userId);
@@ -114,7 +118,7 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
                   <Link to="/profile" >
                     <img
                       className="w-full h-full object-cover"
-                      src={profilePicture || '/avatar.jpeg'}
+                      src={authUser?.profilePicture || '/avatar.jpeg'}
                       alt="Profile"
                     />
                   </Link>

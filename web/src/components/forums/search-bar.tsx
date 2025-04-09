@@ -19,13 +19,13 @@ export function SearchBar() {
   return (
     <form onSubmit={handleSearch} className="flex gap-2 mb-4">
       <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground " />
         <Input
           type="text"
           placeholder="Search forums and threads..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10"
+          className="pl-10 dark:bg-neutral-900"
         />
       </div>
       <Button type="submit">Search</Button>

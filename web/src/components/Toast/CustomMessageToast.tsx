@@ -36,7 +36,7 @@ export const showCustomMessageToast = ({
             <div className="flex-shrink-0 pt-0.5">
               <img
                 className="h-10 w-10 rounded-full"
-                src={imageUrl || "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixqx=6GHAjsWpt9&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.2&w=160&h=160&q=80"}
+                src={imageUrl || "./avatar.jpeg"}
                 alt={`${senderName}'s avatar`}
               />
             </div>
