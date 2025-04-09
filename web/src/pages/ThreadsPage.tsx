@@ -44,7 +44,7 @@ const ForumPage: React.FC = () => {
       <div className="flex justify-between items-center mb-6">
         <button
             onClick={() => navigate(-1)}
-            className="mr-4 p-3 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700"
+            className="mr-4 p-3 rounded-full hover:bg-gray-400 dark:hover:bg-neutral-700"
         >
           <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
         </button>
