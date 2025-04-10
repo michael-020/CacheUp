@@ -7,7 +7,7 @@ import { useState } from "react"
 
 export default function SettingsPage() {
   const navigate = useNavigate()
-  const { logout } = useAuthStore()
+  const { logout, deleteAccount } = useAuthStore()
   const { isDark, toggleTheme } = useThemeStore();
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -47,7 +47,7 @@ export default function SettingsPage() {
   }
 
   const handleDeleteAccount = () => {
-    setIsModalOpen(!isModalOpen)
+    deleteAccount()
   }
 
   return (
@@ -81,7 +81,7 @@ export default function SettingsPage() {
                 </div>
                 <button
                   onClick={() => navigate("/edit-profile")}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+                  className="px-4 py-2 bg-gray-200 dark:bg-neutral-700 text-gray-800 dark:text-white rounded-md hover:bg-gray-300 dark:hover:bg-neutral-600 transition"
                 >
                   Edit
                 </button>
@@ -94,7 +94,7 @@ export default function SettingsPage() {
                 </div>
                 <button 
                   onClick={handleChangePassword} 
-                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+                  className="px-4 py-2 bg-gray-200 dark:bg-neutral-700 text-gray-800 dark:text-white rounded-md hover:bg-gray-300 dark:hover:bg-neutral-600 transition"
                 >
                   Change
                 </button>
@@ -325,9 +325,8 @@ export default function SettingsPage() {
                 <button
                   onClick={() => {
                     logout()
-                    navigate("/signin")
                   }}
-                  className="px-4 py-2 bg-gray-200 dark:bg-neutral-700 text-gray-800 dark:text-white rounded-md hover:bg-gray-300 dark:hover:bg-neutral-600 transition"
+                  className="px-3.5 py-2 border border-gray-500 dark:border-gray-200 text-gray-800 dark:text-white rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-600 transition"
                 >
                   Logout
                 </button>
@@ -344,7 +343,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <button
-                  onClick={handleDeleteAccount}
+                  onClick={() =>setIsModalOpen(true)}
                   className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
                 >
                   Delete

@@ -1,5 +1,5 @@
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
-import { formatMessageTime } from "../lib/utils";
+import { formatMessageTime, IUser } from "../lib/utils";
 
 interface ChatBubbleProps {
   message: {
@@ -9,7 +9,7 @@ interface ChatBubbleProps {
     image?: string;
     createdAt: Date;
   };
-  selectedUser?: any;
+  selectedUser?: IUser;
 }
 
 const ChatBubble: React.FC<ChatBubbleProps> = ({ message, selectedUser }) => {
