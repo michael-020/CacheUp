@@ -2,7 +2,16 @@ import { IUser } from "@/lib/utils";
 
 export interface SearchResultItem {
   type: 'Forum' | 'Thread' | 'Post' | 'Comment';
-  data: string;
+  data: {
+    _id: string;
+    title?: string;
+    content?: string;
+    description?: string;
+    forum?: string;
+    thread?: string;
+    post?: string;
+    createdAt: Date;
+  };
   certainty: number;
 }
 

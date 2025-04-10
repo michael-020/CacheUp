@@ -236,7 +236,7 @@ export const Thread = () => {
         <div className="mb-4 border-b pb-4">
           <div className="flex">
               <button
-                onClick={() => navigate(-1)}
+                onClick={() => navigate(`/forums/${id}/${threadWeaviate}`)}
                 className="mr-4 px-3 rounded-full hover:bg-gray-400 dark:hover:bg-neutral-700 "
               >
                 <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
