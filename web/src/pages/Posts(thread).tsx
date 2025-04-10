@@ -235,51 +235,56 @@ export const Thread = () => {
     >
       <div className="container mx-auto p-4 max-w-4xl translate-y-20 pb-10">
         <div className="mb-4 border-b pb-4">
-          <div className="flex">
-              <button
-                onClick={() => navigate(`/forums/${id}/${threadWeaviate}`)}
-                className="mr-4 px-3 rounded-full hover:bg-gray-400 dark:hover:bg-neutral-700 "
-              >
-                <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
-              </button>
-            <h1 className="text-3xl font-bold mb-2">{threadTitle}</h1>
-
-            <Button
-      onClick={() => watchThread(id as string)}
-      className="ml-auto flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border border-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 dark:border-blue-800"
-    >
-      {isWatched ? (
-        <>
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clipRule="evenodd" />
-            <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
-          </svg>
-          <span>Unwatch</span>
-        </>
-      ) : (
-        <>
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-            <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
-          </svg>
-          <span>Watch</span>
-        </>
-      )}
-    </Button>
-            
-          </div>
-          <p className="text-gray-600 mb-3">{threadDescription}</p>    
-          <div className="flex items-center justify-between">
-            <div className="text-gray-500">{posts.length} {posts.length === 1 ? "post" : "posts"} in this thread</div>
-            <Button 
-              onClick={() => setIsModalOpen(true)} 
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+          <div className="flex items-center mb-2">
+            <button
+              onClick={() => navigate(`/forums/${id}/${threadWeaviate}`)}
+              className="mr-4 px-3 rounded-full hover:bg-gray-400 dark:hover:bg-neutral-700 "
             >
-              + New Post
-            </Button>
+              <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
+            </button>
+            <h1 className="text-3xl font-bold mb-2">{threadTitle}</h1>       
+          </div>
+
+          <p className="text-gray-600 mb-2">{threadDescription}</p>  
+
+          {/* Post count + Centered Button Row */}
+          <div className="flex flex-col items-center gap-3 mt-2">
+            <p className="text-gray-500 text-sm">
+              {posts.length} post{posts.length !== 1 ? "s" : ""}
+            </p>
+            <div className="flex gap-4 flex-wrap justify-center">
+              <Button
+                onClick={() => watchThread(id as string)}
+                className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border border-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 dark:border-blue-800"
+              >
+                {isWatched ? (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-14-14zM10 18a8 8 0 100-16 8 8 0 000 16zm-2.293-7.707l-1-1A1 1 0 118.707 8.293l1 1a1 1 0 01-1.414 1.414z" clipRule="evenodd" />
+                    </svg>
+                    Unwatch
+                  </>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm-2 8a2 2 0 114 0 2 2 0 01-4 0z" />
+                    </svg>
+                    Watch Thread
+                  </>
+                )}
+              </Button>
+
+              <Button
+                onClick={() => setIsModalOpen(true)}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                + New Post
+              </Button>
+            </div>
           </div>
         </div>
 
+        {/* Post modal */}
         {isModalOpen && (
           <CreatePostModal 
             threadMongo={id as string} 
@@ -288,6 +293,7 @@ export const Thread = () => {
             onClose={() => setIsModalOpen(false)} 
           />
         )}
+
           
         <div className="space-y-6">
           {posts.map((post, index) => {
