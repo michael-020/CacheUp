@@ -1,5 +1,5 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
-import { boolean } from 'zod';
+import { boolean, string } from 'zod';
 
 // User Interface
 export interface IUser extends Document {
@@ -129,7 +129,7 @@ export interface ICommentForum extends Document {
   weaviateId: string;
 }
 
-// Notification Schema
+// Notification Interface
 interface INotification extends Document {
   userIds: Schema.Types.ObjectId[]; 
   message: string; 
@@ -137,6 +137,17 @@ interface INotification extends Document {
   seenBy: Schema.Types.ObjectId[];
   createdAt: Date; 
 }
+
+// Request forum Interface
+interface IRequestForum extends Document {
+  title: string;
+  description: string;
+  requestedBy: Schema.Types.ObjectId;
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: Date
+}
+
+// SCHEMAS FROM HERE
 
 // User Schema
 const userSchema = new Schema<IUser>({
@@ -484,6 +495,32 @@ const watchNotificationSchema = new Schema<INotification>({
   }
 })
 
+// Request Forum Schema
+const requestForumSchema = new Schema<IRequestForum>({
+  title: {
+    type: String,
+    required: true
+  },
+  description: {
+    type: String,
+    required: true
+  },
+  requestedBy: {
+    type: Schema.Types.ObjectId,
+    ref: "users",
+    required: true
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending'
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+})
+
 
 export const userModel = mongoose.model<IUser, Model<IUser>>('users', userSchema);
 export const postModel = mongoose.model<IPost, Model<IPost>>('posts', postSchema);
@@ -496,3 +533,4 @@ export const threadForumModel = mongoose.model<IThreadForum, Model<IThreadForum>
 export const postForumModel = mongoose.model<IPostForum, Model<IPostForum>>('forumPosts', postForumSchema);
 export const commentForumModel = mongoose.model<ICommentForum, Model<ICommentForum>>('forumComments', commentForumSchema);
 export const watchNotificationModel = mongoose.model<INotification, Model<INotification>>('watchNotification', watchNotificationSchema)
+export const requestForumModel = mongoose.model<IRequestForum, Model<IRequestForum>>('requestForums', requestForumSchema)
