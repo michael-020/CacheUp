@@ -3,6 +3,8 @@ import { Button } from "../components/Button"
 import { InputBox } from "../components/InputBox"
 import { useAuthStore } from "../stores/AuthStore/useAuthStore"
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion"
+import { routeVariants } from "@/lib/routeAnimation";
 
 export const EmailVerify = () => {
     const { sentEmail, sendingEmail, verifyEmail, isVerifying } = useAuthStore();
@@ -20,7 +22,13 @@ export const EmailVerify = () => {
         verifyEmail({email, otp})
         navigate("/signup")
     }
-    return <div className="flex justify-center">
+    return <motion.div 
+                className="flex justify-center"
+                variants={routeVariants}
+                initial="initial"
+                animate="final"
+                exit="exit"
+            >
         <div className="flex flex-col justify-center  w-[30%] h-screen border-white">
         <div className="bg-white border border-gray-400 dark:border-neutral-600 shadow-lg dark:bg-neutral-700 p-4 rounded-lg">
             <div className="flex justify-between">
@@ -47,5 +55,5 @@ export const EmailVerify = () => {
         </div>
         </div>
         
-    </div>
+    </motion.div>
 }

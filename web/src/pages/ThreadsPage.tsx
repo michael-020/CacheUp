@@ -3,6 +3,8 @@ import { useParams, useLocation, Link, useNavigate } from 'react-router-dom';
 import { useForumStore } from '@/stores/ForumStore/forumStore';
 import ThreadModal from '../components/forums/ThreadModal';
 import { ArrowLeft } from 'lucide-react';
+import { motion } from "framer-motion"
+import { routeVariants } from '@/lib/routeAnimation';
 
 const ForumPage: React.FC = () => {
   const { forumMongoId, forumWeaviateId } = useParams<{
@@ -40,7 +42,13 @@ const ForumPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 translate-y-24 h-full">
+    <motion.div 
+      className="max-w-6xl mx-auto p-6 translate-y-24 h-full"
+      variants={routeVariants}
+      initial="initial"
+      animate="final"
+      exit="exit"
+    >
       <div className="flex justify-between items-center mb-6">
         <button
             onClick={() => navigate(-1)}
@@ -90,7 +98,7 @@ const ForumPage: React.FC = () => {
           onSubmit={handleCreateThread}
         />
       )}
-    </div>
+    </motion.div>
   );
 };
 

@@ -6,6 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useEffect } from "react";
 import { ArrowLeft, Camera, Loader2} from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion"
+import { routeVariants } from "@/lib/routeAnimation";
 
 export const EditProfile = () => {
     const navigate = useNavigate();
@@ -97,9 +99,7 @@ export const EditProfile = () => {
 
     const handleNavigateBack = () => {
         setNavigating(true);
-        setTimeout(() => {
-            navigate('/');
-        }, 100);
+        navigate(-1);
     };
 
     const containerStyle = {
@@ -108,11 +108,15 @@ export const EditProfile = () => {
     };
 
     return (
-        <div 
-            className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 translate-y-28" 
+        <motion.div 
+            className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8" 
             style={containerStyle}
+            variants={routeVariants}
+            initial="initial"
+            animate="final"
+            exit="exit"
         >
-            <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md overflow-hidden">
+            <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md overflow-hidden translate-y-28">
                 {/* Header */}
                 <div className="bg-gradient-to-r from-blue-600 to-indigo-600 py-3 px-4">
                     <div className="flex items-center">
@@ -243,6 +247,6 @@ export const EditProfile = () => {
                     </div>
                 </form>
             </div>
-        </div>
+        </motion.div>
     );
 };

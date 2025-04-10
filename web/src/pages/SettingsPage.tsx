@@ -4,6 +4,8 @@ import { useAuthStore } from "../stores/AuthStore/useAuthStore"
 import { useThemeStore } from "@/stores/ThemeStore/useThemeStore"
 import { DeleteModal } from "@/components/DeleteModal"
 import { useState } from "react"
+import { motion } from "framer-motion"
+import { routeVariants } from "@/lib/routeAnimation"
 
 export default function SettingsPage() {
   const navigate = useNavigate()
@@ -51,7 +53,13 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="pt-16 min-h-screen bg-gray-100 dark:bg-neutral-950">
+    <motion.div 
+      className="pt-16 min-h-screen bg-gray-100 dark:bg-neutral-950"
+      variants={routeVariants}
+      initial="initial"
+      animate="final"
+      exit="exit"  
+    >
       <div className="max-w-4xl mx-auto p-4">
         {/* Header */}
         <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-4 mb-4">
@@ -370,6 +378,6 @@ export default function SettingsPage() {
           </div> */}
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }

@@ -7,6 +7,8 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Link } from "react-router-dom"
 import { Combobox } from "@/components/ui/combobox"
+import { motion } from "framer-motion"
+import { routeVariants } from "@/lib/routeAnimation"
 
 const VALID_DEPARTMENTS = ["IT", "CS", "AI", "MT"];
 const VALID_GRADUATION_YEARS = ["2025", "2026", "2027", "2028"];
@@ -86,7 +88,13 @@ export const Signup = () => {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center dark:text-white">
+        <motion.div 
+            className="min-h-screen flex items-center justify-center dark:text-white"
+            variants={routeVariants}
+            initial="initial"
+            animate="final"
+            exit="exit"
+        >
             <div className="w-full max-w-xl bg-white dark:bg-neutral-700 backdrop-blur-sm rounded-xl shadow-2xl p-6 border border-white/20">
             <div className="text-center mb-6">
                 <h1 className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">Sign Up</h1>
@@ -234,6 +242,6 @@ export const Signup = () => {
                 </div>
             </form>
             </div>
-        </div>
+        </motion.div>
     )
 }

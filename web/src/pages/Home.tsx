@@ -1,6 +1,8 @@
 import { ProfileCard } from '@/components/ProfileCard';
 import { Feed } from '../components/feeds/Feed';
 import { useAuthStore } from '@/stores/AuthStore/useAuthStore';
+import { motion } from "framer-motion"
+import { routeVariants } from '@/lib/routeAnimation';
 
 export const Home = () => {
   const { authUser } = useAuthStore()
@@ -9,7 +11,13 @@ export const Home = () => {
     return null;
 
   return (
-    <div className="relative px-8 bg-gray-100 dark:bg-neutral-950 dark:border-neutral-900">
+    <motion.div  
+      className="relative px-8 bg-gray-100 dark:bg-neutral-950 dark:border-neutral-900"
+      variants={routeVariants}
+      initial="initial"
+      animate="final"
+      exit="exit"
+    >
       {/* ProfileCard shifted to the right */}
       <div className="absolute left-40 -top-12 hidden lg:block">
         <ProfileCard userInfo={authUser} isOwnProfile={true} />
@@ -19,6 +27,6 @@ export const Home = () => {
       <div className="ml-[1rem]">
         <Feed />
       </div>
-    </div>
+    </motion.div>
   );
 };

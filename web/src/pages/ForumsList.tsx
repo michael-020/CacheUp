@@ -4,6 +4,9 @@ import {  useLocation, useNavigate } from "react-router-dom";
 import { SearchBar } from "@/components/forums/search-bar";
 import { useForumStore } from "@/stores/ForumStore/forumStore";
 import type { Forum } from "@/stores/ForumStore/types";
+import { motion } from "framer-motion"
+import { routeVariants } from "@/lib/routeAnimation";
+
 interface ErrorResponse {
   msg: string;
 }
@@ -81,7 +84,13 @@ const ForumList: React.FC = () => {
   }
 
   return (
-    <div className="h-screen dark:bg-neutral-950">
+    <motion.div 
+      className="h-screen dark:bg-neutral-950"
+      variants={routeVariants}
+      initial="initial"
+      animate="final"
+      exit="exit"
+    >
       <div className="max-w-6xl mx-auto p-6 translate-y-20 h-full">
         <h1 className="text-2xl font-bold mb-6">
           {isAdminRoute ? "All Forums (Admin View)" : "All Forums"}
@@ -255,7 +264,7 @@ const ForumList: React.FC = () => {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 
