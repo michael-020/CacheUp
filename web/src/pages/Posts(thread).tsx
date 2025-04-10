@@ -14,7 +14,7 @@ import { routeVariants } from "@/lib/routeAnimation";
 export const Thread = () => {
   const { id } = useParams();
   const location = useLocation();
-  const { fetchPosts, posts: responseData, loading, error, threadTitle, threadDescription, threadWeaviate } = useForumStore();
+  const { fetchPosts, posts: responseData, loading, error, threadTitle, threadDescription, threadWeaviate, isWatched, watchThread, checkWatchStatus } = useForumStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { authAdmin } = useAdminStore();
   const [likeLoading, setLikeLoading] = useState<{[key: string]: boolean}>({});
@@ -27,6 +27,7 @@ export const Thread = () => {
 
   useEffect(() => {
     fetchPosts(id as string);
+    checkWatchStatus (id as string)
   }, [id, fetchPosts]);
 
   useEffect(() => {
@@ -170,11 +171,35 @@ export const Thread = () => {
   if (posts.length === 0) {
     return (
       <div className="p-8 mx-auto max-w-3xl bg-gray-50 border border-gray-200 rounded-lg text-center mt-16">
-        <div className="text-gray-500 text-lg">No posts found in this thread</div>
+        <div className="text-gray-500 text-lg">No posts found in Thread {threadTitle}</div>
+        <div className="text-gray-600 mb-2">{threadDescription}</div>
         <div className="mt-4 text-sm text-gray-400">Be the first to post in this discussion</div>
+        <div className="flex gap-4 flex-wrap justify-center">
+        <Button
+                onClick={() => watchThread(id as string)}
+                className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border border-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 dark:border-blue-800 mt-3"
+              >
+                {isWatched ? (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-14-14zM10 18a8 8 0 100-16 8 8 0 000 16zm-2.293-7.707l-1-1A1 1 0 118.707 8.293l1 1a1 1 0 01-1.414 1.414z" clipRule="evenodd" />
+                    </svg>
+                    Unwatch
+                  </>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm-2 8a2 2 0 114 0 2 2 0 01-4 0z" />
+                    </svg>
+                    Watch Thread
+                  </>
+                )}
+              </Button>
         <Button onClick={() => setIsModalOpen(true)} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 mt-3">
           + New Post
         </Button>
+
+        </div>
         {isModalOpen && (
           <CreatePostModal 
             threadMongo={id as string} 
@@ -234,27 +259,56 @@ export const Thread = () => {
     >
       <div className="container mx-auto p-4 max-w-4xl translate-y-20 pb-10">
         <div className="mb-4 border-b pb-4">
-          <div className="flex">
-              <button
-                onClick={() => navigate(`/forums/${id}/${threadWeaviate}`)}
-                className="mr-4 px-3 rounded-full hover:bg-gray-400 dark:hover:bg-neutral-700 "
-              >
-                <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
-              </button>
-            <h1 className="text-3xl font-bold mb-2">{threadTitle}</h1>
-          </div>
-          <p className="text-gray-600 mb-3">{threadDescription}</p>
-          <div className="flex items-center justify-between">
-            <div className="text-gray-500">{posts.length} {posts.length === 1 ? "post" : "posts"} in this thread</div>
-            <Button 
-              onClick={() => setIsModalOpen(true)} 
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+          <div className="flex items-center mb-2">
+            <button
+              onClick={() => navigate(`/forums/${id}/${threadWeaviate}`)}
+              className="mr-4 px-3 rounded-full hover:bg-gray-400 dark:hover:bg-neutral-700 "
             >
-              + New Post
-            </Button>
+              <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
+            </button>
+            <h1 className="text-3xl font-bold mb-2">{threadTitle}</h1>       
+          </div>
+
+          <p className="text-gray-600 mb-2">{threadDescription}</p>  
+
+          {/* Post count + Centered Button Row */}
+          <div className="flex flex-col items-center gap-3 mt-2">
+            <p className="text-gray-500 text-sm">
+              {posts.length} post{posts.length !== 1 ? "s" : ""}
+            </p>
+            <div className="flex gap-4 flex-wrap justify-center">
+              <Button
+                onClick={() => watchThread(id as string)}
+                className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border border-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 dark:border-blue-800"
+              >
+                {isWatched ? (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-14-14zM10 18a8 8 0 100-16 8 8 0 000 16zm-2.293-7.707l-1-1A1 1 0 118.707 8.293l1 1a1 1 0 01-1.414 1.414z" clipRule="evenodd" />
+                    </svg>
+                    Unwatch
+                  </>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm-2 8a2 2 0 114 0 2 2 0 01-4 0z" />
+                    </svg>
+                    Watch Thread
+                  </>
+                )}
+              </Button>
+
+              <Button
+                onClick={() => setIsModalOpen(true)}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                + New Post
+              </Button>
+            </div>
           </div>
         </div>
 
+        {/* Post modal */}
         {isModalOpen && (
           <CreatePostModal 
             threadMongo={id as string} 
@@ -263,6 +317,7 @@ export const Thread = () => {
             onClose={() => setIsModalOpen(false)} 
           />
         )}
+
           
         <div className="space-y-6">
           {posts.map((post, index) => {
