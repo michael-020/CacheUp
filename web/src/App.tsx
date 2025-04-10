@@ -105,12 +105,12 @@ function App() {
   }
 
   return (
-    <div className='bg-gray-100 dark:bg-neutral-900 min-h-screen'>
+    <div className='bg-gray-100 dark:bg-neutral-900 min-h-screen custom-scrollbar'>
       {authUser && !isAdminRoute && (
         <div className='fixed top-0 w-screen z-50'>
         
         <Navbar />
-        <main className="pt-16 pb-16 md:pb-0">
+        <main className="pt-16 pb-16 md:pb-0 custom-scrollbar">
           <Outlet />
         </main>
         <BottomNavigationBar />

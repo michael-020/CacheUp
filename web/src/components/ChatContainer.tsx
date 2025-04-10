@@ -6,7 +6,7 @@ import { useChatStore } from "@/stores/chatStore/useChatStore"
 import ChatInput from "./ChatInput"
 import ChatBubble from "./ChatBubble"
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore"
-import { formatDate, IUser } from "@/lib/utils"
+import { IUser, formatDate } from "@/lib/utils"
 
 const ChatContainer = () => {
   const {
@@ -52,6 +52,7 @@ const ChatContainer = () => {
     }
   }, [messages])
 
+  // Group messages by date
   const messagesByDate = useMemo(() => {
     if (!messages) return [];
     
@@ -61,6 +62,7 @@ const ChatContainer = () => {
       const messageDate = new Date(message.createdAt);
       const dateStr = messageDate.toDateString();
       
+      // Check if it's today or yesterday
       const today = new Date().toDateString();
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
@@ -134,7 +136,7 @@ const ChatContainer = () => {
     <div className="flex flex-col w-full">
       <ChatHeader />
       
-      <div className="flex-grow overflow-y-auto px-4 py-4 dark:bg-neutral-800">
+      <div className="flex-grow overflow-y-auto px-4 py-4 dark:bg-neutral-800 custom-scrollbar">
         {messagesByDate.map((group) => (
           <div key={group.date} className="space-y-2 mb-6">
             {/* Date Header */}
