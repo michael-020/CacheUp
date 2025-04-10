@@ -110,7 +110,7 @@ function App() {
         <div className='fixed top-0 w-screen z-50'>
         
         <Navbar />
-        <main className="pt-16 pb-16 md:pb-0 custom-scrollbar">
+        <main className="custom-scrollbar">
           <Outlet />
         </main>
         <BottomNavigationBar />

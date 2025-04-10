@@ -7,22 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { SearchBar } from "@/components/forums/search-bar"
 import { motion } from "framer-motion"
 import { routeVariants } from "@/lib/routeAnimation"
-
-// Define the structure of search results based on your backend response
-interface SearchResultItem {
-  type: 'Forum' | 'Thread' | 'Post' | 'Comment';
-  data: {
-    _id: string;
-    title?: string;
-    content?: string;
-    description?: string;
-    forum?: string;
-    thread?: string;
-    post?: string;
-    createdAt: Date;
-  };
-  certainty: number;
-}
+import { SearchResultItem } from "@/stores/ForumStore/types"
 
 export function SearchResults() {
   const location = useLocation();
@@ -131,7 +116,7 @@ export function SearchResults() {
     }
 
     // Ensure searchResult has the expected data
-    const results = searchResult?.searchResults as SearchResultItem[] || [];
+    const results = searchResult?.searchResults as SearchResultItem[];
 
     if (!results || results.length === 0) {
       return (
