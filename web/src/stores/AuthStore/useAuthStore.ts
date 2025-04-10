@@ -246,5 +246,16 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
                 console.error("Failed to get token:", error);
             }
         }
+    },
+
+    deleteAccount: async () => {
+        try {
+            await axiosInstance.delete("/user/delete-account");
+            set({authUser: null})
+        } catch (error) {
+            console.error(error)
+        } finally {
+            toast.success("Account deleted Successfully!");
+        }
     }
 }))

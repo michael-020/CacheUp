@@ -21,6 +21,7 @@ import {
     verifyPasswordResetOTP, 
     resetPassword 
   } from "../handlers/changePasswordHandler";
+import { deleteAccountHandler } from "../handlers/deleteAccountHandler";
 
 const userRouter: Router = Router();
 
@@ -72,7 +73,7 @@ userRouter.use("/profilePicture", PfpHanler)
 // get token
 userRouter.get("/get-token", getTokenHandler)
 
-
-
+// delete account
+userRouter.delete("/delete-account", deleteAccountHandler)
 
 export default userRouter;
