@@ -24,6 +24,8 @@ import { editForumAdminHandler } from "../handlers/forums/editForumAdminHandler"
 import { getAllThreadsFromAForumHandler } from "../handlers/forums/getAllThreadsFromAForumHandler";
 import { viewAllThreadsHandler } from "../handlers/admin/viewThreadsHandler";
 import { viewPostsInThreadHandler } from "../handlers/admin/viewPostsInThreadHandler";
+import { adminGetForumRequestHandler } from "../handlers/forums/adminGetForumRequestHandler";
+import { adminApproveForumHandler } from "../handlers/forums/adminApproveForumRequestHandler";
 
 const adminRouter: Router = Router();
 
@@ -96,5 +98,11 @@ adminRouter.delete("/delete-forum/:mongoId/:weaviateId", adminDeleteForumHandler
 
 // edit forum
 adminRouter.put("/edit-forum/:mongoId/:weaviateId", editForumAdminHandler)
+
+// get requested forums
+adminRouter.get("/requested-forums", adminGetForumRequestHandler)
+
+// approve requested forums
+adminRouter.post("/approve-forum/:requestId", adminApproveForumHandler)
 
 export default adminRouter;
