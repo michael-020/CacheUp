@@ -21,18 +21,19 @@ const CreateForum: React.FC = () => {
         navigate('/admin/get-forums');
       }, 1000);
     } catch (error) {
-      
+      console.error("error wile getting forums", error)
     }
   };
 
   return (
-    <div className="max-w-2xl mt-20 mx-auto p-6 bg-white rounded-lg shadow-md">
+    <div className="max-w-2xl mx-auto">
+      <div className='translate-y-36 p-6 rounded-lg shadow-md bg-white dark:bg-neutral-700'>
       <h1 className="text-2xl font-bold mb-6">Create New Forum</h1>
       
       <form onSubmit={handleSubmit}>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
-          <label htmlFor="title" className="block text-gray-700 font-medium mb-2">
+          <label htmlFor="title" className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
             Forum Title*
           </label>
           <input
@@ -40,21 +41,21 @@ const CreateForum: React.FC = () => {
             id="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 dark:placeholder:text-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Enter forum title"
             required
           />
         </div>
         
         <div className="mb-6">
-          <label htmlFor="description" className="block text-gray-700 font-medium mb-2">
+          <label htmlFor="description" className="block  dark:text-gray-300 text-gray-700 font-medium mb-2">
             Description*
           </label>
           <textarea
             id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md dark:placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
             rows={5}
             placeholder="Provide a description (minimum 10 characters)"
             required
@@ -80,6 +81,7 @@ const CreateForum: React.FC = () => {
           </button>
         </div>
       </form>
+      </div>
     </div>
   );
 };

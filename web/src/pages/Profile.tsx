@@ -3,7 +3,7 @@ import { ProfileCard } from "@/components/ProfileCard";
 import { axiosInstance } from "@/lib/axios";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { useEffect, useState } from "react";
-import { useParams, useLocation, Navigate } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { Post, IUser } from "@/lib/utils";
 
 export const Profile = () => {
@@ -65,7 +65,7 @@ export const Profile = () => {
   }, [id, userId, isAdminView]);
 
   return (
-    <div className="flex gap-6 p-4 w-full min-h-screen bg-gray-50 dark:bg-neutral-900 dark:border-neutral-900 dark:shadow-0 dark:shadow-sm">
+    <div className="flex gap-6 p-4 w-full min-h-screen bg-gray-50 dark:bg-neutral-950 dark:border-neutral-900 dark:shadow-0 dark:shadow-sm">
       <div className="w-1/4 max-w-xs">
         <div className="sticky top-20">
           {userInfo && (

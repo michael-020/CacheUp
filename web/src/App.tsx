@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { Navigate, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import './App.css'
 import { Home } from './pages/Home'
 import { Profile } from './pages/Profile'
@@ -9,7 +9,7 @@ import { useAuthStore } from './stores/AuthStore/useAuthStore'
 import { useEffect, useRef, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { EmailVerify } from './pages/EmailVerify'
-import { Navbar } from './components/Navbar'
+import { BottomNavigationBar, Navbar } from './components/Navbar'
 import AdminHome from './pages/admin/AdminHome'
 import { AdminSignin } from './pages/admin/AdminSignin'
 import { useAdminStore } from './stores/AdminStore/useAdminStore'
@@ -20,11 +20,14 @@ import { EditProfile } from './pages/EditProfile'
 import FriendsPage from "./pages/Friends";
 import { useChatStore } from './stores/chatStore/useChatStore'
 import ForumList from './pages/ForumsList'
-import ForumPage from './pages/ForumPage'
+import ForumPage from './pages/ThreadsPage'
 import CreateForum from './pages/admin/CreateForum'
 import { SearchResults } from './pages/SearchResults'
-import Thread from './pages/Thread'
 import SettingsPage from './pages/SettingsPage'
+import ChangePassword from './components/ChangePassword' 
+import Thread from './pages/Posts(thread)'
+import { useThemeStore } from './stores/ThemeStore/useThemeStore'
+
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore()
@@ -75,7 +78,23 @@ function App() {
         authenticated.current = true
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authUser, isAdminRoute, returnPath, navigate])
+
+  useEffect(() => {
+    const theme = localStorage.getItem('theme')
+    const isDark = theme === 'dark'
+  
+    // Ensure Zustand theme state syncs
+    useThemeStore.getState().setTheme(isDark)
+  
+    if (isDark) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  }, [])
+  
 
   if ((isAdminRoute && isAdminCheckingAuth) || (!isAdminRoute && isCheckingAuth)) {
     return (
@@ -89,7 +108,13 @@ function App() {
     <div className='bg-gray-100 dark:bg-neutral-900 min-h-screen'>
       {authUser && !isAdminRoute && (
         <div className='fixed top-0 w-screen z-50'>
-          <Navbar />
+        
+        <Navbar />
+        <main className="pt-16 pb-16 md:pb-0">
+          <Outlet />
+        </main>
+        <BottomNavigationBar />
+
         </div>
       )}
       
@@ -115,6 +140,8 @@ function App() {
         <Route path="/forums/:forumMongoId/:forumWeaviateId" element={authUser ? <ForumPage /> : <Navigate to='/signin' />} />
         <Route path="/forums/search" element={authUser ? <SearchResults /> : <Navigate to='/signin' />} />
         <Route path='/forums/thread/:id' element={authUser ? <Thread /> : <Navigate to='/signin' />} />
+        <Route path="/change-password" element={authUser ? <ChangePassword /> : <Navigate to="/signin" />} />
+
 
         {/* Admin Routes */}
         <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to="/admin/home" /> } />
@@ -122,8 +149,10 @@ function App() {
         <Route path="/admin/reported-posts" element={authAdmin ? <ReportedPosts /> : <Navigate to="/admin/signin" /> } />
         <Route path="/admin/user-list" element={authAdmin ? <UserList /> : <Navigate to="/admin/signin" />} />
         <Route path="/admin/profile/:id" element={authAdmin ? <Profile /> : <Navigate to="/admin/signin" />} />
-        <Route path="/admin/home/forums" element={<CreateForum/>} />
-        <Route path="/admin/get-forums" element={<ForumList />} />
+        <Route path="/admin/forums" element={authAdmin ? <CreateForum/> : <Navigate to="/admin/signin" />} />
+        <Route path="/admin/forums/get-forums" element={authAdmin ? <ForumList /> : <Navigate to="/admin/signin" />} />
+        <Route path="/admin/forums/:forumMongoId/:forumWeaviateId" element={authAdmin ? <ForumPage /> : <Navigate to="/admin/signin" />} />
+        <Route path='/admin/forums/thread/:id' element={authAdmin ? <Thread /> : <Navigate to='/signin' />} />
       </Routes>
 
       <Toaster />  

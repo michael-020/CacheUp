@@ -2,6 +2,7 @@ import {create} from 'zustand';
 import { axiosInstance } from '@/lib/axios';
 import type { ForumStore } from '@/stores/ForumStore/types';
 import { AxiosError } from "axios";
+import toast from 'react-hot-toast';
 
 export const useForumStore = create<ForumStore>((set, get) => ({
   forums: [],
@@ -25,6 +26,10 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   threadMongo: "",
   threadWeaviate: "",
   likedPosts: new Set<string>(),
+
+  comments: {},
+commentsLoading: {},
+commentsError: {},
 
   
   fetchForums: async (isAdminRoute) => {
@@ -54,22 +59,44 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     }
   },
 
+  editForum: async (mongoId, weaviateId, { title, description }) => {
+    try {
+      const response = await axiosInstance.put(
+        `/admin/edit-forum/${mongoId}/${weaviateId}`,
+        { title, description }
+      );
+      const updatedForum = response.data.forumMongo;
+      set((state) => ({
+        forums: state.forums.map((forum) =>
+          forum._id === updatedForum._id ? updatedForum : forum
+        ),
+      }));
+    } catch (err) {
+      const error = err as AxiosError<{ msg: string }>;
+      throw error;
+    }
+  },
+
   
   fetchForumDetails: async (forumId) => {
     set({ currentForum: { ...get().currentForum, loading: true, error: '' } });
     try {
-      const response = await axiosInstance.get(`/forums/${forumId}`);
+      const response = await axiosInstance.get(`/get-threads/${forumId}`);
       set({ currentForum: { ...get().currentForum, title: response.data.forum.title } });
     } catch (err) {
     //   const error = err as AxiosError<{ msg: string }>;
     //   set({ currentForum: { ...get().currentForum, error: error.response?.data?.msg || 'Failed to fetch forum' } });
+      console.error(err)
     }
   },
 
-  fetchThreads: async (forumId) => {
+  fetchThreads: async (forumId, isAdminRoute) => {
     set({ currentForum: { ...get().currentForum, loading: true } });
     try {
-      const response = await axiosInstance.get(`/forums/get-threads/${forumId}`);
+      const endpoint = isAdminRoute 
+        ? `/admin/get-threads/`
+        : `/forums/get-threads/`;
+      const response = await axiosInstance.get(`${endpoint + forumId}`);
       set({ currentForum: { ...get().currentForum, threads: response.data.allThreads, loading: false } });
     } catch (err) {
       const error = err as AxiosError<{ msg: string }>;
@@ -84,7 +111,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
         : `/forums/create-thread/${forumId}/${weaviateId}`;
 
       await axiosInstance.post(endpoint, threadData);
-      get().fetchThreads(forumId);
+      get().fetchThreads(forumId, isAdminRoute);
     } catch (err) {
       const error = err as AxiosError<{ msg: string }>;
       throw error;
@@ -109,17 +136,15 @@ export const useForumStore = create<ForumStore>((set, get) => ({
       throw error;
     }
   },
-  fetchPosts: async (threadId: string) => {
+  fetchPosts: async (threadId: string, isAdmin?: boolean) => {
     if (!threadId) {
       throw new Error("Thread ID is required");
     }
   
     try {
-      const response = await axiosInstance.get(`/forums/get-posts/${threadId}`);
-  
-      console.log("API Response:", response.data); // Debugging
-  
-      // ✅ Extract the `posts` array
+      const endpoint = isAdmin ? "admin/get-thread-posts/" : "/forums/get-posts/"
+      const response = await axiosInstance.get(`${endpoint + threadId}`);
+    
       const fetchedPosts = response.data.posts || []; 
       const threadTitle = response.data.threadTitle
       const threadDescription = response.data.threadDescription 
@@ -134,7 +159,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
         loading: false 
       });
   
-      return fetchedPosts; // ✅ Return only the posts array
+      return fetchedPosts; 
     } catch (error) {
       set({ loading: false });
       throw error;
@@ -196,5 +221,141 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   },
 
   isLiked: (postId: string) => get().likedPosts.has(postId),
+
+  fetchComments: async (postId) => {
+    if (!postId) return [];
+    
+    set((state) => ({
+      commentsLoading: { ...state.commentsLoading, [postId]: true },
+      commentsError: { ...state.commentsError, [postId]: '' }
+    }));
+    
+    try {
+      const response = await axiosInstance.get(`/forums/get-comments/${postId}`);
+      const fetchedComments = response.data.comments || [];
+      
+      set((state) => ({
+        comments: { ...state.comments, [postId]: fetchedComments },
+        commentsLoading: { ...state.commentsLoading, [postId]: false }
+      }));
+      
+      return fetchedComments;
+    } catch (err) {
+      const error = err as AxiosError<{ msg: string }>;
+      set((state) => ({
+        commentsLoading: { ...state.commentsLoading, [postId]: false },
+        commentsError: { 
+          ...state.commentsError, 
+          [postId]: error.response?.data?.msg || 'Failed to fetch comments' 
+        }
+      }));
+      return [];
+    }
+  },
+  
+  createComment: async (postId, postWeaviateId, content) => {
+    try {
+      const response = await axiosInstance.post(`/forums/create-comment/${postId}/${postWeaviateId}`, {
+        content
+      });
+      
+      const newComment = response.data.comment;
+      
+      set((state) => {
+        const currentPostComments = state.comments[postId] || [];
+        return {
+          comments: {
+            ...state.comments,
+            [postId]: [...currentPostComments, newComment]
+          }
+        };
+      });
+      
+      get().fetchComments(postId);
+      
+      return newComment;
+    } catch (err) {
+      const error = err as AxiosError<{ msg: string }>;
+      throw error;
+    }
+  },
+  
+  likeComment: async (commentId) => {
+    try {
+      await axiosInstance.put(`/forums/like-comment/${commentId}`);
+      
+      const comments = get().comments;
+      for (const postId in comments) {
+        if (comments[postId].some(comment => comment._id === commentId)) {
+          get().fetchComments(postId);
+        }
+      }
+    } catch (err) {
+      const error = err as AxiosError<{ msg: string }>;
+      throw error;
+    }
+  },
+  
+  dislikeComment: async (commentId) => {
+    try {
+      await axiosInstance.put(`/forums/dislike-comment/${commentId}`);
+      
+      const comments = get().comments;
+      for (const postId in comments) {
+        if (comments[postId].some(comment => comment._id === commentId)) {
+          get().fetchComments(postId);
+        }
+      }
+    } catch (err) {
+      const error = err as AxiosError<{ msg: string }>;
+      throw error;
+    }
+  },
+  
+
+  
+  editComment: async (commentId, weaviateId, content) => {
+    try {
+      await axiosInstance.put(`/forums/edit-comment/${commentId}/${weaviateId}`, {
+        content
+      });
+      
+      const comments = get().comments;
+      for (const postId in comments) {
+        if (comments[postId].some(comment => comment._id === commentId)) {
+          get().fetchComments(postId);
+        }
+      }
+    } catch (err) {
+      const error = err as AxiosError<{ msg: string }>;
+      throw error;
+    }
+  },
+  
+  deleteComment: async (commentId, weaviateId) => {
+    try {
+      await axiosInstance.delete(`/forums/delete-comment/${commentId}/${weaviateId}`);
+      
+      const comments = get().comments;
+      for (const postId in comments) {
+        if (comments[postId].some(comment => comment._id === commentId)) {
+          get().fetchComments(postId);
+        }
+      }
+    } catch (err) {
+      const error = err as AxiosError<{ msg: string }>;
+      throw error;
+    }
+  },
+
+  deleteThread : async (threadId: string) => {
+    try {
+      axiosInstance.delete(`/admin/forums/thread/${threadId}`)
+
+    } catch (error) {
+      toast.error("Could not delete the thread")
+      console.error(error)
+    }
+  }
   
 }));

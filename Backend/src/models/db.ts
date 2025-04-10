@@ -60,6 +60,7 @@ interface IOTP extends Document {
   otp: string;
   _doc?: Omit<IOTP, '_doc'>;
   createdAt: Date;
+  expiresAt: Date;
 }
 
 interface IChat extends Document {
@@ -278,6 +279,10 @@ const otpSchema = new Schema<IOTP>({
     type: Date, 
     default: Date.now, 
     expires: 600 
+  },
+  expiresAt: {
+    type: Date,
+    required: true,
   }
 });
 

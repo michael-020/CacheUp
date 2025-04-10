@@ -35,7 +35,7 @@ export function Combobox({ options, value, onChange, placeholder, className }: C
           variant="outline" 
           role="combobox" 
           aria-expanded={open} 
-          className={cn("w-full justify-between", className)}
+          className={cn("w-full justify-between dark:bg-neutral-500 dark:border-neutral-400", className)}
         >
           <span className="truncate text-left">
             {value ? options.find((opt) => opt.value === value)?.label : placeholder}

@@ -23,7 +23,7 @@ export interface IUser {
     username: string;
     email: string;
     password: string;
-    profilePicture?: string;
+    profilePicture: string;
     department: string;
     graduationYear: number;
     bio?: string;

@@ -1,52 +1,57 @@
-import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { ArrowLeft, Bell, Lock, Eye, Moon, Sun, LogOut, Shield, Trash2 } from "lucide-react"
+import { ArrowLeft, Moon, Sun, LogOut, Trash2 } from "lucide-react"
 import { useAuthStore } from "../stores/AuthStore/useAuthStore"
-import toast from "react-hot-toast"
 import { useThemeStore } from "@/stores/ThemeStore/useThemeStore"
+import { DeleteModal } from "@/components/DeleteModal"
+import { useState } from "react"
 
 export default function SettingsPage() {
   const navigate = useNavigate()
   const { logout } = useAuthStore()
   const { isDark, toggleTheme } = useThemeStore();
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const [settings, setSettings] = useState({
-    emailNotifications: true,
-    messageNotifications: true,
-    friendRequestNotifications: true,
-    postNotifications: true,
-    profileVisibility: "everyone", // 'everyone', 'friends', 'none'
-    messagePermission: "everyone", // 'everyone', 'friends', 'none'
-    showOnlineStatus: true,
-    showReadReceipts: true,
-    showLastSeen: true,
-  })
+  // const [settings, setSettings] = useState({
+  //   emailNotifications: true,
+  //   messageNotifications: true,
+  //   friendRequestNotifications: true,
+  //   postNotifications: true,
+  //   profileVisibility: "everyone",
+  //   messagePermission: "everyone", 
+  //   showOnlineStatus: true,
+  //   showReadReceipts: true,
+  //   showLastSeen: true,
+  // })
 
-  // Handle settings changes
-  const handleSettingChange = (setting: string, value: any) => {
-    setSettings((prev) => ({
-      ...prev,
-      [setting]: value,
-    }))
-
-    // In a real app, you would save this to the backend
-    toast.success(`${setting} setting updated!`)
-  }
-
-  // Handle account deletion
-  const handleDeleteAccount = () => {
-    if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
-      // In a real app, you would call an API to delete the account
-      toast.success("Account deletion request submitted")
-      setTimeout(() => {
-        logout()
-        navigate("/signin")
-      }, 2000)
+  const handleToggleTheme = () => {
+    toggleTheme()
+    const isDarkNow = !isDark
+    if (isDarkNow) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
     }
   }
 
+  // const handleSettingChange = (setting: string, value: any) => {
+  //   setSettings((prev) => ({
+  //     ...prev,
+  //     [setting]: value,
+  //   }))
+
+  //   toast.success(`${setting} setting updated!`)
+  // }
+
+  const handleChangePassword = () => {
+    navigate("/change-password")
+  }
+
+  const handleDeleteAccount = () => {
+    setIsModalOpen(!isModalOpen)
+  }
+
   return (
-    <div className="pt-16 min-h-screen bg-gray-100 dark:bg-neutral-900">
+    <div className="pt-16 min-h-screen bg-gray-100 dark:bg-neutral-950">
       <div className="max-w-4xl mx-auto p-4">
         {/* Header */}
         <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-4 mb-4">
@@ -85,9 +90,12 @@ export default function SettingsPage() {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-gray-800 dark:text-white font-medium">Change Password</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Update your password</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Update your password securely</p>
                 </div>
-                <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition">
+                <button 
+                  onClick={handleChangePassword} 
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+                >
                   Change
                 </button>
               </div>
@@ -97,7 +105,7 @@ export default function SettingsPage() {
                   <p className="text-gray-800 dark:text-white font-medium">Dark Mode</p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Toggle dark/light theme</p>
                 </div>
-                <button onClick={toggleTheme} className="p-2 rounded-full bg-gray-200 dark:bg-neutral-700">
+                <button onClick={handleToggleTheme} className="p-2 rounded-full bg-gray-200 dark:bg-neutral-700">
                   {isDark ? <Sun className="h-5 w-5 text-yellow-500" /> : <Moon className="h-5 w-5 text-gray-600" />}
                 </button>
               </div>
@@ -105,7 +113,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Notification Settings */}
-          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm overflow-hidden">
+          {/* <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm overflow-hidden">
             <div className="p-4 border-b border-gray-200 dark:border-neutral-700">
               <h2 className="text-lg font-medium text-gray-800 dark:text-white">Notification Settings</h2>
             </div>
@@ -176,10 +184,10 @@ export default function SettingsPage() {
                 </label>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Privacy Settings */}
-          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm overflow-hidden">
+          {/* <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm overflow-hidden">
             <div className="p-4 border-b border-gray-200 dark:border-neutral-700">
               <h2 className="text-lg font-medium text-gray-800 dark:text-white">Privacy Settings</h2>
             </div>
@@ -264,10 +272,10 @@ export default function SettingsPage() {
                 </label>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Security Settings */}
-          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm overflow-hidden">
+          {/* <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm overflow-hidden">
             <div className="p-4 border-b border-gray-200 dark:border-neutral-700">
               <h2 className="text-lg font-medium text-gray-800 dark:text-white">Security Settings</h2>
             </div>
@@ -298,7 +306,7 @@ export default function SettingsPage() {
                 </button>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Account Actions */}
           <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm overflow-hidden">
@@ -349,7 +357,8 @@ export default function SettingsPage() {
         {/* Footer */}
         <div className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
           <p>Campus Connect &copy; {new Date().getFullYear()}</p>
-          <div className="mt-2 flex justify-center space-x-4">
+          <DeleteModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} deleteHandler={handleDeleteAccount} content="Delete Account?" />
+          {/* <div className="mt-2 flex justify-center space-x-4">
             <a href="#" className="hover:text-blue-500 transition">
               Terms of Service
             </a>
@@ -359,10 +368,9 @@ export default function SettingsPage() {
             <a href="#" className="hover:text-blue-500 transition">
               Help Center
             </a>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
   )
 }
-

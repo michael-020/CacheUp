@@ -22,7 +22,7 @@ export const EmailVerify = () => {
     }
     return <div className="flex justify-center">
         <div className="flex flex-col justify-center  w-[30%] h-screen border-white">
-        <div className="bg-yellow-400 p-4 rounded-lg">
+        <div className="bg-white border border-gray-400 dark:border-neutral-600 shadow-lg dark:bg-neutral-700 p-4 rounded-lg">
             <div className="flex justify-between">
                 <div className="w-[65%]">
                     <InputBox type="email" label="Email" placeholder="Enter Your College Email" onChange={(e => setEmail(e.target.value))} />

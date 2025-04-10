@@ -51,9 +51,9 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+      <div className="bg-white dark:bg-neutral-800  rounded-lg p-6 w-full max-w-md">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Create New Thread</h2>
+          <h2 className="text-xl font-bold dark:text-gray-200">Create New Thread</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -68,7 +68,8 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit }) => {
               type="text"
               value={threadData.title}
               onChange={(e) => setThreadData({...threadData, title: e.target.value})}
-              className={`w-full p-2 border rounded ${errors.title ? 'border-red-500' : ''}`}
+              placeholder='Title'
+              className={`w-full p-2 border rounded dark:placeholder:text-gray-700 dark:bg-neutral-600 ${errors.title ? 'border-red-500' : ''}`}
             />
             {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
           </div>
@@ -78,7 +79,8 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit }) => {
             <textarea
               value={threadData.description}
               onChange={(e) => setThreadData({...threadData, description: e.target.value})}
-              className={`w-full p-2 border rounded h-32 ${errors.description ? 'border-red-500' : ''}`}
+              placeholder='Content'
+              className={`w-full p-2 border rounded h-32 dark:placeholder:text-gray-700 dark:bg-neutral-600 ${errors.description ? 'border-red-500' : ''}`}
             />
             {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
           </div>
@@ -95,7 +97,7 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit }) => {
             <button
               type="button"
               onClick={onClose}
-              className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
+              className="bg-gray-200 dark:bg-neutral-700 dark:hover:bg-neutral-500 px-4 py-2 rounded hover:bg-gray-300"
             >
               Cancel
             </button>

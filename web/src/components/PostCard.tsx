@@ -1,12 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import HeartIcon from "@/icons/HeartIcon";
-import MessageIcon from "../icons/MessageIcon";
 import SaveIcon from "../icons/SaveIcon";
 import { usePostStore } from "../stores/PostStore/usePostStore";
 import Threedot from "../icons/Threedot";
 import { Comment, Post, LikedUser } from "../lib/utils";
 import { axiosInstance } from "@/lib/axios";
-import { Loader, Pencil, SendHorizonal, Trash, X } from "lucide-react";
+import { Loader, MessageSquareText, Pencil, SendHorizonal, Trash, X } from "lucide-react";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { useNavigate } from "react-router-dom";
 import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
@@ -293,7 +292,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
       )}
 
       {/* Actions */}
-      <div className="flex items-center text-red-400 dark:text-neutral-400 dark:border-gray-600 text-sm border-t border-gray-100 pt-3">
+      <div className="flex items-center dark:text-neutral-400 dark:border-gray-600 text-sm border-t border-gray-100 pt-3">
       <button
             className={`flex items-center mr-6 transition-colors ${post.isLiked ? "text-red-500" : ""}`}
             onClick={() => toggleLike(post._id)}
@@ -315,7 +314,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
           className="flex items-center mr-6 hover:text-blue-500 transition-colors"
           onClick={() => handleCommentToggle(post._id)}
         >
-          <MessageIcon />
+          <MessageSquareText />
           <span className="ml-2 font-medium">{post.comments.length}</span>
         </button>
 
@@ -383,18 +382,18 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
 
       {/* Comment Section */}
       <div 
-        className={`transition-all duration-300 ease-in-out overflow-hidden ${
+        className={`transition-all duration-300 ease-in-out overflow-hidden  ${
           showCommentInput ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
       {showCommentInput && (
-        <div className="mt-4 space-y-4" data-comment-section>
-          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+        <div className="mt-4 space-y-4 " data-comment-section>
+          <div className="bg-gray-50 dark:bg-neutral-800 dark:border-neutral-700 p-4 rounded-lg border border-gray-200">
             <textarea
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
               placeholder="Write a comment..."
-              className="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-200 focus:border-blue-500 outline-none transition-all"
+              className="w-full border dark:bg-neutral-600 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-200 focus:border-blue-500 outline-none transition-all"
               rows={2}
               onClick={(e: React.MouseEvent) => e.stopPropagation()}
             />
