@@ -27,7 +27,7 @@ import SettingsPage from './pages/SettingsPage'
 import ChangePassword from './components/ChangePassword' 
 import Thread from './pages/Posts(thread)'
 import { useThemeStore } from './stores/ThemeStore/useThemeStore'
-
+import { AnimatePresence } from "framer-motion"
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore()
@@ -105,12 +105,12 @@ function App() {
   }
 
   return (
-    <div className='bg-gray-100 dark:bg-neutral-900 min-h-screen'>
+    <div className='bg-gray-100 dark:bg-neutral-900 min-h-screen custom-scrollbar'>
       {authUser && !isAdminRoute && (
         <div className='fixed top-0 w-screen z-50'>
         
         <Navbar />
-        <main className="pt-16 pb-16 md:pb-0">
+        <main className="pt-16 pb-16 md:pb-0 custom-scrollbar">
           <Outlet />
         </main>
         <BottomNavigationBar />
@@ -123,38 +123,38 @@ function App() {
           <AdminNavbar />
         </div>
       )}
-      
-      <Routes>
-        {/* User Routes */}
-        <Route path="/signup" element={!authUser ? <Signup /> : <Navigate to={returnPath || "/"} /> } />
-        <Route path="/signin" element={!authUser ? <Signin /> : <Navigate to={returnPath || "/"} /> } />
-        <Route path='/verify-email' element={!authUser ? <EmailVerify /> : <Navigate to={returnPath || "/"} />} />
-        <Route path="/" element={authUser ? <Home /> : <Navigate to="/signin" />} />
-        <Route path='/profile' element={authUser ? <Profile /> : <Navigate to="/signin"/>} />
-        <Route path="/profile/:id" element={authUser ? <Profile /> : <Navigate to="/signin"/>} />
-        <Route path='/message' element={authUser ? <Messages /> : <Navigate to="/signin" />} />
-        <Route path='/edit-profile' element={authUser ? <EditProfile /> : <Navigate to="/signin" />} />
-        <Route path='/friends' element={authUser ? <FriendsPage /> : <Navigate to="/signin" />} />
-        <Route path='/settings' element={authUser ? <SettingsPage /> : <Navigate to="/signin" />} />
-        <Route path="/forums/get-forums" element={authUser ? <ForumList /> : <Navigate to='/signin'/>} />
-        <Route path="/forums/:forumMongoId/:forumWeaviateId" element={authUser ? <ForumPage /> : <Navigate to='/signin' />} />
-        <Route path="/forums/search" element={authUser ? <SearchResults /> : <Navigate to='/signin' />} />
-        <Route path='/forums/thread/:id' element={authUser ? <Thread /> : <Navigate to='/signin' />} />
-        <Route path="/change-password" element={authUser ? <ChangePassword /> : <Navigate to="/signin" />} />
+      <AnimatePresence mode="wait" >
+        <Routes>
+          {/* User Routes */}
+          <Route path="/signup" element={!authUser ? <Signup /> : <Navigate to={returnPath || "/"} /> } />
+          <Route path="/signin" element={!authUser ? <Signin /> : <Navigate to={returnPath || "/"} /> } />
+          <Route path='/verify-email' element={!authUser ? <EmailVerify /> : <Navigate to={returnPath || "/"} />} />
+          <Route path="/" element={authUser ? <Home /> : <Navigate to="/signin" />} />
+          <Route path='/profile' element={authUser ? <Profile /> : <Navigate to="/signin"/>} />
+          <Route path="/profile/:id" element={authUser ? <Profile /> : <Navigate to="/signin"/>} />
+          <Route path='/message' element={authUser ? <Messages /> : <Navigate to="/signin" />} />
+          <Route path='/edit-profile' element={authUser ? <EditProfile /> : <Navigate to="/signin" />} />
+          <Route path='/friends' element={authUser ? <FriendsPage /> : <Navigate to="/signin" />} />
+          <Route path='/settings' element={authUser ? <SettingsPage /> : <Navigate to="/signin" />} />
+          <Route path="/forums/get-forums" element={authUser ? <ForumList /> : <Navigate to='/signin'/>} />
+          <Route path="/forums/:forumMongoId/:forumWeaviateId" element={authUser ? <ForumPage /> : <Navigate to='/signin' />} />
+          <Route path="/forums/search" element={authUser ? <SearchResults /> : <Navigate to='/signin' />} />
+          <Route path='/forums/thread/:id' element={authUser ? <Thread /> : <Navigate to='/signin' />} />
+          <Route path="/change-password" element={authUser ? <ChangePassword /> : <Navigate to="/signin" />} />
 
 
-        {/* Admin Routes */}
-        <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to="/admin/home" /> } />
-        <Route path="/admin/home" element={authAdmin ? <AdminHome /> : <Navigate to="/admin/signin" />} />
-        <Route path="/admin/reported-posts" element={authAdmin ? <ReportedPosts /> : <Navigate to="/admin/signin" /> } />
-        <Route path="/admin/user-list" element={authAdmin ? <UserList /> : <Navigate to="/admin/signin" />} />
-        <Route path="/admin/profile/:id" element={authAdmin ? <Profile /> : <Navigate to="/admin/signin" />} />
-        <Route path="/admin/forums" element={authAdmin ? <CreateForum/> : <Navigate to="/admin/signin" />} />
-        <Route path="/admin/forums/get-forums" element={authAdmin ? <ForumList /> : <Navigate to="/admin/signin" />} />
-        <Route path="/admin/forums/:forumMongoId/:forumWeaviateId" element={authAdmin ? <ForumPage /> : <Navigate to="/admin/signin" />} />
-        <Route path='/admin/forums/thread/:id' element={authAdmin ? <Thread /> : <Navigate to='/signin' />} />
-      </Routes>
-
+          {/* Admin Routes */}
+          <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to="/admin/home" /> } />
+          <Route path="/admin/home" element={authAdmin ? <AdminHome /> : <Navigate to="/admin/signin" />} />
+          <Route path="/admin/reported-posts" element={authAdmin ? <ReportedPosts /> : <Navigate to="/admin/signin" /> } />
+          <Route path="/admin/user-list" element={authAdmin ? <UserList /> : <Navigate to="/admin/signin" />} />
+          <Route path="/admin/profile/:id" element={authAdmin ? <Profile /> : <Navigate to="/admin/signin" />} />
+          <Route path="/admin/forums" element={authAdmin ? <CreateForum/> : <Navigate to="/admin/signin" />} />
+          <Route path="/admin/forums/get-forums" element={authAdmin ? <ForumList /> : <Navigate to="/admin/signin" />} />
+          <Route path="/admin/forums/:forumMongoId/:forumWeaviateId" element={authAdmin ? <ForumPage /> : <Navigate to="/admin/signin" />} />
+          <Route path='/admin/forums/thread/:id' element={authAdmin ? <Thread /> : <Navigate to='/signin' />} />
+        </Routes>
+      </AnimatePresence>
       <Toaster />  
     </div>
   )

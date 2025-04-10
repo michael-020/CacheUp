@@ -29,4 +29,5 @@ export type authAction = {
     disconnectSocket: () => void;
     getSocket: () => WebSocket | null; 
     getToken: () => void;
+    deleteAccount: () => void;
 }

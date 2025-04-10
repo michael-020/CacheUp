@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Loader2, MessageSquare, Folder, FileText, MessageCircle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { SearchBar } from "@/components/forums/search-bar"
+import { motion } from "framer-motion"
+import { routeVariants } from "@/lib/routeAnimation"
 
 // Define the structure of search results based on your backend response
 interface SearchResultItem {
@@ -37,6 +39,7 @@ export function SearchResults() {
       setSearchQuery(query);
       performSearch(query);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search]);
   
   // Function to perform the search
@@ -173,12 +176,18 @@ export function SearchResults() {
   };
 
   return (
-    <div className="container mx-auto p-10">      
+    <motion.div 
+      className="container mx-auto p-10"
+      variants={routeVariants}
+      initial="initial"
+      animate="final"
+      exit="exit"
+    >      
       <h1 className="text-2xl font-bold mb-4 pt-10">
         Search Results {searchQuery ? `for "${searchQuery}"` : ""}
       </h1>
       <SearchBar />
       {renderResults()}
-    </div>
+    </motion.div>
   );
 }

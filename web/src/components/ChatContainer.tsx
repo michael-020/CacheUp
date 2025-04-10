@@ -6,6 +6,7 @@ import { useChatStore } from "@/stores/chatStore/useChatStore"
 import ChatInput from "./ChatInput"
 import ChatBubble from "./ChatBubble"
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore"
+import { IUser, formatDate } from "@/lib/utils"
 
 const ChatContainer = () => {
   const {
@@ -25,7 +26,7 @@ const ChatContainer = () => {
     if (selectedUser) {
       getMessages(selectedUser._id)
     }
-  }, [getMessages, selectedUser?._id])
+  }, [getMessages, selectedUser])
 
   useEffect(() => {
     // Initialize WebSocket subscription globally once
@@ -50,6 +51,48 @@ const ChatContainer = () => {
       messageEndRef.current.scrollIntoView({ behavior: "smooth" })
     }
   }, [messages])
+
+  // Group messages by date
+  const messagesByDate = useMemo(() => {
+    if (!messages) return [];
+    
+    const groups: { date: string; formattedDate: string; messages: typeof messages }[] = [];
+    
+    messages.forEach(message => {
+      const messageDate = new Date(message.createdAt);
+      const dateStr = messageDate.toDateString();
+      
+      // Check if it's today or yesterday
+      const today = new Date().toDateString();
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toDateString();
+      
+      let formattedDate = dateStr;
+      if (dateStr === today) {
+        formattedDate = "Today";
+      } else if (dateStr === yesterdayStr) {
+        formattedDate = "Yesterday";
+      } else {
+        // Format like "27 SEPTEMBER 2013"
+        formattedDate = formatDate(messageDate);
+      }
+      
+      const existingGroup = groups.find(group => group.date === dateStr);
+      
+      if (existingGroup) {
+        existingGroup.messages.push(message);
+      } else {
+        groups.push({
+          date: dateStr,
+          formattedDate,
+          messages: [message]
+        });
+      }
+    });
+    
+    return groups;
+  }, [messages]);
 
   const renderSkeleton = useMemo(() => {
     if (isMessagesLoading) {
@@ -93,13 +136,25 @@ const ChatContainer = () => {
     <div className="flex flex-col w-full">
       <ChatHeader />
       
-      <div className="flex-grow overflow-y-auto px-4 py-4 dark:bg-neutral-800 space-y-2">
-        {messages && messages.map((message) => (
-          <ChatBubble 
-            key={message._id} 
-            message={message}
-            selectedUser={selectedUser} 
-          />
+      <div className="flex-grow overflow-y-auto px-4 py-4 dark:bg-neutral-800 custom-scrollbar">
+        {messagesByDate.map((group) => (
+          <div key={group.date} className="space-y-2 mb-6">
+            {/* Date Header */}
+            <div className="flex justify-center mb-4">
+              <div className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium px-3 py-1 rounded-lg">
+                {group.formattedDate}
+              </div>
+            </div>
+            
+            {/* Messages */}
+            {group.messages.map((message) => (
+              <ChatBubble 
+                key={message._id} 
+                message={message}
+                selectedUser={selectedUser as IUser} 
+              />
+            ))}
+          </div>
         ))}
         <div ref={messageEndRef} />
       </div>

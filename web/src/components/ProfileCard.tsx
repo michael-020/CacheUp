@@ -142,9 +142,8 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
                 </div>
               </div>
 
-            {shouldRender && <div className="mb-3 p-2 rounded-md bg-gray-50 dark:bg-neutral-600  border border-gray-100">
+            {shouldRender && <div className="mb-3 p-2 rounded-md bg-gray-50 dark:bg-neutral-600 dark:border-gray-500  border border-gray-100">
               <div className="flex items-center justify-center gap-1 text-xs text-gray-600 dark:text-gray-300">
-                <Mail size={12} className="text-blue-500" />
                 <span>{email}</span>
               </div>
             </div>}

@@ -8,6 +8,8 @@ import { axiosInstance } from "@/lib/axios";
 import { ArrowLeft } from "lucide-react";
 import { PostSchema } from "@/stores/ForumStore/types";
 import ForumComment from "@/components/forums/ForumComment";
+import { motion } from "framer-motion"
+import { routeVariants } from "@/lib/routeAnimation";
 
 export const Thread = () => {
   const { id } = useParams();
@@ -223,7 +225,13 @@ export const Thread = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-neutral-950 pb-20">
+    <motion.div 
+      className="min-h-screen bg-gray-100 dark:bg-neutral-950 pb-20"
+      variants={routeVariants}
+      initial="initial"
+      animate="final"
+      exit="exit"  
+    >
       <div className="container mx-auto p-4 max-w-4xl translate-y-20 pb-10">
         <div className="mb-4 border-b pb-4">
           <div className="flex">
@@ -401,7 +409,7 @@ export const Thread = () => {
           })}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

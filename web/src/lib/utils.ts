@@ -13,8 +13,17 @@ export function formatMessageTime(date: Date) {
   return new Date(date).toLocaleTimeString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
-    hour12: false,
+    hour12: true,
   });
+}
+
+export function formatDate(date: Date): string {
+  // Format like "27 SEPTEMBER 2013"
+  const day = date.getDate();
+  const month = date.toLocaleString('default', { month: 'long' }).toUpperCase();
+  const year = date.getFullYear();
+  
+  return `${day} ${month} ${year}`;
 }
 
 export interface IUser {

@@ -3,7 +3,6 @@ import { usePostStore } from "../../stores/PostStore/usePostStore";
 import PostCard from "../PostCard";
 import PostCardSkeleton from "../skeletons/PostCardSkeleton";
 import Share from "../Share";
-import toast from "react-hot-toast";
 
 export function Feed() {
   const { posts, fetchPosts } = usePostStore();
@@ -26,7 +25,7 @@ export function Feed() {
           );
         }
       } catch (error) {
-        toast.error("Failed to load posts");
+        // toast.error("Failed to load posts");
         console.error("Error fetching posts:", error);
       } finally {
         setIsLoading(false);
