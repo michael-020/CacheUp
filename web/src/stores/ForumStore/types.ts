@@ -109,8 +109,8 @@ export interface ForumActions {
   isLiked: (postId: string) => boolean;
   fetchComments: (postId: string) => Promise<Comment[]>;
   createComment: (postId: string, postWeaviateId: string, content: string) => Promise<Comment>;
-  likeComment: (commentId: string) => Promise<void>;
-  dislikeComment: (commentId: string) => Promise<void>;
+  likeComment: (commentId: string, userId: string) => Promise<void>;
+  dislikeComment: (commentId: string, userId: string) => Promise<void>;
   editComment: (commentId: string, weaviateId: string, content: string) => Promise<void>;
   deleteComment: (commentId: string, weaviateId: string) => Promise<void>;
   deleteThread: (threadId: string) => void;

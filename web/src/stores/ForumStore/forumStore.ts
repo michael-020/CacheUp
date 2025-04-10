@@ -280,55 +280,116 @@ commentsError: {},
     }
   },
   
-  likeComment: async (commentId) => {
+  likeComment: async (commentId, userId) => {
     try {
+      set(state => ({
+        comments: Object.fromEntries(
+          Object.entries(state.comments).map(([postId, comments]) => [
+            postId,
+            comments.map(comment => 
+              comment._id === commentId
+                ? {
+                    ...comment,
+                    likedBy: [...comment.likedBy, userId],
+                    disLikedBy: comment.disLikedBy.filter(id => id !== userId)
+                  }
+                : comment
+            )
+          ])
+        )
+      }));
+  
       await axiosInstance.put(`/forums/like-comment/${commentId}`);
-      
-      const comments = get().comments;
-      for (const postId in comments) {
-        if (comments[postId].some(comment => comment._id === commentId)) {
-          get().fetchComments(postId);
-        }
-      }
     } catch (err) {
-      const error = err as AxiosError<{ msg: string }>;
-      throw error;
+      set(state => ({
+        comments: Object.fromEntries(
+          Object.entries(state.comments).map(([postId, comments]) => [
+            postId,
+            comments.map(comment => 
+              comment._id === commentId
+                ? {
+                    ...comment,
+                    likedBy: comment.likedBy.filter(id => id !== userId)
+                  }
+                : comment
+            )
+          ])
+        )
+      }));
+      throw err;
     }
   },
   
-  dislikeComment: async (commentId) => {
+  dislikeComment: async (commentId, userId) => {
     try {
+      set(state => ({
+        comments: Object.fromEntries(
+          Object.entries(state.comments).map(([postId, comments]) => [
+            postId,
+            comments.map(comment =>
+              comment._id === commentId
+                ? {
+                    ...comment,
+                    disLikedBy: [...comment.disLikedBy, userId],
+                    likedBy: comment.likedBy.filter(id => id !== userId)
+                  }
+                : comment
+            )
+          ])
+        )
+      }));
+  
       await axiosInstance.put(`/forums/dislike-comment/${commentId}`);
-      
-      const comments = get().comments;
-      for (const postId in comments) {
-        if (comments[postId].some(comment => comment._id === commentId)) {
-          get().fetchComments(postId);
-        }
-      }
     } catch (err) {
-      const error = err as AxiosError<{ msg: string }>;
-      throw error;
+      set(state => ({
+        comments: Object.fromEntries(
+          Object.entries(state.comments).map(([postId, comments]) => [
+            postId,
+            comments.map(comment =>
+              comment._id === commentId
+                ? {
+                    ...comment,
+                    disLikedBy: comment.disLikedBy.filter(id => id !== userId)
+                  }
+                : comment
+            )
+          ])
+        )
+      }));
+      throw err;
     }
   },
-  
-
   
   editComment: async (commentId, weaviateId, content) => {
     try {
-      await axiosInstance.put(`/forums/edit-comment/${commentId}/${weaviateId}`, {
-        content
-      });
-      
-      const comments = get().comments;
-      for (const postId in comments) {
-        if (comments[postId].some(comment => comment._id === commentId)) {
-          get().fetchComments(postId);
-        }
-      }
+      set(state => ({
+        comments: Object.fromEntries(
+          Object.entries(state.comments).map(([postId, comments]) => [
+            postId,
+            comments.map(comment => 
+              comment._id === commentId
+                ? { ...comment, content }
+                : comment
+            )
+          ])
+        )
+      }));
+  
+      await axiosInstance.put(`/forums/edit-comment/${commentId}/${weaviateId}`, { content });
     } catch (err) {
-      const error = err as AxiosError<{ msg: string }>;
-      throw error;
+      set(state => ({
+        comments: Object.fromEntries(
+          Object.entries(state.comments).map(([postId, comments]) => [
+            postId,
+            comments.map(comment => 
+              comment._id === commentId
+                ? { ...comment, content: comment.content } 
+                : comment
+            )
+          ])
+        )
+      }));
+      throw err;
     }
   },
   
