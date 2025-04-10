@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { AxiosError } from "axios";
-import {  useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { SearchBar } from "@/components/forums/search-bar";
 import { useForumStore } from "@/stores/ForumStore/forumStore";
+import ForumListSkeleton from "@/components/skeletons/ForumListSkeleton";
 import type { Forum } from "@/stores/ForumStore/types";
+
 interface ErrorResponse {
   msg: string;
 }
 
 const ForumList: React.FC = () => {
   const { forums, error, fetchForums, deleteForum } = useForumStore();
-  const [deleteConfirmationForum, setDeleteConfirmationForum] =
-    useState<Forum | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [deleteConfirmationForum, setDeleteConfirmationForum] = useState<Forum | null>(null);
   const [deleteMenuOpen, setDeleteMenuOpen] = useState<string | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -49,7 +51,30 @@ const ForumList: React.FC = () => {
   const isAdminRoute = location.pathname.includes("/admin");
 
   useEffect(() => {
-    fetchForums(isAdminRoute);
+    const loadForums = async () => {
+      setIsLoading(true);
+      const startTime = Date.now();
+      
+      try {
+        await fetchForums(isAdminRoute);
+        
+        
+        const elapsedTime = Date.now() - startTime;
+        const minimumLoadingTime = 200; 
+        
+        if (elapsedTime < minimumLoadingTime) {
+          await new Promise(resolve => 
+            setTimeout(resolve, minimumLoadingTime - elapsedTime)
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching forums:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadForums();
   }, [isAdminRoute, fetchForums]);
 
   const handleViewForum = (forum: Forum) => {
@@ -78,6 +103,10 @@ const ForumList: React.FC = () => {
         </div>
       </div>
     );
+  }
+
+  if (isLoading) {
+    return <ForumListSkeleton />;
   }
 
   return (

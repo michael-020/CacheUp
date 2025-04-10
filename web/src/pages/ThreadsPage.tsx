@@ -3,6 +3,7 @@ import { useParams, useLocation, Link, useNavigate } from 'react-router-dom';
 import { useForumStore } from '@/stores/ForumStore/forumStore';
 import ThreadModal from '../components/forums/ThreadModal';
 import { ArrowLeft } from 'lucide-react';
+import ForumPageSkeleton from '../components/skeletons/ForumPageSkeleton';
 
 const ForumPage: React.FC = () => {
   const { forumMongoId, forumWeaviateId } = useParams<{
@@ -60,8 +61,8 @@ const ForumPage: React.FC = () => {
       {currentForum.error && <div className="text-red-500 mb-4">{currentForum.error}</div>}
       
       {currentForum.loading ? (
-        <div className="text-center py-8">Loading forum content...</div>
-      ) : currentForum.threads.length === 0 ? (
+  <ForumPageSkeleton />
+)  : currentForum.threads.length === 0 ? (
         <div className="text-center py-8 bg-gray-100 rounded">
           <p>No threads found in this forum.</p>
           <p className="mt-2">Be the first to create a thread!</p>
