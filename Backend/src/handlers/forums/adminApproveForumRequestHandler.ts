@@ -16,30 +16,34 @@ export const adminApproveForumHandler = async (req: Request, res: Response) => {
             return
         }
         
-        const forumMongo = await forumModel.create({
-            title: requestedForum?.title,
-            description: requestedForum?.description,
-            createdBy: req.admin._id,
-            weaviateId: "temp"
-        })
-
-        const vector = await embedtext(requestedForum.title + " " + requestedForum.description)
+        const [forumMongo, vector] = await Promise.all([
+            forumModel.create({
+                title: requestedForum.title,
+                description: requestedForum.description,
+                createdBy: req.admin._id,
+                weaviateId: "temp"
+            }),
+            embedtext(requestedForum.title + " " + requestedForum.description)
+        ])
 
         const forumWeaviate = await weaviateClient.data.creator()
             .withClassName("Forum")
             .withProperties({
-                title: requestedForum?.title,
-                description: requestedForum?.description,
+                title: requestedForum.title,
+                description: requestedForum.description,
                 mongoId: forumMongo._id
             })
             .withVector(vector)
             .do()
 
         forumMongo.weaviateId = forumWeaviate.id as string
-        await forumMongo.save()
-
+        
         requestedForum.status = "approved"
-        await requestedForum.save()
+
+        await Promise.all([
+            forumMongo.save(),
+            requestedForum.save()
+        ])
 
         res.json({
             msg: "Request approved",
