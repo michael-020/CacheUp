@@ -1,12 +1,12 @@
 import { ChangeEvent, FormEvent, useRef, useState } from "react";
-import { Image, Send, X } from "lucide-react";
+import { Image, SendHorizonal, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { useChatStore } from "@/stores/chatStore/useChatStore";
 
 const ChatInput = () => {
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const fileInputRef = useRef<any>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { sendMessage } = useChatStore();
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -48,7 +48,7 @@ const ChatInput = () => {
   };
 
   return (
-    <div className="p-4 w-full dark:bg-neutral-800">
+    <div className=" w-full px-4 pb-4 dark:bg-neutral-800">
       {imagePreview && (
         <div className="mb-3 flex items-center gap-2">
           <div className="relative">
@@ -63,7 +63,7 @@ const ChatInput = () => {
               flex items-center justify-center hover:bg-gray-400 transition-colors"
               type="button"
             >
-              <X className="w-3 h-3" />
+              <X className="w-3 h-3 dark:text-black" />
             </button>
           </div>
         </div>
@@ -100,7 +100,7 @@ const ChatInput = () => {
           className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={!text.trim() && !imagePreview}
         >
-          <Send size={22} />
+          <SendHorizonal size={22} />
         </button>
       </form>
     </div>

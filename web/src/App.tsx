@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { Navigate, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import './App.css'
 import { Home } from './pages/Home'
 import { Profile } from './pages/Profile'
@@ -9,7 +9,7 @@ import { useAuthStore } from './stores/AuthStore/useAuthStore'
 import { useEffect, useRef, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { EmailVerify } from './pages/EmailVerify'
-import { Navbar } from './components/Navbar'
+import { BottomNavigationBar, Navbar } from './components/Navbar'
 import AdminHome from './pages/admin/AdminHome'
 import { AdminSignin } from './pages/admin/AdminSignin'
 import { useAdminStore } from './stores/AdminStore/useAdminStore'
@@ -78,6 +78,7 @@ function App() {
         authenticated.current = true
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authUser, isAdminRoute, returnPath, navigate])
 
   useEffect(() => {
@@ -107,7 +108,13 @@ function App() {
     <div className='bg-gray-100 dark:bg-neutral-900 min-h-screen'>
       {authUser && !isAdminRoute && (
         <div className='fixed top-0 w-screen z-50'>
-          <Navbar />
+        
+        <Navbar />
+        <main className="pt-16 pb-16 md:pb-0">
+          <Outlet />
+        </main>
+        <BottomNavigationBar />
+
         </div>
       )}
       

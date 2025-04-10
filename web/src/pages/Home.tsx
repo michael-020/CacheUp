@@ -11,7 +11,7 @@ export const Home = () => {
   return (
     <div className="relative px-8 bg-gray-100 dark:bg-neutral-950 dark:border-neutral-900">
       {/* ProfileCard shifted to the right */}
-      <div className="absolute left-40 -top-12 hidden md:block">
+      <div className="absolute left-40 -top-12 hidden lg:block">
         <ProfileCard userInfo={authUser} isOwnProfile={true} />
       </div>
 
