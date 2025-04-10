@@ -97,4 +97,5 @@ forumsRouter.get("/notification", getNotification)
 // request forum route
 forumsRouter.post("/request-forum", createForumRequestHandler)
 
+
 export default forumsRouter

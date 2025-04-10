@@ -26,6 +26,7 @@ import { viewAllThreadsHandler } from "../handlers/admin/viewThreadsHandler";
 import { viewPostsInThreadHandler } from "../handlers/admin/viewPostsInThreadHandler";
 import { adminGetForumRequestHandler } from "../handlers/forums/adminGetForumRequestHandler";
 import { adminApproveForumHandler } from "../handlers/forums/adminApproveForumRequestHandler";
+import { adminRejectForumRequestHandler } from "../handlers/forums/adminRejectForumRequestHandler";
 
 const adminRouter: Router = Router();
 
@@ -104,5 +105,8 @@ adminRouter.get("/requested-forums", adminGetForumRequestHandler)
 
 // approve requested forums
 adminRouter.post("/approve-forum/:requestId", adminApproveForumHandler)
+
+// reject requested forums
+adminRouter.post("/reject-forum/:requestId", adminRejectForumRequestHandler)
 
 export default adminRouter;
