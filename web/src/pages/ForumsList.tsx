@@ -1,17 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { AxiosError } from "axios";
-import {  useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { SearchBar } from "@/components/forums/search-bar";
 import { useForumStore } from "@/stores/ForumStore/forumStore";
+import ForumListSkeleton from "@/components/skeletons/ForumListSkeleton";
 import type { Forum } from "@/stores/ForumStore/types";
+import { motion } from "framer-motion"
+import { routeVariants } from "@/lib/routeAnimation";
+
 interface ErrorResponse {
   msg: string;
 }
 
 const ForumList: React.FC = () => {
   const { forums, error, fetchForums, deleteForum } = useForumStore();
-  const [deleteConfirmationForum, setDeleteConfirmationForum] =
-    useState<Forum | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [deleteConfirmationForum, setDeleteConfirmationForum] = useState<Forum | null>(null);
   const [deleteMenuOpen, setDeleteMenuOpen] = useState<string | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -49,7 +53,30 @@ const ForumList: React.FC = () => {
   const isAdminRoute = location.pathname.includes("/admin");
 
   useEffect(() => {
-    fetchForums(isAdminRoute);
+    const loadForums = async () => {
+      setIsLoading(true);
+      const startTime = Date.now();
+      
+      try {
+        await fetchForums(isAdminRoute);
+        
+        
+        const elapsedTime = Date.now() - startTime;
+        const minimumLoadingTime = 200; 
+        
+        if (elapsedTime < minimumLoadingTime) {
+          await new Promise(resolve => 
+            setTimeout(resolve, minimumLoadingTime - elapsedTime)
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching forums:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadForums();
   }, [isAdminRoute, fetchForums]);
 
   const handleViewForum = (forum: Forum) => {
@@ -80,8 +107,18 @@ const ForumList: React.FC = () => {
     );
   }
 
+  if (isLoading) {
+    return <ForumListSkeleton />;
+  }
+
   return (
-    <div className="h-screen dark:bg-neutral-950">
+    <motion.div 
+      className="h-screen dark:bg-neutral-950"
+      variants={routeVariants}
+      initial="initial"
+      animate="final"
+      exit="exit"
+    >
       <div className="max-w-6xl mx-auto p-6 translate-y-20 h-full">
         <h1 className="text-2xl font-bold mb-6">
           {isAdminRoute ? "All Forums (Admin View)" : "All Forums"}
@@ -255,7 +292,7 @@ const ForumList: React.FC = () => {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

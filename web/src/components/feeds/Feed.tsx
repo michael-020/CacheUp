@@ -1,25 +1,57 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePostStore } from "../../stores/PostStore/usePostStore";
 import PostCard from "../PostCard";
+import PostCardSkeleton from "../skeletons/PostCardSkeleton";
 import Share from "../Share";
 
 export function Feed() {
   const { posts, fetchPosts } = usePostStore();
+  const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
-    fetchPosts();
+    const loadPosts = async () => {
+      setIsLoading(true);
+      const startTime = Date.now();
+      
+      try {
+        await fetchPosts();
+        
+        const elapsedTime = Date.now() - startTime;
+        const minimumLoadingTime = 200; 
+        
+        if (elapsedTime < minimumLoadingTime) {
+          await new Promise(resolve => 
+            setTimeout(resolve, minimumLoadingTime - elapsedTime)
+          );
+        }
+      } catch (error) {
+        // toast.error("Failed to load posts");
+        console.error("Error fetching posts:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadPosts();
   }, [fetchPosts]);
   
   return (
     <div className="container mx-auto p-4 mt-16">
       <Share />
       <div className="mt-4 -z-10">
-        {posts && posts.length > 0 ? (
+        {isLoading ? (
+          <>
+            <PostCardSkeleton />
+          </>
+        ) : posts && posts.length > 0 ? (
+          
           posts.map((post) => (
             <PostCard key={post._id} post={post} />
           ))
         ) : (
-          <p>Loading posts...</p> 
+          <div className="text-center p-6 bg-white dark:bg-neutral-800 rounded-xl shadow-lg">
+            <p className="text-gray-600 dark:text-gray-300">No posts available</p>
+          </div>
         )}
       </div>
     </div>

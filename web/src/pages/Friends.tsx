@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 import FriendsList from "@/components/FriendsList";
 import FriendRequests from "@/components/FriendRequests";
 import UsersList from "@/components/UsersList";
+import { motion } from "framer-motion"
+import { routeVariants } from "@/lib/routeAnimation";
 
 const FriendsPage = () => {
   const [activeTab, setActiveTab] = useState("friends");
@@ -66,7 +68,13 @@ const FriendsPage = () => {
   }
 
   return (
-    <div className="dark:bg-neutral-950 h-screen">
+    <motion.div 
+      className="dark:bg-neutral-950 h-screen"
+      variants={routeVariants}
+      initial="initial"
+      animate="final"
+      exit="exit"  
+    >
       <div className="max-w-5xl mx-auto p-6 translate-y-20">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
@@ -115,7 +123,7 @@ const FriendsPage = () => {
           {renderActiveTab()}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

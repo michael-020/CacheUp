@@ -2,6 +2,8 @@ import { MouseEvent, useState } from "react"
 import { useAuthStore } from "../stores/AuthStore/useAuthStore"
 import { Eye, EyeOff } from "lucide-react"
 import { Link } from "react-router-dom"
+import { motion } from "framer-motion"
+import { routeVariants } from "@/lib/routeAnimation"
 
 export const Signin = () => {
     const [email, setEmail] = useState("")
@@ -15,7 +17,13 @@ export const Signin = () => {
     }
     
     return (
-        <div className="min-h-screen grid dark:text-black place-items-center">
+        <motion.div 
+            className="min-h-screen grid dark:text-black place-items-center"
+            variants={routeVariants}
+            initial="initial"
+            animate="final"
+            exit="exit"    
+        >
             <div className="w-full max-w-md bg-white dark:bg-neutral-700 rounded-lg shadow-lg p-8">
                 <div className="grid gap-6">
                     <div className="text-center">
@@ -79,6 +87,6 @@ export const Signin = () => {
                     </form>
                 </div>
             </div>
-        </div>
+        </motion.div>
     )
 }

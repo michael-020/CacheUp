@@ -5,6 +5,8 @@ import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { Post, IUser } from "@/lib/utils";
+import { motion } from "framer-motion"
+import { routeVariants } from "@/lib/routeAnimation";
 
 export const Profile = () => {
   const { id } = useParams();
@@ -65,7 +67,13 @@ export const Profile = () => {
   }, [id, userId, isAdminView]);
 
   return (
-    <div className="flex gap-6 p-4 w-full min-h-screen bg-gray-50 dark:bg-neutral-950 dark:border-neutral-900 dark:shadow-0 dark:shadow-sm">
+    <motion.div 
+      className="flex gap-6 p-4 w-full min-h-screen bg-gray-50 dark:bg-neutral-950 dark:border-neutral-900 dark:shadow-0 dark:shadow-sm"
+      variants={routeVariants}
+      initial="initial"
+      animate="final"
+      exit="exit"  
+    >
       <div className="w-1/4 max-w-xs">
         <div className="sticky top-20">
           {userInfo && (
@@ -107,6 +115,6 @@ export const Profile = () => {
       </div>
       
       <div className="hidden lg:block w-1/4 max-w-xs"></div>
-    </div>
+    </motion.div>
   );
 };
