@@ -82,7 +82,7 @@ export interface ForumState {
   loadingForums: boolean;
   errorForums: string;
   loading: boolean;
-  error: '';
+  error: string;
   searchResult: SearchResponseData
   posts: PostSchema[] ;
   threadTitle: string;
@@ -93,7 +93,9 @@ export interface ForumState {
   comments: {[postId: string]: Comment[]};
   commentsLoading: {[postId: string]: boolean};
   commentsError: {[postId: string]: string};
+  isWatched: boolean;
 }
+
 
 export interface ForumActions {
   fetchForums: (isAdminRoute: boolean) => Promise<void>;
@@ -123,6 +125,8 @@ export interface ForumActions {
   editComment: (commentId: string, weaviateId: string, content: string) => Promise<void>;
   deleteComment: (commentId: string, weaviateId: string) => Promise<void>;
   deleteThread: (threadId: string) => void;
+  watchThread: (threadId: string) => Promise<void>;
+  checkWatchStatus: (threadId: string) => Promise<void>
 }
 
 export type ForumStore = ForumState & ForumActions;

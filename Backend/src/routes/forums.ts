@@ -23,6 +23,7 @@ import { reportPostForumHandler } from "../handlers/forums/reportPostForumHandle
 import { reportThreadHandler } from "../handlers/forums/reportThreadHandler";
 import { getNotification } from "../handlers/forums/getNotificationHandler";
 import { createForumRequestHandler } from "../handlers/forums/createForumRequestHandler";
+import { getWatchStatusThreadHandler } from "../handlers/forums/getWatchStatusThreadHandler";
 
 
 const forumsRouter = Router()
@@ -96,6 +97,9 @@ forumsRouter.get("/notification", getNotification)
 
 // request forum route
 forumsRouter.post("/request-forum", createForumRequestHandler)
+
+// get watch thread status
+forumsRouter.get("/watch-status/:threadMongoId", getWatchStatusThreadHandler)
 
 
 export default forumsRouter
