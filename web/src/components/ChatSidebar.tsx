@@ -26,7 +26,7 @@ const ChatSidebar = () => {
   if (isUsersLoading) return <SidebarSkeleton />;
 
   return (
-    <aside className="h-full w-full md:w-60 lg:w-72 border-r bg-white dark:bg-neutral-900 border-gray-300 flex flex-col transition-all duration-200">
+    <aside className="h-full w-full md:w-60 lg:w-72 md:border-r bg-white dark:bg-neutral-900 border-gray-300 flex flex-col transition-all duration-200">
       <div className="border-b border-gray-300 lg:w-72 w-full p-5">
         <div className="flex items-center gap-2">
           <Users className="w-6 h-6" />
