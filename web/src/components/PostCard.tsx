@@ -420,11 +420,11 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
           </div>
 
           {comments.length > 0 && (
-            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-3">
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-3 dark:bg-neutral-700">
               {comments.filter(comment => comment?._id).map((comment) => (
                 <div
                   key={comment._id}
-                  className="bg-white p-3 rounded-md border border-gray-100 group relative"
+                  className="bg-white p-3 rounded-md border border-gray-100 group relative dark:bg-neutral-800"
                 >
                 {editingCommentId === comment._id ? (
                   <div>
