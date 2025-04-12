@@ -8,7 +8,8 @@ import { axiosInstance } from "@/lib/axios";
 import { ArrowLeft } from "lucide-react";
 import { PostSchema } from "@/stores/ForumStore/types";
 import ForumComment from "@/components/forums/ForumComment";
-import ThreadSkeleton from "@/components/skeletons/ThreadSkeleton"; // Import skeleton component
+import { motion } from "framer-motion"
+import { routeVariants } from "@/lib/routeAnimation";
 
 export const Thread = () => {
   const { id } = useParams();
@@ -23,7 +24,6 @@ export const Thread = () => {
   const navigate = useNavigate()
   const [expandedComments, setExpandedComments] = useState<{[key: string]: boolean}>({});
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true); // Explicit loading state
 
   useEffect(() => {
     fetchPosts(id as string);
@@ -147,9 +147,12 @@ export const Thread = () => {
     return content.substring(0, 500);
   };
 
-  // Show skeleton while loading
-  if (isLoading || loading) {
-    return <ThreadSkeleton />;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
   }
 
   if (error) {
@@ -245,7 +248,13 @@ export const Thread = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-neutral-950 pb-20">
+    <motion.div 
+      className="min-h-screen bg-gray-100 dark:bg-neutral-950 pb-20"
+      variants={routeVariants}
+      initial="initial"
+      animate="final"
+      exit="exit"  
+    >
       <div className="container mx-auto p-4 max-w-4xl translate-y-20 pb-10">
         <div className="mb-4 border-b pb-4">
           <div className="flex items-center mb-2">
@@ -402,7 +411,7 @@ export const Thread = () => {
                       <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
                     </svg>
                     <span>{post.likedBy?.length || 0}</span>
-                  </button>
+                                </button>
                   <button 
                     className={`flex items-center gap-1.5 cursor-pointer transition-colors mt-1 dark:text-gray-300 ${
                       isDisliked 
@@ -435,6 +444,8 @@ export const Thread = () => {
                     </svg>
                     <span>{expandedComments[post._id] ? "" : ""}</span>
                   </button>
+                  
+                
                 </div>
 
                 {expandedComments[post._id] && (
@@ -451,7 +462,7 @@ export const Thread = () => {
           })}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
