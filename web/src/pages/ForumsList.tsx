@@ -57,27 +57,11 @@ const ForumList: React.FC = () => {
   const isAdminRoute = location.pathname.includes("/admin");
 
   useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      const startTime = Date.now();
-      
-      try {
-        await fetchForums(isAdminRoute);
-        await fetchNotifications();
-        
-        const elapsedTime = Date.now() - startTime;
-        const minimumLoadingTime = 200; 
-        
-        if (elapsedTime < minimumLoadingTime) {
-          await new Promise(resolve => 
-            setTimeout(resolve, minimumLoadingTime - elapsedTime)
-          );
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setIsLoading(false);
-      }
+    const loadData = () => {
+        setIsLoading(true);
+        fetchForums(isAdminRoute);
+        fetchNotifications();
+        setIsLoading(false)
     };
     
     loadData();
