@@ -41,6 +41,7 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
         
         set({ isUsersLoading: true });
         try {
+            await new Promise(r => setTimeout(r, 2000))
             const res = await axiosInstance.get("/messages/previous-chats");
             set({ users: res.data });
         } catch (error) {
