@@ -92,15 +92,19 @@ const ForumList: React.FC = () => {
     event.stopPropagation();
     
     if (actionType === 'username' && notification.createdBy) {
-      navigate(`/profile/${notification.createdBy._id}`);
+        navigate(`/profile/${notification.createdBy._id}`);
     } else if (actionType === 'content') {
-      if (notification.threadId && notification.postId) {
-        navigate(`/forums/thread/${notification.threadId}?post=${notification.postId}`);
-      } else if (notification.threadId) {
-        navigate(`/forums/thread/${notification.threadId}`);
-      }
+        
+        const threadId = notification.threadId._id
+        const postId = notification.postId;
+        
+        if (threadId && postId) {
+            navigate(`/forums/thread/${threadId}?post=${postId}`);
+        } else if (threadId) {
+            navigate(`/forums/thread/${threadId}`);
+        }
     }
-  };
+};
 
   const toggleDeleteMenu = (forumId: string, e: React.MouseEvent) => {
     e.stopPropagation();

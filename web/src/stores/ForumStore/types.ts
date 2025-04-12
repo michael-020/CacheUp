@@ -64,17 +64,22 @@ export interface Comment {
 
 export interface Notification {
   _id: string;
+  userIds: string[];
   message: string;
-  threadId: string;
+  threadId: {
+    _id: string;
+    title: string;
+  };
   postId?: string;
-  createdAt: string;
   seenBy: string[];
   createdBy: {
     _id: string;
     username: string;
-  };
+    id: string;
+  } | null;
+  createdAt: string;
+  __v?: number;
 }
-
 export interface Forum {
         _id: string;
         title: string;
