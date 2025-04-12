@@ -336,9 +336,9 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
         }`}
       >
         {showLikes && (
-          <div className="mt-3 bg-gray-50 p-4 rounded-lg border border-gray-200 relative">
+          <div className="mt-3 bg-gray-50 p-4 rounded-lg border border-gray-200 relative dark:bg-neutral-800">
             <div className="flex justify-between items-center mb-2">
-              <h3 className="font-medium text-gray-800">Liked by</h3>
+              <h3 className="font-medium text-gray-800 dark:text-gray-50">Liked by</h3>
               <button
                 onClick={() => setShowLikes(false)}
                 className="text-gray-500 hover:text-gray-700"
