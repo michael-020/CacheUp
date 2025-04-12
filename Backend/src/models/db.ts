@@ -48,6 +48,7 @@ export interface IPost extends Document {
   text: string;
   likes: mongoose.Types.ObjectId[];
   reportedBy: mongoose.Types.ObjectId[];
+  savedBy: mongoose.Types.ObjectId[];
   comments: Comment[];
   _doc?: Omit<IPost, '_doc'>;
   createdAt: Date;
@@ -257,6 +258,7 @@ const postSchema = new Schema<IPost>({
     type: Schema.Types.ObjectId, 
     ref: 'users' 
   }],
+  savedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   comments: [{
     content: { 
       type: String, 

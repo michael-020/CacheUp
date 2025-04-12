@@ -10,6 +10,8 @@ export interface PostState {
   isDeletingComment: boolean;
   error: string | null;
   isPostDeleting: boolean;
+  savedPosts: Post[];
+  isFetchingSavedPosts: boolean;
 }
 
 
@@ -26,6 +28,10 @@ export interface PostActions {
   clearError: () => void;
   getLikedUsers: (postId: string) => Promise<LikedUser[]>;
   deletePost: (data: {postId: string}) => Promise<void>;
+  fetchSavedPosts: () => Promise<void>;
+  clearSavedPosts: () => void;
+
+
   
   updateComment: (
     postId: string,

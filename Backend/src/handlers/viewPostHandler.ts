@@ -19,16 +19,19 @@ viewPostHandler.get("/", async (req: Request, res: Response) => {
         }
 
         const processedPosts = allPosts.map(post => {
-            const isReported = post.reportedBy.includes(new mongo.ObjectId(userId?.toString())); 
+            const isReported = post.reportedBy.includes(userId); 
             
-            const isLiked = post.likes.includes(new mongo.ObjectId(userId?.toString()));
+            const isLiked = post.likes.includes(userId);
+
+            const isSaved = post.savedBy.includes(userId)
             
             return {
                 ...post._doc,
                 isReported,
                 reportButtonText: isReported ? 'Unreport' : 'Report',
                 reportCount: post.reportedBy.length,
-                isLiked 
+                isLiked, 
+                isSaved
             };
         });
 
