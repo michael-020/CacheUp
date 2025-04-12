@@ -17,10 +17,15 @@ export const Messages = () => {
       exit="exit"
     >
         <div className="rounded-lg pb-24 lg:pb-0 shadow-cl w-full max-w-6xl h-[calc(100vh-8rem)]">
-          <div className="flex h-full rounded-lg overflow-hidden border shadow-xl dark:border-neutral-800 dark:shadow-neutral-700 dark:shadow-md">
+          <div className="hidden md:flex h-full rounded-lg overflow-hidden border shadow-xl dark:border-neutral-800 dark:shadow-neutral-700 dark:shadow-md">
             <ChatSidebar />
 
             {!selectedUser ? <NoChatSelected /> : <ChatContainer />}
+          </div>
+          <div className="flex md:hidden h-full rounded-lg overflow-hidden border shadow-xl dark:border-neutral-800 dark:shadow-neutral-700 dark:shadow-md">
+            
+
+            {!selectedUser ? <ChatSidebar /> : <ChatContainer />}
           </div>
         </div>
       </motion.div>
