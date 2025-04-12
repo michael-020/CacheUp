@@ -7,9 +7,12 @@ export const getNotification = async(req: Request, res: Response) => {
         const userId = req.user._id
         
         const notifications = await watchNotificationModel.find({
-            userIds: { $in: [userId]},
-            seenBy: { $ne: []}
-        }).sort({ createdAt: -1 })
+            userIds: { $in: [userId] },
+            seenBy: { $nin: [userId] }
+        })
+        .populate('createdBy', 'username _id') 
+        .populate('threadId', 'title')
+        .sort({ createdAt: -1 })
 
         res.json({
             msg: "Notifications successfully fetched",

@@ -62,6 +62,24 @@ export interface Comment {
   weaviateId: string;
 }
 
+export interface Notification {
+  _id: string;
+  userIds: string[];
+  message: string;
+  threadId: {
+    _id: string;
+    title: string;
+  };
+  postId?: string;
+  seenBy: string[];
+  createdBy: {
+    _id: string;
+    username: string;
+    id: string;
+  } | null;
+  createdAt: string;
+  __v?: number;
+}
 export interface Forum {
         _id: string;
         title: string;
@@ -94,6 +112,7 @@ export interface ForumState {
   commentsLoading: {[postId: string]: boolean};
   commentsError: {[postId: string]: string};
   isWatched: boolean;
+  notifications: Notification[]
 }
 
 
@@ -127,6 +146,8 @@ export interface ForumActions {
   deleteThread: (threadId: string) => void;
   watchThread: (threadId: string) => Promise<void>;
   checkWatchStatus: (threadId: string) => Promise<void>
+  fetchNotifications: () => Promise<void>
+  markNotificationRead: (notificationId: string) => Promise<void>
 }
 
 export type ForumStore = ForumState & ForumActions;

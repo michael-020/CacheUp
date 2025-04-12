@@ -137,6 +137,9 @@ interface INotification extends Document {
   threadId: Schema.Types.ObjectId;
   seenBy: Schema.Types.ObjectId[];
   createdAt: Date; 
+  postId?: Schema.Types.ObjectId
+  commentId?: Schema.Types.ObjectId
+  createdBy: Schema.Types.ObjectId
 }
 
 // Request forum Interface
@@ -494,6 +497,19 @@ const watchNotificationSchema = new Schema<INotification>({
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  postId: {
+    type: Schema.Types.ObjectId,
+    ref: "forumposts"
+  },
+  commentId: {
+    type: Schema.Types.ObjectId,
+    ref: "forumcomments"
+  },
+  createdBy: {
+    type: Schema.Types.ObjectId,
+    ref: "users",
+    required: true
   }
 })
 
