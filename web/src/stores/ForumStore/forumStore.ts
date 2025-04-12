@@ -15,7 +15,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   loadingForums: false,
   errorForums: '',
   loading: false,
-  error: '',
+  error: "",
   searchResult: { 
     msg: '',
     searchResults: [] 
@@ -28,8 +28,9 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   likedPosts: new Set<string>(),
 
   comments: {},
-commentsLoading: {},
-commentsError: {},
+  commentsLoading: {},
+  commentsError: {},
+  isWatched: false,
 
   
   fetchForums: async (isAdminRoute) => {
@@ -411,10 +412,30 @@ commentsError: {},
 
   deleteThread : async (threadId: string) => {
     try {
-      axiosInstance.delete(`/admin/forums/thread/${threadId}`)
+      await axiosInstance.delete(`/admin/forums/thread/${threadId}`)
 
     } catch (error) {
       toast.error("Could not delete the thread")
+      console.error(error)
+    }
+  },
+
+  watchThread : async (threadId: string) => {
+    try{
+      const response = await axiosInstance.put(`/forums/watch-thread/${threadId}`)
+      response.data.msg === "Watched" ? set({ isWatched : true}) : set({  isWatched: false })
+      toast.success(response.data.msg)
+    }catch(error){
+      toast.error("Error in watching/unwatching thread")
+      console.error(error)
+    }
+  },
+
+  checkWatchStatus : async (threadId: string) => {
+    try{
+      const response = await axiosInstance.get(`/forums/watch-status/${threadId}`)
+      set({ isWatched: response.data.isWatched })
+    }catch(error){
       console.error(error)
     }
   }

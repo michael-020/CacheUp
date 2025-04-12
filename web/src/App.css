@@ -4,7 +4,7 @@ body {
   padding-right: env(safe-area-inset-right);
 }
 
-/* Custom scrollbar styling */
+Custom scrollbar styling
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }

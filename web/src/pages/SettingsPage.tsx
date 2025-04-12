@@ -66,7 +66,7 @@ export default function SettingsPage() {
           <div className="flex items-center">
             <button
               onClick={() => navigate(-1)}
-              className="mr-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700"
+              className="mr-4 p-2 lg:hidden block rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700"
             >
               <ArrowLeft className="h-5 w-5 text-gray-600 dark:text-gray-300" />
             </button>
