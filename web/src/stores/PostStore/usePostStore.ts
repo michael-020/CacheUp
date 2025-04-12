@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import { Comment, Post } from '@/lib/utils';
 import { useAuthStore } from '../AuthStore/useAuthStore';
 
-export const usePostStore = create<PostState & PostActions>((set) => ({
+export const usePostStore = create<PostState & PostActions>((set,get) => ({
   posts: [],
   isFetchingPosts: false,
   reportedPosts: [],
@@ -16,6 +16,8 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
   isDeletingComment: false,
   error: null,
   isPostDeleting: false,
+  savedPosts: [],
+  isFetchingSavedPosts: false,
 
   setError: (error) => set({ error }),
   clearError: () => set({ error: null }),
@@ -84,22 +86,69 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
     }
   },
 
+  // Update your Zustand store's toggleSave function
   toggleSave: async (postId) => {
+    const state = get(); // ⬅ moved out
+    const originalPost = state.posts.find(p => p._id === postId); // ⬅ moved out
+    const originalIsSaved = originalPost?.isSaved ?? false; // ⬅ moved out
+  
     try {
-      await axiosInstance.put(`/post/save/${postId}`);
-      set((state) => ({
-        posts: state.posts.map((post) =>
-          post._id === postId
-            ? {
-                ...post,
-                isSaved: !post.isSaved,
-              }
-            : post
+      set({
+        posts: state.posts.map(post => 
+          post._id === postId ? { ...post, isSaved: !originalIsSaved } : post
         ),
-      }));
+        savedPosts: originalIsSaved
+          ? state.savedPosts.filter(p => p._id !== postId)
+          : [...state.savedPosts, state.posts.find(p => p._id === postId)!]
+      });
+  
+      await (originalIsSaved 
+        ? axiosInstance.delete(`/post/save/${postId}`)
+        : axiosInstance.post(`/post/save/${postId}`));
+  
+      const { data } = await axiosInstance.get("/post/save");
+      set({
+        savedPosts: data,
+        posts: state.posts.map(post => ({
+          ...post,
+          isSaved: data.some((saved: Post) => saved._id === post._id)
+        }))
+      });
+  
     } catch (error) {
-      console.error("Error toggling save:", error);
-      // set({ error: error.response?.data?.message || 'Failed to toggle save' });
+      set((state) => ({
+        posts: state.posts.map(post => 
+          post._id === postId ? { ...post, isSaved: originalIsSaved } : post
+        ),
+        savedPosts: originalIsSaved
+          ? [...state.savedPosts, originalPost!]
+          : state.savedPosts.filter(p => p._id !== postId)
+      }));
+      console.error("Save error:", error);
+    }
+  },
+  
+  clearSavedPosts: () => set({ savedPosts: [] }),
+
+  
+  
+  fetchSavedPosts: async () => {
+    try {
+      const { data } = await axiosInstance.get("/post/save");
+      set((state) => ({
+        savedPosts: data,
+        posts: state.posts.map(post => ({
+          ...post,
+          isSaved: data.some((saved: Post) => saved._id === post._id)
+        }))
+      }));
+      usePostStore.getState().posts.forEach((p, index) => {
+        if (data.some((saved: Post) => saved._id === p._id)) {
+          usePostStore.getState().posts[index].isSaved = true;
+        }
+      });
+    } catch (error) {
+      console.error("Fetch saved error:", error);
     }
   },
 
