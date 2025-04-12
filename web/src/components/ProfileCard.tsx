@@ -96,7 +96,7 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
   };
 
   return (
-    <div className={`${className || 'fixed left-0 w-64 p-3 overflow-y-auto mt-16 ml-8'}`}>
+    <div className={`${className || 'fixed left-0 lg:w-52 xl:w-64 p-3 overflow-y-auto mt-16 ml-8'}`}>
       <div 
         className={`bg-white dark:bg-neutral-800 dark:border-neutral-700 rounded-lg shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-xl`}
       > 
