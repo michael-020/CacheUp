@@ -3,7 +3,6 @@ import { AxiosError } from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import { SearchBar } from "@/components/forums/search-bar";
 import { useForumStore } from "@/stores/ForumStore/forumStore";
-import ForumListSkeleton from "@/components/skeletons/ForumListSkeleton";
 import type { Forum } from "@/stores/ForumStore/types";
 import { motion } from "framer-motion"
 import { routeVariants } from "@/lib/routeAnimation";
@@ -106,10 +105,7 @@ const ForumList: React.FC = () => {
       </div>
     );
   }
-
-  if (isLoading) {
-    return <ForumListSkeleton />;
-  }
+    
 
   return (
     <motion.div 

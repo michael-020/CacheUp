@@ -3,11 +3,13 @@ import { usePostStore } from "../../stores/PostStore/usePostStore";
 import PostCard from "../PostCard";
 import PostCardSkeleton from "../skeletons/PostCardSkeleton";
 import Share from "../Share";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 export function Feed() {
   const { posts, fetchPosts } = usePostStore();
   const [isLoading, setIsLoading] = useState(true);
-  
+  const isDesktop = useMediaQuery('(min-width: 1024px)'); 
+
   useEffect(() => {
     const loadPosts = async () => {
       setIsLoading(true);
@@ -25,7 +27,6 @@ export function Feed() {
           );
         }
       } catch (error) {
-        // toast.error("Failed to load posts");
         console.error("Error fetching posts:", error);
       } finally {
         setIsLoading(false);
@@ -34,17 +35,24 @@ export function Feed() {
     
     loadPosts();
   }, [fetchPosts]);
-  
+
   return (
     <div className="container mx-auto p-4 mt-16">
-      <Share />
-      <div className="mt-4 -z-10">
+      {/* Desktop-only Share Section */}
+      {isDesktop && (
+        <div className="w-full md:w-[700px] mx-auto mb-6">
+          <Share/>
+        </div>
+      )}
+
+      {/* Posts List */}
+      <div className="mt-4">
         {isLoading ? (
           <>
             <PostCardSkeleton />
+            <PostCardSkeleton />
           </>
         ) : posts && posts.length > 0 ? (
-          
           posts.map((post) => (
             <PostCard key={post._id} post={post} />
           ))
