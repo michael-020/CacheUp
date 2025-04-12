@@ -80,6 +80,16 @@ Custom scrollbar styling
   scrollbar-color: rgba(107, 114, 128, 0.7) transparent;
 }
 
+@media (max-width: 768px) {
+  .custom-scrollbar {
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+}
+
 /* Apply custom scrollbar to all main content areas */
 html, body, #root, main, .overflow-y-auto, .overflow-auto {
   @apply custom-scrollbar;

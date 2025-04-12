@@ -24,7 +24,7 @@ export const Home = () => {
       </div>
 
       {/* Feed aligned to the right side */}
-      <div className="ml-[1rem]">
+      <div className="ml-[1rem] pb-16 lg:pb-0">
         <Feed />
       </div>
     </motion.div>
