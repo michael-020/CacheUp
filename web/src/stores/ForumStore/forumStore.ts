@@ -31,6 +31,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   commentsLoading: {},
   commentsError: {},
   isWatched: false,
+  notifications: [],
 
   
   fetchForums: async (isAdminRoute) => {
@@ -437,6 +438,17 @@ export const useForumStore = create<ForumStore>((set, get) => ({
       set({ isWatched: response.data.isWatched })
     }catch(error){
       console.error(error)
+    }
+  },
+
+  fetchNotifications : async () => {
+    set({ loading: true })
+    try {
+      const response = await axiosInstance.get(`/forums/notification`)
+      set({ notifications: response.data.notifications, loading: false })
+    }catch(error){
+      console.error(error)
+      toast.error("Error in fetching notifications")
     }
   }
   
