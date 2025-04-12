@@ -72,27 +72,27 @@ export const Navbar = () => {
         
         {/* Desktop Navigation Icons */}
         <div className="hidden lg:flex items-center justify-center space-x-4">
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
-            <Link to={"/"}>
+          <Link to={"/"}>
+            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
               <HomeIcont
                 className={`w-6 h-6 ${currentPath === "/" ? "text-blue-500 fill-current" : "text-gray-600 dark:fill-none"}`}
               />
-            </Link>
-          </button>
+            </button>
+          </Link>
 
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
-            <Link to={"/message"}>
+          <Link to={"/message"}>
+            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
               <MessageIcon
                 className={`w-6 h-6 ${currentPath === "/message" ? "text-blue-500 fill-current" : "text-gray-600"}`}
               />
-            </Link>
-            {unReadMessages.length > 0 && <div className="bg-red-500 text-white text-[0.7rem] px-1.5 rounded-full absolute top-0 right-1">
+              {unReadMessages.length > 0 && <div className="bg-red-500 text-white text-[0.7rem] px-1.5 rounded-full absolute top-0 right-1">
                 {unReadMessages.length < 99 ? unReadMessages.length : "99+"}
             </div>}
-          </button>
+            </button>
+          </Link>
 
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative">
-            <Link to={"/friends"}>
+          <Link to={"/friends"}>
+            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative">
               <FriendsIcon
                 className={`w-6 h-6 ${currentPath === "/friends" ? "text-blue-500 fill-current" : "text-gray-600"}`}
               />
@@ -101,24 +101,24 @@ export const Navbar = () => {
                   {requests.length > 9 ? '9+' : requests.length}
                 </span>
               )}
-            </Link>
-          </button>
+            </button>
+          </Link>
 
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
-            <Link to={"/forums/get-forums"}>
-                <MdOutlineForum className={`size-6 ${
-                 isForumPath ? "text-blue-500 fill-current" : "text-gray-600"
-                }`} />
-            </Link>
-          </button>
+          <Link to={"/forums/get-forums"}>
+            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
+              <MdOutlineForum className={`size-6 ${
+                isForumPath ? "text-blue-500 fill-current" : "text-gray-600"
+              }`} />
+            </button>
+          </Link>
 
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
-            <Link to={"/settings"}>
+          <Link to={"/settings"}>
+            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
               <SettingsIcon
                 className={`w-6 h-6 ${currentPath === "/settings" ? "text-blue-500 fill-current" : "text-gray-600"}`}
               />
-            </Link>
-          </button>
+            </button>
+          </Link>
         </div>
         
         {/* Desktop User Controls */}
