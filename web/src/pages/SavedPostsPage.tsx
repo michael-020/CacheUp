@@ -1,7 +1,7 @@
-// src/pages/SavedPostsPage.tsx
-import { useEffect } from "react";
+
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Loader } from "lucide-react";
+import { ArrowLeft, Rows, LayoutGrid, Heart, MessageCircle } from "lucide-react";
 import { usePostStore } from "@/stores/PostStore/usePostStore";
 import PostCard from "@/components/PostCard";
 import { motion } from "framer-motion";
@@ -10,18 +10,110 @@ import { routeVariants } from "@/lib/routeAnimation";
 export default function SavedPostsPage() {
   const navigate = useNavigate();
   const { savedPosts, fetchSavedPosts, isFetchingSavedPosts } = usePostStore();
+  const [view, setView] = useState<"list" | "grid">("grid");
 
   useEffect(() => {
     const controller = new AbortController();
     fetchSavedPosts();
-  
     return () => {
       controller.abort();
       usePostStore.getState().clearSavedPosts();
     };
   }, [fetchSavedPosts]);
 
-  
+  const SkeletonPost = ({ isGrid }: { isGrid: boolean }) => {
+    if (isGrid) {
+      return (
+        <div className="aspect-square rounded-lg overflow-hidden relative">
+          <div className="absolute inset-0 bg-gray-200 dark:bg-neutral-700 animate-pulse"></div>
+          <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-black/60 to-transparent p-2">
+            <div className="flex justify-between items-center">
+              <div className="w-16 h-3 bg-gray-300 dark:bg-neutral-600 rounded animate-pulse"></div>
+              <div className="flex space-x-2">
+                <div className="w-8 h-3 bg-gray-300 dark:bg-neutral-600 rounded animate-pulse"></div>
+                <div className="w-8 h-3 bg-gray-300 dark:bg-neutral-600 rounded animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-4 h-40">
+        <div className="flex space-x-3 items-center mb-3">
+          <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-neutral-700 animate-pulse"></div>
+          <div className="w-24 h-4 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse"></div>
+        </div>
+        <div className="space-y-2">
+          <div className="w-full h-4 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse"></div>
+          <div className="w-5/6 h-4 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse"></div>
+          <div className="w-4/6 h-4 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse"></div>
+        </div>
+        <div className="flex justify-between items-center mt-4">
+          <div className="w-20 h-4 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse"></div>
+          <div className="w-16 h-4 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse"></div>
+        </div>
+      </div>
+    );
+  };
+
+  const GridPost = ({ post }: { post: any }) => {
+    return (
+      <div
+        key={post._id}
+        className="relative aspect-square group cursor-pointer overflow-hidden rounded-lg shadow-sm transition-transform duration-200 hover:shadow-md hover:scale-[1.02]"
+        onClick={() => navigate(`/post/${post._id}`)}
+      >
+        {post.postsImagePath ? (
+          <>
+            <img
+              src={post.postsImagePath}
+              alt="post"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity duration-200">
+              <div className="flex gap-4 items-center mb-2">
+                <div className="flex items-center gap-1">
+                  <Heart className="w-5 h-5 text-red-500 drop-shadow-md" />
+                  <span className="text-white font-medium drop-shadow-md">{post.likes.length}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <MessageCircle className="w-5 h-5 text-blue-400 drop-shadow-md" />
+                  <span className="text-white font-medium drop-shadow-md">{post.comments.length}</span>
+                </div>
+              </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/profile/${post.username}`);
+                }}
+                className="text-sm text-white hover:text-gray-200 font-medium bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm transition-colors"
+              >
+                @{post.username}
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="w-full h-full bg-white dark:bg-neutral-800 rounded-lg flex items-center justify-center p-4 text-center relative group">
+            <p className="text-gray-800 dark:text-gray-100 text-sm line-clamp-4">{post.text}</p>
+            <div className="absolute inset-0 bg-black/20 dark:bg-white/10 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity duration-200 rounded-lg">
+              <div className="flex gap-4 items-center mb-2">
+                <div className="flex items-center gap-1">
+                  <Heart className="w-5 h-5 text-red-500" />
+                  <span className="text-gray-800 dark:text-white font-medium">{post.likes.length}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <MessageCircle className="w-5 h-5 text-blue-400" />
+                  <span className="text-gray-800 dark:text-white font-medium">{post.comments.length}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <motion.div
@@ -33,26 +125,49 @@ export default function SavedPostsPage() {
     >
       <div className="max-w-4xl mx-auto p-4">
         {/* Header */}
-        <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-4 mb-4">
+        <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-4 mb-4 flex items-center justify-between">
           <div className="flex items-center">
             <button
               onClick={() => navigate(-1)}
-              className="mr-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700"
+              className="mr-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 transition-colors"
             >
               <ArrowLeft className="h-5 w-5 text-gray-600 dark:text-gray-300" />
             </button>
             <h1 className="text-xl font-semibold text-gray-800 dark:text-white">Saved Posts</h1>
           </div>
+          <button
+            onClick={() => setView(view === "list" ? "grid" : "list")}
+            className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors"
+            aria-label={view === "list" ? "Switch to grid view" : "Switch to list view"}
+          >
+            {view === "list" ? (
+              <LayoutGrid className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+            ) : (
+              <Rows className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+            )}
+          </button>
         </div>
 
-        {/* Posts */}
+        {/* Content */}
         {isFetchingSavedPosts ? (
-          <div className="flex justify-center items-center h-64">
-            <Loader className="h-8 w-8 text-blue-500 animate-spin" />
+          <div className={`${view === "grid" ? "grid grid-cols-2 sm:grid-cols-3 gap-4" : "space-y-4"}`}>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <SkeletonPost key={i} isGrid={view === "grid"} />
+            ))}
           </div>
         ) : savedPosts.length === 0 ? (
           <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-8 text-center">
-            <p className="text-gray-600 dark:text-gray-400">No saved posts yet</p>
+            <div className="my-8">
+              <Heart className="h-12 w-12 mx-auto text-gray-300 dark:text-gray-600 mb-4" />
+              <p className="text-gray-600 dark:text-gray-400 text-lg font-medium">No saved posts yet</p>
+              <p className="text-gray-500 dark:text-gray-500 mt-2">Posts you save will appear here</p>
+            </div>
+          </div>
+        ) : view === "grid" ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {savedPosts.map((post) => (
+              <GridPost key={post._id} post={post} />
+            ))}
           </div>
         ) : (
           <div className="space-y-4">
