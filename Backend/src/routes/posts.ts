@@ -8,6 +8,7 @@ import { uploadPostsHandler } from "../handlers/uploadPostsHandler";
 import { deletePostHandler } from "../handlers/deletePostHandler";
 import { upload } from "../middlewares/upload";
 import unReportPostHandler from "../handlers/unReportPostHandler";
+import savePostHandler from "../handlers/savePostHandler"
 
 const postRouter: Router = Router();
 
@@ -19,6 +20,8 @@ postRouter.post("/createPost", uploadPostsHandler)
 // view Posts handler
 postRouter.use("/viewPosts", viewPostHandler)
 
+postRouter.use("/save", savePostHandler);
+
 // delete your own post
 postRouter.delete("/deletePost/:postId", deletePostHandler)
 
@@ -28,10 +31,14 @@ postRouter.use("/reportPost", reportPostHandler)
 // un-report posts
 postRouter.use("/unReportPost", unReportPostHandler)
 
+
 // Like handler
 postRouter.use("/like", likeHandler)
 
 // comment handler
 postRouter.use("/comment", commentHandler)
+
+
+
 
 export default postRouter;

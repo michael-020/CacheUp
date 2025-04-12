@@ -6,6 +6,7 @@ import { DeleteModal } from "@/components/DeleteModal"
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { routeVariants } from "@/lib/routeAnimation"
+import { BookMarked } from "lucide-react";
 
 export default function SettingsPage() {
   const navigate = useNavigate()
@@ -315,6 +316,30 @@ export default function SettingsPage() {
               </div>
             </div>
           </div> */}
+
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm overflow-hidden">
+            <div className="p-4 border-b border-gray-200 dark:border-neutral-700">
+              <h2 className="text-lg font-medium text-gray-800 dark:text-white">Content</h2>
+            </div>
+            <div className="p-4 space-y-4">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <BookMarked className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+                  <div>
+                    <p className="text-gray-800 dark:text-white font-medium">Saved Posts</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">View your saved posts</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => navigate("/saved-posts")}
+                  className="px-4 py-2 bg-gray-200 dark:bg-neutral-700 text-gray-800 dark:text-white rounded-md hover:bg-gray-300 dark:hover:bg-neutral-600 transition"
+                >
+                  View
+                </button>
+              </div>
+            </div>
+          </div>
+          
 
           {/* Account Actions */}
           <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm overflow-hidden">

@@ -28,6 +28,9 @@ import ChangePassword from './components/ChangePassword'
 import Thread from './pages/Posts(thread)'
 import { useThemeStore } from './stores/ThemeStore/useThemeStore'
 import { AnimatePresence } from "framer-motion"
+import SavedPostsPage from "./pages/SavedPostsPage";
+import { usePostStore } from './stores/PostStore/usePostStore'
+
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore()
@@ -36,6 +39,8 @@ function App() {
   const location = useLocation()
   const navigate = useNavigate()
   const [returnPath, setReturnPath] = useState<string | null>(null)
+  const { fetchSavedPosts } = usePostStore();
+
   
   const isAdminRoute = location.pathname.startsWith('/admin')
   const initialized = useRef(false)
@@ -80,6 +85,15 @@ function App() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authUser, isAdminRoute, returnPath, navigate])
+
+  useEffect(() => {
+    if (authUser) {
+      fetchSavedPosts();
+      usePostStore.getState().posts.forEach(post => {
+        post.isSaved = usePostStore.getState().savedPosts.some(sp => sp._id === post._id);
+      });
+    }
+  }, [authUser, fetchSavedPosts]);
 
   useEffect(() => {
     const theme = localStorage.getItem('theme')
@@ -141,6 +155,8 @@ function App() {
           <Route path="/forums/search" element={authUser ? <SearchResults /> : <Navigate to='/signin' />} />
           <Route path='/forums/thread/:id' element={authUser ? <Thread /> : <Navigate to='/signin' />} />
           <Route path="/change-password" element={authUser ? <ChangePassword /> : <Navigate to="/signin" />} />
+          <Route path="/saved-posts" element={<SavedPostsPage />} />
+
 
 
           {/* Admin Routes */}

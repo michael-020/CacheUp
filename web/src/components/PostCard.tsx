@@ -32,6 +32,8 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const reportRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  
+  const [isSaved, setIsSaved] = useState(post.isSaved);
 
   const getComments = async (postId: string) => {
     if(isAdmin){
@@ -54,8 +56,6 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
       setShowCommentInput(false);
       await new Promise(resolve => setTimeout(resolve, 300));
     }
-
- 
 
     setIsLoadingLikes(true);
     try {
@@ -91,7 +91,10 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
     setShowCommentInput(true);
   };
 
-
+  const handleSaveToggle = async (postId: string) => {
+    await toggleSave(postId);
+    setIsSaved(usePostStore.getState().posts.find(p => p._id === postId)?.isSaved ?? false);
+  };
   
   
   const handleCommentSubmit = async () => {
@@ -154,6 +157,13 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
     setShowReport(false);
   }
 
+  // Update local state when post prop changes
+  useEffect(() => {
+    // Get fresh state from the store
+    const currentPostState = usePostStore.getState().posts.find(p => p._id === post._id);
+    setIsSaved(currentPostState?.isSaved ?? post.isSaved);
+  }, [post._id, post.isSaved]); 
+
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (reportRef.current && !reportRef.current.contains(e.target as Node)) {
@@ -186,6 +196,8 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
       navigate(`/profile/${userId}`);
     }
   };
+
+  const isOwnPost = authUser?._id === post.postedBy;
 
   return (
     <div
@@ -293,22 +305,21 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
 
       {/* Actions */}
       <div className="flex items-center dark:text-neutral-400 dark:border-gray-600 text-sm border-t border-gray-100 pt-3">
-      <button
-            className={`flex items-center mr-6 transition-colors ${post.isLiked ? "text-red-500" : ""}`}
-            onClick={() => toggleLike(post._id)}
+        <button
+          className={`flex items-center mr-6 transition-colors ${post.isLiked ? "text-red-500" : ""}`}
+          onClick={() => toggleLike(post._id)}
+        >
+          <HeartIcon filled={post.isLiked} />
+          <span 
+            className={`ml-2 font-medium cursor-pointer hover:underline ${post.isLiked ? "text-red-500" : ""}`}
+            onClick={(e: React.MouseEvent) => {
+              e.stopPropagation();
+              fetchLikedUsers(post._id);
+            }}
           >
-            <HeartIcon filled={post.isLiked} />
-            <span 
-              className={`ml-2 font-medium cursor-pointer hover:underline ${post.isLiked ? "text-red-500" : ""}`}
-              onClick={(e: React.MouseEvent) => {
-                e.stopPropagation();
-                fetchLikedUsers(post._id);
-              }}
-            >
-              {post.likes.length}
-            </span>
+            {post.likes.length}
+          </span>
         </button>
-
 
         <button
           className="flex items-center mr-6 hover:text-blue-500 transition-colors"
@@ -318,15 +329,18 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
           <span className="ml-2 font-medium">{post.comments.length}</span>
         </button>
 
-        <button
-          className="ml-auto hover:text-blue-500 transition-colors"
-          onClick={() => toggleSave(post._id)}
-        >
-          <SaveIcon
-            filled={post.isSaved}
-            className={post.isSaved ? "text-blue-500" : "text-gray-500"}
-          />
-        </button>
+        {/* Show save button only if the post is not by the current user */}
+        {!isOwnPost && (
+          <button
+            className={`ml-auto transition-colors ${isSaved ? "text-blue-500" : "text-gray-500 hover:text-blue-500"}`}
+            onClick={() => handleSaveToggle(post._id)}
+          >
+            <SaveIcon
+              filled={isSaved}
+              className={isSaved ? "text-blue-500" : "text-gray-500 hover:text-blue-500"}
+            />
+          </button>
+        )}
       </div>
 
       {/* Likes Modal */}
