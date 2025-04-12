@@ -26,11 +26,11 @@ const ChatSidebar = () => {
   if (isUsersLoading) return <SidebarSkeleton />;
 
   return (
-    <aside className="h-full w-20 lg:w-72 border-r bg-white dark:bg-neutral-900 border-gray-300 flex flex-col transition-all duration-200">
-      <div className="border-b border-gray-300 lg:w-72 w-20 p-5">
+    <aside className="h-full w-full md:w-60 lg:w-72 border-r bg-white dark:bg-neutral-900 border-gray-300 flex flex-col transition-all duration-200">
+      <div className="border-b border-gray-300 lg:w-72 w-full p-5">
         <div className="flex items-center gap-2">
           <Users className="w-6 h-6" />
-          <span className="font-medium hidden lg:block">Contacts</span>
+          <span className="font-medium block">Contacts</span>
         </div>
         <div className="mt-3 hidden lg:flex items-center gap-2">
           <label className="cursor-pointer flex items-center gap-2">
@@ -88,7 +88,7 @@ const ChatSidebar = () => {
                         />
                       )}
                     </div>
-                    <div className="hidden lg:block text-left min-w-0 flex-1">
+                    <div className="block text-left min-w-0 flex-1">
                       <div className="font-medium truncate flex items-center justify-between">
                         <span>{user.username}</span>
                         {unreadCount > 0 && (
