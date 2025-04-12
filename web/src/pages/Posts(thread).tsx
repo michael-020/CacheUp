@@ -26,7 +26,7 @@ export const Thread = () => {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchPosts(id as string);
+    authAdmin ? fetchPosts(id as string, true) : fetchPosts(id as string, false);
     checkWatchStatus (id as string)
   }, [id, fetchPosts]);
 
