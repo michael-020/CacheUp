@@ -3,12 +3,10 @@ import { usePostStore } from "../../stores/PostStore/usePostStore";
 import PostCard from "../PostCard";
 import PostCardSkeleton from "../skeletons/PostCardSkeleton";
 import Share from "../Share";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 export function Feed() {
   const { posts, fetchPosts } = usePostStore();
   const [isLoading, setIsLoading] = useState(true);
-  const isDesktop = useMediaQuery('(min-width: 1024px)'); 
 
   useEffect(() => {
     const loadPosts = async () => {
@@ -38,15 +36,13 @@ export function Feed() {
 
   return (
     <div className="container mx-auto p-4 mt-16">
-      {/* Desktop-only Share Section */}
-      {isDesktop && (
-        <div className="w-full md:w-[700px] mx-auto mb-6">
-          <Share/>
-        </div>
-      )}
+      {/* Desktop-only Share Section - hidden on mobile */}
+      <div className="hidden lg:block w-full max-w-[700px] mx-auto mb-6">
+        <Share />
+      </div>
 
       {/* Posts List */}
-      <div className="mt-4">
+      <div className="mt-4 lg:max-w-[700px] mx-auto">
         {isLoading ? (
           <>
             <PostCardSkeleton />
