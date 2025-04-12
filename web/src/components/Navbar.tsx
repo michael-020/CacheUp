@@ -3,7 +3,7 @@ import HomeIcont from "../icons/HomeIcon";
 import MessageIcon from "../icons/MessageIcon";
 import SettingsIcon from "../icons/SettingsIcon";
 import { useAuthStore } from "../stores/AuthStore/useAuthStore";
-import { Menu, Moon, PlusSquare, Settings, Sun, X } from "lucide-react";
+import { Moon, PlusSquare, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useChatStore } from "@/stores/chatStore/useChatStore";
 import { MdOutlineForum } from "react-icons/md";
@@ -31,10 +31,6 @@ export const Navbar = () => {
     } else {
       document.documentElement.classList.remove('dark');
     }
-  };
-
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
   };
 
   useEffect(() => {
@@ -147,27 +143,15 @@ export const Navbar = () => {
 
         {/* Mobile Right Controls - Always Visible */}
         <div className="flex lg:hidden items-center space-x-3">
-          <button onClick={handleToggleTheme} className="p-1.5 hover:bg-neutral-200 rounded-md dark:hover:bg-gray-700">
-            {isDark ? <Sun className="size-5" /> : <Moon className="size-5" />}
-          </button>
+         
           
-          <button className="hover:-translate-y-0.5 hover:scale-105">
+          <button className="hover:-translate-y-0.5 hover:scale-105 p-1.5">
             <Link to={"/profile"}>
               <img src={authUser.profilePicture ? authUser.profilePicture : "/avatar.jpeg"} alt="Profile" className="size-8 rounded-full border" />
             </Link>
           </button>
           
-          {/* Mobile Menu Toggle Button */}
-          <button 
-            onClick={toggleMobileMenu}
-            className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
-            aria-label="Toggle menu"
-          >
-            {mobileMenuOpen ? 
-              <X className="size-6 text-gray-600 dark:text-gray-300" /> : 
-              <Menu className="size-6 text-gray-600 dark:text-gray-300" />
-            }
-          </button>
+          
         </div>
 
         {/* Mobile Menu - Conditional Rendering */}
@@ -234,6 +218,26 @@ export const Navbar = () => {
 export const BottomNavigationBar = () => {
   const location = useLocation();
   const currentPath = location.pathname;
+  const { requests, fetchRequests } = useFriendsStore();
+  const { unReadMessages } = useChatStore();
+  const isForumPath = 
+    currentPath === "/forums/get-forums" || 
+    /^\/forums\/[^/]+\/[^/]+$/.test(currentPath);
+
+  useEffect(() => {
+    const interval = setInterval(fetchRequests, 1000 * 120);
+  
+    const handleVisibilityChange = () => {
+      if (document.hidden) clearInterval(interval);
+    };
+    
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [fetchRequests]);
   
   // State to track screen size
   const [isMobile, setIsMobile] = useState(false);
@@ -254,7 +258,6 @@ export const BottomNavigationBar = () => {
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
-  // Don't render on larger screens
   if (!isMobile) {
     return null;
   }
@@ -273,41 +276,46 @@ export const BottomNavigationBar = () => {
               />
         </Link>
 
-        <Link 
-          to="/friends" 
-          className={`flex flex-col items-center justify-center w-1/5 h-full ${
-            currentPath === "/friends" ? "text-blue-500" : "text-gray-500 dark:text-gray-400"
-          }`}
-        >
-          <FriendsIcon className="w-6 h-6" />
-        </Link>
+        <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
+          <Link to={"/message"}>
+            <MessageIcon
+              className={`w-6 h-6 ${currentPath === "/message" ? "text-blue-500 fill-current" : "text-gray-600"}`}
+            />
+          </Link>
+          {unReadMessages.length > 0 && <div className="bg-red-500 text-white text-[0.7rem] px-1.5 rounded-full absolute top-0 right-1">
+              {unReadMessages.length < 99 ? unReadMessages.length : "99+"}
+          </div>}
+        </button>
 
         <Link 
           to="/create-post" 
           className={`flex flex-col items-center justify-center w-1/5 h-full ${
-            currentPath === "/create-post" ? "text-blue-500" : "text-gray-500 dark:text-gray-400"
+            currentPath === "/create-post" ? "text-blue-500" : "text-gray-600 "
           }`}
         >
           <PlusSquare className="w-6 h-6" />
         </Link>
 
-        <Link 
-          to="/message" 
-          className={`flex flex-col items-center justify-center w-1/5 h-full ${
-            currentPath === "/message" ? "text-blue-500" : "text-gray-500 dark:text-gray-400"
-          }`}
-        >
-          <MessageIcon className="w-6 h-6" />
-        </Link>
+        <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative">
+          <Link to={"/friends"}>
+            <FriendsIcon
+              className={`w-6 h-6 ${currentPath === "/friends" ? "text-blue-500 fill-current" : "text-gray-600"}`}
+            />
+            {requests.length > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {requests.length > 9 ? '9+' : requests.length}
+              </span>
+            )}
+          </Link>
+        </button>
 
-        <Link 
-          to="/settings" 
-          className={`flex flex-col items-center justify-center w-1/5 h-full ${
-            currentPath === "/settings" ? "text-blue-500" : "text-gray-500 dark:text-gray-400"
-          }`}
-        >
-          <Settings className="w-6 h-6" />
-        </Link>
+        <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
+          <Link to={"/forums/get-forums"}>
+              <MdOutlineForum className={`size-6 ${
+                isForumPath ? "text-blue-500 fill-current" : "text-gray-600"
+              }`} />
+          </Link>
+        </button>
       </nav>
     </div>
   );
