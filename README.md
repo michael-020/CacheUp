@@ -1,6 +1,6 @@
 # 📚 CampusConnect
 
-CampusConnect is a college-based social platform with a backend (Node.js), an AI service (Python), and a frontend (React). This guide will help you set up the project locally.
+CampusConnect is a college-based social platform with a backend (Node.js), an ML service (Python), and a frontend (React). This guide will help you set up the project locally.
 
 ---
 
@@ -9,7 +9,7 @@ CampusConnect is a college-based social platform with a backend (Node.js), an AI
 ```
 CampusConnect/
 ├── backend/         → Node.js + Express (API & Auth)
-├── python-server/   → Python server (AI/NLP services)
+├── python-server/   → Python server (ML services)
 ├── web/             → React frontend
 ```
 
@@ -20,7 +20,7 @@ CampusConnect/
 ### 1. Clone the Repository
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/michael-020/CampusConnect.git
 cd CampusConnect
 ```
 
@@ -49,7 +49,7 @@ CLOUDINARY_API_KEY=
 CLOUDINARY_API_SECRET=
 ```
 
-Then, spin up the database container:
+Then, spin up the weaviate database container:
 
 ```bash
 docker compose up -d
@@ -64,7 +64,7 @@ cd python-server
 python3 download_models.py
 ```
 
-This downloads required transformer models for AI services.
+This downloads required transformer models for ML services.
 
 ---
 
@@ -81,7 +81,7 @@ npm install
 
 ### 🔹 Backend
 
-Make sure your `.env` has a valid MongoDB connection string.
+Make sure your `.env` has a valid MongoDB connection string and the other variables.
 
 Run in development mode:
 
@@ -130,4 +130,4 @@ npm run start
 
 - Make sure all three servers are running for full functionality.
 - Ensure ports don’t conflict; update `.env` or config files if needed.
-- The Python server is required for smart AI-based features like summarization or NLP.
+- The Python server is required for smart ML-based features like vector search.
