@@ -3,20 +3,21 @@ import { AxiosError } from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import { SearchBar } from "@/components/forums/search-bar";
 import { useForumStore } from "@/stores/ForumStore/forumStore";
-import {Notification} from "@/stores/ForumStore/types"
+import { Notification } from "@/stores/ForumStore/types";
 import ForumListSkeleton from "@/components/skeletons/ForumListSkeleton";
 import type { Forum } from "@/stores/ForumStore/types";
-import { motion } from "framer-motion"
+import { motion } from "framer-motion";
 import { routeVariants } from "@/lib/routeAnimation";
+import { DeleteModal } from "@/components/DeleteModal"; // Import the DeleteModal
 
 interface ErrorResponse {
   msg: string;
 }
 
-
 const ForumList: React.FC = () => {
   const { forums, error, fetchForums, deleteForum, notifications, fetchNotifications, markNotificationRead } = useForumStore();
   const [isLoading, setIsLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [deleteConfirmationForum, setDeleteConfirmationForum] = useState<Forum | null>(null);
   const [deleteMenuOpen, setDeleteMenuOpen] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'forums' | 'notifications'>('forums');
@@ -88,6 +89,27 @@ const ForumList: React.FC = () => {
     );
   };
 
+  const handleDeleteForum = async () => {
+    if (!deleteConfirmationForum) return;
+    
+    setIsDeleting(true);
+    try {
+      await deleteForum(
+        deleteConfirmationForum._id,
+        deleteConfirmationForum.weaviateId
+      );
+    } catch (err) {
+      const axiosError = err as AxiosError<ErrorResponse>;
+      alert(
+        axiosError.response?.data?.msg ||
+        "Failed to delete forum. Please try again later."
+      );
+    } finally {
+      setIsDeleting(false);
+      setDeleteConfirmationForum(null);
+    }
+  };
+
   const handleNotificationAction = async (notification: Notification, actionType: 'username' | 'content', event: React.MouseEvent) => {
     event.stopPropagation();
     
@@ -104,7 +126,7 @@ const ForumList: React.FC = () => {
             navigate(`/forums/thread/${threadId}`);
         }
     }
-};
+  };
 
   const toggleDeleteMenu = (forumId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -379,49 +401,16 @@ const ForumList: React.FC = () => {
           </div>
         )}
 
-        {deleteConfirmationForum && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md">
-              <h2 className="text-xl font-bold mb-4">Delete Forum</h2>
-              <p className="mb-6">
-                Are you sure you want to delete the forum "
-                {deleteConfirmationForum.title}"? This action cannot be
-                undone.
-              </p>
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setDeleteConfirmationForum(null)}
-                  className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    try {
-                      await deleteForum(
-                        deleteConfirmationForum._id,
-                        deleteConfirmationForum.weaviateId
-                      );
-                      setDeleteConfirmationForum(null);
-                    } catch (err) {
-                      const axiosError = err as AxiosError<ErrorResponse>;
-                      alert(
-                        axiosError.response?.data?.msg ||
-                          "Failed to delete forum. Please try again later."
-                      );
-                      setDeleteConfirmationForum(null);
-                    }
-                  }}
-                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                >
-                  Delete Forum
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <DeleteModal
+          deleteHandler={handleDeleteForum}
+          isModalOpen={deleteConfirmationForum !== null}
+          setIsModalOpen={(isOpen) => {
+            if (!isOpen) setDeleteConfirmationForum(null);
+          }}
+          content={deleteConfirmationForum ? `Are you sure you want to delete the forum "${deleteConfirmationForum.title}"? This action cannot be undone.` : ""}
+          isDeleting={isDeleting}
+          title="Delete Forum"
+        />
       </div>
     </motion.div>
   );
