@@ -448,8 +448,17 @@ export const useForumStore = create<ForumStore>((set, get) => ({
       set({ notifications: response.data.notifications, loading: false })
     }catch(error){
       console.error(error)
+      set({loading: false})
       toast.error("Error in fetching notifications")
     }
-  }
+  },
+
+  markNotificationRead: async (notificationId) => {
+    try{
+      await axiosInstance.put(`/forums/notification/${notificationId}`)
+    }catch(err){
+      console.error(err)
+    }
+  },
   
 }));

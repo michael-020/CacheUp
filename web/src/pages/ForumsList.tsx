@@ -15,7 +15,7 @@ interface ErrorResponse {
 
 
 const ForumList: React.FC = () => {
-  const { forums, error, fetchForums, deleteForum, notifications, fetchNotifications } = useForumStore();
+  const { forums, error, fetchForums, deleteForum, notifications, fetchNotifications, markNotificationRead } = useForumStore();
   const [isLoading, setIsLoading] = useState(true);
   const [deleteConfirmationForum, setDeleteConfirmationForum] = useState<Forum | null>(null);
   const [deleteMenuOpen, setDeleteMenuOpen] = useState<string | null>(null);
@@ -88,13 +88,13 @@ const ForumList: React.FC = () => {
     );
   };
 
-  const handleNotificationAction = (notification: Notification, actionType: 'username' | 'content', event: React.MouseEvent) => {
+  const handleNotificationAction = async (notification: Notification, actionType: 'username' | 'content', event: React.MouseEvent) => {
     event.stopPropagation();
     
     if (actionType === 'username' && notification.createdBy) {
         navigate(`/profile/${notification.createdBy._id}`);
     } else if (actionType === 'content') {
-        
+        await markNotificationRead(notification._id)
         const threadId = notification.threadId._id
         const postId = notification.postId;
         
@@ -190,7 +190,7 @@ const ForumList: React.FC = () => {
     >
       <div className="max-w-6xl mx-auto p-6 translate-y-20 h-full">
         <h1 className="text-2xl font-bold mb-6">
-          {isAdminRoute ? "All Forums (Admin View)" : "All Forums"}
+          {isAdminRoute ? "Forums Section (Admin View)" : "Forums Section"}
         </h1>
 
         {/* Tab navigation */}
