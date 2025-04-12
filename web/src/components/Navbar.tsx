@@ -4,14 +4,14 @@ import HomeIcont from "../icons/HomeIcon";
 import MessageIcon from "../icons/MessageIcon";
 import SettingsIcon from "../icons/SettingsIcon";
 import { useAuthStore } from "../stores/AuthStore/useAuthStore";
-import { Moon, PlusSquare, Sun, X } from "lucide-react";
+import { Moon, PlusSquare, Sun , X} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useChatStore } from "@/stores/chatStore/useChatStore";
 import { MdOutlineForum } from "react-icons/md";
 import FriendsIcon from "@/icons/FriendsIcon";
 import { useFriendsStore } from "@/stores/FriendsStore/useFriendsStore";
 import { useThemeStore } from "@/stores/ThemeStore/useThemeStore";
-import Share from "./Share"; // Import the Share component
+import Share from "./Share"
 
 interface ModalProps {
   isOpen: boolean;
@@ -21,7 +21,7 @@ interface ModalProps {
 
 const Modal = ({ isOpen, onClose, children }:ModalProps) => {
   if (!isOpen) return null;
-  
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white dark:bg-neutral-800 rounded-lg w-full max-w-md mx-auto relative">
@@ -36,6 +36,7 @@ const Modal = ({ isOpen, onClose, children }:ModalProps) => {
     </div>
   );
 };
+
 
 export const Navbar = () => {
   const { logout, authUser } = useAuthStore();
@@ -98,27 +99,27 @@ export const Navbar = () => {
         
         {/* Desktop Navigation Icons */}
         <div className="hidden lg:flex items-center justify-center space-x-4">
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
-            <Link to={"/"}>
+          <Link to={"/"}>
+            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
               <HomeIcont
                 className={`w-6 h-6 ${currentPath === "/" ? "text-blue-500 fill-current" : "text-gray-600 dark:fill-none"}`}
               />
-            </Link>
-          </button>
+            </button>
+          </Link>
 
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
-            <Link to={"/message"}>
+          <Link to={"/message"}>
+            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
               <MessageIcon
                 className={`w-6 h-6 ${currentPath === "/message" ? "text-blue-500 fill-current" : "text-gray-600"}`}
               />
-            </Link>
-            {unReadMessages.length > 0 && <div className="bg-red-500 text-white text-[0.7rem] px-1.5 rounded-full absolute top-0 right-1">
+              {unReadMessages.length > 0 && <div className="bg-red-500 text-white text-[0.7rem] px-1.5 rounded-full absolute top-0 right-1">
                 {unReadMessages.length < 99 ? unReadMessages.length : "99+"}
             </div>}
-          </button>
+            </button>
+          </Link>
 
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative">
-            <Link to={"/friends"}>
+          <Link to={"/friends"}>
+            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative">
               <FriendsIcon
                 className={`w-6 h-6 ${currentPath === "/friends" ? "text-blue-500 fill-current" : "text-gray-600"}`}
               />
@@ -127,24 +128,24 @@ export const Navbar = () => {
                   {requests.length > 9 ? '9+' : requests.length}
                 </span>
               )}
-            </Link>
-          </button>
+            </button>
+          </Link>
 
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
-            <Link to={"/forums/get-forums"}>
-                <MdOutlineForum className={`size-6 ${
-                 isForumPath ? "text-blue-500 fill-current" : "text-gray-600"
-                }`} />
-            </Link>
-          </button>
+          <Link to={"/forums/get-forums"}>
+            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
+              <MdOutlineForum className={`size-6 ${
+                isForumPath ? "text-blue-500 fill-current" : "text-gray-600"
+              }`} />
+            </button>
+          </Link>
 
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
-            <Link to={"/settings"}>
+          <Link to={"/settings"}>
+            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
               <SettingsIcon
                 className={`w-6 h-6 ${currentPath === "/settings" ? "text-blue-500 fill-current" : "text-gray-600"}`}
               />
-            </Link>
-          </button>
+            </button>
+          </Link>
         </div>
         
         {/* Desktop User Controls */}
@@ -173,7 +174,7 @@ export const Navbar = () => {
             <Link to={"/profile"}>
               <img src={authUser.profilePicture ? authUser.profilePicture : "/avatar.jpeg"} alt="Profile" className="size-8 rounded-full border" />
             </Link>
-          </button>
+          </button>  
         </div>
 
         {/* Mobile Menu - Conditional Rendering */}
@@ -245,7 +246,7 @@ export const BottomNavigationBar = () => {
   const isForumPath = 
     currentPath === "/forums/get-forums" || 
     /^\/forums\/[^/]+\/[^/]+$/.test(currentPath);
-  const [shareOpen, setShareOpen] = useState(false);
+    const [shareOpen, setShareOpen] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(fetchRequests, 1000 * 120);
@@ -295,7 +296,7 @@ export const BottomNavigationBar = () => {
       <Modal isOpen={shareOpen} onClose={() => setShareOpen(false)}>
         <Share/>
       </Modal>
-      
+
       <div className="fixed bottom-0 left-0 right-0 z-10 bg-white dark:bg-neutral-800 border-t border-gray-200 dark:border-neutral-700">
         <nav className="flex items-center justify-around h-16">
           <Link 
@@ -308,7 +309,6 @@ export const BottomNavigationBar = () => {
                   className={`w-6 h-6 ${currentPath === "/" ? "text-blue-500 fill-current" : "text-gray-600 dark:fill-none"}`}
                 />
           </Link>
-
           <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
             <Link to={"/message"}>
               <MessageIcon
@@ -319,9 +319,8 @@ export const BottomNavigationBar = () => {
                 {unReadMessages.length < 99 ? unReadMessages.length : "99+"}
             </div>}
           </button>
-
-          {/* Plus button to open Share component */}
-          <button 
+           {/* Plus button to open Share component */}
+           <button 
             onClick={() => setShareOpen(true)}
             className={`flex flex-col items-center justify-center w-1/5 h-full ${
               shareOpen ? "text-blue-500" : "text-gray-600 dark:text-gray-400"
@@ -329,7 +328,6 @@ export const BottomNavigationBar = () => {
           >
             <PlusSquare className="w-6 h-6" />
           </button>
-
           <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative">
             <Link to={"/friends"}>
               <FriendsIcon
