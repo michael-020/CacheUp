@@ -148,6 +148,7 @@ export interface ForumActions {
   checkWatchStatus: (threadId: string) => Promise<void>
   fetchNotifications: () => Promise<void>
   markNotificationRead: (notificationId: string) => Promise<void>
+  createForumRequest: (title: string, description: string) => Promise<void>
 }
 
 export type ForumStore = ForumState & ForumActions;

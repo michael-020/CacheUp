@@ -461,5 +461,18 @@ export const useForumStore = create<ForumStore>((set, get) => ({
       console.error(err)
     }
   },
+
+  createForumRequest: async (title, description) => {
+    set({ loading: true })
+    try {
+      const response = await axiosInstance.post(`/forums/request-forum`,{ title, description })
+      toast.success(response.data.msg)
+    }catch(error){
+      console.error(error)
+      toast.error("Request Unsuccessful")
+    }finally{
+      set({ loading: false })
+    }
+  }
   
 }));
