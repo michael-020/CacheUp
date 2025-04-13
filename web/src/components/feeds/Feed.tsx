@@ -7,7 +7,23 @@ import Share from "../Share";
 export function Feed() {
   const { posts, fetchPosts } = usePostStore();
   const [isLoading, setIsLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
 
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    
+    // Initial check
+    checkScreenSize();
+    
+    // Add event listener
+    window.addEventListener('resize', checkScreenSize);
+    
+    // Clean up
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+  
   useEffect(() => {
     const loadPosts = async () => {
       setIsLoading(true);
@@ -25,6 +41,7 @@ export function Feed() {
           );
         }
       } catch (error) {
+        // toast.error("Failed to load posts");
         console.error("Error fetching posts:", error);
       } finally {
         setIsLoading(false);
@@ -33,22 +50,16 @@ export function Feed() {
     
     loadPosts();
   }, [fetchPosts]);
-
+  
   return (
     <div className="container mx-auto p-4 mt-16">
-      {/* Desktop-only Share Section - hidden on mobile */}
-      <div className="hidden lg:block w-full max-w-[700px] mx-auto mb-6">
-        <Share />
-      </div>
-
-      {/* Posts List */}
-      <div className="mt-4 lg:max-w-[700px] mx-auto">
+      {!isMobile && <Share />}
+      <div className="mt-4 -z-10">
         {isLoading ? (
           <>
             <PostCardSkeleton />
-            <PostCardSkeleton />
           </>
-        ) : posts && posts.length > 0 ? (
+        ) : posts && posts.length > 0 ? (          
           posts.map((post) => (
             <PostCard key={post._id} post={post} />
           ))

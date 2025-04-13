@@ -1,10 +1,9 @@
-import { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import HomeIcont from "../icons/HomeIcon";
 import MessageIcon from "../icons/MessageIcon";
 import SettingsIcon from "../icons/SettingsIcon";
 import { useAuthStore } from "../stores/AuthStore/useAuthStore";
-import { Moon, PlusSquare, Sun , X} from "lucide-react";
+import { Moon, PlusSquare, Sun} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useChatStore } from "@/stores/chatStore/useChatStore";
 import { MdOutlineForum } from "react-icons/md";
@@ -12,30 +11,7 @@ import FriendsIcon from "@/icons/FriendsIcon";
 import { useFriendsStore } from "@/stores/FriendsStore/useFriendsStore";
 import { useThemeStore } from "@/stores/ThemeStore/useThemeStore";
 import Share from "./Share"
-
-interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  children: ReactNode;
-}
-
-const Modal = ({ isOpen, onClose, children }:ModalProps) => {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-neutral-800 rounded-lg w-full max-w-md mx-auto relative">
-        <button 
-          onClick={onClose} 
-          className="absolute top-3 right-3 p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 z-20"
-        >
-          <X className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-        </button>
-        {children}
-      </div>
-    </div>
-  );
-};
+import { ShareModal } from "./ui/ShareModal";
 
 
 export const Navbar = () => {
@@ -293,9 +269,9 @@ export const BottomNavigationBar = () => {
 
   return (
     <>
-      <Modal isOpen={shareOpen} onClose={() => setShareOpen(false)}>
-        <Share/>
-      </Modal>
+      <ShareModal isOpen={shareOpen} onClose={() => setShareOpen(false)}>
+        <Share onPostSuccess={() => setShareOpen(false)} />
+      </ShareModal>
 
       <div className="fixed bottom-0 left-0 right-0 z-10 bg-white dark:bg-neutral-800 border-t border-gray-200 dark:border-neutral-700">
         <nav className="flex items-center justify-around h-16">
