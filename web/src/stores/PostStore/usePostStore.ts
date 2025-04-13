@@ -86,7 +86,6 @@ export const usePostStore = create<PostState & PostActions>((set,get) => ({
     }
   },
 
-  // Update your Zustand store's toggleSave function
   toggleSave: async (postId) => {
     const state = get(); // ⬅ moved out
     const originalPost = state.posts.find(p => p._id === postId); // ⬅ moved out
