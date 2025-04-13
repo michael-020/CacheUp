@@ -48,10 +48,10 @@ viewPostHandler.get("/", async (req: Request, res: Response) => {
 })
 
 // get a specific post
-viewPostHandler.get("/:id", async (req: Request, res: Response) => {
+viewPostHandler.get("/get-post/:postId", async (req: Request, res: Response) => {
     try{
         const userId = req.user._id
-        const postId = req.params.id
+        const postId = req.params.postId
         const post = await postModel.findById(postId).sort({ createdAt: -1});
 
         if(!post){

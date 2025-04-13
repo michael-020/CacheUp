@@ -1,34 +1,31 @@
 import { Link, useLocation} from "react-router-dom";
 import { Moon, Sun } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { MdOutlineForum } from "react-icons/md";
 import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
 import SettingsIcon from "@/icons/SettingsIcon";
 import HomeIcont from "@/icons/HomeIcon";
+import { useThemeStore } from "@/stores/ThemeStore/useThemeStore";
 
 export const AdminNavbar = () => {
   const { logout, checkAdminAuth } = useAdminStore();
 
   const location = useLocation();
   const currentPath = location.pathname;
-  const [dark, setDark] = useState<boolean>()
+  const { isDark, toggleTheme } = useThemeStore();
 
-  const toggleDarkMode = () => {
-    setDark((prevState) => !prevState);
-    const newTheme = !dark ? "dark" : "light";
-    document.body.classList.toggle("dark", newTheme === "dark");
-    localStorage.setItem("theme", newTheme);
-  }
+  const handleToggleTheme = () => {
+    toggleTheme();
+    const isDarkNow = !isDark;
+    if (isDarkNow) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "dark") {
-      setDark(true);
-      document.body.classList.add("dark");
-    } else {
-      setDark(false);
-      document.body.classList.remove("dark");
-    }
+    
 
   }, [checkAdminAuth]);
 
@@ -49,13 +46,13 @@ export const AdminNavbar = () => {
         </div>
         
         <div className="flex items-center justify-center space-x-4">
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
-            <Link to={"/admin/home"}>
+          <Link to={"/admin/home"}>
+            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
               <HomeIcont
-                className={`w-6 h-6 ${currentPath === "/" ? "text-blue-500 fill-current" : "text-gray-600 dark:fill-none"}`}
+                className={`w-6 h-6 ${currentPath === "/admin/home" ? "text-blue-500 fill-current" : "text-gray-600 dark:fill-none"}`}
               />
-            </Link>
-          </button>
+            </button>
+          </Link>
 
           {/* <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
             <Link to={"/admin/profile"}>
@@ -89,27 +86,27 @@ export const AdminNavbar = () => {
             </Link>
           </button> */}
 
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
-            <Link to={"/admin/forums/get-forums"}>
+          <Link to={"/admin/forums/get-forums"}>
+            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
                 <MdOutlineForum className={`size-6 ${
                   currentPath === "/forums/get-forums" ? "text-blue-500 fill-current" : "text-gray-600"
                 }`} />
-            </Link>
-          </button>
+            </button>
+          </Link>
 
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
-            <Link to={"/admin/settings"}>
+          <Link to={"/admin/settings"}>
+            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
               <SettingsIcon
                 className={`w-6 h-6 ${currentPath === "/settings" ? "text-blue-500 fill-current" : "text-gray-600"}`}
               />
-            </Link>
-          </button>
+            </button>
+          </Link>
         </div>
         
         <div className="w-1/4 flex items-center justify-end space-x-4">
-          <button onClick={toggleDarkMode} className="hover:bg-neutral-200 py-1.5 px-1.5 rounded-md dark:hover:bg-gray-700">
+          <button onClick={handleToggleTheme} className="hover:bg-neutral-200 py-1.5 px-1.5 rounded-md dark:hover:bg-gray-700">
             {
-              dark ? <Sun /> : <Moon />
+              isDark ? <Sun /> : <Moon />
             }
           </button>
           <button className="hover:-translate-y-0.5 hover:scale-105">
