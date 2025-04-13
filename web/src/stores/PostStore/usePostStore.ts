@@ -3,7 +3,7 @@ import { PostActions, PostState } from './types';
 import { axiosInstance } from '../../lib/axios';
 import { AxiosError } from 'axios';
 import toast from 'react-hot-toast';
-import { Comment, Post } from '@/lib/utils';
+import { Comment, IUser, Post } from '@/lib/utils';
 import { useAuthStore } from '../AuthStore/useAuthStore';
 
 export const usePostStore = create<PostState & PostActions>((set,get) => ({
@@ -324,7 +324,7 @@ export const usePostStore = create<PostState & PostActions>((set,get) => ({
     try {
       const response = await axiosInstance.get(`/post/like/${postId}`);
       if (response.data && Array.isArray(response.data.likedUsers)) {
-        return response.data.likedUsers.map((user: any) => ({
+        return response.data.likedUsers.map((user: IUser) => ({
           _id: user._id,
           username: user.username,
           profileImagePath: user.profilePicture || "/avatar.jpeg" 
