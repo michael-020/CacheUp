@@ -10,6 +10,7 @@ import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { useNavigate } from "react-router-dom";
 import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
 import { DeleteModal } from "./DeleteModal";
+import { Textarea } from "./ui/textarea";
 
 interface PostCardProps {
   post: Post;
@@ -338,7 +339,7 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
 
       {/* Text Content */}
       {localPost.text && (
-        <div className="mb-4 text-gray-800 dark:text-gray-300 text-[15px] leading-relaxed">
+        <div className="mb-4 ml-1 text-gray-800 dark:text-gray-300 text-[15px] leading-relaxed">
           {localPost.text}
         </div>
       )}
@@ -450,20 +451,18 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
 
       {/* Comment Section */}
       <div 
-        className={`transition-all duration-300 ease-in-out overflow-hidden  ${
+        className={`transition-all duration-300 ease-in-out overflow-hidden border border-gray-200 dark:border-neutral-700 rounded-lg mt-4 pb-2 ${
           showCommentInput ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
       {showCommentInput && (
         <div className="mt-4 space-y-4 " data-comment-section>
-          <div className="bg-gray-50 dark:bg-neutral-800 dark:border-neutral-700 p-4 rounded-lg border border-gray-200">
-            <textarea
+          <div className={`dark:border-neutral-700 p-4 ${comments.length === 0 ? "border-0" : "border-b"}`}>
+            <Textarea
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
               placeholder="Write a comment..."
-              className="w-full border dark:bg-neutral-600 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-200 focus:border-blue-500 outline-none transition-all"
-              rows={2}
-              onClick={(e: React.MouseEvent) => e.stopPropagation()}
+              className="w-full resize-none border bg-gray-50 placeholder:text-neutral-300 dark:placeholder:text-neutral-400 dark:bg-neutral-700 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-200 focus:border-blue-500 outline-none transition-all"
             />
             <div className="flex justify-end mt-2">
               <button
@@ -488,11 +487,11 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
           </div>
 
           {comments.length > 0 && (
-            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-3 dark:bg-neutral-700">
+            <div className=" px-4 rounded-lg  border-gray-200 dark:border-0 space-y-3 ">
               {comments.filter(comment => comment?._id).map((comment) => (
                 <div
                   key={comment._id}
-                  className="bg-white p-3 rounded-md border border-gray-100 group relative dark:bg-neutral-800"
+                  className={`${comment._id === comments[comments.length-1]._id ? "border-0" : "border-b"} p-3 border-gray-100 dark:border-neutral-700 group relative`}
                 >
                 {editingCommentId === comment._id ? (
                   <div>
