@@ -67,6 +67,14 @@ export const Profile = () => {
     fetchUserPosts();
   }, [id, userId, isAdminView]);
 
+  const handlePostUpdate = (updatedPost: Post) => {
+    setUserPosts(prevPosts => 
+      prevPosts.map(post => 
+        post._id === updatedPost._id ? updatedPost : post
+      )
+    );
+  };
+
   return (
     <motion.div 
       className="flex gap-6 p-4 w-full min-h-screen bg-gray-50 dark:bg-neutral-950 dark:border-neutral-900 dark:shadow-0 dark:shadow-sm"
@@ -114,7 +122,12 @@ export const Profile = () => {
           ) : userPosts.length > 0 ? (
             <div className="space-y-6 z-50">
               {userPosts.map((post) => (
-                <PostCard key={post._id} post={post} isAdmin={isAdminView} />
+                <PostCard 
+                  key={post._id} 
+                  post={post} 
+                  isAdmin={isAdminView} 
+                  onPostUpdate={handlePostUpdate}
+                />
               ))}
             </div>
           ) : (
