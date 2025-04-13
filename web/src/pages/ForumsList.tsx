@@ -6,6 +6,7 @@ import { useForumStore } from "@/stores/ForumStore/forumStore";
 import type { Forum } from "@/stores/ForumStore/types";
 import { motion } from "framer-motion"
 import { routeVariants } from "@/lib/routeAnimation";
+import ForumListSkeleton from "@/components/skeletons/ForumListSkeleton";
 
 interface ErrorResponse {
   msg: string;
@@ -61,7 +62,7 @@ const ForumList: React.FC = () => {
         
         
         const elapsedTime = Date.now() - startTime;
-        const minimumLoadingTime = 200; 
+        const minimumLoadingTime = 100; 
         
         if (elapsedTime < minimumLoadingTime) {
           await new Promise(resolve => 
@@ -106,6 +107,9 @@ const ForumList: React.FC = () => {
     );
   }
     
+  if (isLoading) {
+    return <ForumListSkeleton />;
+  }
 
   return (
     <motion.div 
