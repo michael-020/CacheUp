@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Rows, LayoutGrid, Heart, MessageCircle } from "lucide-react";
+import { ArrowLeft, Rows, LayoutGrid, Heart, MessageCircle, X } from "lucide-react";
 import { usePostStore } from "@/stores/PostStore/usePostStore";
 import PostCard from "@/components/PostCard";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { routeVariants } from "@/lib/routeAnimation";
 import { Post } from "@/lib/utils";
 
@@ -11,6 +11,7 @@ export default function SavedPostsPage() {
   const navigate = useNavigate();
   const { savedPosts, fetchSavedPosts, isFetchingSavedPosts } = usePostStore();
   const [view, setView] = useState<"list" | "grid">("grid");
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -20,6 +21,28 @@ export default function SavedPostsPage() {
       usePostStore.getState().clearSavedPosts();
     };
   }, [fetchSavedPosts]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (selectedPost && e.target instanceof Element && e.target.id === "popup-overlay") {
+        setSelectedPost(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [selectedPost]);
+
+  useEffect(() => {
+    const handleEscKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && selectedPost) {
+        setSelectedPost(null);
+      }
+    };
+
+    document.addEventListener("keydown", handleEscKey);
+    return () => document.removeEventListener("keydown", handleEscKey);
+  }, [selectedPost]);
 
   const SkeletonPost = ({ isGrid }: { isGrid: boolean }) => {
     if (isGrid) {
@@ -49,17 +72,14 @@ export default function SavedPostsPage() {
           <div className="w-8 h-8 bg-gray-200 dark:bg-neutral-700 rounded-full animate-pulse"></div>
         </div>
         
-        {/* Text content skeleton */}
         <div className="mb-4 space-y-2">
           <div className="w-full h-4 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse"></div>
           <div className="w-5/6 h-4 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse"></div>
           <div className="w-4/6 h-4 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse"></div>
         </div>
         
-        {/* Image placeholder skeleton */}
         <div className="rounded-xl overflow-hidden mb-4 h-64 bg-gray-200 dark:bg-neutral-700 animate-pulse"></div>
         
-        {/* Actions skeleton */}
         <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-600">
           <div className="flex space-x-6">
             <div className="flex items-center">
@@ -82,7 +102,7 @@ export default function SavedPostsPage() {
       <div
         key={post._id}
         className="relative aspect-square group cursor-pointer overflow-hidden rounded-lg shadow-sm transition-transform duration-200 hover:shadow-md hover:scale-[1.02]"
-        onClick={() => navigate(`/post/${post._id}`)}
+        onClick={() => setSelectedPost(post)}
       >
         {post.postsImagePath ? (
           <>
@@ -103,10 +123,6 @@ export default function SavedPostsPage() {
                 </div>
               </div>
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(`/profile/${post.username}`);
-                }}
                 className="text-sm text-white hover:text-gray-200 font-medium bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm transition-colors"
               >
                 @{post.username}
@@ -130,6 +146,31 @@ export default function SavedPostsPage() {
             </div>
           </div>
         )}
+      </div>
+    );
+  };
+
+  const PostPopup = ({ post, onClose }: { post: Post, onClose: () => void }) => {
+    return (
+      <div 
+        id="popup-overlay"
+        className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+      >
+        <div 
+          className="bg-white dark:bg-neutral-900 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button 
+            onClick={onClose}
+            className="absolute top-0 right-0 bg-black/20 hover:bg-black/40 text-white rounded-full p-1 z-10"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          
+          <div className="p-2">
+            <PostCard post={post} />
+          </div>
+        </div>
       </div>
     );
   };
@@ -196,6 +237,12 @@ export default function SavedPostsPage() {
           </div>
         )}
       </div>
+
+      <AnimatePresence>
+        {selectedPost && (
+          <PostPopup post={selectedPost} onClose={() => setSelectedPost(null)} />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
