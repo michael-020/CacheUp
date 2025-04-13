@@ -140,8 +140,6 @@ export const Thread = () => {
     }
   };
 
-
-
   const truncateContent = (content: string, postId: string) => {
     if (content.length <= 500 || expandedPosts[postId]) {
       return content;

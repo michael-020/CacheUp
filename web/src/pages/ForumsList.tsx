@@ -173,7 +173,7 @@ const ForumList: React.FC = () => {
       </div>
     );
   }
-
+    
   if (isLoading) {
     return <ForumListSkeleton />;
   }

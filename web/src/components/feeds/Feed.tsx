@@ -7,6 +7,22 @@ import Share from "../Share";
 export function Feed() {
   const { posts, fetchPosts } = usePostStore();
   const [isLoading, setIsLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    
+    // Initial check
+    checkScreenSize();
+    
+    // Add event listener
+    window.addEventListener('resize', checkScreenSize);
+    
+    // Clean up
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
   
   useEffect(() => {
     const loadPosts = async () => {
@@ -37,14 +53,13 @@ export function Feed() {
   
   return (
     <div className="container mx-auto p-4 mt-16">
-      <Share />
+      {!isMobile && <Share />}
       <div className="mt-4 -z-10">
         {isLoading ? (
           <>
             <PostCardSkeleton />
           </>
-        ) : posts && posts.length > 0 ? (
-          
+        ) : posts && posts.length > 0 ? (          
           posts.map((post) => (
             <PostCard key={post._id} post={post} />
           ))

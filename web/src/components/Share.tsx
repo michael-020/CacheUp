@@ -4,7 +4,11 @@ import { usePostStore } from "@/stores/PostStore/usePostStore";
 import { Loader } from "lucide-react";
 import { Textarea } from "./ui/textarea";
 
-export default function Share() {
+interface ShareProps {
+  onPostSuccess?: () => void; 
+}
+
+export default function Share({ onPostSuccess }: ShareProps) {
   const { createPost, isUploadingPost } = usePostStore();
   const [text, setText] = useState("");
   const [image, setImage] = useState("");
@@ -50,6 +54,9 @@ export default function Share() {
       setText("");
       setImage("");
       setImagePreview("");
+      
+      // Call success callback if provided
+      onPostSuccess?.();
     } catch (error) {
       console.error("Error creating post:", error);
     }
@@ -68,7 +75,7 @@ export default function Share() {
 
 
   return (
-    <div className="w-full md:w-[550px] xl:w-[700px] mx-auto mb-6">
+    <div className="w-full md:w-[450px] xl:w-[700px]  mx-auto mb-6">
       <div className="relative">
         <form onSubmit={handleSubmit} className="bg-white dark:bg-neutral-800 rounded-lg shadow p-4">
           <div className="border-b dark:border-gray-700 pb-1">
