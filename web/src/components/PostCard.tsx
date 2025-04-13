@@ -176,7 +176,6 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
     } else {
       document.removeEventListener("mousedown", handleClickOutside);
     }
-    console.log("post: ", post)
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showReport]);
 
