@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Rows, LayoutGrid, Heart, MessageCircle } from "lucide-react";
@@ -40,19 +39,38 @@ export default function SavedPostsPage() {
     }
     
     return (
-      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-4 h-40">
-        <div className="flex space-x-3 items-center mb-3">
-          <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-neutral-700 animate-pulse"></div>
-          <div className="w-24 h-4 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse"></div>
+      <div className="xl:max-w-[700px] md:max-w-[550px] mx-auto rounded-xl bg-white dark:bg-neutral-800 p-4 shadow-lg border border-gray-200 dark:border-neutral-900">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <div className="size-12 rounded-full bg-gray-200 dark:bg-neutral-700 animate-pulse mr-3"></div>
+            <div className="w-24 h-5 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse"></div>
+          </div>
+          <div className="w-8 h-8 bg-gray-200 dark:bg-neutral-700 rounded-full animate-pulse"></div>
         </div>
-        <div className="space-y-2">
+        
+        {/* Text content skeleton */}
+        <div className="mb-4 space-y-2">
           <div className="w-full h-4 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse"></div>
           <div className="w-5/6 h-4 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse"></div>
           <div className="w-4/6 h-4 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse"></div>
         </div>
-        <div className="flex justify-between items-center mt-4">
-          <div className="w-20 h-4 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse"></div>
-          <div className="w-16 h-4 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse"></div>
+        
+        {/* Image placeholder skeleton */}
+        <div className="rounded-xl overflow-hidden mb-4 h-64 bg-gray-200 dark:bg-neutral-700 animate-pulse"></div>
+        
+        {/* Actions skeleton */}
+        <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-600">
+          <div className="flex space-x-6">
+            <div className="flex items-center">
+              <div className="w-5 h-5 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse mr-2"></div>
+              <div className="w-6 h-4 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse"></div>
+            </div>
+            <div className="flex items-center">
+              <div className="w-5 h-5 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse mr-2"></div>
+              <div className="w-6 h-4 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse"></div>
+            </div>
+          </div>
+          <div className="w-5 h-5 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse"></div>
         </div>
       </div>
     );
