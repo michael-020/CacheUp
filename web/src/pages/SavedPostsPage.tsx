@@ -5,6 +5,7 @@ import { usePostStore } from "@/stores/PostStore/usePostStore";
 import PostCard from "@/components/PostCard";
 import { motion } from "framer-motion";
 import { routeVariants } from "@/lib/routeAnimation";
+import { Post } from "@/lib/utils";
 
 export default function SavedPostsPage() {
   const navigate = useNavigate();
@@ -76,7 +77,7 @@ export default function SavedPostsPage() {
     );
   };
 
-  const GridPost = ({ post }: { post: any }) => {
+  const GridPost = ({ post }: { post: Post }) => {
     return (
       <div
         key={post._id}

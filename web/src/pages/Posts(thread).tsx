@@ -26,9 +26,11 @@ export const Thread = () => {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchPosts(id as string);
-    checkWatchStatus (id as string)
-  }, [id, fetchPosts]);
+    if(typeof(id) !== "string")
+      return
+    fetchPosts(id);
+    checkWatchStatus (id)
+  }, [id, fetchPosts, checkWatchStatus]);
 
   useEffect(() => {
     if (!loading && responseData && responseData.length > 0) {
