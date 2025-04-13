@@ -112,7 +112,7 @@ export const Profile = () => {
           {isLoading ? (
             <p className="text-gray-500 text-center py-8 ">Loading posts...</p>
           ) : userPosts.length > 0 ? (
-            <div className="space-y-6">
+            <div className="space-y-6 z-50">
               {userPosts.map((post) => (
                 <PostCard key={post._id} post={post} isAdmin={isAdminView} />
               ))}
