@@ -162,6 +162,7 @@ export const usePostStore = create<PostState & PostActions>((set,get) => ({
       //   error: error.response?.data?.message || 'Failed to load reported posts',
       //   isLoading: false 
       // });
+      console.error("Fetch saved error:", error);
     }
   },
 
@@ -176,9 +177,7 @@ export const usePostStore = create<PostState & PostActions>((set,get) => ({
       }));
     } catch (error) {
       // set({ error: error.response?.data?.message || 'Failed to report post' });
-
-    } finally {
-
+      console.error("Fetch saved error:", error);
     }
   },
 
@@ -196,9 +195,8 @@ export const usePostStore = create<PostState & PostActions>((set,get) => ({
       }));
     } catch (error) {
       // set({ error: error.response?.data?.message || 'Failed to unreport post' });
-      throw error;
-    } finally {
-    }
+      console.error("Fetch saved error:", error);
+    } 
   },
 
   addComment: async (postId, content): Promise<Comment | null> => {
