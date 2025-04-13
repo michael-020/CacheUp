@@ -27,19 +27,10 @@ export function Feed() {
   useEffect(() => {
     const loadPosts = async () => {
       setIsLoading(true);
-      const startTime = Date.now();
       
       try {
-        await fetchPosts();
+        fetchPosts();
         
-        const elapsedTime = Date.now() - startTime;
-        const minimumLoadingTime = 200; 
-        
-        if (elapsedTime < minimumLoadingTime) {
-          await new Promise(resolve => 
-            setTimeout(resolve, minimumLoadingTime - elapsedTime)
-          );
-        }
       } catch (error) {
         // toast.error("Failed to load posts");
         console.error("Error fetching posts:", error);
