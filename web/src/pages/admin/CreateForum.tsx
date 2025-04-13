@@ -12,17 +12,11 @@ const CreateForum: React.FC = () => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
-    try {
-      await createForum(title, description);
-      toast.success('🎉 Forum created successfully! Redirecting...', { duration: 1000 });
-      setTitle('');
-      setDescription('');
-      setTimeout(() => {
-        navigate('/admin/get-forums');
-      }, 1000);
-    } catch (error) {
-      console.error("error wile getting forums", error)
-    }
+    createForum(title, description);
+    toast.success('Forum created successfully!');
+    setTitle('');
+    setDescription('');
+    navigate('/admin/forums/get-forums');
   };
 
   return (
@@ -30,7 +24,6 @@ const CreateForum: React.FC = () => {
       <div className='translate-y-36 p-6 rounded-lg shadow-md bg-white dark:bg-neutral-700'>
       <h1 className="text-2xl font-bold mb-6">Create New Forum</h1>
       
-      <form onSubmit={handleSubmit}>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label htmlFor="title" className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
@@ -62,7 +55,6 @@ const CreateForum: React.FC = () => {
             minLength={10}
           ></textarea>
         </div>
-      </form>
         
         <div className="flex justify-end">
           <button
