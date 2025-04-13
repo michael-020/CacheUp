@@ -88,7 +88,7 @@ export const Profile = () => {
         </div>
       </div>
       
-      <div className="flex-1 max-w-2xl mx-auto translate-y-28 lg:translate-y-20 ">
+      <div className="flex-1 max-w-5xl mx-auto translate-y-28 lg:translate-y-16 ">
         <div className="lg:hidden block fixed right-0 -translate-y-10  ">
           <Link to={"/settings"} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-800">
             <SettingsIcon
@@ -96,7 +96,7 @@ export const Profile = () => {
             />
           </Link>
         </div>
-        <div className="bg-white rounded-lg shadow p-6 mb-6 translate-y-4 dark:bg-neutral-800 dark:border-neutral-900 dark:shadow-0 dark:shadow-sm">
+        <div className="bg-white rounded-lg shadow-lg shadow-neutral-300 p-6 mb-6 translate-y-4 dark:bg-neutral-900 dark:border-neutral-900 dark:shadow-md dark:shadow-neutral-600">
           <h1 className="text-2xl font-bold mb-4">
             {isOwnProfile
               ? isAdminView
