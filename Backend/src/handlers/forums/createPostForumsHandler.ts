@@ -51,9 +51,11 @@ export const createPostForumshandler = async (req: Request, res: Response) => {
         if(watchers && watchers.length > 0) {
             await watchNotificationModel.create({
                 userIds: watchers,
-                message: `${req.user.username} created a new post ${postMongo._id} in ${thread?.title}`,
+                message: `${req.user.username} created a new post in ${thread?.title}`,
                 threadId: thread?._id,
-                seenBy: []
+                seenBy: [],
+                postId: postMongo._id,
+                createdBy: req.user._id
             })
         }
 
