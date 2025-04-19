@@ -68,7 +68,7 @@ const FriendRequests = () => {
 
 
       {requests.length === 0 ? (
-        <div className="text-center py-16 bg-gray-50 dark:bg-neutral-900 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="text-center py-16 bg-gray-50 dark:bg-neutral-900 rounded-lg border border-gray-200 dark:border-neutral-700">
           <Bell className="mx-auto h-12 w-12 text-gray-400 mb-3" />
           <h3 className="text-xl font-medium text-gray-700 dark:text-gray-300">No pending requests</h3>
           <p className="text-gray-500 mt-1">When someone sends you a friend request, it will show up here</p>

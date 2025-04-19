@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
  import { useFriendsStore } from "@/stores/FriendsStore/useFriendsStore";
  import { Button } from "./ui/button";
  import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
  import { Skeleton } from "./ui/skeleton";
  import { Link } from "react-router-dom";
  import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
- import { cn} from "@/lib/utils";
+ import { cn, IUser} from "@/lib/utils";
  
  interface UserData {
    _id: string;
@@ -54,14 +54,15 @@ import { useEffect, useState } from "react";
      return (nameMatch || usernameMatch) && user.hasPendingRequest && !user.isFriend;
    });
  
-   const fetchAllUsers = async () => {
+   const fetchAllUsers = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
       const res = await axiosInstance.get("user/friends/all-users");
       
       if (res.data && res.data.users) {
-        const formattedUsers = res.data.users
+        const users = res.data.users as IUser[]
+        const formattedUsers = users
           .filter(user => user._id !== currentUser?._id)
           .map(user => ({
             ...user,
@@ -79,11 +80,11 @@ import { useEffect, useState } from "react";
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentUser?._id, friends, sentRequests]) 
  
    useEffect(() => {
      fetchAllUsers();
-   }, [currentUser]);
+   }, [fetchAllUsers]);
  
    useEffect(() => {
      setUsers(prevUsers => 
@@ -159,7 +160,7 @@ import { useEffect, useState } from "react";
      return (
        <div
          key={user._id}
-         className="flex flex-col p-4 bg-white dark:bg-neutral-800 rounded-lg shadow border border-gray-200 dark:border-gray-700"
+         className="flex flex-col p-4 bg-white dark:bg-neutral-800 rounded-lg shadow border border-gray-200 dark:border-neutral-700"
        >
          <div className="flex items-center gap-3 mb-3">
            <Link to={`/profile/${user._id}`}>
@@ -227,7 +228,7 @@ import { useEffect, useState } from "react";
    return (
      <div>
        {/* Tab Navigation - Similar to FriendsPage */}
-       <div className="flex mb-8 border-b border-gray-200">
+       <div className="flex mb-8 border-b border-gray-200 dark:border-neutral-800">
          {[
            { id: 'all', label: 'All Users' },
            { id: 'sent', label: 'Sent Requests' }
