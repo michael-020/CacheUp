@@ -243,7 +243,7 @@ const ForumList: React.FC = () => {
             <SearchBar />
 
             {forums.length === 0 ? (
-              <p className="text-gray-600 text-center">No forums available.</p>
+              <ForumListSkeleton />
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {forums.map((forum) => (

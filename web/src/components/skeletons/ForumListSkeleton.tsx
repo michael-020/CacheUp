@@ -5,7 +5,7 @@ import React from "react";
  
    return (
      <div className="h-screen dark:bg-neutral-950">
-       <div className="max-w-5xl mx-auto p-6 translate-y-20 h-full mt-20">
+       <div className="max-w-5xl mx-auto p-6 translate-y-20 h-full">
          {/* Grid of forum cards */}
          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
            {skeletonCards.map((_, index) => (

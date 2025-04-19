@@ -10,6 +10,7 @@ import { PostSchema } from "@/stores/ForumStore/types";
 import ForumComment from "@/components/forums/ForumComment";
 import { motion } from "framer-motion"
 import { routeVariants } from "@/lib/routeAnimation";
+import {ThreadSkeleton} from "@/components/skeletons/ThreadSkeleton"
 
 export const Thread = () => {
   const { id } = useParams();
@@ -148,13 +149,9 @@ export const Thread = () => {
     }
     return content.substring(0, 500);
   };
-
+  
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
+    return <ThreadSkeleton />;
   }
 
   if (error) {
