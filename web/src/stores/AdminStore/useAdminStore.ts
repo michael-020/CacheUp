@@ -79,9 +79,7 @@ export const useAdminStore = create<AdminStates & AdminActions>((set,get) => ({
             } else {
                 toast.error("An unexpected error occurred.");
             }
-        } finally {
-            
-        }
+        } 
     },
 
     deletePost: async ({ postId }: { postId: string }) => {
@@ -121,17 +119,7 @@ export const useAdminStore = create<AdminStates & AdminActions>((set,get) => ({
       },
 
     deleteComment: async () => {
-        try {
-            
-        } catch (error) {
-            if (error instanceof AxiosError && error.response?.data?.msg) {
-                toast.error(error.response.data.msg as string);
-            } else {
-                toast.error("An unexpected error occurred.");
-            }
-        } finally {
-            
-        }
+        
     },
 
     getReportedPosts: async () => {

@@ -12,11 +12,12 @@ import { useFriendsStore } from "@/stores/FriendsStore/useFriendsStore";
 import { useThemeStore } from "@/stores/ThemeStore/useThemeStore";
 import Share from "./Share"
 import { ShareModal } from "./ui/ShareModal";
-
+import { usePostStore } from "@/stores/PostStore/usePostStore";
 
 export const Navbar = () => {
   const { logout, authUser } = useAuthStore();
   const { requests, fetchRequests } = useFriendsStore();
+  const { fetchPosts } = usePostStore()
   const { unReadMessages } = useChatStore();
   const location = useLocation();
   const currentPath = location.pathname;
@@ -62,15 +63,15 @@ export const Navbar = () => {
     </div>;
 
   return (
-    <div className="h-16 z-50 border-b-2"> 
-      <nav className="fixed top-0 left-0 right-0 z-10 flex items-center justify-between px-4 md:px-6 py-3 border-gray-100 border-b-2 dark:bg-neutral-900/80 dark:border-b-2 dark:border-b-neutral-800/50 dark:backdrop-blur-xl bg-white/80 backdrop-blur-md">
+    <div className="h-16 border-b-2"> 
+      <nav className="fixed top-0 left-0 right-0 flex items-center justify-between px-4 md:px-6 py-3 border-gray-100 border-b-2 dark:bg-neutral-900/80 dark:border-b-2 dark:border-b-neutral-800/50 dark:backdrop-blur-xl bg-white/80 backdrop-blur-md">
         {/* Logo/Title - Always visible */}
         <div className="flex-shrink-0">
-          <h1 className="font-extrabold text-xl md:text-3xl text-black dark:text-gray-100">
-            <Link to={"/"}>
+          <Link to={"/"} onClick={() => fetchPosts()}>
+            <h1 className="font-extrabold text-xl md:text-3xl text-black dark:text-gray-100">
               CampusConnect
-            </Link>
-          </h1>
+            </h1>
+          </Link>
         </div>
         
         {/* Desktop Navigation Icons */}
@@ -273,7 +274,7 @@ export const BottomNavigationBar = () => {
         <Share onPostSuccess={() => setShareOpen(false)} />
       </ShareModal>
 
-      <div className="fixed bottom-0 left-0 right-0 z-10 bg-white dark:bg-neutral-800 border-t border-gray-200 dark:border-neutral-700">
+      <div className="fixed bottom-0 z-10 left-0 right-0 bg-white dark:bg-neutral-800 border-t border-gray-200 dark:border-neutral-700">
         <nav className="flex items-center justify-around h-16">
           <Link 
             to="/" 

@@ -186,9 +186,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
       }));
   
       if (threadMongo) {
-        setTimeout(() => {
-          get().fetchPosts(threadMongo);
-        }, 300);
+        get().fetchPosts(threadMongo);
       }
     
       return newPost;
@@ -424,8 +422,10 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   watchThread : async (threadId: string) => {
     try{
       const response = await axiosInstance.put(`/forums/watch-thread/${threadId}`)
-      response.data.msg === "Watched" ? set({ isWatched : true}) : set({  isWatched: false })
-      toast.success(response.data.msg)
+      const toastMessage = response.data.msg === "Watched" ? set({ isWatched : true}) : set({  isWatched: false })
+      if(typeof(toastMessage) !== "string")
+        return
+      toast.success(toastMessage)
     }catch(error){
       toast.error("Error in watching/unwatching thread")
       console.error(error)

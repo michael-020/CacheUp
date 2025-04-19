@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { AxiosError } from "axios";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { SearchBar } from "@/components/forums/search-bar";
 import { useForumStore } from "@/stores/ForumStore/forumStore";
 import { Notification } from "@/stores/ForumStore/types";
@@ -188,12 +188,22 @@ const ForumList: React.FC = () => {
 
   return (
     <motion.div 
-      className="h-screen dark:bg-neutral-950"
+      className="h-full pb-20 dark:bg-neutral-950"
       variants={routeVariants}
       initial="initial"
       animate="final"
       exit="exit"
     >
+      {/* Right side link */}
+      {isAdminRoute && <div className="fixed right-44 top-6">
+          <Link
+            to="/admin/forums"
+            className="inline-block rounded-md bg-blue-500 px-4 py-2 text-white shadow-md transition-colors hover:bg-blue-600 no-underline mt-20"
+          >
+            Create Forums +
+          </Link>
+        </div>
+      }
       <div className="max-w-6xl mx-auto p-6 translate-y-20 h-full">
         <h1 className="text-2xl font-bold mb-6">
           {isAdminRoute ? "Forums Section (Admin View)" : "Forums Section"}

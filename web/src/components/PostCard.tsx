@@ -10,14 +10,16 @@ import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { useNavigate } from "react-router-dom";
 import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
 import { DeleteModal } from "./DeleteModal";
+import { Textarea } from "./ui/textarea";
 
 interface PostCardProps {
   post: Post;
   isAdmin?: boolean;
+  onPostUpdate?: (updatedPost: Post) => void; // Add new prop for callback
 }
 
-export default function PostCard({ post, isAdmin }: PostCardProps) {
-  const { toggleLike, toggleSave, addComment, isUplaodingComment, updateComment, deleteComment, getLikedUsers } = usePostStore();
+export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps) {
+  const { toggleLike, toggleSave, addComment, isUplaodingComment, updateComment, deleteComment, getLikedUsers, reportPost, unReportPost } = usePostStore();
   const { authUser } = useAuthStore()
   const [showCommentInput, setShowCommentInput] = useState(false);
   const [commentText, setCommentText] = useState("");
@@ -27,13 +29,18 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
   const [showLikes, setShowLikes] = useState(false);
   const [likedUsers, setLikedUsers] = useState<LikedUser[]>([]);
   const [isLoadingLikes, setIsLoadingLikes] = useState(false);
-  const { reportPost, unReportPost } = usePostStore();
   const [comments, setComments] = useState<Comment[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false)
   const reportRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   
-  const [isSaved, setIsSaved] = useState(post.isSaved);
+  // Local state for tracking post properties
+  const [localPost, setLocalPost] = useState<Post>(post);
+  
+  // Update local post when prop changes
+  useEffect(() => {
+    setLocalPost(post);
+  }, [post]);
 
   const getComments = async (postId: string) => {
     if(isAdmin){
@@ -54,7 +61,6 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
     
     if (showCommentInput) {
       setShowCommentInput(false);
-      await new Promise(resolve => setTimeout(resolve, 300));
     }
 
     setIsLoadingLikes(true);
@@ -84,7 +90,6 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
     
     if (showLikes) {
       setShowLikes(false);
-      await new Promise(resolve => setTimeout(resolve, 300));
     }
     
     await getComments(postId);
@@ -93,9 +98,39 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
 
   const handleSaveToggle = async (postId: string) => {
     await toggleSave(postId);
-    setIsSaved(usePostStore.getState().posts.find(p => p._id === postId)?.isSaved ?? false);
+    
+    // Update local state with new saved status - create a new object to avoid mutation
+    const updatedPost = { ...localPost, isSaved: !localPost.isSaved };
+    setLocalPost(updatedPost);
+    
+    // Notify parent component if callback exists
+    if (onPostUpdate) {
+      onPostUpdate(updatedPost);
+    }
   };
   
+  const handleLikeToggle = async (postId: string) => {
+    await toggleLike(postId);
+    
+    // Update local state with new liked status and count
+    const newLikedStatus = !localPost.isLiked;
+    
+    // Create a new object to avoid mutation
+    const updatedPost = {
+      ...localPost,
+      isLiked: newLikedStatus,
+      likes: newLikedStatus 
+        ? [...localPost.likes, authUser?._id || "temp-id"] 
+        : localPost.likes.filter(id => id !== authUser?._id)
+    };
+    
+    setLocalPost(updatedPost);
+    
+    // Notify parent component if callback exists
+    if (onPostUpdate) {
+      onPostUpdate(updatedPost);
+    }
+  };
   
   const handleCommentSubmit = async () => {
     if (commentText.trim()) {
@@ -113,10 +148,24 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
   };
 
   async function deleteCommentHandler(postId: string, commentId: string) {
-    await deleteComment(postId, commentId)
+    await deleteComment(postId, commentId);
+    
     setComments((prevComments) => 
       prevComments.filter((comment) => comment._id !== commentId) 
     );
+    
+    // Update local post comment count - maintain Post type integrity
+    const updatedPost = {
+      ...localPost,
+      comments: localPost.comments.filter(comment => comment._id !== commentId)
+    };
+    
+    setLocalPost(updatedPost);
+    
+    // Notify parent component if callback exists
+    if (onPostUpdate) {
+      onPostUpdate(updatedPost);
+    }
   }
 
   async function editCommentHandler(commentId: string, content: string) {
@@ -147,22 +196,44 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
     }
   }
 
+  const handleReportToggle = async (postId: string) => {
+    try {
+      if (localPost.isReported) {
+        await unReportPost(postId);
+      } else {
+        await reportPost(postId);
+      }
+      
+      // Update local state with new report status
+      const updatedPost = {
+        ...localPost,
+        isReported: !localPost.isReported,
+        reportCount: localPost.isReported 
+          ? (localPost.reportCount || 1) - 1 
+          : (localPost.reportCount || 0) + 1
+      };
+      
+      setLocalPost(updatedPost);
+      
+      // Notify parent component if callback exists
+      if (onPostUpdate) {
+        onPostUpdate(updatedPost);
+      }
+    } catch (error) {
+      console.error("Report action failed:", error);
+    }
+    setShowReport(false);
+  };
+
   const deletePostHandler = async () => {
     if (isAdmin) {
-      await useAdminStore.getState().deletePost({ postId: post._id });
+      await useAdminStore.getState().deletePost({ postId: localPost._id });
     } else {
-      await usePostStore.getState().deletePost({ postId: post._id });
+      await usePostStore.getState().deletePost({ postId: localPost._id });
     }
     
     setShowReport(false);
   }
-
-  // Update local state when post prop changes
-  useEffect(() => {
-    // Get fresh state from the store
-    const currentPostState = usePostStore.getState().posts.find(p => p._id === post._id);
-    setIsSaved(currentPostState?.isSaved ?? post.isSaved);
-  }, [post._id, post.isSaved]); 
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -181,9 +252,9 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
 
   const handleProfileClick = () => {
     if (isAdmin) {
-      navigate(`/admin/profile/${post.postedBy}`);
+      navigate(`/admin/profile/${localPost.postedBy}`);
     } else {
-      navigate(`/profile/${post.postedBy}`);
+      navigate(`/profile/${localPost.postedBy}`);
     }
   };
 
@@ -196,7 +267,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
     }
   };
 
-  const isOwnPost = authUser?._id === post.postedBy;
+  const isOwnPost = authUser?._id === localPost.postedBy;
 
   return (
     <div
@@ -206,15 +277,12 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
         <div className="flex items-center">
           <div
             className="size-12 rounded-full border-2 border-white dark:border-gray-500 shadow-sm overflow-hidden mr-3 cursor-pointer"
-            onClick={() => {
-              navigate(`/profile/${post.postedBy}`);
-            }}
+            onClick={handleProfileClick}
           >
             <img
-              src={post.userImagePath ? post.userImagePath : "/avatar.jpeg"}
+              src={localPost.userImagePath ? localPost.userImagePath : "/avatar.jpeg"}
               alt="Profile"
               className="w-full h-full object-cover bg-gray-100"
-              onClick={handleProfileClick}
             />
           </div>
           <div className="flex flex-col">
@@ -222,7 +290,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
               className="font-semibold text-gray-800 dark:text-gray-300 text-base cursor-pointer hover:underline"
               onClick={handleProfileClick}
             >
-              {post.username}
+              {localPost.username}
             </span>
           </div>
         </div>
@@ -234,14 +302,14 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
               e.stopPropagation();
               setShowReport(!showReport);
             }}
-            className="p-1.5 hover:bg-gray-100 rounded-full transition-colors duration-200 -z-10 dark:hover:bg-gray-700 "
+            className="p-1.5 hover:bg-gray-100 rounded-full transition-colors duration-200 -z-10 dark:hover:bg-gray-700"
           >
             <Threedot />
           </button>
 
           {showReport && (
           <div className="bg-white border border-gray-200 dark:bg-neutral-600 dark:border-0 rounded-lg shadow-xl z-[5] overflow-hidden w-48 absolute">
-            {(post.postedBy === authUser?._id || isAdmin) && (
+            {(localPost.postedBy === authUser?._id || isAdmin) && (
               <button
                 onClick={() => setIsModalOpen(!isModalOpen)}
                 className="w-full px-4 py-2.5 text-sm text-left flex items-center justify-between text-red-600 hover:bg-red-50 transition-colors duration-150"
@@ -251,28 +319,16 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
               </button>
             )}
             
-            {post.postedBy !== authUser?._id && !isAdmin && (
+            {localPost.postedBy !== authUser?._id && !isAdmin && (
               <button
-                onClick={async (e: React.MouseEvent) => {
-                  e.stopPropagation();
-                  try {
-                    if (post.isReported) {
-                      await unReportPost(post._id);
-                    } else {
-                      await reportPost(post._id);
-                    }
-                  } catch (error) {
-                    console.error("Report action failed:", error);
-                  }
-                  setShowReport(false);
-                }}
+                onClick={() => handleReportToggle(localPost._id)}
                 className={`w-full px-4 py-2.5 text-sm text-left flex items-center justify-between
-                  ${post.isReported ? "text-red-600 hover:bg-red-50" : "text-gray-700 hover:bg-gray-50"}
+                  ${localPost.isReported ? "text-red-600 hover:bg-red-50" : "text-gray-700 hover:bg-gray-50"}
                   transition-colors duration-150`}
               >
-                <span>{post.isReported ? "Unreport Post" : "Report Post"}</span>
+                <span>{localPost.isReported ? "Unreport Post" : "Report Post"}</span>
                 <span className="text-xs font-medium text-gray-400">
-                  {post.reportCount || 0}
+                  {localPost.reportCount || 0}
                 </span>
               </button>
             )}
@@ -282,17 +338,17 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
             </div>
 
       {/* Text Content */}
-      {post.text && (
-        <div className="mb-4 text-gray-800 dark:text-gray-300 text-[15px] leading-relaxed">
-          {post.text}
+      {localPost.text && (
+        <div className="mb-4 ml-1 text-gray-800 dark:text-gray-300 text-[15px] leading-relaxed">
+          {localPost.text}
         </div>
       )}
 
       {/* Post Image */}
-      {post.postsImagePath && (
+      {localPost.postsImagePath && (
         <div className="rounded-xl overflow-hidden mb-4 border border-gray-100 dark:border-gray-700">
           <img
-            src={post.postsImagePath}
+            src={localPost.postsImagePath}
             alt="Post content"
             className="w-full h-auto aspect-auto object-cover hover:scale-105 transition-all duration-1000 ease-in-out"
             onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
@@ -305,38 +361,38 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
       {/* Actions */}
       <div className="flex items-center dark:text-neutral-400 dark:border-gray-600 text-sm border-t border-gray-100 pt-3">
         <button
-          className={`flex items-center mr-6 transition-colors ${post.isLiked ? "text-red-500" : ""}`}
-          onClick={() => toggleLike(post._id)}
+          className={`flex items-center mr-6 transition-colors ${localPost.isLiked ? "text-red-500" : ""}`}
+          onClick={() => handleLikeToggle(localPost._id)}
         >
-          <HeartIcon filled={post.isLiked} />
+          <HeartIcon filled={localPost.isLiked} />
           <span 
-            className={`ml-2 font-medium cursor-pointer hover:underline ${post.isLiked ? "text-red-500" : ""}`}
+            className={`ml-2 font-medium cursor-pointer hover:underline ${localPost.isLiked ? "text-red-500" : ""}`}
             onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
-              fetchLikedUsers(post._id);
+              fetchLikedUsers(localPost._id);
             }}
           >
-            {post.likes.length}
+            {localPost.likes.length}
           </span>
         </button>
 
         <button
           className="flex items-center mr-6 hover:text-blue-500 transition-colors"
-          onClick={() => handleCommentToggle(post._id)}
+          onClick={() => handleCommentToggle(localPost._id)}
         >
           <MessageSquareText />
-          <span className="ml-2 font-medium">{post.comments.length}</span>
+          <span className="ml-2 font-medium">{localPost.comments.length}</span>
         </button>
 
         {/* Show save button only if the post is not by the current user */}
         {!isOwnPost && (
           <button
-            className={`ml-auto transition-colors ${isSaved ? "text-blue-500" : "text-gray-500 hover:text-blue-500"}`}
-            onClick={() => handleSaveToggle(post._id)}
+            className={`ml-auto transition-colors ${localPost.isSaved ? "text-blue-500" : "text-gray-500 hover:text-blue-500"}`}
+            onClick={() => handleSaveToggle(localPost._id)}
           >
             <SaveIcon
-              filled={isSaved}
-              className={isSaved ? "text-blue-500" : "text-gray-500 hover:text-blue-500"}
+              filled={localPost.isSaved}
+              className={localPost.isSaved ? "text-blue-500" : "text-gray-500 hover:text-blue-500"}
             />
           </button>
         )}
@@ -395,20 +451,18 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
 
       {/* Comment Section */}
       <div 
-        className={`transition-all duration-300 ease-in-out overflow-hidden  ${
+        className={`transition-all duration-300 ease-in-out overflow-hidden border border-gray-200 dark:border-neutral-700 rounded-lg mt-4 pb-2 ${
           showCommentInput ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
       {showCommentInput && (
         <div className="mt-4 space-y-4 " data-comment-section>
-          <div className="bg-gray-50 dark:bg-neutral-800 dark:border-neutral-700 p-4 rounded-lg border border-gray-200">
-            <textarea
+          <div className={`dark:border-neutral-700 p-4 ${comments.length === 0 ? "border-0" : "border-b"}`}>
+            <Textarea
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
               placeholder="Write a comment..."
-              className="w-full border dark:bg-neutral-600 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-200 focus:border-blue-500 outline-none transition-all"
-              rows={2}
-              onClick={(e: React.MouseEvent) => e.stopPropagation()}
+              className="w-full resize-none border bg-gray-50 placeholder:text-neutral-300 dark:placeholder:text-neutral-400 dark:bg-neutral-700 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-200 focus:border-blue-500 outline-none transition-all"
             />
             <div className="flex justify-end mt-2">
               <button
@@ -433,11 +487,11 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
           </div>
 
           {comments.length > 0 && (
-            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-3 dark:bg-neutral-700">
+            <div className=" px-4 rounded-lg  border-gray-200 dark:border-0 space-y-3 ">
               {comments.filter(comment => comment?._id).map((comment) => (
                 <div
                   key={comment._id}
-                  className="bg-white p-3 rounded-md border border-gray-100 group relative dark:bg-neutral-800"
+                  className={`${comment._id === comments[comments.length-1]._id ? "border-0" : "border-b"} p-3 border-gray-100 dark:border-neutral-700 group relative`}
                 >
                 {editingCommentId === comment._id ? (
                   <div>
@@ -469,7 +523,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
                       />
                       <button 
                         className="bg-blue-500 p-2 rounded-md"
-                        onClick={() => submitEditedComment(post._id, comment._id)}
+                        onClick={() => submitEditedComment(localPost._id, comment._id)}
                       >
                         <SendHorizonal className="size-5 text-white" /> 
                       </button>
@@ -506,7 +560,7 @@ export default function PostCard({ post, isAdmin }: PostCardProps) {
                       {(authUser?._id === comment.user._id || isAdmin) && (
                         <div className="flex gap-3">
                           <button
-                            onClick={() => deleteCommentHandler(post._id, comment._id)}
+                            onClick={() => deleteCommentHandler(localPost._id, comment._id)}
                           >
                             <Trash className="text-red-600 size-4" />
                           </button>
