@@ -127,18 +127,18 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
               <p className="text-xs text-gray-500 mb-3 cursor-pointer">@{username}</p>
             </Link>
            
-            <div className="p-2 mb-3 rounded-md text-xs text-gray-600 bg-gray-50 border border-gray-100 dark:bg-neutral-700 dark:border-gray-700">
+            <div className="p-2 mb-3 rounded-md text-xs text-gray-600 bg-gray-50 border border-gray-100 dark:bg-neutral-700 dark:text-gray-300 dark:border-neutral-800">
               <p className="line-clamp-3">{bio || 'No bio available'}</p>
             </div>
             
             <div className="flex gap-2 mb-3">
-                <div className="flex items-center justify-center gap-2 flex-1 p-2 rounded-md bg-blue-50 border border-blue-100">
+                <div className="flex items-center justify-center gap-2 flex-1 p-2 rounded-md bg-blue-50 border border-blue-100 dark:bg-neutral-700 dark:border-neutral-800">
                   <Briefcase className="text-blue-500" size={16} />
-                  <p className="text-sm text-gray-700">{department}</p>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">{department}</p>
                 </div>
-                <div className="flex items-center justify-center gap-2 flex-1 p-2 rounded-md bg-indigo-50 border border-indigo-100">
+                <div className="flex items-center justify-center gap-2 flex-1 p-2 rounded-md bg-indigo-50 border border-indigo-100 dark:bg-neutral-700 dark:border-neutral-800">
                   <Users className="text-indigo-500" size={16} />
-                  <p className="text-sm text-gray-700">{userFriends?.length || 0}</p>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">{userFriends?.length || 0}</p>
                 </div>
               </div>
 
