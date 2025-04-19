@@ -350,7 +350,7 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
           <img
             src={localPost.postsImagePath}
             alt="Post content"
-            className="w-full h-auto aspect-auto object-cover hover:scale-105 transition-all duration-1000 ease-in-out"
+            className="w-full h-auto aspect-auto object-cover"
             onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
               (e.target as HTMLImageElement).style.display = "none";
             }}

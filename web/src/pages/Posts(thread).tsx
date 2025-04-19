@@ -167,9 +167,9 @@ export const Thread = () => {
 
   if (posts.length === 0) {
     return (
-      <div className="p-8 mx-auto max-w-3xl bg-gray-50 border border-gray-200 rounded-lg text-center mt-16">
-        <div className="text-gray-500 text-lg">No posts found in Thread {threadTitle}</div>
-        <div className="text-gray-600 mb-2">{threadDescription}</div>
+      <div className="p-8 mx-auto max-w-3xl bg-gray-50 dark:bg-neutral-800 translate-y-20 dark:border-neutral-600 border border-gray-200 rounded-lg text-center mt-16">
+        <div className="text-gray-500 text-lg dark:text-white">No posts found in Thread {threadTitle}</div>
+        <div className="text-gray-600 dark:text-gray-200 mb-2">{threadDescription}</div>
         <div className="mt-4 text-sm text-gray-400">Be the first to post in this discussion</div>
         <div className="flex gap-4 flex-wrap justify-center">
         <Button
@@ -343,7 +343,7 @@ export const Thread = () => {
                       <img 
                         src={profileImage} 
                         alt={`${author}'s profile`} 
-                        className="w-10 h-10 rounded-full object-cover cursor-pointer hover:scale-110 duration-200 ease-in-out border border-gray-200" 
+                        className="w-10 h-10 rounded-full object-cover cursor-pointer duration-200 ease-in-out border border-gray-200" 
                       />
                     </Link>
                   ) : (
