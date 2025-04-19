@@ -84,7 +84,7 @@ import { useCallback, useEffect, useState } from "react";
  
    useEffect(() => {
      fetchAllUsers();
-   }, [fetchAllUsers]);
+   }, []);
  
    useEffect(() => {
      setUsers(prevUsers => 

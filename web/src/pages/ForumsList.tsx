@@ -195,7 +195,7 @@ const ForumList: React.FC = () => {
       exit="exit"
     >
       {/* Right side link */}
-      {isAdminRoute && <div className="fixed right-44 top-6">
+      {isAdminRoute && <div className="fixed right-44 z-30 top-6">
           <Link
             to="/admin/forums"
             className="inline-block rounded-md bg-blue-500 px-4 py-2 text-white shadow-md transition-colors hover:bg-blue-600 no-underline mt-20"

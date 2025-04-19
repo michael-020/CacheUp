@@ -34,7 +34,7 @@ const CreateForum: React.FC = () => {
             id="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 dark:placeholder:text-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 dark:bg-neutral-500 dark:placeholder:text-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Enter forum title"
             required
           />
@@ -48,7 +48,7 @@ const CreateForum: React.FC = () => {
             id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md dark:placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-neutral-500 dark:placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
             rows={5}
             placeholder="Provide a description (minimum 10 characters)"
             required
