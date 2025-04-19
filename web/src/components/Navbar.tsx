@@ -300,7 +300,7 @@ export const BottomNavigationBar = () => {
            <button 
             onClick={() => setShareOpen(true)}
             className={`flex flex-col items-center justify-center w-1/5 h-full ${
-              shareOpen ? "text-blue-500" : "text-gray-600 dark:text-gray-400"
+              shareOpen ? "text-blue-500" : "text-gray-600 "
             }`}
           >
             <PlusSquare className="w-6 h-6" />

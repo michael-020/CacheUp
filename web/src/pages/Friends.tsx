@@ -69,7 +69,7 @@ const FriendsPage = () => {
 
   return (
     <motion.div 
-      className="dark:bg-neutral-950 h-screen"
+      className="dark:bg-neutral-950 h-full min-h-[calc(100vh-1px)]"
       variants={routeVariants}
       initial="initial"
       animate="final"
