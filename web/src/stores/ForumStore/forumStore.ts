@@ -142,7 +142,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     if (!threadId) {
       throw new Error("Thread ID is required");
     }
-  
+    set({ loading: true });
     try {
       const endpoint = isAdmin ? "admin/get-thread-posts/" : "/forums/get-posts/"
       const response = await axiosInstance.get(`${endpoint + threadId}`);
