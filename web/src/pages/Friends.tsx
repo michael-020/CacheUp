@@ -93,8 +93,8 @@ const FriendsPage = () => {
         </div>
 
         {/* Tab Navigation - Improved spacing */}
-        <div className="flex mb-8 border-b border-gray-200">
-          {[
+        <div className="grid grid-cols-3 gap-2 mb-8 border-b border-gray-200 sm:flex sm:gap-0">
+        {[
             { id: 'friends', label: 'My Friends', icon: <Users className="h-5 w-5" />, count: friends.length || 0},
             { id: 'requests', label: 'Friend Requests', icon: <Bell className="h-5 w-5" />, count: requests.length || 0},
             { id: 'users', label: 'Find Users', icon: <UserPlus className="h-5 w-5" />,count: 0 }
@@ -103,13 +103,13 @@ const FriendsPage = () => {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                "pb-4 px-6 flex items-center gap-2 border-b-2 border-transparent transition-colors",
+                "flex-1 sm:flex-none text-center pb-4 px-4 flex flex-col items-center justify-center gap-1 border-b-2 border-transparent transition-colors",
                 activeTab === tab.id ? "border-blue-500 text-blue-600 font-medium" : "text-gray-500 hover:text-gray-700"
-              )}
+              )}              
             >
               {tab.icon}
-              <span>{tab.label}</span>
-              {tab.count > 0 && (
+              <span className="hidden md:inline">{tab.label}</span>
+              {tab.id !== "friends" && tab.count > 0 && (
                 <span className="ml-1 bg-blue-100 text-blue-800 rounded-full px-2.5 py-0.5 text-xs">
                   {tab.count}
                 </span>
