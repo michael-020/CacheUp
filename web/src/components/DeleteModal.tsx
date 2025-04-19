@@ -1,5 +1,6 @@
 import { Loader } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 
 interface DeleteConfirmationModalProps {
   deleteHandler: () => void;
@@ -43,11 +44,11 @@ export function DeleteModal({
 
   if (!isModalOpen) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  return createPortal(
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-[1.5px] dark:bg-neutral-900/80  flex items-center justify-center z-50">
       <div 
         ref={modalRef}
-        className="bg-white dark:bg-neutral-700 p-6 rounded-lg shadow-lg max-w-md w-full"
+        className="bg-white dark:bg-neutral-700 p-6 rounded-lg shadow-lg max-w-md w-full mx-4"
       >
         <h3 className="text-lg font-medium mb-4 text-left dark:text-white">{title}</h3>
         <p className="mb-6 text-left text-gray-800 dark:text-gray-200">
@@ -76,6 +77,7 @@ export function DeleteModal({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
