@@ -31,11 +31,13 @@ import { AnimatePresence } from "framer-motion"
 import SavedPostsPage from "./pages/SavedPostsPage";
 import { usePostStore } from './stores/PostStore/usePostStore'
 import { ScrollToTop } from './components/ScrollToTop'
+import { useFriendsStore } from './stores/FriendsStore/useFriendsStore'
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore()
   const { authAdmin, checkAdminAuth, isAdminCheckingAuth } = useAdminStore()
   const { getAllMessages, getUsers } = useChatStore()
+  const { fetchRequests, setLoading } = useFriendsStore();
   const location = useLocation()
   const navigate = useNavigate()
   const [returnPath, setReturnPath] = useState<string | null>(null)
@@ -78,13 +80,29 @@ function App() {
       getUsers()
       getAllMessages()
       
+      // Initial fetch without loading state
+      const quietFetch = async () => {
+        setLoading(false); // Prevent loading state during background updates
+        await fetchRequests();
+        setLoading(false);
+      };
+
+      // First load
+      fetchRequests();
+      
+      // Set up interval for background updates
+      const interval = setInterval(quietFetch, 1000 * 12);
+      
       if (returnPath && !authenticated.current) {
-        navigate(returnPath)
-        authenticated.current = true
+        navigate(returnPath);
+        authenticated.current = true;
       }
+
+      return () => clearInterval(interval);
     }
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authUser, isAdminRoute, returnPath, navigate])
+  }, [authUser, isAdminRoute, returnPath, navigate, fetchRequests, setLoading])
 
   useEffect(() => {
     if (authUser) {

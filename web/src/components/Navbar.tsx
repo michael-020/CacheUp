@@ -228,7 +228,7 @@ export const BottomNavigationBar = () => {
   const [shareOpen, setShareOpen] = useState(false);
 
   useEffect(() => {
-    const interval = setInterval(fetchRequests, 1000 * 120);
+    const interval = setInterval(fetchRequests, 1000 * 12);
   
     const handleVisibilityChange = () => {
       if (document.hidden) clearInterval(interval);
@@ -240,7 +240,7 @@ export const BottomNavigationBar = () => {
       clearInterval(interval);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [fetchRequests]);
+  }, []);
   
   // State to track screen size
   const [isMobile, setIsMobile] = useState(false);
