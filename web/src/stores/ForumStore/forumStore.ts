@@ -1,6 +1,6 @@
 import {create} from 'zustand';
 import { axiosInstance } from '@/lib/axios';
-import type { ForumStore } from '@/stores/ForumStore/types';
+import type { Comment, ForumStore, PostSchema } from '@/stores/ForumStore/types';
 import { AxiosError } from "axios";
 import toast from 'react-hot-toast';
 
@@ -32,6 +32,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   commentsError: {},
   isWatched: false,
   notifications: [],
+  reportLoading: {},
 
   
   fetchForums: async (isAdminRoute) => {
@@ -461,5 +462,103 @@ export const useForumStore = create<ForumStore>((set, get) => ({
       console.error(err)
     }
   },
-  
+
+  createForumRequest: async (title, description) => {
+    set({ loading: true })
+    try {
+      const response = await axiosInstance.post(`/forums/request-forum`,{ title, description })
+      toast.success(response.data.msg)
+    }catch(error){
+      console.error(error)
+      toast.error("Request Unsuccessful")
+    }finally{
+      set({ loading: false })
+    }
+  },
+
+  reportPost: async(postId: string) => {
+    try{
+      set((state: any) => ({
+        reportLoading: { ...state.reportLoading, [postId]: true}
+      }))
+
+      const response = await axiosInstance.put(`/forums/report-post/${postId}`)
+      if (response.status === 200) {
+        set((state: any) => {
+          const updatedPosts = state.posts.map((post: PostSchema) => {
+            if (post._id === postId) {
+              return {
+                ...post,
+                reportedBy: response.data.reportCount > 0 ? 
+                  [...(post.reportedBy || []), 'current-user'] : 
+                  (post.reportedBy || []).filter(id => id !== 'current-user')
+              };
+            }
+            return post;
+          });
+          
+          return { posts: updatedPosts };
+        });
+        
+        return response.data;
+    }
+  }catch (error) {
+    console.error("Error reporting post:", error);
+    throw error;
+  } finally {
+    set((state: any) => ({
+      reportLoading: { ...state.reportLoading, [postId]: false }
+    }));
+  }
+},
+
+reportComment: async (commentId: string) => {
+  try {
+    set((state: any) => ({
+      reportLoading: { ...state.reportLoading, [commentId]: true }
+    }));
+    
+    const response = await axiosInstance.put(`/forums/report-comment/${commentId}`);
+    
+    if (response.status === 200) {
+      set((state: any) => {
+        const updatedComments = { ...state.comments };
+
+        Object.keys(updatedComments).forEach(postId => {
+          updatedComments[postId] = updatedComments[postId].map((comment: Comment) => {
+            if (comment._id === commentId) {
+              return {
+                ...comment,
+                reportedBy: response.data.reportCount > 0 ?
+                  [...(comment.reportedBy || []), 'current-user'] :
+                  (comment.reportedBy || []).filter(id => id !== 'current-user')
+              };
+            }
+            return comment;
+          });
+        });
+        
+        return { comments: updatedComments };
+      });
+      
+      return response.data;
+    }
+  } catch (error) {
+    console.error("Error reporting comment:", error);
+    throw error;
+  } finally {
+    set((state: any) => ({
+      reportLoading: { ...state.reportLoading, [commentId]: false }
+    }));
+  }
+},
+
+checkIfPostReported: (post: PostSchema, userId: string) => {
+  return post.reportedBy?.some((id: string) => id.toString() === userId.toString()) || false;
+},
+
+checkIfCommentReported: (comment: Comment, userId: string) => {
+  return comment.reportedBy?.some((id: string) => id.toString() === userId.toString()) || false;
+}
 }));
+  

@@ -8,7 +8,11 @@ import ForumListSkeleton from "@/components/skeletons/ForumListSkeleton";
 import type { Forum } from "@/stores/ForumStore/types";
 import { motion } from "framer-motion";
 import { routeVariants } from "@/lib/routeAnimation";
-import { DeleteModal } from "@/components/DeleteModal"; // Import the DeleteModal
+import { DeleteModal } from "@/components/DeleteModal"; 
+import { Button } from "@/components/Button";
+import ThreadModal from "@/components/forums/ThreadModal";
+import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
+import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
 import toast from "react-hot-toast";
 
 interface ErrorResponse {
@@ -16,7 +20,7 @@ interface ErrorResponse {
 }
 
 const ForumList: React.FC = () => {
-  const { forums, error, fetchForums, deleteForum, notifications, fetchNotifications, markNotificationRead } = useForumStore();
+  const { forums, error, fetchForums, deleteForum, notifications, fetchNotifications, markNotificationRead, createForumRequest, editForum } = useForumStore();
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteConfirmationForum, setDeleteConfirmationForum] = useState<Forum | null>(null);
@@ -24,10 +28,12 @@ const ForumList: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'forums' | 'notifications'>('forums');
   const location = useLocation();
   const navigate = useNavigate();
-  const { editForum } = useForumStore();
+  const {authUser} = useAuthStore()
+  const { authAdmin } = useAdminStore()
   const [editingForum, setEditingForum] = useState<Forum | null>(null);
   const [editedTitle, setEditedTitle] = useState("");
   const [editedDescription, setEditedDescription] = useState("");
+  const [showRequestModal, setShowRequestModal] = useState(false)
 
   useEffect(() => {
     if (editingForum) {
@@ -35,6 +41,10 @@ const ForumList: React.FC = () => {
       setEditedDescription(editingForum.description);
     }
   }, [editingForum]);
+
+  function requestSubmitHandler(data: {title: string, description: string}){
+    createForumRequest(data.title, data.description)
+  }
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,7 +129,9 @@ const ForumList: React.FC = () => {
 
   // Close menu when clicking outside
   useEffect(() => {
-    const handleClickOutside = () => setDeleteMenuOpen(null);
+    const handleClickOutside = () => {
+      setDeleteMenuOpen(null);
+    }
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
@@ -205,10 +217,25 @@ const ForumList: React.FC = () => {
         </div>
       }
       <div className="max-w-6xl mx-auto p-6 translate-y-20 h-full">
-        <h1 className="text-2xl font-bold mb-6">
-          {isAdminRoute ? "Forums Section (Admin View)" : "Forums Section"}
-        </h1>
-
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">
+            {isAdminRoute ? "Forums Section (Admin View)" : "Forums Section"}
+          </h1>
+          <Button
+            label="Request Forum"
+            className="max-w-36"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowRequestModal(true);
+            }}
+          />
+        </div>
+        {authUser && showRequestModal && (
+          <ThreadModal
+            onClose={() => setShowRequestModal(false)}
+            onSubmit={requestSubmitHandler}
+          />
+        )}
         {/* Tab navigation */}
         <div className="flex border-b border-gray-200 dark:border-neutral-700 mb-6">
           <button

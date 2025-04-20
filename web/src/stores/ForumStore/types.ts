@@ -11,8 +11,13 @@ export interface SearchResultItem {
     thread?: string;
     post?: string;
     createdAt: Date;
+    weaviateId?: string
   };
   certainty: number;
+}
+
+export interface ReportStatus {
+  [key: string]:boolean
 }
 
 export interface CreatedBy {
@@ -58,7 +63,7 @@ export interface Comment {
   };
   likedBy: string[];
   disLikedBy: string[];
-  reportedBy: string[];
+  reportedBy?: string[];
   weaviateId: string;
 }
 
@@ -112,7 +117,8 @@ export interface ForumState {
   commentsLoading: {[postId: string]: boolean};
   commentsError: {[postId: string]: string};
   isWatched: boolean;
-  notifications: Notification[]
+  notifications: Notification[];
+  reportLoading: ReportStatus
 }
 
 
@@ -148,6 +154,11 @@ export interface ForumActions {
   checkWatchStatus: (threadId: string) => Promise<void>
   fetchNotifications: () => Promise<void>
   markNotificationRead: (notificationId: string) => Promise<void>
+  createForumRequest: (title: string, description: string) => Promise<void>
+  reportPost: (postId: string) => Promise<void>
+  reportComment: (commentId: string) => Promise<void>
+  checkIfPostReported: (post: PostSchema, userId: string) => boolean
+  checkIfCommentReported: (comment: Comment, userId: string) => boolean
 }
 
 export type ForumStore = ForumState & ForumActions;
