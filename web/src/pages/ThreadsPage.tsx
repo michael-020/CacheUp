@@ -77,7 +77,7 @@ const ForumPage: React.FC = () => {
         {currentForum.error && <div className="text-red-500 mb-4">{currentForum.error}</div>}
         
         {currentForum.threads.length === 0 ? (
-          <div className="text-center py-8 bg-gray-100 rounded">
+          <div className="text-center py-8 bg-white rounded dark:bg-neutral-800 ">
             <p>No threads found in this forum.</p>
             <p className="mt-2">Be the first to create a thread!</p>
           </div>

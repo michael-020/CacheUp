@@ -1,6 +1,6 @@
 import { MouseEvent, useState } from "react"
 import { useAuthStore } from "../stores/AuthStore/useAuthStore"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, Loader } from "lucide-react"
 import { Link } from "react-router-dom"
 import { motion } from "framer-motion"
 import { routeVariants } from "@/lib/routeAnimation"
@@ -39,7 +39,7 @@ export const Signin = () => {
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full px-4 py-3 dark:bg-gray-600/60 dark:placeholder:text-gray-400/40 bg-blue-50/50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                className="w-full px-4 py-3 dark:bg-gray-600/60 dark:text-gray-100 dark:placeholder:text-gray-400/40 bg-blue-50/50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                                 placeholder="you@pvppcoe.ac.in"
                             />
                         </div>
@@ -52,7 +52,7 @@ export const Signin = () => {
                                     type={showPassword ? "text" : "password"}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full px-4 py-3 bg-blue-50/50 dark:bg-gray-600/60 dark:placeholder:text-gray-400/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                    className="w-full px-4 py-3 bg-blue-50/50 dark:bg-gray-600/60 dark:text-gray-100 dark:placeholder:text-gray-400/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                                     placeholder="••••••••"
                                 />
                                 <button
@@ -70,9 +70,10 @@ export const Signin = () => {
                                 type="submit"
                                 disabled={isSigningIn}
                                 onClick={onClickHandler}
-                                className="w-full py-3 dark:text-gray-200 dark:bg-indigo-500 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all shadow-md"
+                                className={`w-full py-3 ${isSigningIn ? "bg-indigo-400": "dark:bg-indigo-500 dark:hover:bg-indigo-600 bg-indigo-600 hover:bg-indigo-700"} dark:text-gray-200  text-white font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all shadow-md`}
                             >
-                                {isSigningIn ? 'Signing In...' : 'Sign In'}
+                                {isSigningIn ? <div className="flex items-center justify-center"> <Loader className="animate-spin self-center" /> </div>: 'Sign In'}
+                               
                             </button>
                         </div>
 

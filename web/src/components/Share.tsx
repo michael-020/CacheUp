@@ -75,7 +75,7 @@ export default function Share({ onPostSuccess }: ShareProps) {
 
 
   return (
-    <div className="w-full md:w-[450px] xl:w-[700px]  mx-auto mb-6">
+    <div className="w-full md:w-[400px] lg:w-[550px] xl:w-[700px]  mx-auto mb-6">
       <div className="relative">
         <form onSubmit={handleSubmit} className="bg-white dark:bg-neutral-800 rounded-lg shadow p-4">
           <div className="border-b dark:border-gray-700 pb-1">
@@ -85,7 +85,7 @@ export default function Share({ onPostSuccess }: ShareProps) {
                   onChange={handleTextChange}
                   readOnly={isLoading}
                   placeholder="What's on your mind?"
-                  className="w-full px-3 border dark:bg-neutral-600 rounded-md resize-none overflow-y-auto min-h-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 border dark:bg-neutral-700 rounded-md resize-none overflow-y-auto min-h-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <div className="text-right text-xs pt-1 text-gray-500 ">
               {text.length}/200

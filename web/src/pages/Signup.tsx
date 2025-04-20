@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useAuthStore } from "../stores/AuthStore/useAuthStore"
 import toast from "react-hot-toast"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, Loader } from "lucide-react"
 import { z } from "zod"
 import { Controller, SubmitHandler, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -226,9 +226,9 @@ export const Signup = () => {
                 <button
                     type="submit"
                     disabled={isSigningUp}
-                    className="w-full px-4 py-2.5 dark:bg-indigo-500 dark:hover:bg-indigo-600 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all shadow-lg transform hover:-translate-y-0.5 active:translate-y-0"
+                    className={`w-full py-3 ${isSigningUp ? "bg-indigo-400": "dark:bg-indigo-500 dark:hover:bg-indigo-600 bg-indigo-600 hover:bg-indigo-700"} dark:text-gray-200  text-white font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all shadow-md`}
                 >
-                    {isSigningUp ? 'Creating Account...' : 'Create Account'}
+                    {isSigningUp ? <div className="flex items-center justify-center"> <Loader className="animate-spin self-center" /> </div>: 'Sign up'}
                 </button>
                 </div>
     

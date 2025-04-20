@@ -10,6 +10,7 @@ import { PostSchema } from "@/stores/ForumStore/types";
 import ForumComment from "@/components/forums/ForumComment";
 import { motion } from "framer-motion"
 import { routeVariants } from "@/lib/routeAnimation";
+import {ThreadSkeleton} from "@/components/skeletons/ThreadSkeleton"
 
 export const Thread = () => {
   const { id } = useParams();
@@ -26,9 +27,11 @@ export const Thread = () => {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchPosts(id as string);
-    checkWatchStatus (id as string)
-  }, [id, fetchPosts]);
+    if(typeof(id) !== "string")
+      return
+    fetchPosts(id);
+    checkWatchStatus (id)
+  }, [id, fetchPosts, checkWatchStatus]);
 
   useEffect(() => {
     if (!loading && responseData && responseData.length > 0) {
@@ -146,13 +149,9 @@ export const Thread = () => {
     }
     return content.substring(0, 500);
   };
-
+  
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
+    return <ThreadSkeleton />;
   }
 
   if (error) {
@@ -168,9 +167,9 @@ export const Thread = () => {
 
   if (posts.length === 0) {
     return (
-      <div className="p-8 mx-auto max-w-3xl bg-gray-50 border border-gray-200 rounded-lg text-center mt-16">
-        <div className="text-gray-500 text-lg">No posts found in Thread {threadTitle}</div>
-        <div className="text-gray-600 mb-2">{threadDescription}</div>
+      <div className="p-8 mx-auto max-w-3xl bg-gray-50 dark:bg-neutral-800 translate-y-20 dark:border-neutral-600 border border-gray-200 rounded-lg text-center mt-16">
+        <div className="text-gray-500 text-lg dark:text-white">No posts found in Thread {threadTitle}</div>
+        <div className="text-gray-600 dark:text-gray-200 mb-2">{threadDescription}</div>
         <div className="mt-4 text-sm text-gray-400">Be the first to post in this discussion</div>
         <div className="flex gap-4 flex-wrap justify-center">
         <Button
@@ -259,8 +258,8 @@ export const Thread = () => {
         <div className="mb-4 border-b pb-4">
           <div className="flex items-center mb-2">
             <button
-              onClick={() => navigate(`/forums/${id}/${threadWeaviate}`)}
-              className="mr-4 px-3 rounded-full hover:bg-gray-400 dark:hover:bg-neutral-700 "
+              onClick={() => navigate(-1)}
+              className="mr-4 p-3 rounded-full hover:bg-gray-400 dark:hover:bg-neutral-700 "
             >
               <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
             </button>
@@ -344,7 +343,7 @@ export const Thread = () => {
                       <img 
                         src={profileImage} 
                         alt={`${author}'s profile`} 
-                        className="w-10 h-10 rounded-full object-cover cursor-pointer hover:scale-110 duration-200 ease-in-out border border-gray-200" 
+                        className="w-10 h-10 rounded-full object-cover cursor-pointer duration-200 ease-in-out border border-gray-200" 
                       />
                     </Link>
                   ) : (

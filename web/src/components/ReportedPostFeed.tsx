@@ -96,10 +96,10 @@ export default function ReportedPostFeed({ post, isAdmin }: PostCardProps) {
   }
 
   useEffect(() => {
-    const handleClickOutside = (e: any) => {
-      if (!e.target.closest(".relative")) {
+    const handleClickOutside = () => {
+
         setShowDelete(false);
-      }
+      
     };
 
     document.addEventListener("mousedown", handleClickOutside);

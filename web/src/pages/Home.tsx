@@ -18,12 +18,10 @@ export const Home = () => {
       animate="final"
       exit="exit"
     >
-      {/* ProfileCard shifted to the right */}
-      <div className="absolute left-40 -top-12 hidden lg:block">
+      <div className="absolute left-40 top-5 hidden lg:block">
         <ProfileCard userInfo={authUser} isOwnProfile={true} />
       </div>
 
-      {/* Feed aligned to the right side */}
       <div className="ml-[1rem] pb-16 lg:pb-0">
         <Feed />
       </div>

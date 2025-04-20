@@ -83,13 +83,13 @@ const FriendsList = ({ searchTerm = "" }: FriendsListProps) => {
       </div>
 
       {friends.length === 0 ? (
-        <div className="text-center py-16 bg-gray-50 dark:bg-neutral-900 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="text-center py-16 bg-gray-50 dark:bg-neutral-900 rounded-lg border border-gray-200 dark:border-neutral-700">
           <Users className="mx-auto h-12 w-12 text-gray-400 mb-3" />
           <h3 className="text-xl font-medium text-gray-700 dark:text-gray-300">No friends yet</h3>
           <p className="text-gray-500 mt-1">Start connecting with others to build your network</p>
         </div>
       ) : filteredFriends.length === 0 ? (
-        <div className="text-center py-16 bg-gray-50 dark:bg-neutral-900 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="text-center py-16 bg-gray-50 dark:bg-neutral-900 rounded-lg border border-gray-200 dark:border-neutral-700">
           <Users className="mx-auto h-12 w-12 text-gray-400 mb-3" />
           <h3 className="text-xl font-medium text-gray-700 dark:text-gray-300">No matches found</h3>
           <p className="text-gray-500 mt-1">Try a different search term</p>
@@ -99,7 +99,7 @@ const FriendsList = ({ searchTerm = "" }: FriendsListProps) => {
           {sortedFriends.map((friend: IUser) => (
             <div 
               key={friend._id} 
-              className="flex items-center justify-between p-4 bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all"
+              className="flex items-center justify-between p-4 bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-100 dark:border-neutral-600 hover:shadow-md transition-all"
             >
               <div className="flex items-center gap-3">
                 <Link to={`/profile/${friend._id}`}>

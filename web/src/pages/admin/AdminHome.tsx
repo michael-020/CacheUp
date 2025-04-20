@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { AdminFeed } from "@/components/admin/AdminFeed";
 import AdminLeftbar from "@/components/admin/AdminLeftbar";
 
@@ -13,15 +12,6 @@ const AdminHome = () => {
           <AdminFeed />
         </div>
 
-        {/* Right side link */}
-        <div className="fixed right-6 top-6">
-          <Link
-            to="/admin/forums"
-            className="inline-block rounded-md bg-blue-500 px-4 py-2 text-white shadow-md transition-colors hover:bg-blue-600 no-underline mt-20"
-          >
-            Create Forums +
-          </Link>
-        </div>
       </div>
     </div>
   );

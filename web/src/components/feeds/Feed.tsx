@@ -7,41 +7,15 @@ import Share from "../Share";
 export function Feed() {
   const { posts, fetchPosts } = usePostStore();
   const [isLoading, setIsLoading] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkScreenSize = () => {
-      setIsMobile(window.innerWidth < 1024);
-    };
-    
-    // Initial check
-    checkScreenSize();
-    
-    // Add event listener
-    window.addEventListener('resize', checkScreenSize);
-    
-    // Clean up
-    return () => window.removeEventListener('resize', checkScreenSize);
-  }, []);
   
   useEffect(() => {
     const loadPosts = async () => {
       setIsLoading(true);
-      const startTime = Date.now();
       
       try {
-        await fetchPosts();
+        fetchPosts();
         
-        const elapsedTime = Date.now() - startTime;
-        const minimumLoadingTime = 200; 
-        
-        if (elapsedTime < minimumLoadingTime) {
-          await new Promise(resolve => 
-            setTimeout(resolve, minimumLoadingTime - elapsedTime)
-          );
-        }
       } catch (error) {
-        // toast.error("Failed to load posts");
         console.error("Error fetching posts:", error);
       } finally {
         setIsLoading(false);
@@ -52,8 +26,10 @@ export function Feed() {
   }, [fetchPosts]);
   
   return (
-    <div className="container mx-auto p-4 mt-16">
-      {!isMobile && <Share />}
+    <div className="container mx-auto p-4 translate-y-20">
+      {<div className="hidden lg:block">
+        <Share />
+      </div> }
       <div className="mt-4 -z-10">
         {isLoading ? (
           <>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { AxiosError } from "axios";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { SearchBar } from "@/components/forums/search-bar";
 import { useForumStore } from "@/stores/ForumStore/forumStore";
 import { Notification } from "@/stores/ForumStore/types";
@@ -9,6 +9,7 @@ import type { Forum } from "@/stores/ForumStore/types";
 import { motion } from "framer-motion";
 import { routeVariants } from "@/lib/routeAnimation";
 import { DeleteModal } from "@/components/DeleteModal"; // Import the DeleteModal
+import toast from "react-hot-toast";
 
 interface ErrorResponse {
   msg: string;
@@ -47,7 +48,7 @@ const ForumList: React.FC = () => {
       setEditingForum(null);
     } catch (err) {
       const axiosError = err as AxiosError<ErrorResponse>;
-      alert(
+      toast.error(
         axiosError.response?.data?.msg ||
           "Failed to update forum. Please try again later."
       );
@@ -73,21 +74,20 @@ const ForumList: React.FC = () => {
     );
   };
 
-  const handleDeleteForum = async () => {
+  const handleDeleteForum = () => {
     if (!deleteConfirmationForum) return;
     
     setIsDeleting(true);
     try {
-      await deleteForum(
+      deleteForum(
         deleteConfirmationForum._id,
         deleteConfirmationForum.weaviateId
       );
     } catch (err) {
-      const axiosError = err as AxiosError<ErrorResponse>;
-      alert(
-        axiosError.response?.data?.msg ||
+      toast.error(
         "Failed to delete forum. Please try again later."
       );
+      console.error("Error while deleting forum: ", err)
     } finally {
       setIsDeleting(false);
       setDeleteConfirmationForum(null);
@@ -188,12 +188,22 @@ const ForumList: React.FC = () => {
 
   return (
     <motion.div 
-      className="h-screen dark:bg-neutral-950"
+      className="h-full pb-20 min-h-[calc(100vh-1px)] dark:bg-neutral-950"
       variants={routeVariants}
       initial="initial"
       animate="final"
       exit="exit"
     >
+      {/* Right side link */}
+      {isAdminRoute && <div className="fixed right-44 z-30 top-6">
+          <Link
+            to="/admin/forums"
+            className="inline-block rounded-md bg-blue-500 px-4 py-2 text-white shadow-md transition-colors hover:bg-blue-600 no-underline mt-20"
+          >
+            Create Forums +
+          </Link>
+        </div>
+      }
       <div className="max-w-6xl mx-auto p-6 translate-y-20 h-full">
         <h1 className="text-2xl font-bold mb-6">
           {isAdminRoute ? "Forums Section (Admin View)" : "Forums Section"}
@@ -233,7 +243,7 @@ const ForumList: React.FC = () => {
             <SearchBar />
 
             {forums.length === 0 ? (
-              <p className="text-gray-600 text-center">No forums available.</p>
+              <ForumListSkeleton />
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {forums.map((forum) => (
