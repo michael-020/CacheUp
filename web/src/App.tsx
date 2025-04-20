@@ -31,7 +31,6 @@ import { AnimatePresence } from "framer-motion"
 import SavedPostsPage from "./pages/SavedPostsPage";
 import { usePostStore } from './stores/PostStore/usePostStore'
 
-
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore()
   const { authAdmin, checkAdminAuth, isAdminCheckingAuth } = useAdminStore()
@@ -121,19 +120,17 @@ function App() {
   return (
     <div className='bg-gray-100 dark:bg-neutral-900 min-h-screen custom-scrollbar'>
       {authUser && !isAdminRoute && (
-        <div className='fixed top-0 w-screen z-50'>
-        
-        <Navbar />
-        <main className="custom-scrollbar">
-          <Outlet />
-        </main>
-        <BottomNavigationBar />
-
+        <div className='fixed top-0 w-screen z-40'>
+          <Navbar />
+          <main className=""> 
+            <Outlet />
+          </main>
+          <BottomNavigationBar />
         </div>
       )}
       
       {authAdmin && isAdminRoute && (
-        <div className='fixed top-0 w-screen z-50'>
+        <div className='fixed top-0 w-screen z-40'>
           <AdminNavbar />
         </div>
       )}
@@ -168,7 +165,8 @@ function App() {
           <Route path="/admin/forums" element={authAdmin ? <CreateForum/> : <Navigate to="/admin/signin" />} />
           <Route path="/admin/forums/get-forums" element={authAdmin ? <ForumList /> : <Navigate to="/admin/signin" />} />
           <Route path="/admin/forums/:forumMongoId/:forumWeaviateId" element={authAdmin ? <ForumPage /> : <Navigate to="/admin/signin" />} />
-          <Route path='/admin/forums/thread/:id' element={authAdmin ? <Thread /> : <Navigate to='/signin' />} />
+          <Route path='/admin/forums/thread/:id' element={authAdmin ? <Thread /> : <Navigate to='/admin/signin' />} />
+          <Route path='/admin/settings' element={authAdmin ? <SettingsPage /> : <Navigate to='/admin/signin' />} />
         </Routes>
       </AnimatePresence>
       <Toaster />  

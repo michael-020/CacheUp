@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { AxiosError } from "axios";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { SearchBar } from "@/components/forums/search-bar";
 import { useForumStore } from "@/stores/ForumStore/forumStore";
 import { Notification } from "@/stores/ForumStore/types";
@@ -185,7 +185,7 @@ const ForumList: React.FC = () => {
       </div>
     );
   }
-
+    
   if (isLoading) {
     return <ForumListSkeleton />;
   }
@@ -200,12 +200,22 @@ const ForumList: React.FC = () => {
 
   return (
     <motion.div 
-      className="h-screen dark:bg-neutral-950"
+      className="h-full pb-20 min-h-[calc(100vh-1px)] dark:bg-neutral-950"
       variants={routeVariants}
       initial="initial"
       animate="final"
       exit="exit"
     >
+      {/* Right side link */}
+      {isAdminRoute && <div className="fixed right-44 z-30 top-6">
+          <Link
+            to="/admin/forums"
+            className="inline-block rounded-md bg-blue-500 px-4 py-2 text-white shadow-md transition-colors hover:bg-blue-600 no-underline mt-20"
+          >
+            Create Forums +
+          </Link>
+        </div>
+      }
       <div className="max-w-6xl mx-auto p-6 translate-y-20 h-full">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">
@@ -260,7 +270,7 @@ const ForumList: React.FC = () => {
             <SearchBar />
 
             {forums.length === 0 ? (
-              <p className="text-gray-600 text-center">No forums available.</p>
+              <ForumListSkeleton />
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {forums.map((forum) => (

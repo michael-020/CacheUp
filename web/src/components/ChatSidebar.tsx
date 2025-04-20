@@ -32,13 +32,13 @@ const ChatSidebar = () => {
           <Users className="w-6 h-6" />
           <span className="font-medium block">Contacts</span>
         </div>
-        <div className="mt-3 hidden lg:flex items-center gap-2">
+        <div className="mt-3 flex items-center gap-2">
           <label className="cursor-pointer flex items-center gap-2">
             <input
               type="checkbox"
               checked={showOnlineOnly}
               onChange={(e) => setShowOnlineOnly(e.target.checked)}
-              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300"
             />
             <span className="text-sm">Show online only</span>
           </label>

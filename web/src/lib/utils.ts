@@ -72,7 +72,6 @@ export interface Post {
   reportedBy?: string[]; 
   isReported: boolean;
   reportCount: number;
-  
 }
 
 export interface Comment {
@@ -91,26 +90,3 @@ export interface IAdmin {
   name: string;
   adminId: string;
 }
-
-// export interface Post {
-//   _id: string;
-//   content?: string;
-//   image?: string;
-//   // author: string;
-//   username: string;
-//   likesCount: number;
-//   comments: Comment[];
-//   isLiked: boolean;
-//   isSaved: boolean;
-//   createdAt: Date;
-// }
-
-// Posts type:
-    // postedBy: userId,
-    // username: user.username,
-    // userImagePath: user.profileImagePath,
-    // postsImagePath: imagePath, 
-    // text,
-    // likes: [],
-    // reportedBy: [],
-    // comments: []

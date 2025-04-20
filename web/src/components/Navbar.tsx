@@ -3,17 +3,21 @@ import HomeIcont from "../icons/HomeIcon";
 import MessageIcon from "../icons/MessageIcon";
 import SettingsIcon from "../icons/SettingsIcon";
 import { useAuthStore } from "../stores/AuthStore/useAuthStore";
-import { Moon, PlusSquare, Sun } from "lucide-react";
+import { Moon, PlusSquare, Sun} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useChatStore } from "@/stores/chatStore/useChatStore";
 import { MdOutlineForum } from "react-icons/md";
 import FriendsIcon from "@/icons/FriendsIcon";
 import { useFriendsStore } from "@/stores/FriendsStore/useFriendsStore";
 import { useThemeStore } from "@/stores/ThemeStore/useThemeStore";
+import Share from "./Share"
+import { ShareModal } from "./ui/ShareModal";
+import { usePostStore } from "@/stores/PostStore/usePostStore";
 
 export const Navbar = () => {
   const { logout, authUser } = useAuthStore();
   const { requests, fetchRequests } = useFriendsStore();
+  const { fetchPosts } = usePostStore()
   const { unReadMessages } = useChatStore();
   const location = useLocation();
   const currentPath = location.pathname;
@@ -59,15 +63,15 @@ export const Navbar = () => {
     </div>;
 
   return (
-    <div className="h-16 z-50 border-b-2"> 
-      <nav className="fixed top-0 left-0 right-0 z-10 flex items-center justify-between px-4 md:px-6 py-3 border-gray-100 border-b-2 dark:bg-neutral-900/80 dark:border-b-2 dark:border-b-neutral-800/50 dark:backdrop-blur-xl bg-white/80 backdrop-blur-md">
+    <div className="h-16 border-b-2"> 
+      <nav className="fixed top-0 left-0 right-0 flex items-center justify-between px-4 md:px-6 py-3 border-gray-100 border-b-2 dark:bg-neutral-900/80 dark:border-b-2 dark:border-b-neutral-800/50 dark:backdrop-blur-xl bg-white/80 backdrop-blur-md">
         {/* Logo/Title - Always visible */}
         <div className="flex-shrink-0">
-          <h1 className="font-extrabold text-xl md:text-3xl text-black dark:text-gray-100">
-            <Link to={"/"}>
+          <Link to={"/"} onClick={() => fetchPosts()}>
+            <h1 className="font-extrabold text-xl md:text-3xl text-black dark:text-gray-100">
               CampusConnect
-            </Link>
-          </h1>
+            </h1>
+          </Link>
         </div>
         
         {/* Desktop Navigation Icons */}
@@ -143,15 +147,11 @@ export const Navbar = () => {
 
         {/* Mobile Right Controls - Always Visible */}
         <div className="flex lg:hidden items-center space-x-3">
-         
-          
           <button className="hover:-translate-y-0.5 hover:scale-105 p-1.5">
             <Link to={"/profile"}>
               <img src={authUser.profilePicture ? authUser.profilePicture : "/avatar.jpeg"} alt="Profile" className="size-8 rounded-full border" />
             </Link>
-          </button>
-          
-          
+          </button>  
         </div>
 
         {/* Mobile Menu - Conditional Rendering */}
@@ -223,6 +223,7 @@ export const BottomNavigationBar = () => {
   const isForumPath = 
     currentPath === "/forums/get-forums" || 
     /^\/forums\/[^/]+\/[^/]+$/.test(currentPath);
+    const [shareOpen, setShareOpen] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(fetchRequests, 1000 * 120);
@@ -258,65 +259,74 @@ export const BottomNavigationBar = () => {
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
+  // Close share component when location changes
+  useEffect(() => {
+    setShareOpen(false);
+  }, [location]);
+
   if (!isMobile) {
     return null;
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-10 bg-white dark:bg-neutral-800 border-t border-gray-200 dark:border-neutral-700">
-      <nav className="flex items-center justify-around h-16">
-        <Link 
-          to="/" 
-          className={`flex flex-col items-center justify-center w-1/5 h-full ${
-            currentPath === "/" ? "text-blue-500 fill-current" : "text-gray-500 dark:text-gray-400 dark:fill-none"
-          }`}
-        >
-            <HomeIcont
-                className={`w-6 h-6 ${currentPath === "/" ? "text-blue-500 fill-current" : "text-gray-600 dark:fill-none"}`}
+    <>
+      <ShareModal isOpen={shareOpen} onClose={() => setShareOpen(false)}>
+        <Share onPostSuccess={() => setShareOpen(false)} />
+      </ShareModal>
+
+      <div className="fixed bottom-0 z-10 left-0 right-0 bg-white dark:bg-neutral-800 border-t border-gray-200 dark:border-neutral-700">
+        <nav className="flex items-center justify-around h-16">
+          <Link 
+            to="/" 
+            className={`flex flex-col items-center justify-center w-1/5 h-full ${
+              currentPath === "/" ? "text-blue-500 fill-current" : "text-gray-500 dark:text-gray-400 dark:fill-none"
+            }`}
+          >
+              <HomeIcont
+                  className={`w-6 h-6 ${currentPath === "/" ? "text-blue-500 fill-current" : "text-gray-600 dark:fill-none"}`}
+                />
+          </Link>
+          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
+            <Link to={"/message"}>
+              <MessageIcon
+                className={`w-6 h-6 ${currentPath === "/message" ? "text-blue-500 fill-current" : "text-gray-600"}`}
               />
-        </Link>
+            </Link>
+            {unReadMessages.length > 0 && <div className="bg-red-500 text-white text-[0.7rem] px-1.5 rounded-full absolute top-0 right-1">
+                {unReadMessages.length < 99 ? unReadMessages.length : "99+"}
+            </div>}
+          </button>
+           {/* Plus button to open Share component */}
+           <button 
+            onClick={() => setShareOpen(true)}
+            className={`flex flex-col items-center justify-center w-1/5 h-full ${
+              shareOpen ? "text-blue-500" : "text-gray-600 "
+            }`}
+          >
+            <PlusSquare className="w-6 h-6" />
+          </button>
+          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative">
+            <Link to={"/friends"}>
+              <FriendsIcon
+                className={`w-6 h-6 ${currentPath === "/friends" ? "text-blue-500 fill-current" : "text-gray-600"}`}
+              />
+              {requests.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {requests.length > 9 ? '9+' : requests.length}
+                </span>
+              )}
+            </Link>
+          </button>
 
-        <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
-          <Link to={"/message"}>
-            <MessageIcon
-              className={`w-6 h-6 ${currentPath === "/message" ? "text-blue-500 fill-current" : "text-gray-600"}`}
-            />
-          </Link>
-          {unReadMessages.length > 0 && <div className="bg-red-500 text-white text-[0.7rem] px-1.5 rounded-full absolute top-0 right-1">
-              {unReadMessages.length < 99 ? unReadMessages.length : "99+"}
-          </div>}
-        </button>
-
-        <Link 
-          to="/create-post" 
-          className={`flex flex-col items-center justify-center w-1/5 h-full ${
-            currentPath === "/create-post" ? "text-blue-500" : "text-gray-600 "
-          }`}
-        >
-          <PlusSquare className="w-6 h-6" />
-        </Link>
-
-        <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative">
-          <Link to={"/friends"}>
-            <FriendsIcon
-              className={`w-6 h-6 ${currentPath === "/friends" ? "text-blue-500 fill-current" : "text-gray-600"}`}
-            />
-            {requests.length > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {requests.length > 9 ? '9+' : requests.length}
-              </span>
-            )}
-          </Link>
-        </button>
-
-        <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
-          <Link to={"/forums/get-forums"}>
-              <MdOutlineForum className={`size-6 ${
-                isForumPath ? "text-blue-500 fill-current" : "text-gray-600"
-              }`} />
-          </Link>
-        </button>
-      </nav>
-    </div>
+          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
+            <Link to={"/forums/get-forums"}>
+                <MdOutlineForum className={`size-6 ${
+                  isForumPath ? "text-blue-500 fill-current" : "text-gray-600"
+                }`} />
+            </Link>
+          </button>
+        </nav>
+      </div>
+    </>
   );
 };

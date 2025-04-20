@@ -16,6 +16,7 @@ viewPostHandler.get("/", async (req: Request, res: Response) => {
             res.status(401).json({
                 msg: "No posts found"
             })
+            return
         }
 
         const processedPosts = allPosts.map(post => {
@@ -36,6 +37,44 @@ viewPostHandler.get("/", async (req: Request, res: Response) => {
         });
 
         res.status(200).json(processedPosts)
+    }   
+    catch (e) {
+        console.error("Error while getting all posts", e)
+        res.status(401).json({
+            msg: "Error while getting all posts"
+        })
+        return
+    }   
+})
+
+// get a specific post
+viewPostHandler.get("/get-post/:postId", async (req: Request, res: Response) => {
+    try{
+        const userId = req.user._id
+        const postId = req.params.postId
+        const post = await postModel.findById(postId).sort({ createdAt: -1});
+
+        if(!post){
+            res.status(401).json({
+                msg: "No post found"
+            })
+            return
+        }
+
+        const isReported = post.reportedBy.includes(userId);
+        const isLiked = post.likes.includes(userId);
+        const isSaved = post.savedBy.includes(userId);
+
+        const processedPost = {
+            ...post._doc,
+            isReported,
+            reportButtonText: isReported ? 'Unreport' : 'Report',
+            reportCount: post.reportedBy.length,
+            isLiked,
+            isSaved
+        };
+
+        res.status(200).json(processedPost)
     }   
     catch (e) {
         console.error("Error while getting all posts", e)

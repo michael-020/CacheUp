@@ -3,8 +3,7 @@ import { useParams, useLocation, Link, useNavigate } from 'react-router-dom';
 import { useForumStore } from '@/stores/ForumStore/forumStore';
 import ThreadModal from '../components/forums/ThreadModal';
 import { ArrowLeft } from 'lucide-react';
-import { motion } from "framer-motion"
-import { routeVariants } from '@/lib/routeAnimation';
+import ForumPageSkeleton from '../components/skeletons/ForumPageSkeleton'; 
 
 const ForumPage: React.FC = () => {
   const { forumMongoId, forumWeaviateId } = useParams<{
@@ -20,15 +19,25 @@ const ForumPage: React.FC = () => {
   } = useForumStore();
   
   const [showModal, setShowModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Explicit loading state
   const location = useLocation();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const isAdminRoute = location.pathname.includes('/admin');
-  const linkToPosts = isAdminRoute ? "/admin/forums/thread/" : "/forums/thread/"
+  const linkToPosts = isAdminRoute ? "/admin/forums/thread/" : "/forums/thread/";
+
   useEffect(() => {
-    if (forumMongoId) {
-      fetchForumDetails(forumMongoId);
-      fetchThreads(forumMongoId, isAdminRoute);
-    }
+    const loadData = async () => {
+      setIsLoading(true);
+      if (forumMongoId) {
+        await fetchForumDetails(forumMongoId);
+        await fetchThreads(forumMongoId, isAdminRoute);
+      }
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 100);
+    };
+    
+    loadData();
   }, [forumMongoId, fetchForumDetails, fetchThreads, isAdminRoute]);
 
   const handleCreateThread = async (threadData: { title: string; description: string }) => {
@@ -41,13 +50,13 @@ const ForumPage: React.FC = () => {
     }
   };
 
+  // Show skeleton while loading
+  if (isLoading || currentForum.loading) {
+    return <ForumPageSkeleton />;
+  }
+  
   return (
-    <motion.div
-      variants={routeVariants}
-      initial="initial"
-      animate="final"
-      exit="exit"
-    >
+    <div>
       <div className="max-w-6xl mx-auto p-6 translate-y-24 h-full">
         <div className="flex justify-between items-center mb-6">
           <button
@@ -67,10 +76,8 @@ const ForumPage: React.FC = () => {
 
         {currentForum.error && <div className="text-red-500 mb-4">{currentForum.error}</div>}
         
-        {currentForum.loading ? (
-          <div className="text-center py-8">Loading forum content...</div>
-        ) : currentForum.threads.length === 0 ? (
-          <div className="text-center py-8 bg-gray-100 rounded">
+        {currentForum.threads.length === 0 ? (
+          <div className="text-center py-8 bg-white rounded dark:bg-neutral-800 ">
             <p>No threads found in this forum.</p>
             <p className="mt-2">Be the first to create a thread!</p>
           </div>
@@ -99,7 +106,7 @@ const ForumPage: React.FC = () => {
           />
         )}
       </div>
-    </motion.div>
+    </div>
   );
 };
 

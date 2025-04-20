@@ -28,7 +28,7 @@ const ChatHeader = () => {
 
         <button 
           onClick={() => setSelectedUser(null)}
-          className="hover:bg-gray-200 rounded-full p-1 transition-colors"
+          className="hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full p-1 transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
