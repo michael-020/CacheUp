@@ -39,7 +39,7 @@ export function SearchResults() {
   const handleItemClick = (item: SearchResultItem) => {
     switch (item.type) {
       case 'Forum':
-        navigate(`/forums/${item.data._id}`);
+        navigate(`/forums/${item.data._id}/${item.data.weaviateId}`);
         break;
       case 'Thread':
         navigate(`/forums/thread/${item.data._id}`);

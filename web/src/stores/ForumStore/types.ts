@@ -11,6 +11,7 @@ export interface SearchResultItem {
     thread?: string;
     post?: string;
     createdAt: Date;
+    weaviateId?: string
   };
   certainty: number;
 }
