@@ -30,6 +30,7 @@ import { useThemeStore } from './stores/ThemeStore/useThemeStore'
 import { AnimatePresence } from "framer-motion"
 import SavedPostsPage from "./pages/SavedPostsPage";
 import { usePostStore } from './stores/PostStore/usePostStore'
+import { ScrollToTop } from './components/ScrollToTop'
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore()
@@ -119,6 +120,7 @@ function App() {
 
   return (
     <div className='bg-gray-100 dark:bg-neutral-900 min-h-screen custom-scrollbar'>
+      <ScrollToTop />
       {authUser && !isAdminRoute && (
         <div className='fixed top-0 w-screen z-40'>
           <Navbar />
