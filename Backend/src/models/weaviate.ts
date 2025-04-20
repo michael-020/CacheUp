@@ -1,8 +1,10 @@
+import dotenv from "dotenv";
+dotenv.config();
 import weaviate from "weaviate-ts-client";
 
 export const weaviateClient = weaviate.client({
   scheme: "http",
-  host: "localhost:8080", // Change if using a remote server
+  host: process.env.DOCKER ? "weaviate:8080" : "localhost:8080", // Change if using a remote server
 });
 
 async function setupWeaviateSchema() {

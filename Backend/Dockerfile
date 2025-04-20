@@ -1,11 +1,6 @@
-FROM node:current-alpine
+FROM node:20
 
 WORKDIR /app
-
-RUN apk add --no-cache \
-  python3 \
-  make \
-  g++
 
 COPY package*.json ./
 
