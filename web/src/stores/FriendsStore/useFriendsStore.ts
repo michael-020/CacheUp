@@ -12,6 +12,8 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
   loading: false,
   // mutualFriends: {},
 
+  setLoading: (loading: boolean) => set({ loading }),
+
   fetchFriends: async () => {
     set({ loading: true });
     try {
@@ -27,19 +29,26 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
   },
 
   fetchRequests: async () => {
-    set({ loading: true });
     try {
       const { data } = await axiosInstance.get<{ friendRequests: IUser[] }>("/user/friends/requests");
-      set({ requests: data.friendRequests || [] });
+      
+      // Get current requests
+      const currentRequests = get().requests;
+      const newRequests = data.friendRequests || [];
+      
+      // Only update if there's an actual change in the requests
+      if (JSON.stringify(currentRequests) !== JSON.stringify(newRequests)) {
+        // Instead of directly setting, merge the new requests
+        set(state => ({
+          requests: mergeRequests(state.requests, newRequests)
+        }));
+      }
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
       console.error("Error fetching requests:", err);
       toast.error(err.response?.data?.message || "Failed to load friend requests");
-    } finally {
-      set({ loading: false });
     }
   },
-
 
   fetchSentRequests: async () => {
     set({ loading: true });
@@ -177,3 +186,18 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
     }
   }
 }));
+
+// Helper function to merge requests smoothly
+function mergeRequests(oldRequests: IUser[], newRequests: IUser[]): IUser[] {
+  const newRequestIds = new Set(newRequests.map(req => req._id));
+  
+  // Keep existing requests that are still valid
+  const existingValidRequests = oldRequests.filter(req => newRequestIds.has(req._id));
+  
+  // Add new requests that weren't present before
+  const brandNewRequests = newRequests.filter(
+    newReq => !oldRequests.some(oldReq => oldReq._id === newReq._id)
+  );
+  
+  return [...existingValidRequests, ...brandNewRequests];
+}

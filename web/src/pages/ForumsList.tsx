@@ -13,6 +13,7 @@ import { Button } from "@/components/Button";
 import ThreadModal from "@/components/forums/ThreadModal";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
+import toast from "react-hot-toast";
 
 interface ErrorResponse {
   msg: string;
@@ -57,7 +58,7 @@ const ForumList: React.FC = () => {
       setEditingForum(null);
     } catch (err) {
       const axiosError = err as AxiosError<ErrorResponse>;
-      alert(
+      toast.error(
         axiosError.response?.data?.msg ||
           "Failed to update forum. Please try again later."
       );
@@ -83,21 +84,20 @@ const ForumList: React.FC = () => {
     );
   };
 
-  const handleDeleteForum = async () => {
+  const handleDeleteForum = () => {
     if (!deleteConfirmationForum) return;
     
     setIsDeleting(true);
     try {
-      await deleteForum(
+      deleteForum(
         deleteConfirmationForum._id,
         deleteConfirmationForum.weaviateId
       );
     } catch (err) {
-      const axiosError = err as AxiosError<ErrorResponse>;
-      alert(
-        axiosError.response?.data?.msg ||
+      toast.error(
         "Failed to delete forum. Please try again later."
       );
+      console.error("Error while deleting forum: ", err)
     } finally {
       setIsDeleting(false);
       setDeleteConfirmationForum(null);
