@@ -19,6 +19,6 @@ export interface FriendsActions  {
   removeFriend: (friendId: string) => Promise<void>;
   // fetchMutualFriends: (userId: string) => Promise<void>;
   cancelRequest: (receiverId: string) => Promise<void>;
-
+  setLoading: (loading: boolean) => void;
 
   };

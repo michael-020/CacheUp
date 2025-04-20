@@ -24,7 +24,8 @@ export const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isForumPath = 
     currentPath === "/forums/get-forums" || 
-    /^\/forums\/[^/]+\/[^/]+$/.test(currentPath);
+    /^\/forums\/[^/]+\/[^/]+$/.test(currentPath) ||
+    currentPath.startsWith("/forums/search");
   const { isDark, toggleTheme } = useThemeStore();
 
   const handleToggleTheme = () => {
@@ -96,7 +97,7 @@ export const Navbar = () => {
           </Link>
 
           <Link to={"/friends"}>
-            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative">
+            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
               <FriendsIcon
                 className={`w-6 h-6 ${currentPath === "/friends" ? "text-blue-500 fill-current" : "text-gray-600"}`}
               />
@@ -222,11 +223,12 @@ export const BottomNavigationBar = () => {
   const { unReadMessages } = useChatStore();
   const isForumPath = 
     currentPath === "/forums/get-forums" || 
-    /^\/forums\/[^/]+\/[^/]+$/.test(currentPath);
-    const [shareOpen, setShareOpen] = useState(false);
+    /^\/forums\/[^/]+\/[^/]+$/.test(currentPath) ||
+    currentPath.startsWith("/forums/search");
+  const [shareOpen, setShareOpen] = useState(false);
 
   useEffect(() => {
-    const interval = setInterval(fetchRequests, 1000 * 120);
+    const interval = setInterval(fetchRequests, 1000 * 12);
   
     const handleVisibilityChange = () => {
       if (document.hidden) clearInterval(interval);
@@ -238,7 +240,7 @@ export const BottomNavigationBar = () => {
       clearInterval(interval);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [fetchRequests]);
+  }, []);
   
   // State to track screen size
   const [isMobile, setIsMobile] = useState(false);
@@ -276,16 +278,14 @@ export const BottomNavigationBar = () => {
 
       <div className="fixed bottom-0 z-10 left-0 right-0 bg-white dark:bg-neutral-800 border-t border-gray-200 dark:border-neutral-700">
         <nav className="flex items-center justify-around h-16">
-          <Link 
-            to="/" 
-            className={`flex flex-col items-center justify-center w-1/5 h-full ${
-              currentPath === "/" ? "text-blue-500 fill-current" : "text-gray-500 dark:text-gray-400 dark:fill-none"
-            }`}
-          >
+          <Link to={"/"}>
+            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
               <HomeIcont
-                  className={`w-6 h-6 ${currentPath === "/" ? "text-blue-500 fill-current" : "text-gray-600 dark:fill-none"}`}
-                />
+                className={`w-6 h-6 ${currentPath === "/" ? "text-blue-500 fill-current" : "text-gray-600 dark:fill-none"}`}
+              />
+            </button>
           </Link>
+          
           <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
             <Link to={"/message"}>
               <MessageIcon
@@ -305,7 +305,7 @@ export const BottomNavigationBar = () => {
           >
             <PlusSquare className="w-6 h-6" />
           </button>
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative">
+          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
             <Link to={"/friends"}>
               <FriendsIcon
                 className={`w-6 h-6 ${currentPath === "/friends" ? "text-blue-500 fill-current" : "text-gray-600"}`}

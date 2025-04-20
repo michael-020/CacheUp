@@ -131,7 +131,7 @@ export function SearchResults() {
         {results.map((item, index) => (
           <Card 
             key={`${item.type}-${item.data._id || index}`} 
-            className="hover:bg-accent/50 transition-colors cursor-pointer"
+            className="dark:hover:bg-neutral-800 hover:bg-accent/50 dark:bg-neutral-900 transition-colors cursor-pointer"
             onClick={() => handleItemClick(item)}
           >
             <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between">
@@ -162,17 +162,19 @@ export function SearchResults() {
 
   return (
     <motion.div 
-      className="container mx-auto p-10"
+      className="dark:bg-neutral-950 mx-auto p-10"
       variants={routeVariants}
       initial="initial"
       animate="final"
       exit="exit"
     >      
-      <h1 className="text-2xl font-bold mb-4 pt-10">
-        Search Results {searchQuery ? `for "${searchQuery}"` : ""}
-      </h1>
-      <SearchBar />
-      {renderResults()}
+      <div className="md:px-24">
+        <h1 className="text-2xl font-bold mb-4 pt-10">
+          Search Results {searchQuery ? `for "${searchQuery}"` : ""}
+        </h1>
+        <SearchBar />
+        {renderResults()}
+      </div>
     </motion.div>
   );
 }
