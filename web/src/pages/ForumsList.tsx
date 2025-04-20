@@ -11,13 +11,15 @@ import { routeVariants } from "@/lib/routeAnimation";
 import { DeleteModal } from "@/components/DeleteModal"; 
 import { Button } from "@/components/Button";
 import ThreadModal from "@/components/forums/ThreadModal";
+import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
+import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
 
 interface ErrorResponse {
   msg: string;
 }
 
 const ForumList: React.FC = () => {
-  const { forums, error, fetchForums, deleteForum, notifications, fetchNotifications, markNotificationRead, createForumRequest } = useForumStore();
+  const { forums, error, fetchForums, deleteForum, notifications, fetchNotifications, markNotificationRead, createForumRequest, editForum } = useForumStore();
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteConfirmationForum, setDeleteConfirmationForum] = useState<Forum | null>(null);
@@ -25,7 +27,8 @@ const ForumList: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'forums' | 'notifications'>('forums');
   const location = useLocation();
   const navigate = useNavigate();
-  const { editForum } = useForumStore();
+  const {authUser} = useAuthStore()
+  const { authAdmin } = useAdminStore()
   const [editingForum, setEditingForum] = useState<Forum | null>(null);
   const [editedTitle, setEditedTitle] = useState("");
   const [editedDescription, setEditedDescription] = useState("");
@@ -204,16 +207,25 @@ const ForumList: React.FC = () => {
       exit="exit"
     >
       <div className="max-w-6xl mx-auto p-6 translate-y-20 h-full">
-        <div className="flex justify-between">
-        <h1 className="text-2xl font-bold mb-6">
-          {isAdminRoute ? "Forums Section (Admin View)" : "Forums Section"}
-        </h1>
-        <Button label="Request Forum" className="max-w-36" onClick={(e) => {
-          e.stopPropagation()
-          setShowRequestModal(true)
-        }} />
-        {showRequestModal && <ThreadModal onClose={() => setShowRequestModal(false)} onSubmit={requestSubmitHandler} forum={true}/>}
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">
+            {isAdminRoute ? "Forums Section (Admin View)" : "Forums Section"}
+          </h1>
+          <Button
+            label="Request Forum"
+            className="max-w-36"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowRequestModal(true);
+            }}
+          />
         </div>
+        {authUser && showRequestModal && (
+          <ThreadModal
+            onClose={() => setShowRequestModal(false)}
+            onSubmit={requestSubmitHandler}
+          />
+        )}
         {/* Tab navigation */}
         <div className="flex border-b border-gray-200 dark:border-neutral-700 mb-6">
           <button
