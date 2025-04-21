@@ -36,6 +36,7 @@ const ForumList: React.FC = () => {
 
   function requestSubmitHandler(data: {title: string, description: string}){
     createForumRequest(data.title, data.description)
+    setShowRequestModal(false)
   }
 
   const handleClickOutsideEditModal = (e: MouseEvent) => {
@@ -251,6 +252,7 @@ const ForumList: React.FC = () => {
         </div>
         {authUser && showRequestModal && (
           <ThreadModal
+            forum={true}
             onClose={() => setShowRequestModal(false)}
             onSubmit={requestSubmitHandler}
           />
