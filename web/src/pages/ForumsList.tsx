@@ -9,7 +9,6 @@ import type { Forum } from "@/stores/ForumStore/types";
 import { motion } from "framer-motion";
 import { routeVariants } from "@/lib/routeAnimation";
 import { DeleteModal } from "@/components/DeleteModal"; 
-import { Button } from "@/components/Button";
 import ThreadModal from "@/components/forums/ThreadModal";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import toast from "react-hot-toast";
@@ -222,14 +221,15 @@ const ForumList: React.FC = () => {
             {isAdminRoute ? "Forums Section (Admin View)" : "Forums Section"}
           </h1>
           {!isAdminRoute &&   
-            <Button
-            label="Request Forum"
-            className="max-w-36"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowRequestModal(true);
-            }}
-            />
+            <button
+              className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded transition-colors duration-200"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowRequestModal(true);
+              }}
+            >
+              Request Forum
+            </button>
           }
           {isAdminRoute && <div className="">
               <div className="space-x-4">
@@ -289,14 +289,14 @@ const ForumList: React.FC = () => {
             <SearchBar />
 
             {isLoading ? (
-  <ForumListSkeleton />
-) : forums.length === 0 ? (
-  <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md p-6 text-center">
-    <p className="text-gray-600 dark:text-gray-400 py-6">
-      No forums available.
-    </p>
-  </div>
-) : (
+              <ForumListSkeleton />
+            ) : forums.length === 0 ? (
+              <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md p-6 text-center">
+                <p className="text-gray-600 dark:text-gray-400 py-6">
+                  No forums available.
+                </p>
+              </div>
+            ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {forums.map((forum) => (
                   <div
