@@ -583,10 +583,9 @@ fetchRequestedForums: async() => {
     set({ loading: true, error: "" });
     const res = await axiosInstance.get("/admin/requested-forums");
     set({ requestedForums: res.data.requestedForums, loading: false });
-  } catch (err: any) {
-    set({
-      error: err?.response?.data?.msg || "Something went wrong",
-    });
+  } catch (err) {
+    set({error: "Something went wrong"});
+    console.log(err)
   } finally {
     set({loading: false, error: ""})
   }
