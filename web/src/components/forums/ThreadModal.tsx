@@ -1,5 +1,6 @@
 import { useEffect, useState, FC, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { Textarea } from '../ui/textarea';
 
 interface ThreadModalProps {
   onClose: () => void;
@@ -58,7 +59,7 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit, forum }) => {
           <h2 className="text-xl font-bold dark:text-gray-200">{forum ? "Request New Forum" : "Create New thread"}</h2>
         </div>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 flex flex-col">
           <div>
             <label className="block mb-2">{forum ? "Forum Title" : "Title"}</label>
             <input
@@ -73,16 +74,25 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit, forum }) => {
           
           <div>
             <label className="block mb-2">{forum ? "Forum Description" : "Description"}</label>
-            <textarea
+            <Textarea
               value={threadData.description}
               onChange={(e) => setThreadData({...threadData, description: e.target.value})}
               placeholder='Content'
-              className={`w-full p-2 border rounded h-32 dark:placeholder:text-gray-700 dark:bg-neutral-600 ${errors.description ? 'border-red-500' : ''}`}
+              rows={5}
+              className={`w-full p-2 border resize-none rounded dark:placeholder:text-gray-700 dark:bg-neutral-600 ${errors.description ? 'border-red-500' : ''}`}
             />
             {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex gap-4 self-end">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
+            >
+              Cancel
+            </button>
+            
             <button
               type="submit"
               disabled={submitting}
@@ -93,14 +103,6 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit, forum }) => {
                 : (submitting ? 'Creating...' : 'Create Thread')
               }
 
-            </button>
-            
-            <button
-              type="button"
-              onClick={onClose}
-              className="bg-gray-200 dark:bg-neutral-700 dark:hover:bg-neutral-500 px-4 py-2 rounded hover:bg-gray-300"
-            >
-              Cancel
             </button>
           </div>
         </form>
