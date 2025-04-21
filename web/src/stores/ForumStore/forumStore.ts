@@ -38,6 +38,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   fetchForums: async (isAdminRoute) => {
     set({ loadingForums: true, errorForums: '' });
     try {
+      await new Promise(r => setTimeout(r, 3000))
       const endpoint = isAdminRoute ? '/admin/get-forums' : '/forums/get-forums';
       const response = await axiosInstance.get(endpoint);
       set({ forums: response.data.allForums || [], loadingForums: false });
