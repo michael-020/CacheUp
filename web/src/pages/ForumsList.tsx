@@ -13,6 +13,7 @@ import { Button } from "@/components/Button";
 import ThreadModal from "@/components/forums/ThreadModal";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import toast from "react-hot-toast";
+import { createPortal } from "react-dom";
 
 interface ErrorResponse {
   msg: string;
@@ -302,13 +303,13 @@ const ForumList: React.FC = () => {
                           >
                             <button
                               onClick={() => setEditingForum(forum)}
-                              className="block border-b border-gray-400 dark:border-neutral-600 w-full text-left px-4 py-2 dark:text-gray-200 text-sm text-gray-700 hover:bg-gray-100"
+                              className="block border-b border-gray-400 dark:border-neutral-600 w-full text-left px-4 py-2 dark:text-gray-200 dark:hover:bg-neutral-800 rounded-t-lg text-sm text-gray-700 hover:bg-gray-100"
                             >
                               Edit Forum
                             </button>
                             <button
                               onClick={() => setDeleteConfirmationForum(forum)}
-                              className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                              className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-b-lg"
                             >
                               Delete Forum
                             </button>
@@ -375,8 +376,8 @@ const ForumList: React.FC = () => {
           </div>
         )}
 
-        {editingForum && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        {editingForum && createPortal(
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-[1.5px] dark:bg-neutral-900/80  flex items-center justify-center z-50">
             <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-full max-w-md">
               <h2 className="text-xl font-bold mb-4">Edit Forum</h2>
               <form onSubmit={handleEditSubmit}>
@@ -388,7 +389,7 @@ const ForumList: React.FC = () => {
                     type="text"
                     value={editedTitle}
                     onChange={(e) => setEditedTitle(e.target.value)}
-                    className="w-full px-3 py-2 rounded-md dark:bg-neutral-600"
+                    className="w-full px-3 py-2 rounded-md bg-gray-100 border border-gray-300 dark:border-neutral-500 dark:bg-neutral-600"
                     required
                   />
                 </div>
@@ -399,7 +400,7 @@ const ForumList: React.FC = () => {
                   <textarea
                     value={editedDescription}
                     onChange={(e) => setEditedDescription(e.target.value)}
-                    className="w-full px-3 py-2 rounded-md h-32 dark:bg-neutral-600"
+                    className="w-full px-3 py-2 rounded-md h-32 bg-gray-100 border border-gray-300 dark:border-neutral-500 dark:bg-neutral-600"
                     required
                   />
                 </div>
@@ -407,7 +408,7 @@ const ForumList: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setEditingForum(null)}
-                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded"
+                    className="px-4 py-2 text-gray-500 hover:bg-gray-200 dark:hover:bg-neutral-600 dark:text-gray-100 rounded"
                   >
                     Cancel
                   </button>
@@ -420,7 +421,8 @@ const ForumList: React.FC = () => {
                 </div>
               </form>
             </div>
-          </div>
+          </div>, 
+          document.body
         )}
 
         <DeleteModal
