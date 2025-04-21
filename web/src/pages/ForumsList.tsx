@@ -210,14 +210,12 @@ const ForumList: React.FC = () => {
 
   return (
     <motion.div 
-      className="h-full pb-20 min-h-[calc(100vh-1px)] dark:bg-neutral-950"
+      className="h-full pb-20 dark:bg-neutral-950"
       variants={routeVariants}
       initial="initial"
       animate="final"
       exit="exit"
     >
-      {/* Right side link */}
-      
       <div className="max-w-6xl mx-auto p-6 translate-y-20 h-full">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">
@@ -290,9 +288,15 @@ const ForumList: React.FC = () => {
           <>
             <SearchBar />
 
-            {forums.length === 0 ? (
-              <ForumListSkeleton />
-            ) : (
+            {isLoading ? (
+  <ForumListSkeleton />
+) : forums.length === 0 ? (
+  <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md p-6 text-center">
+    <p className="text-gray-600 dark:text-gray-400 py-6">
+      No forums available.
+    </p>
+  </div>
+) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {forums.map((forum) => (
                   <div
