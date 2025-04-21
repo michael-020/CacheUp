@@ -3,9 +3,10 @@ import { useEffect, useState, FC } from 'react';
 interface ThreadModalProps {
   onClose: () => void;
   onSubmit: (data: { title: string; description: string }) => void;
+  forum?: boolean
 }
 
-const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit }) => {
+const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit, forum }) => {
   const [threadData, setThreadData] = useState({ title: '', description: '' });
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<{title?: string; description?: string}>({});
@@ -18,7 +19,7 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit }) => {
     }
     
     if (!threadData.description.trim()) {
-      newErrors.description = 'Content is required';
+      newErrors.description = 'Description is required';
     }
     
     setErrors(newErrors);
@@ -53,7 +54,7 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit }) => {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white dark:bg-neutral-800  rounded-lg p-6 w-full max-w-md">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold dark:text-gray-200">Create New Thread</h2>
+          <h2 className="text-xl font-bold dark:text-gray-200">{forum ? "Request New Forum" : "Create New thread"}</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -75,7 +76,7 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit }) => {
           </div>
           
           <div>
-            <label className="block mb-2">Content</label>
+            <label className="block mb-2">Description</label>
             <textarea
               value={threadData.description}
               onChange={(e) => setThreadData({...threadData, description: e.target.value})}
@@ -91,7 +92,11 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit }) => {
               disabled={submitting}
               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:bg-gray-400"
             >
-              {submitting ? 'Creating...' : 'Create Thread'}
+             {forum 
+                ? (submitting ? 'Requesting...' : 'Request Forum') 
+                : (submitting ? 'Creating...' : 'Create Thread')
+              }
+
             </button>
             
             <button
