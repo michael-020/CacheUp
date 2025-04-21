@@ -216,7 +216,7 @@ const ForumList: React.FC = () => {
       animate="final"
       exit="exit"
     >
-      <div className="max-w-6xl mx-auto p-6 translate-y-20 h-full">
+      <div className="max-w-6xl mx-auto p-6 translate-y-20 min-h-[calc(100vh-5.1rem)] h-[calc(100vh-6rem)]">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">
             {isAdminRoute ? "Forums Section (Admin View)" : "Forums Section"}
@@ -256,7 +256,7 @@ const ForumList: React.FC = () => {
           />
         )}
         {/* Tab navigation */}
-        <div className="flex border-b border-gray-200 dark:border-neutral-700 mb-6">
+        <div className="flex border-b border-gray-400 dark:border-neutral-700 mb-6">
           <button
             className={`py-2 px-4 font-medium text-sm mr-4 ${
               activeTab === 'forums'
