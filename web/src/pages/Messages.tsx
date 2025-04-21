@@ -10,7 +10,7 @@ export const Messages = () => {
 
   return (
     <motion.div 
-      className="flex items-center justify-center pt-20 px-4 pb-6 h-screen dark:bg-neutral-950"
+      className="flex items-center justify-center pt-20 px-4 pb-6 h-[99.9vh] dark:bg-neutral-950"
       variants={routeVariants}
       initial="initial"
       animate="final"
