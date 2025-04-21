@@ -1,4 +1,5 @@
-import { useEffect, useState, FC } from 'react';
+import { useEffect, useState, FC, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
 interface ThreadModalProps {
   onClose: () => void;
@@ -10,6 +11,7 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit, forum }) => {
   const [threadData, setThreadData] = useState({ title: '', description: '' });
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<{title?: string; description?: string}>({});
+  const modalRef = useRef<HTMLDivElement | null>(null)
 
   const validate = (): boolean => {
     const newErrors: {title?: string; description?: string} = {};
@@ -34,32 +36,26 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit, forum }) => {
     }
     
     setSubmitting(true);
-    await onSubmit(threadData);
+    onSubmit(threadData);
     setSubmitting(false);
   };
 
-  // Close modal when Escape key is pressed
   useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
+    const handleClickOutside = (e: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+        onClose()
       }
     };
     
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
+    window.addEventListener('mousedown', handleClickOutside);
+    return () => window.removeEventListener('mousedown', handleClickOutside);
   }, [onClose]);
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-neutral-800  rounded-lg p-6 w-full max-w-md">
+  return createPortal(
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-[1.5px] dark:bg-neutral-900/80  flex items-center justify-center z-50">
+      <div ref={modalRef} className="bg-white dark:bg-neutral-800  rounded-lg p-6 w-full max-w-md">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold dark:text-gray-200">{forum ? "Request New Forum" : "Create New thread"}</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -109,7 +105,8 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit, forum }) => {
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
