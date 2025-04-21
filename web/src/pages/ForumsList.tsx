@@ -12,7 +12,6 @@ import { DeleteModal } from "@/components/DeleteModal";
 import { Button } from "@/components/Button";
 import ThreadModal from "@/components/forums/ThreadModal";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
-import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
 import toast from "react-hot-toast";
 
 interface ErrorResponse {
@@ -29,7 +28,6 @@ const ForumList: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const {authUser} = useAuthStore()
-  const { authAdmin } = useAdminStore()
   const [editingForum, setEditingForum] = useState<Forum | null>(null);
   const [editedTitle, setEditedTitle] = useState("");
   const [editedDescription, setEditedDescription] = useState("");
@@ -71,7 +69,8 @@ const ForumList: React.FC = () => {
     const loadData = () => {
         setIsLoading(true);
         fetchForums(isAdminRoute);
-        fetchNotifications();
+        if(!isAdminRoute)
+          fetchNotifications();
         setIsLoading(false)
     };
     
@@ -221,14 +220,16 @@ const ForumList: React.FC = () => {
           <h1 className="text-2xl font-bold">
             {isAdminRoute ? "Forums Section (Admin View)" : "Forums Section"}
           </h1>
-          <Button
+          {!isAdminRoute &&   
+            <Button
             label="Request Forum"
             className="max-w-36"
             onClick={(e) => {
               e.stopPropagation();
               setShowRequestModal(true);
             }}
-          />
+            />
+          }
         </div>
         {authUser && showRequestModal && (
           <ThreadModal
