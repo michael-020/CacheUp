@@ -1,5 +1,14 @@
 import { IUser } from "@/lib/utils";
 
+export interface ForumRequest {
+  _id: string;
+  title: string;
+  description: string;
+  status: string;
+  createdAt: string;
+  requestedBy: IUser;
+}
+
 export interface SearchResultItem {
   type: 'Forum' | 'Thread' | 'Post' | 'Comment';
   data: {
@@ -119,6 +128,7 @@ export interface ForumState {
   isWatched: boolean;
   notifications: Notification[];
   reportLoading: ReportStatus
+  requestedForums: ForumRequest[];
 }
 
 
@@ -159,6 +169,7 @@ export interface ForumActions {
   reportComment: (commentId: string) => Promise<void>
   checkIfPostReported: (post: PostSchema, userId: string) => boolean
   checkIfCommentReported: (comment: Comment, userId: string) => boolean
+  fetchRequestedForums: () => Promise<void>;
 }
 
 export type ForumStore = ForumState & ForumActions;

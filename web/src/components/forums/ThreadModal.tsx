@@ -60,7 +60,7 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit, forum }) => {
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block mb-2">Title</label>
+            <label className="block mb-2">{forum ? "Forum Title" : "Title"}</label>
             <input
               type="text"
               value={threadData.title}
@@ -72,7 +72,7 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit, forum }) => {
           </div>
           
           <div>
-            <label className="block mb-2">Description</label>
+            <label className="block mb-2">{forum ? "Forum Description" : "Description"}</label>
             <textarea
               value={threadData.description}
               onChange={(e) => setThreadData({...threadData, description: e.target.value})}

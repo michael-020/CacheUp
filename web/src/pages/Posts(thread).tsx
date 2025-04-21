@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useForumStore } from "@/stores/ForumStore/forumStore";
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import CreatePostModal from "@/components/forums/CreatePostModalForums"; 
@@ -90,7 +90,7 @@ export const Thread = () => {
     return post.disLikedBy.some((id: string) => id.toString() === currentUserId.toString());
   };
 
-  const handleLikePost = async (postId: string) => {
+  const handleLikePost = useCallback( async (postId: string) => {
     try {
       setLikeLoading(prev => ({ ...prev, [postId]: true }));
       
@@ -104,9 +104,9 @@ export const Thread = () => {
     } finally {
       setLikeLoading(prev => ({ ...prev, [postId]: false }));
     }
-  };
+  },[id, setLikeLoading, fetchPosts]);
 
-  const handleDislikePost = async (postId: string) => {
+  const handleDislikePost = useCallback( async (postId: string) => {
     try {
       setLikeLoading(prev => ({ ...prev, [postId]: true }));
       
@@ -120,7 +120,7 @@ export const Thread = () => {
     } finally {
       setLikeLoading(prev => ({ ...prev, [postId]: false }));
     }
-  };
+  },[id, setLikeLoading, fetchPosts]);
 
   const toggleExpandPost = (postId: string) => {
     setExpandedPosts(prev => ({
