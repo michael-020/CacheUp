@@ -217,15 +217,7 @@ const ForumList: React.FC = () => {
       exit="exit"
     >
       {/* Right side link */}
-      {isAdminRoute && <div className="fixed right-44 z-30 top-6">
-          <Link
-            to="/admin/forums"
-            className="inline-block rounded-md bg-blue-500 px-4 py-2 text-white shadow-md transition-colors hover:bg-blue-600 no-underline mt-20"
-          >
-            Create Forums +
-          </Link>
-        </div>
-      }
+      
       <div className="max-w-6xl mx-auto p-6 translate-y-20 h-full">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">
@@ -240,6 +232,23 @@ const ForumList: React.FC = () => {
               setShowRequestModal(true);
             }}
             />
+          }
+          {isAdminRoute && <div className="">
+              <div className="space-x-4">
+                <Link
+                  to="/admin/requested-forums"
+                  className="inline-block rounded-md bg-blue-500 px-4 py-2 text-white shadow-md transition-colors hover:bg-blue-600 no-underline"
+                >
+                  Requested Forums
+                </Link>
+                <Link
+                  to="/admin/forums"
+                  className="inline-block rounded-md bg-blue-500 px-4 py-2 text-white shadow-md transition-colors hover:bg-blue-600 no-underline"
+                >
+                  Create Forums +
+                </Link>
+              </div>
+            </div>
           }
         </div>
         {authUser && showRequestModal && (
