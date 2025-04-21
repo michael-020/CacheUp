@@ -38,7 +38,6 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   fetchForums: async (isAdminRoute) => {
     set({ loadingForums: true, errorForums: '' });
     try {
-      await new Promise(r => setTimeout(r, 3000))
       const endpoint = isAdminRoute ? '/admin/get-forums' : '/forums/get-forums';
       const response = await axiosInstance.get(endpoint);
       set({ forums: response.data.allForums || [], loadingForums: false });
@@ -479,13 +478,13 @@ export const useForumStore = create<ForumStore>((set, get) => ({
 
   reportPost: async(postId: string) => {
     try{
-      set((state: any) => ({
+      set((state) => ({
         reportLoading: { ...state.reportLoading, [postId]: true}
       }))
 
       const response = await axiosInstance.put(`/forums/report-post/${postId}`)
       if (response.status === 200) {
-        set((state: any) => {
+        set((state) => {
           const updatedPosts = state.posts.map((post: PostSchema) => {
             if (post._id === postId) {
               return {
@@ -507,7 +506,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     console.error("Error reporting post:", error);
     throw error;
   } finally {
-    set((state: any) => ({
+    set((state) => ({
       reportLoading: { ...state.reportLoading, [postId]: false }
     }));
   }
@@ -515,14 +514,14 @@ export const useForumStore = create<ForumStore>((set, get) => ({
 
 reportComment: async (commentId: string) => {
   try {
-    set((state: any) => ({
+    set((state) => ({
       reportLoading: { ...state.reportLoading, [commentId]: true }
     }));
     
     const response = await axiosInstance.put(`/forums/report-comment/${commentId}`);
     
     if (response.status === 200) {
-      set((state: any) => {
+      set((state) => {
         const updatedComments = { ...state.comments };
 
         Object.keys(updatedComments).forEach(postId => {
@@ -548,7 +547,7 @@ reportComment: async (commentId: string) => {
     console.error("Error reporting comment:", error);
     throw error;
   } finally {
-    set((state: any) => ({
+    set((state) => ({
       reportLoading: { ...state.reportLoading, [commentId]: false }
     }));
   }
