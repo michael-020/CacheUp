@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { AxiosError } from "axios";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { SearchBar } from "@/components/forums/search-bar";
@@ -33,17 +33,27 @@ const ForumList: React.FC = () => {
   const [editedTitle, setEditedTitle] = useState("");
   const [editedDescription, setEditedDescription] = useState("");
   const [showRequestModal, setShowRequestModal] = useState(false)
+  const editModalRef = useRef<HTMLDivElement | null>(null)
+
+  function requestSubmitHandler(data: {title: string, description: string}){
+    createForumRequest(data.title, data.description)
+  }
+
+  const handleClickOutsideEditModal = (e: MouseEvent) => {
+    if (editModalRef.current && !editModalRef.current.contains(e.target as Node)) {
+      setEditingForum(null);
+    }
+  };
 
   useEffect(() => {
     if (editingForum) {
       setEditedTitle(editingForum.title);
       setEditedDescription(editingForum.description);
     }
-  }, [editingForum]);
+    document.addEventListener("mousedown", handleClickOutsideEditModal, false);
 
-  function requestSubmitHandler(data: {title: string, description: string}){
-    createForumRequest(data.title, data.description)
-  }
+    return () => document.removeEventListener("mousedown", handleClickOutsideEditModal, false)
+  }, [editingForum]);
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -378,7 +388,7 @@ const ForumList: React.FC = () => {
 
         {editingForum && createPortal(
           <div className="fixed inset-0 bg-black/50 backdrop-blur-[1.5px] dark:bg-neutral-900/80  flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-full max-w-md">
+            <div ref={editModalRef} className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-full max-w-md">
               <h2 className="text-xl font-bold mb-4">Edit Forum</h2>
               <form onSubmit={handleEditSubmit}>
                 <div className="mb-4">
