@@ -13,7 +13,11 @@ const ForumPageSkeleton: React.FC = () => {
           </button>
           
           {/* Create thread button skeleton */}
-          <div className="h-10 bg-gray-200 dark:bg-neutral-700 rounded w-32 animate-pulse"></div>
+          <button
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Create Thread
+          </button>
         </div>
 
         {/* Thread list skeletons */}
