@@ -33,20 +33,34 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   isWatched: false,
   notifications: [],
   reportLoading: {},
+  requestedForums: [],
 
   
-  fetchForums: async (isAdminRoute) => {
-    set({ loadingForums: true, errorForums: '' });
+  fetchForums: async (isAdminRoute: boolean) => {
+    set((state) => ({ ...state, loadingForums: true, errorForums: '' }));
+  
     try {
       const endpoint = isAdminRoute ? '/admin/get-forums' : '/forums/get-forums';
-      const response = await axiosInstance.get(endpoint);
-      set({ forums: response.data.allForums || [], loadingForums: false });
-    } catch (err) {
-      const error = err as AxiosError<{ msg: string }>;
-      set({ 
-        errorForums: error.response?.data?.msg || 'Failed to fetch forums',
-        loadingForums: false 
-      });
+      const { data } = await axiosInstance.get(endpoint);
+  
+      set((state) => ({
+        ...state,
+        forums: data?.allForums ?? [],
+        loadingForums: false,
+      }));
+    } catch (error) {
+      const err = error as AxiosError<{ msg?: string }>;
+  
+      const errorMsg =
+        err?.response?.data?.msg ||
+        err?.message ||
+        'Something went wrong while fetching forums.';
+  
+      set((state) => ({
+        ...state,
+        errorForums: errorMsg,
+        loadingForums: false,
+      }));
     }
   },
 
@@ -139,41 +153,46 @@ export const useForumStore = create<ForumStore>((set, get) => ({
       throw error;
     }
   },
-  fetchPosts: async (threadId: string, isAdmin?: boolean) => {
-    if (!threadId) {
-      throw new Error("Thread ID is required");
-    }
-    set({ loading: true });
-    try {
-      const endpoint = isAdmin ? "admin/get-thread-posts/" : "/forums/get-posts/"
-      const response = await axiosInstance.get(`${endpoint + threadId}`);
-    
-      const fetchedPosts = response.data.posts || []; 
-      const threadTitle = response.data.threadTitle
-      const threadDescription = response.data.threadDescription 
-      const threadMongo = response.data.threadMongo;
-      const threadWeaviate = response.data.threadWeaviate
-      set({ 
-        posts: fetchedPosts,
-        threadTitle: threadTitle,
-        threadDescription: threadDescription,
-        threadMongo: threadMongo,
-        threadWeaviate: threadWeaviate,
-        loading: false 
-      });
+
+  fetchPosts: async (threadId: string, isAdmin = false) => {
+    if (!threadId) throw new Error("Thread ID is required");
   
-      return fetchedPosts; 
+    set((state) => ({ ...state, loading: true }));
+  
+    try {
+      const endpoint = isAdmin ? "/admin/get-thread-posts/" : "/forums/get-posts/";
+      const { data } = await axiosInstance.get(`${endpoint}${threadId}`);
+  
+      const {
+        posts = [],
+        threadTitle = '',
+        threadDescription = '',
+        threadMongo = null,
+        threadWeaviate = null,
+      } = data || {};
+  
+      set((state) => ({
+        ...state,
+        posts,
+        threadTitle,
+        threadDescription,
+        threadMongo,
+        threadWeaviate,
+        loading: false,
+      }));
+  
+      return posts;
     } catch (error) {
-      set({ loading: false });
+      set((state) => ({ ...state, loading: false }));
       throw error;
     }
   },
+  
   
 
   // Create a new post in a thread
   createPost: async (threadMongo, threadWeaviate, content) => {
     try {
-      set({ loading: true });
       const response = await axiosInstance.post(`/forums/create-post/${threadMongo}/${threadWeaviate}`, {content}, {withCredentials: true});
       const newPost = response.data.postMongo;
       
@@ -192,9 +211,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     
       return newPost;
     } catch (error) {
-      set({ 
-        loading: false,
-      });
+      toast.error("Error Creating Post")
       throw error;
     }
   },
@@ -559,6 +576,21 @@ checkIfPostReported: (post: PostSchema, userId: string) => {
 
 checkIfCommentReported: (comment: Comment, userId: string) => {
   return comment.reportedBy?.some((id: string) => id.toString() === userId.toString()) || false;
-}
+},
+
+fetchRequestedForums: async() => {
+  try {
+    set({ loading: true, error: "" });
+    const res = await axiosInstance.get("/admin/requested-forums");
+    set({ requestedForums: res.data.requestedForums, loading: false });
+  } catch (err: any) {
+    set({
+      error: err?.response?.data?.msg || "Something went wrong",
+    });
+  } finally {
+    set({loading: false, error: ""})
+  }
+},
+
 }));
   
