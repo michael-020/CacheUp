@@ -9,7 +9,6 @@ import type { Forum } from "@/stores/ForumStore/types";
 import { motion } from "framer-motion";
 import { routeVariants } from "@/lib/routeAnimation";
 import { DeleteModal } from "@/components/DeleteModal"; 
-import { Button } from "@/components/Button";
 import ThreadModal from "@/components/forums/ThreadModal";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import toast from "react-hot-toast";
@@ -37,6 +36,7 @@ const ForumList: React.FC = () => {
 
   function requestSubmitHandler(data: {title: string, description: string}){
     createForumRequest(data.title, data.description)
+    setShowRequestModal(false)
   }
 
   const handleClickOutsideEditModal = (e: MouseEvent) => {
@@ -210,28 +210,27 @@ const ForumList: React.FC = () => {
 
   return (
     <motion.div 
-      className="h-full pb-20 dark:bg-neutral-950"
+      className="h-full pb-[26rem] md:pb-48 lg:pb-20 dark:bg-neutral-950"
       variants={routeVariants}
       initial="initial"
       animate="final"
       exit="exit"
     >
-      {/* Right side link */}
-      
-      <div className="max-w-6xl mx-auto p-6 translate-y-20 h-full">
+      <div className="max-w-6xl mx-auto p-6 translate-y-20 min-h-[calc(100vh-5.1rem)] h-[calc(100vh-6rem)]">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">
             {isAdminRoute ? "Forums Section (Admin View)" : "Forums Section"}
           </h1>
           {!isAdminRoute &&   
-            <Button
-            label="Request Forum"
-            className="max-w-36"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowRequestModal(true);
-            }}
-            />
+            <button
+              className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded transition-colors duration-200"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowRequestModal(true);
+              }}
+            >
+              Request Forum
+            </button>
           }
           {isAdminRoute && <div className="">
               <div className="space-x-4">
@@ -253,12 +252,13 @@ const ForumList: React.FC = () => {
         </div>
         {authUser && showRequestModal && (
           <ThreadModal
+            forum={true}
             onClose={() => setShowRequestModal(false)}
             onSubmit={requestSubmitHandler}
           />
         )}
         {/* Tab navigation */}
-        <div className="flex border-b border-gray-200 dark:border-neutral-700 mb-6">
+        <div className="flex border-b border-gray-400 dark:border-neutral-700 mb-6">
           <button
             className={`py-2 px-4 font-medium text-sm mr-4 ${
               activeTab === 'forums'
@@ -291,14 +291,14 @@ const ForumList: React.FC = () => {
             <SearchBar />
 
             {isLoading ? (
-  <ForumListSkeleton />
-) : forums.length === 0 ? (
-  <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md p-6 text-center">
-    <p className="text-gray-600 dark:text-gray-400 py-6">
-      No forums available.
-    </p>
-  </div>
-) : (
+              <ForumListSkeleton />
+            ) : forums.length === 0 ? (
+              <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md p-6 text-center">
+                <p className="text-gray-600 dark:text-gray-400 py-6">
+                  No forums available.
+                </p>
+              </div>
+            ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {forums.map((forum) => (
                   <div

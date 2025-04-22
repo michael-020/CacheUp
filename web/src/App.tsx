@@ -32,6 +32,7 @@ import SavedPostsPage from "./pages/SavedPostsPage";
 import { usePostStore } from './stores/PostStore/usePostStore'
 import { ScrollToTop } from './components/ScrollToTop'
 import { useFriendsStore } from './stores/FriendsStore/useFriendsStore'
+import { RequestedForums } from './pages/admin/RequestedForums'
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore()
@@ -187,6 +188,7 @@ function App() {
           <Route path="/admin/forums/:forumMongoId/:forumWeaviateId" element={authAdmin ? <ForumPage /> : <Navigate to="/admin/signin" />} />
           <Route path='/admin/forums/thread/:id' element={authAdmin ? <Thread /> : <Navigate to='/admin/signin' />} />
           <Route path='/admin/settings' element={authAdmin ? <SettingsPage /> : <Navigate to='/admin/signin' />} />
+          <Route path='/admin/requested-forums' element={authAdmin ? <RequestedForums /> : <Navigate to="/admin/signin" />} />
         </Routes>
       </AnimatePresence>
       <Toaster />  

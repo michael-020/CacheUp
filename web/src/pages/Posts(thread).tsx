@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useForumStore } from "@/stores/ForumStore/forumStore";
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import CreatePostModal from "@/components/forums/CreatePostModalForums"; 
@@ -15,7 +15,7 @@ import {ThreadSkeleton} from "@/components/skeletons/ThreadSkeleton"
 export const Thread = () => {
   const { id } = useParams();
   const location = useLocation();
-  const { fetchPosts, posts: responseData, loading, error, threadTitle, threadDescription, threadWeaviate, isWatched, watchThread, checkWatchStatus } = useForumStore();
+  const { fetchPosts, posts, loading, error, threadTitle, threadDescription, threadWeaviate, isWatched, watchThread, checkWatchStatus } = useForumStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { authAdmin } = useAdminStore();
   const [likeLoading, setLikeLoading] = useState<{[key: string]: boolean}>({});
@@ -34,7 +34,7 @@ export const Thread = () => {
   }, [id, fetchPosts, checkWatchStatus]);
 
   useEffect(() => {
-    if (!loading && responseData && responseData.length > 0) {
+    if (!loading && posts && posts.length > 0) {
       const pathParts = location.pathname.split('/');
       const searchParams = new URLSearchParams(location.search);
       let postId = null;
@@ -76,7 +76,7 @@ export const Thread = () => {
         return () => clearTimeout(scrollTimeout);
       }
     }
-  }, [location, loading, responseData]);
+  }, [location, loading, posts]);
 
   const currentUserId = authAdmin?._id || null;
 
@@ -90,7 +90,7 @@ export const Thread = () => {
     return post.disLikedBy.some((id: string) => id.toString() === currentUserId.toString());
   };
 
-  const handleLikePost = async (postId: string) => {
+  const handleLikePost = useCallback( async (postId: string) => {
     try {
       setLikeLoading(prev => ({ ...prev, [postId]: true }));
       
@@ -104,9 +104,9 @@ export const Thread = () => {
     } finally {
       setLikeLoading(prev => ({ ...prev, [postId]: false }));
     }
-  };
+  },[id, setLikeLoading, fetchPosts]);
 
-  const handleDislikePost = async (postId: string) => {
+  const handleDislikePost = useCallback( async (postId: string) => {
     try {
       setLikeLoading(prev => ({ ...prev, [postId]: true }));
       
@@ -120,7 +120,7 @@ export const Thread = () => {
     } finally {
       setLikeLoading(prev => ({ ...prev, [postId]: false }));
     }
-  };
+  },[id, setLikeLoading, fetchPosts]);
 
   const toggleExpandPost = (postId: string) => {
     setExpandedPosts(prev => ({
@@ -162,8 +162,6 @@ export const Thread = () => {
       </div>
     );
   }
-
-  const posts = Array.isArray(responseData) ? responseData : [];
 
   if (posts.length === 0) {
     return (
@@ -283,14 +281,14 @@ export const Thread = () => {
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-14-14zM10 18a8 8 0 100-16 8 8 0 000 16zm-2.293-7.707l-1-1A1 1 0 118.707 8.293l1 1a1 1 0 01-1.414 1.414z" clipRule="evenodd" />
                     </svg>
-                    Unwatch
+                    Un-Subscribe
                   </>
                 ) : (
                   <>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm-2 8a2 2 0 114 0 2 2 0 01-4 0z" />
                     </svg>
-                    Watch Thread
+                    Subscribe
                   </>
                 )}
               </Button>
@@ -318,8 +316,8 @@ export const Thread = () => {
           
         <div className="space-y-6">
           {posts.map((post, index) => {
-            const author = post.createdBy?.username || "Unknown User";
-            const profileImage = post.createdBy?.profilePicture || null;
+            const author = post.createdBy.username;
+            const profileImage = post.createdBy.profilePicture || "/avatar.jpeg";
             const isLiked = checkIfLiked(post)
             const isDisliked = checkIfDisliked(post)
             const isHighlighted = highlightedPostId === post._id;

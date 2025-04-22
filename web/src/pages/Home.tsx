@@ -22,7 +22,7 @@ export const Home = () => {
         <ProfileCard userInfo={authUser} isOwnProfile={true} />
       </div>
 
-      <div className="ml-[1rem] pb-16 lg:pb-0">
+      <div className="ml-[1rem] pb-36 md:pb-36 lg:pb-20">
         <Feed />
       </div>
     </motion.div>

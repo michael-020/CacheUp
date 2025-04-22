@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
@@ -22,7 +22,7 @@ interface CommentSectionProps {
   focusOnLoad?: boolean;
 }
 
-const ForumComment: React.FC<CommentSectionProps> = ({ postId, postWeaviateId, focusOnLoad = false }) => {
+const ForumComment: React.FC<CommentSectionProps> = memo(({ postId, postWeaviateId, focusOnLoad = false }) => {
   const [commentText, setCommentText] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [actionLoading, setActionLoading] = useState<{[key: string]: boolean}>({});
@@ -349,6 +349,6 @@ const ForumComment: React.FC<CommentSectionProps> = ({ postId, postWeaviateId, f
       </AlertDialog>
     </div>
   );
-};
+});
 
 export default ForumComment;

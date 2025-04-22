@@ -271,7 +271,7 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
 
   return (
     <div
-      className="xl:max-w-[700px] md:max-w-[550px] mx-auto rounded-xl bg-white dark:bg-neutral-800 dark:border-neutral-900 dark:shadow-0 dark:shadow-sm p-4 shadow-lg mb-4 border border-gray-200"
+      className="xl:max-w-[700px] md:max-w-[550px] sm:max-w-[500px] mx-auto rounded-xl bg-white dark:bg-neutral-800 dark:border-neutral-900 dark:shadow-0 dark:shadow-sm p-4 shadow-lg mb-4 border border-gray-200"
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
