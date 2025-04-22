@@ -26,7 +26,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   threadMongo: "",
   threadWeaviate: "",
   likedPosts: new Set<string>(),
-
+  isCreatingPost: false,
   comments: {},
   commentsLoading: {},
   commentsError: {},
@@ -188,10 +188,9 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     }
   },
   
-  
-
   // Create a new post in a thread
   createPost: async (threadMongo, threadWeaviate, content) => {
+    set({ isCreatingPost: true })
     try {
       const response = await axiosInstance.post(`/forums/create-post/${threadMongo}/${threadWeaviate}`, {content}, {withCredentials: true});
       const newPost = response.data.postMongo;
@@ -205,14 +204,13 @@ export const useForumStore = create<ForumStore>((set, get) => ({
         loading: false
       }));
   
-      if (threadMongo) {
-        get().fetchPosts(threadMongo);
-      }
-    
       return newPost;
     } catch (error) {
       toast.error("Error Creating Post")
       throw error;
+    } finally {
+      set({ isCreatingPost: false })
+      toast.success("Post Created Successfully")
     }
   },
 
