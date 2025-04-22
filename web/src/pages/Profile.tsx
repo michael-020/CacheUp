@@ -3,11 +3,10 @@ import { ProfileCard } from "@/components/ProfileCard";
 import { axiosInstance } from "@/lib/axios";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { useEffect, useState } from "react";
-import { useParams, useLocation, Link } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { Post, IUser } from "@/lib/utils";
 import { motion } from "framer-motion"
 import { routeVariants } from "@/lib/routeAnimation";
-import SettingsIcon from "@/icons/SettingsIcon";
 
 export const Profile = () => {
   const { id } = useParams();
@@ -96,14 +95,7 @@ export const Profile = () => {
         </div>
       </div>
       
-      <div className="flex-1 max-w-5xl mx-auto translate-y-28 lg:translate-y-16 ">
-        <div className="lg:hidden block fixed right-0 -translate-y-10  ">
-          <Link to={"/settings"} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-800">
-            <SettingsIcon
-              className={`w-6 h-6`}
-            />
-          </Link>
-        </div>
+      <div className="flex-1 max-w-5xl mx-auto translate-y-28 lg:translate-y-16 pb-24 lg:pb-8 ">
         <div className="bg-white rounded-lg shadow-lg shadow-neutral-300 p-6 mb-6 translate-y-4 dark:bg-neutral-900 dark:border-neutral-900 dark:shadow-md dark:shadow-neutral-600">
           <h1 className="text-2xl font-bold mb-4">
             {isOwnProfile
