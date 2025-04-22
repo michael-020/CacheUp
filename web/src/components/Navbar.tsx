@@ -3,8 +3,8 @@ import HomeIcont from "../icons/HomeIcon";
 import MessageIcon from "../icons/MessageIcon";
 import SettingsIcon from "../icons/SettingsIcon";
 import { useAuthStore } from "../stores/AuthStore/useAuthStore";
-import { Moon, PlusSquare, Sun} from "lucide-react";
-import { useEffect, useState } from "react";
+import { Moon, MoreVertical, PlusSquare, Sun} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useChatStore } from "@/stores/chatStore/useChatStore";
 import { MdOutlineForum } from "react-icons/md";
 import FriendsIcon from "@/icons/FriendsIcon";
@@ -21,7 +21,8 @@ export const Navbar = () => {
   const { unReadMessages } = useChatStore();
   const location = useLocation();
   const currentPath = location.pathname;
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [dotMenuOpen, setDotMenuOpen] = useState(false);
+  const dotMenuRef = useRef<HTMLDivElement | null>(null);
   const isForumPath = 
     currentPath === "/forums/get-forums" || 
     /^\/forums\/[^/]+\/[^/]+$/.test(currentPath) ||
@@ -53,10 +54,23 @@ export const Navbar = () => {
     };
   }, [fetchRequests]);
 
-  // Close mobile menu when location changes
   useEffect(() => {
-    setMobileMenuOpen(false);
+    setDotMenuOpen(false);
   }, [location]);
+
+  // Close dot menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dotMenuRef.current && !dotMenuRef.current.contains(event.target as Node)) {
+        setDotMenuOpen(false);
+      }
+    }
+    
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   if(!authUser)
     return <div>
@@ -147,70 +161,66 @@ export const Navbar = () => {
         </div>
 
         {/* Mobile Right Controls - Always Visible */}
-        <div className="flex lg:hidden items-center space-x-3">
-          <button className="hover:-translate-y-0.5 hover:scale-105 p-1.5">
-            <Link to={"/profile"}>
-              <img src={authUser.profilePicture ? authUser.profilePicture : "/avatar.jpeg"} alt="Profile" className="size-8 rounded-full border" />
-            </Link>
-          </button>  
-        </div>
-
-        {/* Mobile Menu - Conditional Rendering */}
-        {mobileMenuOpen && (
-          <div className="absolute top-16 left-0 right-0 bg-white dark:bg-neutral-900 border-b border-gray-100 dark:border-neutral-800 py-4 px-4 shadow-lg md:hidden">
-            <div className="flex flex-col space-y-4">
-              <Link to={"/"} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-800">
-                <HomeIcont
-                  className={`w-6 h-6 ${currentPath === "/" ? "text-blue-500 fill-current" : "text-gray-600 dark:fill-none"}`}
+        <div className="flex lg:hidden items-center space-x-3 relative" ref={dotMenuRef}>
+          <button 
+            className="hover:-translate-y-0.5 hover:scale-105 p-1.5"
+            onClick={() => setDotMenuOpen(!dotMenuOpen)}
+          >
+            <MoreVertical className="size-6 text-gray-700 dark:text-gray-300" />
+          </button>
+          
+          {/* Dot Menu Dropdown */}
+          {dotMenuOpen && (
+            <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-neutral-800 rounded-lg shadow-lg z-50 border border-gray-200 dark:border-neutral-700">
+              <Link 
+                to="/profile" 
+                className="flex items-center px-4 py-2 pt-2.5 hover:bg-gray-100 dark:hover:bg-neutral-700"
+                onClick={() => setDotMenuOpen(false)}
+              >
+                <img 
+                  src={authUser.profilePicture ? authUser.profilePicture : "/avatar.jpeg"} 
+                  alt="Profile" 
+                  className="size-6 rounded-full mr-2" 
                 />
-                <span className={`${currentPath === "/" ? "text-blue-500" : "text-gray-800 dark:text-gray-200"}`}>Home</span>
+                <span className="text-gray-800 dark:text-gray-200">Profile</span>
               </Link>
               
-              <Link to={"/message"} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-800 relative">
-                <MessageIcon
-                  className={`w-6 h-6 ${currentPath === "/message" ? "text-blue-500 fill-current" : "text-gray-600"}`}
-                />
-                <span className={`${currentPath === "/message" ? "text-blue-500" : "text-gray-800 dark:text-gray-200"}`}>Messages</span>
-                {unReadMessages.length > 0 && (
-                  <span className="ml-2 bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
-                    {unReadMessages.length < 99 ? unReadMessages.length : "99+"}
-                  </span>
-                )}
-              </Link>
-              
-              <Link to={"/friends"} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-800 relative">
-                <FriendsIcon
-                  className={`w-6 h-6 ${currentPath === "/friends" ? "text-blue-500 fill-current" : "text-gray-600"}`}
-                />
-                <span className={`${currentPath === "/friends" ? "text-blue-500" : "text-gray-800 dark:text-gray-200"}`}>Friends</span>
-                {requests.length > 0 && (
-                  <span className="ml-2 bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
-                    {requests.length > 9 ? '9+' : requests.length}
-                  </span>
-                )}
-              </Link>
-              
-              <Link to={"/forums/get-forums"} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-800">
-                <MdOutlineForum className={`size-6 ${isForumPath ? "text-blue-500 fill-current" : "text-gray-600"}`} />
-                <span className={`${isForumPath ? "text-blue-500" : "text-gray-800 dark:text-gray-200"}`}>Forums</span>
-              </Link>
-              
-              <Link to={"/settings"} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-800">
-                <SettingsIcon
-                  className={`w-6 h-6 ${currentPath === "/settings" ? "text-blue-500 fill-current" : "text-gray-600"}`}
-                />
-                <span className={`${currentPath === "/settings" ? "text-blue-500" : "text-gray-800 dark:text-gray-200"}`}>Settings</span>
+              <Link 
+                to="/settings" 
+                className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-neutral-700"
+                onClick={() => setDotMenuOpen(false)}
+              >
+                <SettingsIcon className="w-5 h-5 mr-2 text-gray-600" />
+                <span className="text-gray-800 dark:text-gray-200">Settings</span>
               </Link>
               
               <button 
-                onClick={logout}
-                className="mt-2 w-full py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg text-center text-gray-800 dark:text-gray-200 font-medium"
+                onClick={handleToggleTheme} 
+                className="w-full flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-neutral-700"
               >
-                Logout
+                {isDark ? 
+                  <Sun className="size-5 mr-2" /> : 
+                  <Moon className="size-5 mr-2" />
+                }
+                <span className="text-gray-800 dark:text-gray-200">
+                  {isDark ? "Light Mode" : "Dark Mode"}
+                </span>
+              </button>
+              
+              <div className="border-t border-gray-200 dark:border-neutral-700 "></div>
+              
+              <button 
+                onClick={() => {
+                  setDotMenuOpen(false);
+                  logout();
+                }}
+                className="w-full flex items-center px-4 py-2 text-red-600 hover:bg-gray-100 dark:hover:bg-neutral-700"
+              >
+                <span>Logout</span>
               </button>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </nav>
     </div>
   );
@@ -240,6 +250,7 @@ export const BottomNavigationBar = () => {
       clearInterval(interval);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
   // State to track screen size
