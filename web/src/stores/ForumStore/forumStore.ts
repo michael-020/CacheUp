@@ -3,6 +3,7 @@ import { axiosInstance } from '@/lib/axios';
 import type { Comment, ForumStore, PostSchema } from '@/stores/ForumStore/types';
 import { AxiosError } from "axios";
 import toast from 'react-hot-toast';
+import { useAuthStore } from '../AuthStore/useAuthStore';
 
 export const useForumStore = create<ForumStore>((set, get) => ({
   forums: [],
@@ -195,16 +196,27 @@ export const useForumStore = create<ForumStore>((set, get) => ({
       const response = await axiosInstance.post(`/forums/create-post/${threadMongo}/${threadWeaviate}`, {content}, {withCredentials: true});
       const newPost = response.data.postMongo;
       
+      const currentUser = useAuthStore.getState().authUser;
+      
+      const populatedPost = {
+        ...newPost,
+        createdBy: {
+          _id: currentUser?._id,
+          username: currentUser?.username,
+          profilePicture: currentUser?.profilePicture
+        }
+      };
+      
       set((state) => ({
         threadTitle: state.threadTitle,
         threadDescription: state.threadDescription,
         threadMongo: state.threadMongo,
         threadWeaviate: state.threadWeaviate,
-        posts: [...state.posts, newPost],
+        posts: [populatedPost, ...state.posts],
         loading: false
       }));
   
-      return newPost;
+      return populatedPost;
     } catch (error) {
       toast.error("Error Creating Post")
       throw error;
@@ -590,4 +602,3 @@ fetchRequestedForums: async() => {
 },
 
 }));
-  

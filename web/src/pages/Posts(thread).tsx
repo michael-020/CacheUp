@@ -15,7 +15,7 @@ import {ThreadSkeleton} from "@/components/skeletons/ThreadSkeleton"
 export const Thread = () => {
   const { id } = useParams();
   const location = useLocation();
-  const { fetchPosts, posts: responseData, loading, error, threadTitle, threadDescription, threadWeaviate, isWatched, watchThread, checkWatchStatus } = useForumStore();
+  const { fetchPosts, posts, loading, error, threadTitle, threadDescription, threadWeaviate, isWatched, watchThread, checkWatchStatus } = useForumStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { authAdmin } = useAdminStore();
   const [likeLoading, setLikeLoading] = useState<{[key: string]: boolean}>({});
@@ -34,7 +34,7 @@ export const Thread = () => {
   }, [id, fetchPosts, checkWatchStatus]);
 
   useEffect(() => {
-    if (!loading && responseData && responseData.length > 0) {
+    if (!loading && posts && posts.length > 0) {
       const pathParts = location.pathname.split('/');
       const searchParams = new URLSearchParams(location.search);
       let postId = null;
@@ -76,7 +76,7 @@ export const Thread = () => {
         return () => clearTimeout(scrollTimeout);
       }
     }
-  }, [location, loading, responseData]);
+  }, [location, loading, posts]);
 
   const currentUserId = authAdmin?._id || null;
 
@@ -162,8 +162,6 @@ export const Thread = () => {
       </div>
     );
   }
-
-  const posts = Array.isArray(responseData) ? responseData : [];
 
   if (posts.length === 0) {
     return (
@@ -318,8 +316,8 @@ export const Thread = () => {
           
         <div className="space-y-6">
           {posts.map((post, index) => {
-            const author = post.createdBy?.username || "Unknown User";
-            const profileImage = post.createdBy?.profilePicture || null;
+            const author = post.createdBy.username;
+            const profileImage = post.createdBy.profilePicture || "/avatar.jpeg";
             const isLiked = checkIfLiked(post)
             const isDisliked = checkIfDisliked(post)
             const isHighlighted = highlightedPostId === post._id;
