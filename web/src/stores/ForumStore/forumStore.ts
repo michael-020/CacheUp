@@ -3,6 +3,7 @@ import { axiosInstance } from '@/lib/axios';
 import type { Comment, ForumStore, PostSchema } from '@/stores/ForumStore/types';
 import { AxiosError } from "axios";
 import toast from 'react-hot-toast';
+import { useAuthStore } from '../AuthStore/useAuthStore';
 
 export const useForumStore = create<ForumStore>((set, get) => ({
   forums: [],
@@ -26,7 +27,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   threadMongo: "",
   threadWeaviate: "",
   likedPosts: new Set<string>(),
-
+  isCreatingPost: false,
   comments: {},
   commentsLoading: {},
   commentsError: {},
@@ -188,27 +189,40 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     }
   },
   
-  
-
   // Create a new post in a thread
   createPost: async (threadMongo, threadWeaviate, content) => {
+    set({ isCreatingPost: true })
     try {
       const response = await axiosInstance.post(`/forums/create-post/${threadMongo}/${threadWeaviate}`, {content}, {withCredentials: true});
       const newPost = response.data.postMongo;
+      
+      const currentUser = useAuthStore.getState().authUser;
+      
+      const populatedPost = {
+        ...newPost,
+        createdBy: {
+          _id: currentUser?._id,
+          username: currentUser?.username,
+          profilePicture: currentUser?.profilePicture
+        }
+      };
       
       set((state) => ({
         threadTitle: state.threadTitle,
         threadDescription: state.threadDescription,
         threadMongo: state.threadMongo,
         threadWeaviate: state.threadWeaviate,
-        posts: [...state.posts, newPost],
+        posts: [populatedPost, ...state.posts],
         loading: false
       }));
-    
-      return newPost;
+  
+      return populatedPost;
     } catch (error) {
       toast.error("Error Creating Post")
       throw error;
+    } finally {
+      set({ isCreatingPost: false })
+      toast.success("Post Created Successfully")
     }
   },
 
@@ -591,11 +605,11 @@ fetchRequestedForums: async() => {
     const res = await axiosInstance.get("/admin/requested-forums");
     set({ requestedForums: res.data.requestedForums, loading: false });
   } catch (err) {
-    toast.error("Error in fetching requested forums")
+    set({error: "Something went wrong"});
+    console.log(err)
   } finally {
     set({loading: false, error: ""})
   }
 },
 
 }));
-  

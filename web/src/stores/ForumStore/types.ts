@@ -130,6 +130,7 @@ export interface ForumState {
   reportLoading: ReportStatus
   requestedForums: ForumRequest[];
   deletePost: (postId: string, weaviateId: string) => Promise<void>;
+  isCreatingPost:boolean;
 }
 
 

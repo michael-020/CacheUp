@@ -210,7 +210,7 @@ const ForumList: React.FC = () => {
 
   return (
     <motion.div 
-      className="h-full pb-20 dark:bg-neutral-950"
+      className="h-full pb-[26rem] md:pb-48 lg:pb-20 dark:bg-neutral-950"
       variants={routeVariants}
       initial="initial"
       animate="final"
