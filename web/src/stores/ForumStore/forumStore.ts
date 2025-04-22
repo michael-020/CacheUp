@@ -204,10 +204,6 @@ export const useForumStore = create<ForumStore>((set, get) => ({
         posts: [...state.posts, newPost],
         loading: false
       }));
-  
-      if (threadMongo) {
-        get().fetchPosts(threadMongo);
-      }
     
       return newPost;
     } catch (error) {
@@ -528,6 +524,17 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     }));
   }
 },
+
+  deletePost: async (postId: string, weaviateId: string) => {
+    try {
+      await axiosInstance.delete(`/forums/delete-post/${postId}/${weaviateId}`);
+      set((state) => ({
+        posts: state.posts.filter((post) => post._id !== postId),
+      }));
+    } catch (err) {
+      console.error("Failed to delete post:", err);
+    }
+  },
 
 reportComment: async (commentId: string) => {
   try {

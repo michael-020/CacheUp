@@ -129,6 +129,7 @@ export interface ForumState {
   notifications: Notification[];
   reportLoading: ReportStatus
   requestedForums: ForumRequest[];
+  deletePost: (postId: string, weaviateId: string) => Promise<void>;
 }
 
 
