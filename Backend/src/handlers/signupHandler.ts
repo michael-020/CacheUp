@@ -77,6 +77,11 @@ export const signupHandler: RequestHandler =  async (req: Request, res: Response
             email: newUser.email,
             department: newUser.department,
             graduationYear: newUser.graduationYear,
+            profilePicture: newUser.profilePicture,
+            bio: newUser.bio,
+            friends: newUser.friends,
+            posts: newUser.posts, 
+            friendRequests: newUser.friendRequests
         })
     }
     catch (e) {
