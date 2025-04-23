@@ -27,7 +27,7 @@ export function formatDate(date: Date): string {
 }
 
 export interface IUser {
-    _id: string
+    _id: string;
     name: string;
     username: string;
     email: string;
@@ -35,11 +35,11 @@ export interface IUser {
     profilePicture: string;
     department: string;
     graduationYear: number;
-    bio?: string;
-    posts?: IPost[];
-    friends?: IUser[];
-    friendRequests?: IUser[];
-    lastUsernameChangeDate?: string
+    bio: string; 
+    posts: IPost[]; 
+    friends: IUser[]; 
+    friendRequests: IUser[]; 
+    lastUsernameChangeDate?: string;
     mutualFriends?: number;
     isFriend?: boolean;
     hasPendingRequest?: boolean;

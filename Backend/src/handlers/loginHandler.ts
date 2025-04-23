@@ -55,7 +55,11 @@ export const loginHandler: RequestHandler = async (req: Request, res: Response) 
             email: user.email,
             department: user.department,
             graduationYear: user.graduationYear,
-            profilePicture: user.profilePicture
+            profilePicture: user.profilePicture,
+            bio: user.bio,
+            friends: user.friends,
+            posts: user.posts, 
+            friendRequests: user.friendRequests
         })
     }
     catch (e) {
