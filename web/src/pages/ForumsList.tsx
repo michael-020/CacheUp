@@ -77,7 +77,7 @@ const ForumList: React.FC = () => {
   const isAdminRoute = location.pathname.includes("/admin");
 
   useEffect(() => {
-    const loadData = () => {
+    const loadData = async () => {
         setIsLoading(true);
         fetchForums(isAdminRoute);
         if(!isAdminRoute)
