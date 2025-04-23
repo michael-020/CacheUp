@@ -216,6 +216,7 @@ export const Thread = () => {
             threadWeaviate={threadWeaviate} 
             isOpen={isModalOpen} 
             onClose={() => setIsModalOpen(false)} 
+            mode="create"
           />
         )}
       </div>
@@ -325,6 +326,7 @@ export const Thread = () => {
             threadWeaviate={threadWeaviate} 
             isOpen={isModalOpen} 
             onClose={() => setIsModalOpen(false)} 
+            mode="create"
           />
         )}
 
@@ -374,7 +376,7 @@ export const Thread = () => {
                     </Link>
                     <div className="text-xs text-gray-500">{formatDate(post.createdAt)}</div>
                     <div className="flex-1">
-</div>
+                </div>
 
                   </div>
                   {index === 0 && (
@@ -399,9 +401,9 @@ export const Thread = () => {
                     >
                       <div className="py-1">
                         {/* Owner options */}
-                        {post.createdBy._id === currentUserId || authAdmin && (
+                        {(post.createdBy._id === currentUserId) || authAdmin && (
                           <>
-                            {!authAdmin && <button
+                            {authUser && <button
                               onClick={() => {
                                 setMenuOpen({});
                               }}
@@ -440,7 +442,7 @@ export const Thread = () => {
                           content="Are you sure you want to delete this post? This action cannot be undone."
                         />        
                         {/* Report/Unreport for others */}
-                        {post.createdBy._id !== currentUserId && !authAdmin && (
+                        {(post.createdBy._id !== currentUserId) && !authAdmin && (
                           <button
                             onClick={() => {
                               useForumStore.getState().reportPost(post._id);
@@ -448,7 +450,7 @@ export const Thread = () => {
                             }}
                             className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700"
                           >
-                            {post.reportedBy?.includes('current-user') ? 'Unreport Post' : 'Report Post'}
+                            {post.reportedBy?.includes(currentUserId as string) ? 'Unreport Post' : 'Report Post'}
                           </button>
                         )}
                       </div>
