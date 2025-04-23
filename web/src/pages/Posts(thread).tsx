@@ -5,17 +5,19 @@ import CreatePostModal from "@/components/forums/CreatePostModalForums";
 import { Button } from "@/components/ui/button"; 
 import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
 import { axiosInstance } from "@/lib/axios";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, EllipsisVertical } from "lucide-react";
 import { PostSchema } from "@/stores/ForumStore/types";
 import ForumComment from "@/components/forums/ForumComment";
 import { motion } from "framer-motion"
 import { routeVariants } from "@/lib/routeAnimation";
 import {ThreadSkeleton} from "@/components/skeletons/ThreadSkeleton"
+import { DeleteModal } from "@/components/DeleteModal";
+import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 
 export const Thread = () => {
   const { id } = useParams();
   const location = useLocation();
-  const { fetchPosts, posts, loading, error, threadTitle, threadDescription, threadWeaviate, isWatched, watchThread, checkWatchStatus } = useForumStore();
+  const { fetchPosts, posts, loading, error, threadTitle, threadDescription, threadWeaviate, isWatched, watchThread, checkWatchStatus, deletePost } = useForumStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { authAdmin } = useAdminStore();
   const [likeLoading, setLikeLoading] = useState<{[key: string]: boolean}>({});
@@ -25,11 +27,24 @@ export const Thread = () => {
   const navigate = useNavigate()
   const [expandedComments, setExpandedComments] = useState<{[key: string]: boolean}>({});
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<{id: string, weaviateId: string, isAdmin? : boolean} | null>(null);
+  const [menuOpen, setMenuOpen] = useState<{[key: string]: boolean}>({});
+  const { authUser } = useAuthStore()
+  const isAdmin = authAdmin ? true : false
+
+
+  const toggleMenu = (postId: string) => {
+    setMenuOpen(prev => ({
+      ...prev,
+      [postId]: !prev[postId]
+    }));
+  };
 
   useEffect(() => {
     if(typeof(id) !== "string")
       return
-    fetchPosts(id);
+    fetchPosts(id, isAdmin);
     checkWatchStatus (id)
   }, [id, fetchPosts, checkWatchStatus]);
 
@@ -78,7 +93,7 @@ export const Thread = () => {
     }
   }, [location, loading, posts]);
 
-  const currentUserId = authAdmin?._id || null;
+  const currentUserId = authUser?._id;
 
   const checkIfLiked = (post: PostSchema) => {
     if (!currentUserId || !post.likedBy) return false;
@@ -97,7 +112,7 @@ export const Thread = () => {
       const response = await axiosInstance.put(`/forums/like-post/${postId}`);
       
       if (response.status === 200) {
-        fetchPosts(id as string);
+        fetchPosts(id as string, isAdmin);
       }
     } catch (error) {
       console.error("Error liking post:", error);
@@ -113,7 +128,7 @@ export const Thread = () => {
       const response = await axiosInstance.put(`/forums/dislike-post/${postId}`);
 
       if (response.status === 200) {
-        fetchPosts(id as string);
+        fetchPosts(id as string, isAdmin);
       }
     } catch (error) {
       console.error("Error disliking post:", error);
@@ -358,10 +373,89 @@ export const Thread = () => {
                       <div className="font-medium text-blue-600 hover:underline cursor-pointer">{author}</div>
                     </Link>
                     <div className="text-xs text-gray-500">{formatDate(post.createdAt)}</div>
+                    <div className="flex-1">
+</div>
+
                   </div>
                   {index === 0 && (
                     <div className="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">Latest Post</div>
                   )}
+                  {/* Add this menu button */}
+                <div className="relative">
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleMenu(post._id);
+                    }}
+                    className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-neutral-700"
+                  >
+                    <EllipsisVertical className="h-5 w-5 text-gray-500" />
+                  </button>
+                  
+                  {menuOpen[post._id] && (
+                    <div 
+                      className="absolute right-0 mt-2 w-48 bg-white dark:bg-neutral-800 rounded-md shadow-lg z-10 border border-gray-200 dark:border-neutral-700"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="py-1">
+                        {/* Owner options */}
+                        {post.createdBy._id === currentUserId || authAdmin && (
+                          <>
+                            {!authAdmin && <button
+                              onClick={() => {
+                                setMenuOpen({});
+                              }}
+                              className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700"
+                            >
+                              Edit Post
+                            </button>}
+                            <button
+                              onClick={() => {
+                                setSelectedPost({id: post._id, weaviateId: post.weaviateId, isAdmin: true});
+                                setIsDeleteModalOpen(!isDeleteModalOpen);
+                              }}
+                              className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-neutral-700"
+                            >
+                              Delete Post
+                            </button>
+                          </>
+                        )}
+                        
+                        {authAdmin && post.createdBy._id == currentUserId && (
+                          <button
+                            onClick={() => {
+                              setSelectedPost({id: post._id, weaviateId: post.weaviateId});
+                              setIsDeleteModalOpen(true);
+                              setMenuOpen({});
+                            }}
+                            className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-neutral-700"
+                          >
+                            Delete Post (Admin)
+                          </button>
+                        )}
+                        <DeleteModal 
+                          deleteHandler={() => deletePost(selectedPost?.id || "", selectedPost?.weaviateId || "", isAdmin)}
+                          isModalOpen={isDeleteModalOpen}
+                          setIsModalOpen={setIsDeleteModalOpen}
+                          content="Are you sure you want to delete this post? This action cannot be undone."
+                        />        
+                        {/* Report/Unreport for others */}
+                        {post.createdBy._id !== currentUserId && !authAdmin && (
+                          <button
+                            onClick={() => {
+                              useForumStore.getState().reportPost(post._id);
+                              setMenuOpen({});
+                            }}
+                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700"
+                          >
+                            {post.reportedBy?.includes('current-user') ? 'Unreport Post' : 'Report Post'}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 </div>
 
                 <div className="p-5 dark:bg-neutral-950">

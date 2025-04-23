@@ -129,7 +129,6 @@ export interface ForumState {
   notifications: Notification[];
   reportLoading: ReportStatus
   requestedForums: ForumRequest[];
-  deletePost: (postId: string, weaviateId: string) => Promise<void>;
   isCreatingPost:boolean;
 }
 
@@ -172,6 +171,8 @@ export interface ForumActions {
   checkIfPostReported: (post: PostSchema, userId: string) => boolean
   checkIfCommentReported: (comment: Comment, userId: string) => boolean
   fetchRequestedForums: () => Promise<void>;
+  deletePost: (postId: string, weaviateId: string, isAdmin?:boolean) => Promise<void>;
+  editPost: (mongoId: string, weaviateId: string, content: string) => Promise<void>
 }
 
 export type ForumStore = ForumState & ForumActions;
