@@ -32,6 +32,7 @@ export const Thread = () => {
   const [menuOpen, setMenuOpen] = useState<{[key: string]: boolean}>({});
   const { authUser } = useAuthStore()
   const isAdmin = authAdmin ? true : false
+  const [isEditingPost, setIsEditingPost] = useState(false)
 
 
   const toggleMenu = (postId: string) => {
@@ -93,7 +94,7 @@ export const Thread = () => {
     }
   }, [location, loading, posts]);
 
-  const currentUserId = authUser?._id;
+  const currentUserId = authUser?._id
 
   const checkIfLiked = (post: PostSchema) => {
     if (!currentUserId || !post.likedBy) return false;
@@ -394,6 +395,7 @@ export const Thread = () => {
                     <EllipsisVertical className="h-5 w-5 text-gray-500" />
                   </button>
                   
+                
                   {menuOpen[post._id] && (
                     <div 
                       className="absolute right-0 mt-2 w-48 bg-white dark:bg-neutral-800 rounded-md shadow-lg z-10 border border-gray-200 dark:border-neutral-700"
@@ -401,16 +403,18 @@ export const Thread = () => {
                     >
                       <div className="py-1">
                         {/* Owner options */}
-                        {(post.createdBy._id === currentUserId) || authAdmin && (
+                        {(post.createdBy._id === currentUserId) && (
                           <>
                             {authUser && <button
                               onClick={() => {
-                                setMenuOpen({});
+                              setIsEditingPost(true)
                               }}
                               className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700"
                             >
                               Edit Post
                             </button>}
+                              <CreatePostModal postId={post._id} isOpen={isEditingPost} mode="edit" weaviateId={post.weaviateId} initialContent={post.content} onClose={() => setIsEditingPost(false)} />
+
                             <button
                               onClick={() => {
                                 setSelectedPost({id: post._id, weaviateId: post.weaviateId, isAdmin: true});
@@ -423,7 +427,7 @@ export const Thread = () => {
                           </>
                         )}
                         
-                        {authAdmin && post.createdBy._id == currentUserId && (
+                        {authAdmin && post.createdBy._id !== currentUserId && (
                           <button
                             onClick={() => {
                               setSelectedPost({id: post._id, weaviateId: post.weaviateId});
@@ -441,7 +445,7 @@ export const Thread = () => {
                           setIsModalOpen={setIsDeleteModalOpen}
                           content="Are you sure you want to delete this post? This action cannot be undone."
                         />        
-                        {/* Report/Unreport for others */}
+                        {/* Report/Unreport for others - Only show if user is NOT the post owner and NOT an admin */}
                         {(post.createdBy._id !== currentUserId) && !authAdmin && (
                           <button
                             onClick={() => {
