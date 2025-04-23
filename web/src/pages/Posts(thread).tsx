@@ -402,17 +402,16 @@ export const Thread = () => {
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="py-1">
-                        {/* Owner options */}
-                        {(post.createdBy._id === currentUserId) && (
+                        {(post.createdBy._id === authUser?._id) && (
                           <>
-                            {authUser && <button
+                            <button
                               onClick={() => {
                               setIsEditingPost(true)
                               }}
                               className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700"
                             >
                               Edit Post
-                            </button>}
+                            </button>
                               <CreatePostModal postId={post._id} isOpen={isEditingPost} mode="edit" weaviateId={post.weaviateId} initialContent={post.content} onClose={() => setIsEditingPost(false)} />
 
                             <button
@@ -431,8 +430,7 @@ export const Thread = () => {
                           <button
                             onClick={() => {
                               setSelectedPost({id: post._id, weaviateId: post.weaviateId});
-                              setIsDeleteModalOpen(true);
-                              setMenuOpen({});
+                              setIsDeleteModalOpen(!isDeleteModalOpen);
                             }}
                             className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-neutral-700"
                           >

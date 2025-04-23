@@ -618,8 +618,8 @@ editPost: async (mongoId, weaviateId, content) => {
   try {
     const { data: updatedPost } = await axiosInstance.put(`/forums/edit-post/${mongoId}/${weaviateId}`, {content});
     set((state) => ({
-      posts: state.posts.map((post) =>
-        post._id === post._id ? updatedPost : post
+      posts: state.posts.filter((post) =>
+        post._id === updatedPost._id ? updatedPost : post
       ),
     }));
   } catch (err) {
