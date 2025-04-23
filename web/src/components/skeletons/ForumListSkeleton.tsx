@@ -9,18 +9,22 @@ const ForumListSkeleton: React.FC = () => {
       <div className="max-w-6xl mx-auto p-6 translate-y-20 h-full">
         {/* Title area skeleton */}
         <div className="flex justify-between items-center mb-6">
-          <div className="h-8  w-64"></div>
-          <div className="h-10  w-36"></div>
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-64"></div>
+          <button
+             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+           >
+             Request Forum
+           </button>
         </div>
 
         {/* Tab navigation skeleton */}
-        <div className="flex border-b mb-6">
-          <div className="h-8  w-24 mr-4"></div>
-          <div className="h-8  w-24"></div>
+        <div className="flex border-b border-gray-200 dark:border-neutral-700 mb-6">
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-24 mr-4"></div>
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
         </div>
 
         {/* Search bar skeleton */}
-        <div className="mb-6 h-12  w-full"></div>
+        <div className="mb-6 h-12 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
 
         {/* Grid of forum cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
