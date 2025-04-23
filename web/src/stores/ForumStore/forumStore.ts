@@ -614,16 +614,39 @@ fetchRequestedForums: async() => {
   }
 },
 
-editPost: async (mongoId, weaviateId, content) => {
+editPost: async (mongoId: string, weaviateId: string, content: string) => {
   try {
-    const { data: updatedPost } = await axiosInstance.put(`/forums/edit-post/${mongoId}/${weaviateId}`, {content});
+    await axiosInstance.put(`/forums/edit-post/${mongoId}/${weaviateId}`, { content });
+    
+    const currentUser = useAuthStore.getState().authUser;
+    
+    if (!currentUser?._id) {
+      throw new Error('User not authenticated');
+    }
+    
     set((state) => ({
-      posts: state.posts.filter((post) =>
-        post._id === updatedPost._id ? updatedPost : post
-      ),
+      ...state,
+      posts: state.posts.map((post) => {
+        if (post._id === mongoId) {
+          return {
+            ...post,
+            content,
+            updatedAt: new Date().toISOString(),
+            createdBy: {
+              _id: currentUser._id,
+              username: currentUser.username || '',
+              profilePicture: currentUser.profilePicture || ''
+            }
+          } as PostSchema;
+        }
+        return post;
+      })
     }));
+    
+    toast.success("Post updated successfully");
   } catch (err) {
     console.error("Failed to update post:", err);
+    toast.error("Failed to update post");
   }
 },
 
