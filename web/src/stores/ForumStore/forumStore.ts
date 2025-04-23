@@ -5,6 +5,7 @@ import { AxiosError } from "axios";
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../AuthStore/useAuthStore';
 
+
 export const useForumStore = create<ForumStore>((set, get) => ({
   forums: [],
   currentForum: {
@@ -155,7 +156,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     }
   },
 
-  fetchPosts: async (threadId: string, isAdmin = false) => {
+  fetchPosts: async (threadId: string, isAdmin?: boolean) => {
     if (!threadId) throw new Error("Thread ID is required");
   
     set((state) => ({ ...state, loading: true }));
@@ -503,7 +504,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     }
   },
 
-  reportPost: async(postId: string) => {
+  reportPost: async(postId) => {
     try{
       set((state) => ({
         reportLoading: { ...state.reportLoading, [postId]: true}
@@ -538,6 +539,18 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     }));
   }
 },
+
+  deletePost: async (postId, weaviateId, isAdmin?) => {
+    try {
+      const url = isAdmin ? `/admin/delete-post/${postId}/${weaviateId}` : `/forums/delete-post/${postId}/${weaviateId}`
+      await axiosInstance.delete(url);
+      set((state) => ({
+        posts: state.posts.filter((post) => post._id !== postId),
+      }));
+    } catch (err) {
+      console.error("Failed to delete post:", err);
+    }
+  },
 
 reportComment: async (commentId: string) => {
   try {
@@ -598,6 +611,19 @@ fetchRequestedForums: async() => {
     console.log(err)
   } finally {
     set({loading: false, error: ""})
+  }
+},
+
+editPost: async (mongoId, weaviateId, content) => {
+  try {
+    const { data: updatedPost } = await axiosInstance.put(`/forums/edit-post/${mongoId}/${weaviateId}`, {content});
+    set((state) => ({
+      posts: state.posts.filter((post) =>
+        post._id === updatedPost._id ? updatedPost : post
+      ),
+    }));
+  } catch (err) {
+    console.error("Failed to update post:", err);
   }
 },
 
