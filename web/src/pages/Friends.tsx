@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useFriendsStore } from "@/stores/FriendsStore/useFriendsStore";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Search, Users, Bell, UserPlus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -18,9 +17,8 @@ const FriendsPage = () => {
     fetchFriends, 
     fetchRequests,
     fetchSentRequests,
-    loading,
-    requests,
     friends,
+    requests,
   } = useFriendsStore();
 
   useEffect(() => {
@@ -41,31 +39,15 @@ const FriendsPage = () => {
   const renderActiveTab = () => {
     switch(activeTab) {
       case 'users':
-      return <UsersList searchTerm={searchTerm} />;
+        return <UsersList searchTerm={searchTerm} />;
       case 'friends':
         return <FriendsList searchTerm={searchTerm} />;
       case 'requests':
         return <FriendRequests />;
       default:
-        return <FriendsList />;
+        return <FriendsList searchTerm={searchTerm} />;
     }
   };
-
-  if (loading) {
-    return (
-      <div className="max-w-5xl mx-auto p-6">
-        <div className="flex justify-between items-center mb-8">
-          <Skeleton className="h-8 w-48 rounded-lg" />
-          <Skeleton className="h-10 w-64 rounded-full" />
-        </div>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {[...Array(6)].map((_, i) => (
-            <Skeleton key={i} className="h-32 rounded-xl" />
-          ))}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <motion.div 
@@ -97,7 +79,7 @@ const FriendsPage = () => {
         {[
             { id: 'friends', label: 'My Friends', icon: <Users className="h-5 w-5" />, count: friends.length || 0},
             { id: 'requests', label: 'Friend Requests', icon: <Bell className="h-5 w-5" />, count: requests.length || 0},
-            { id: 'users', label: 'Find Users', icon: <UserPlus className="h-5 w-5" />,count: 0 }
+            { id: 'users', label: 'Find Users', icon: <UserPlus className="h-5 w-5" />, count: 0 }
           ].map((tab) => (
             <button
               key={tab.id}
