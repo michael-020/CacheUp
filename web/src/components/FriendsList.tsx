@@ -56,13 +56,29 @@ const FriendsList = ({ searchTerm = "" }: FriendsListProps) => {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-8 w-40" />
-          <Skeleton className="h-8 w-24" />
+        <div className="flex items-center justify-between mb-4">
+          <Skeleton className="h-8 w-40 bg-gray-200 dark:bg-neutral-700" />
+          <Skeleton className="h-6 w-32 bg-gray-200 dark:bg-neutral-700 rounded-full" />
         </div>
+
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
           {[...Array(6)].map((_, i) => (
-            <Skeleton key={i} className="h-24 w-full rounded-lg" />
+            <div 
+              key={i} 
+              className="flex items-center justify-between p-4 bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-100 dark:border-neutral-600"
+            >
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-12 w-12 rounded-full bg-gray-200 dark:bg-neutral-700" />
+                <div>
+                  <Skeleton className="h-5 w-28 mb-2 bg-gray-200 dark:bg-neutral-700" />
+                  <Skeleton className="h-4 w-20 bg-gray-200 dark:bg-neutral-700" />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Skeleton className="h-8 w-8 rounded-full bg-gray-200 dark:bg-neutral-700" />
+                <Skeleton className="h-8 w-8 rounded-full bg-gray-200 dark:bg-neutral-700" />
+              </div>
+            </div>
           ))}
         </div>
       </div>
