@@ -5,7 +5,6 @@ import { AxiosError } from "axios";
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../AuthStore/useAuthStore';
 
-
 export const useForumStore = create<ForumStore>((set, get) => ({
   forums: [],
   currentForum: {
@@ -512,14 +511,15 @@ export const useForumStore = create<ForumStore>((set, get) => ({
 
       const response = await axiosInstance.put(`/forums/report-post/${postId}`)
       if (response.status === 200) {
+        const currentUserId = useAuthStore.getState().authUser?._id;
         set((state) => {
           const updatedPosts = state.posts.map((post: PostSchema) => {
             if (post._id === postId) {
               return {
                 ...post,
                 reportedBy: response.data.reportCount > 0 ? 
-                  [...(post.reportedBy || []), 'current-user'] : 
-                  (post.reportedBy || []).filter(id => id !== 'current-user')
+                  [...(post.reportedBy || []), currentUserId] : 
+                  (post.reportedBy || []).filter(id => id !== currentUserId)
               };
             }
             return post;
