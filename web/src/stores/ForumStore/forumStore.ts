@@ -504,41 +504,50 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     }
   },
 
-  reportPost: async(postId) => {
-    try{
+  reportPost: async(postId: string) => {
+    try {
       set((state) => ({
-        reportLoading: { ...state.reportLoading, [postId]: true}
-      }))
+        reportLoading: { ...state.reportLoading, [postId]: true }
+      }));
 
-      const response = await axiosInstance.put(`/forums/report-post/${postId}`)
+      const response = await axiosInstance.put(`/forums/report-post/${postId}`);
+      const userId = useAuthStore.getState().authUser?._id;
+
+      if (!userId) {
+        throw new Error('User not authenticated');
+      }
+
       if (response.status === 200) {
-        set((state) => {
-          const updatedPosts = state.posts.map((post: PostSchema) => {
+        set((state) => ({
+          posts: state.posts.map((post) => {
             if (post._id === postId) {
+              const isCurrentlyReported = post.reportedBy?.includes(userId);
               return {
                 ...post,
-                reportedBy: response.data.reportCount > 0 ? 
-                  [...(post.reportedBy || []), 'current-user'] : 
-                  (post.reportedBy || []).filter(id => id !== 'current-user')
+                reportedBy: isCurrentlyReported 
+                  ? post.reportedBy?.filter(id => id !== userId)
+                  : [...(post.reportedBy || []), userId],
+                reportCount: isCurrentlyReported 
+                  ? (post.reportedBy?.length || 1) - 1 
+                  : (post.reportedBy?.length || 0) + 1
               };
             }
             return post;
-          });
-          
-          return { posts: updatedPosts };
-        });
-        
+          })
+        }));
+
         return response.data;
+      }
+    } catch (error) {
+      console.error("Error reporting post:", error);
+      toast.error("Failed to report post");
+      throw error;
+    } finally {
+      set((state) => ({
+        reportLoading: { ...state.reportLoading, [postId]: false }
+      }));
     }
-  }catch (error) {
-    console.error("Error reporting post:", error);
-    throw error;
-  } finally {
-    set((state) => ({
-      reportLoading: { ...state.reportLoading, [postId]: false }
-    }));
-  }
-},
+  },
 
   deletePost: async (postId, weaviateId, isAdmin?) => {
     try {
