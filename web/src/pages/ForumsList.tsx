@@ -155,36 +155,32 @@ const ForumList: React.FC = () => {
     const message = notification.message;
     const username = notification.createdBy.username;
     
-    // If username is in the message, split it to make the username clickable
     if (message.includes(username)) {
       const parts = message.split(username);
       return (
-        <p className="text-gray-800 dark:text-gray-300">
+        <div className="text-gray-800 dark:text-gray-300">
           {parts[0]}
           <span 
             className="font-medium text-blue-600 dark:text-blue-400 cursor-pointer hover:underline"
-            onClick={(e) => handleNotificationAction(notification, 'username', e)}
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent triggering the parent click
+              handleNotificationAction(notification, 'username', e);
+            }}
           >
             {username}
           </span>
-          <span 
-            className="cursor-pointer hover:text-gray-600 dark:hover:text-gray-200"
-            onClick={(e) => handleNotificationAction(notification, 'content', e)}
-          >
+          <span className="cursor-pointer hover:text-gray-600 dark:hover:text-gray-200">
             {parts[1]}
           </span>
-        </p>
+        </div>
       );
     }
     
     // Fallback if we can't parse the message properly
     return (
-      <p 
-        className="text-gray-800 dark:text-gray-300 cursor-pointer hover:text-gray-600 dark:hover:text-gray-200"
-        onClick={(e) => handleNotificationAction(notification, 'content', e)}
-      >
+      <div className="text-gray-800 dark:text-gray-300">
         {message}
-      </p>
+      </div>
     );
   };
 
@@ -401,9 +397,14 @@ const ForumList: React.FC = () => {
                 {notifications.map((notification: Notification) => (
                   <div 
                     key={notification._id}
-                    className="py-4 hover:bg-gray-50 dark:hover:bg-neutral-700 px-2 rounded transition-colors duration-200"
+                    onClick={async (e) => {
+                      if (e.target === e.currentTarget || (e.target as HTMLElement).closest('.notification-container')) {
+                        await handleNotificationAction(notification, 'content', e);
+                      }
+                    }}
+                    className="py-4 hover:bg-gray-50 dark:hover:bg-neutral-700 px-2 rounded transition-colors duration-200 cursor-pointer"
                   >
-                    <div className="flex items-start">
+                    <div className="flex items-start notification-container">
                       <div className="flex-1">
                         {formatNotificationMessage(notification)}
                         <p className="text-sm text-gray-500 mt-1">

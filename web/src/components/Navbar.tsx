@@ -11,7 +11,7 @@ import FriendsIcon from "@/icons/FriendsIcon";
 import { useFriendsStore } from "@/stores/FriendsStore/useFriendsStore";
 import { useThemeStore } from "@/stores/ThemeStore/useThemeStore";
 import Share from "./Share"
-import { ShareModal } from "./ui/ShareModal";
+import { ShareModal } from "./ShareModal";
 import { usePostStore } from "@/stores/PostStore/usePostStore";
 
 export const Navbar = () => {

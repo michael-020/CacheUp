@@ -26,7 +26,7 @@ export function Feed() {
   }, [fetchPosts]);
   
   return (
-    <div className="container mx-auto p-4 translate-y-20">
+    <div className="container mx-auto p-4 lg:translate-y-20 translate-y-12">
       {<div className="hidden lg:block">
         <Share />
       </div> }
