@@ -15,7 +15,7 @@ import { Textarea } from "./ui/textarea";
 interface PostCardProps {
   post: Post;
   isAdmin?: boolean;
-  onPostUpdate?: (updatedPost: Post) => void; // Add new prop for callback
+  onPostUpdate?: (updatedPost: Post) => void;
 }
 
 export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps) {
@@ -30,7 +30,9 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
   const [likedUsers, setLikedUsers] = useState<LikedUser[]>([]);
   const [isLoadingLikes, setIsLoadingLikes] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState<{postId: string, commentId: string} | null>(null);
   const reportRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   
@@ -146,8 +148,17 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
       }
     }
   };
-
-  async function deleteCommentHandler(postId: string, commentId: string) {
+  
+  const prepareCommentDelete = (postId: string, commentId: string) => {
+    setCommentToDelete({ postId, commentId });
+    setIsCommentModalOpen(true);
+  };
+  
+  async function executeCommentDelete() {
+    if (!commentToDelete) return;
+    
+    const { postId, commentId } = commentToDelete;
+    
     if (isAdmin) {
       await useAdminStore.getState().adminDeleteComment({ postId, commentId });
     } else {
@@ -170,6 +181,9 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
     if (onPostUpdate) {
       onPostUpdate(updatedPost);
     }
+
+    // Reset the comment to delete
+    setCommentToDelete(null);
   }
 
   async function editCommentHandler(commentId: string, content: string) {
@@ -564,7 +578,7 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
                       {(authUser?._id === comment.user._id || isAdmin) && (
                         <div className="flex gap-3">
                           <button
-                            onClick={() => deleteCommentHandler(localPost._id, comment._id)}
+                            onClick={() => prepareCommentDelete(localPost._id, comment._id)}
                           >
                             <Trash className="text-red-600 size-4" />
                           </button>
@@ -588,7 +602,26 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
         </div>
       )}
       </div>
-      {isModalOpen && <DeleteModal deleteHandler={deletePostHandler} isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />}
+      
+      {/* Post Delete Modal */}
+      {isModalOpen && (
+        <DeleteModal 
+          deleteHandler={deletePostHandler} 
+          isModalOpen={isModalOpen} 
+          setIsModalOpen={setIsModalOpen} 
+        />
+      )}
+      
+      {/* Comment Delete Modal */}
+      {isCommentModalOpen && (
+        <DeleteModal 
+          deleteHandler={executeCommentDelete} 
+          isModalOpen={isCommentModalOpen} 
+          setIsModalOpen={setIsCommentModalOpen}
+          title="Delete Comment" 
+          content="Are you sure you want to delete this comment? This action cannot be undone."
+        />
+      )}
     </div>
   );
 }
