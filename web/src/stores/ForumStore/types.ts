@@ -160,7 +160,7 @@ export interface ForumActions {
   dislikeComment: (commentId: string, userId: string) => Promise<void>;
   editComment: (commentId: string, weaviateId: string, content: string) => Promise<void>;
   deleteComment: (commentId: string, weaviateId: string) => Promise<void>;
-  deleteThread: (threadId: string) => void;
+  deleteThread: (threadId: string, weaviateId: string) => void;
   watchThread: (threadId: string) => Promise<void>;
   checkWatchStatus: (threadId: string) => Promise<void>
   fetchNotifications: () => Promise<void>
