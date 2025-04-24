@@ -132,16 +132,21 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
             </div>
             
             <div className="flex gap-2 mb-3">
-                <div className="flex items-center justify-center gap-2 flex-1 p-2 rounded-md bg-blue-50 border border-blue-100 dark:bg-neutral-700 dark:border-neutral-800">
-                  <Briefcase className="text-blue-500" size={16} />
-                  <p className="text-sm text-gray-700 dark:text-gray-300">{department}</p>
-                </div>
-                <div className="flex items-center justify-center gap-2 flex-1 p-2 rounded-md bg-indigo-50 border border-indigo-100 dark:bg-neutral-700 dark:border-neutral-800">
-                  <Users className="text-indigo-500" size={16} />
-                  <p className="text-sm text-gray-700 dark:text-gray-300">{userFriends?.length || 0}</p>
-                </div>
-              </div>
+                  <div className="flex items-center justify-center gap-2 flex-1 p-2 rounded-md bg-blue-50 border border-blue-100 dark:bg-neutral-700 dark:border-neutral-800">
+                    <Briefcase className="text-blue-500" size={16} />
+                    <p className="text-sm text-gray-700 dark:text-gray-300">{department}</p>
+                  </div>
 
+                  <Link
+                    to={isOwnProfile ? "/friends" : `/friends/${userId}`}
+                    className="flex items-center justify-center gap-2 flex-1 p-2 rounded-md bg-indigo-50 border border-indigo-100 dark:bg-neutral-700 dark:border-neutral-800 hover:bg-indigo-100 dark:hover:bg-neutral-600 transition-colors cursor-pointer"
+                  >
+                    <Users className="text-indigo-500" size={16} />
+                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                      {userFriends?.length || 0}
+                    </p>
+                  </Link>
+                </div>
             {shouldRender && <div className="mb-3 p-2 rounded-md bg-gray-50 dark:bg-neutral-600 dark:border-gray-500  border border-gray-100">
               <div className="flex items-center justify-center gap-1 text-xs text-gray-600 dark:text-gray-300">
                 <span>{email}</span>
