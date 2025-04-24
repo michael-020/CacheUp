@@ -3,7 +3,8 @@ import { useParams, useLocation, Link, useNavigate } from 'react-router-dom';
 import { useForumStore } from '@/stores/ForumStore/forumStore';
 import ThreadModal from '../components/forums/ThreadModal';
 import { ArrowLeft } from 'lucide-react';
-import ForumPageSkeleton from '../components/skeletons/ForumPageSkeleton'; 
+import ForumPageSkeleton from '../components/skeletons/ForumPageSkeleton';
+import { useAuthStore } from '@/stores/AuthStore/useAuthStore'; 
 
 const ForumPage: React.FC = () => {
   const { forumMongoId, forumWeaviateId } = useParams<{
@@ -24,6 +25,7 @@ const ForumPage: React.FC = () => {
   const navigate = useNavigate();
   const isAdminRoute = location.pathname.includes('/admin');
   const linkToPosts = isAdminRoute ? "/admin/forums/thread/" : "/forums/thread/";
+  const { authUser } = useAuthStore()
 
   useEffect(() => {
     const loadData = async () => {
@@ -66,12 +68,13 @@ const ForumPage: React.FC = () => {
             <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
           </button>
           <h1 className="text-2xl font-bold">{currentForum.title}</h1>
-          <button
+          {authUser && <button
             onClick={() => setShowModal(true)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
             Create Thread
           </button>
+          }
         </div>
 
         {currentForum.error && <div className="text-red-500 mb-4">{currentForum.error}</div>}

@@ -13,6 +13,7 @@ import ThreadModal from "@/components/forums/ThreadModal";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import toast from "react-hot-toast";
 import { createPortal } from "react-dom";
+import GuidelinesModal from '@/components/forums/GuidelinesModal';
 
 interface ErrorResponse {
   msg: string;
@@ -33,6 +34,7 @@ const ForumList: React.FC = () => {
   const [editedDescription, setEditedDescription] = useState("");
   const [showRequestModal, setShowRequestModal] = useState(false)
   const editModalRef = useRef<HTMLDivElement | null>(null)
+  const [showGuidelines, setShowGuidelines] = useState(false);
 
   function requestSubmitHandler(data: {title: string, description: string}){
     createForumRequest(data.title, data.description)
@@ -217,39 +219,50 @@ const ForumList: React.FC = () => {
       exit="exit"
     >
       <div className="max-w-6xl mx-auto p-6 translate-y-20 min-h-[calc(100vh-5.1rem)] h-[calc(100vh-6rem)]">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">
-            {isAdminRoute ? "Forums Section (Admin View)" : "Forums Section"}
-          </h1>
-          {!isAdminRoute &&   
-            <button
-              className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded transition-colors duration-200"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowRequestModal(true);
-              }}
-            >
-              Request Forum
-            </button>
-          }
-          {isAdminRoute && <div className="">
-              <div className="space-x-4">
-                <Link
-                  to="/admin/requested-forums"
-                  className="inline-block rounded-md bg-blue-500 px-4 py-2 text-white shadow-md transition-colors hover:bg-blue-600 no-underline"
-                >
-                  Requested Forums
-                </Link>
-                <Link
-                  to="/admin/forums"
-                  className="inline-block rounded-md bg-blue-500 px-4 py-2 text-white shadow-md transition-colors hover:bg-blue-600 no-underline"
-                >
-                  Create Forums +
-                </Link>
+        <div className="flex flex-col mb-6">
+          <div className="flex justify-between items-center">
+            <h1 className="text-2xl font-bold">
+              {isAdminRoute ? "Forums Section (Admin View)" : "Forums Section"}
+            </h1>
+            {!isAdminRoute &&   
+              <button
+                className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded transition-colors duration-200"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowRequestModal(true);
+                }}
+              >
+                Request Forum
+              </button>
+            }
+            {isAdminRoute && <div className="">
+                <div className="space-x-4">
+                  <Link
+                    to="/admin/requested-forums"
+                    className="inline-block rounded-md bg-blue-500 px-4 py-2 text-white shadow-md transition-colors hover:bg-blue-600 no-underline"
+                  >
+                    Requested Forums
+                  </Link>
+                  <Link
+                    to="/admin/forums"
+                    className="inline-block rounded-md bg-blue-500 px-4 py-2 text-white shadow-md transition-colors hover:bg-blue-600 no-underline"
+                  >
+                    Create Forums +
+                  </Link>
+                </div>
               </div>
-            </div>
-          }
+            }
+          </div>
+          
+          {/* Add Guidelines button */}
+          <button
+            onClick={() => setShowGuidelines(true)}
+            className="text-blue-600 dark:text-blue-400 text-sm hover:underline mt-2 self-start"
+          >
+            Guidelines
+          </button>
         </div>
+
         {authUser && showRequestModal && (
           <ThreadModal
             forum={true}
@@ -459,6 +472,12 @@ const ForumList: React.FC = () => {
           content={deleteConfirmationForum ? `Are you sure you want to delete the forum "${deleteConfirmationForum.title}"? This action cannot be undone.` : ""}
           isDeleting={isDeleting}
           title="Delete Forum"
+        />
+
+        {/* Add Guidelines Modal */}
+        <GuidelinesModal 
+          isOpen={showGuidelines}
+          onClose={() => setShowGuidelines(false)}
         />
       </div>
     </motion.div>
