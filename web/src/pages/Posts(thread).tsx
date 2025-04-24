@@ -27,19 +27,28 @@ export const Thread = () => {
   const navigate = useNavigate()
   const [expandedComments, setExpandedComments] = useState<{[key: string]: boolean}>({});
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedPost, setSelectedPost] = useState<{id: string, weaviateId: string, isAdmin? : boolean} | null>(null);
+  // Removed unused selectedPost state
   const [menuOpen, setMenuOpen] = useState<{[key: string]: boolean}>({});
   const { authUser } = useAuthStore()
   const isAdmin = Boolean(authAdmin) 
-  const [isEditingPost, setIsEditingPost] = useState(false)
-
+  const menuRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const [editingPostId, setEditingPostId] = useState<{[key: string]: boolean}>({});
+  const [deleteModalOpen, setDeleteModalOpen] = useState<{[key: string]: boolean}>({});
 
   const toggleMenu = (postId: string) => {
-    setMenuOpen(prev => ({
-      ...prev,
-      [postId]: !prev[postId]
-    }));
+    setMenuOpen(prev => {
+      const isOpening = !prev[postId];
+      if (!isOpening) {
+        // Reset edit and delete states for this post when closing menu
+        setEditingPostId(prev => ({ ...prev, [postId]: false }));
+        setDeleteModalOpen(prev => ({ ...prev, [postId]: false }));
+        // Removed unused setSelectedPost call
+      }
+      return {
+        ...prev,
+        [postId]: !prev[postId]
+      };
+    });
   };
 
   useEffect(() => {
@@ -47,6 +56,7 @@ export const Thread = () => {
       return
     fetchPosts(id, isAdmin);
     checkWatchStatus (id)
+     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, fetchPosts, checkWatchStatus]);
 
   useEffect(() => {
@@ -94,6 +104,24 @@ export const Thread = () => {
     }
   }, [location, loading, posts]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      Object.entries(menuOpen).forEach(([postId, isOpen]) => {
+        if (isOpen && menuRefs.current[postId] && !menuRefs.current[postId]?.contains(event.target as Node)) {
+          setMenuOpen(prev => ({
+            ...prev,
+            [postId]: false
+          }));
+        }
+      });
+    };
+  
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [menuOpen]);
+
   const currentUserId = authUser?._id
 
   const checkIfLiked = (post: PostSchema) => {
@@ -120,6 +148,7 @@ export const Thread = () => {
     } finally {
       setLikeLoading(prev => ({ ...prev, [postId]: false }));
     }
+     // eslint-disable-next-line react-hooks/exhaustive-deps
   },[id, setLikeLoading, fetchPosts]);
 
   const handleDislikePost = useCallback( async (postId: string) => {
@@ -136,6 +165,7 @@ export const Thread = () => {
     } finally {
       setLikeLoading(prev => ({ ...prev, [postId]: false }));
     }
+     // eslint-disable-next-line react-hooks/exhaustive-deps
   },[id, setLikeLoading, fetchPosts]);
 
   const toggleExpandPost = (postId: string) => {
@@ -193,7 +223,7 @@ export const Thread = () => {
                 {isWatched ? (
                   <>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-14-14zM10 18a8 8 0 100-16 8 8 0 000 16zm-2.293-7.707l-1-1A1 1 0 118.707 8.293l1 1a1 1 0 01-1.414 1.414z" clipRule="evenodd" />
+                      <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a 1 1 0 001.414-1.414l-14-14zM10 18a8 8 0 100-16 8 8 0 000 16zm-2.293-7.707l-1-1A1 1 0 118.707 8.293l1 1a1 1 0 01-1.414 1.414z" clipRule="evenodd" />
                     </svg>
                     Unwatch
                   </>
@@ -269,7 +299,7 @@ export const Thread = () => {
       animate="final"
       exit="exit"  
     >
-      <div className="container mx-auto p-4 max-w-4xl translate-y-20 pb-10">
+      <div className="container mx-auto p-4 max-w-4xl translate-y-20 pb-20 lg:pb-10">
         <div className="mb-4 border-b pb-4">
           <div className="flex items-center mb-2">
             <button
@@ -347,11 +377,11 @@ export const Thread = () => {
                 key={post._id}
                 ref={(el) => postRefs.current[post._id] = el}
                 id={`post-${post._id}`}
-                className={`rounded-lg shadow border ${index === 0 ? "border-blue-200 dark:bg-neutral-800" : "border-gray-100 bg-white"} overflow-hidden transition-all duration-300 ${
+                className={`rounded-lg shadow border ${index === 0 ? "border-blue-200 dark:bg-neutral-800" : "border-gray-100 bg-white"} transition-all duration-300 ${
                   isHighlighted ? "ring-4 ring-blue-300 ring-opacity-70" : ""
                 }`}
               >
-                <div className="flex items-center gap-3 p-4 dark:bg-neutral-950 ">
+                <div className="flex items-center gap-3 p-4 dark:bg-neutral-950 rounded-t-lg">
                   {profileImage ? (
                     <Link 
                       to={authAdmin ? `/admin/profile/${post.createdBy._id}` : `/profile/${post.createdBy._id}`} 
@@ -398,26 +428,29 @@ export const Thread = () => {
                 
                   {menuOpen[post._id] && (
                     <div 
-                      className="absolute right-0 mt-2 w-48 bg-white dark:bg-neutral-800 rounded-md shadow-lg z-10 border border-gray-200 dark:border-neutral-700"
+                      ref={el => menuRefs.current[post._id] = el}
+                      className="absolute right-0 translate-y-1 xl:left-2 z-40 w-48 bg-white dark:bg-neutral-800 rounded-md shadow-lg  border border-gray-200 dark:border-neutral-700"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <div className="py-1">
+                      <div className="">
                         {(post.createdBy._id === authUser?._id) && (
                           <>
                             <button
                               onClick={() => {
-                              setIsEditingPost(true)
+                                setEditingPostId(prev => ({ ...prev, [post._id]: true }));
+                                setMenuOpen(prev => ({ ...prev, [post._id]: false }));
                               }}
-                              className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700"
+                              className="block w-full text-left border-b dark:border-neutral-700 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700"
                             >
                               Edit Post
                             </button>
-                              <CreatePostModal postId={post._id} isOpen={isEditingPost} mode="edit" weaviateId={post.weaviateId} initialContent={post.content} onClose={() => setIsEditingPost(false)} />
+                            
 
                             <button
                               onClick={() => {
-                                setSelectedPost({id: post._id, weaviateId: post.weaviateId, isAdmin: true});
-                                setIsDeleteModalOpen(!isDeleteModalOpen);
+                                // Removed unused setSelectedPost call
+                                setDeleteModalOpen(prev => ({ ...prev, [post._id]: true }));
+                                setMenuOpen(prev => ({ ...prev, [post._id]: false }));
                               }}
                               className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-neutral-700"
                             >
@@ -429,20 +462,15 @@ export const Thread = () => {
                         {authAdmin && post.createdBy._id !== currentUserId && (
                           <button
                             onClick={() => {
-                              setSelectedPost({id: post._id, weaviateId: post.weaviateId});
-                              setIsDeleteModalOpen(!isDeleteModalOpen);
+                              // Removed unused setSelectedPost call
+                              setDeleteModalOpen(prev => ({ ...prev, [post._id]: true }));
+                              setMenuOpen(prev => ({ ...prev, [post._id]: false }));
                             }}
                             className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-neutral-700"
                           >
                             Delete Post (Admin)
                           </button>
                         )}
-                        <DeleteModal 
-                          deleteHandler={() => deletePost(selectedPost?.id || "", selectedPost?.weaviateId || "", isAdmin)}
-                          isModalOpen={isDeleteModalOpen}
-                          setIsModalOpen={setIsDeleteModalOpen}
-                          content="Are you sure you want to delete this post? This action cannot be undone."
-                        />        
                         {/* Report/Unreport for others - Only show if user is NOT the post owner and NOT an admin */}
                         {(post.createdBy._id !== currentUserId) && !authAdmin && (
                           <button
@@ -484,7 +512,7 @@ export const Thread = () => {
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-4 px-5 py-3  dark:border-neutral-600 bg-gray-50 border-t text-sm text-gray-500 dark:bg-neutral-950">
+                <div className="flex items-center gap-4 px-5 py-3 rounded-b-lg  dark:border-neutral-600 bg-gray-50 border-t text-sm text-gray-500 dark:bg-neutral-950">
                   
                   <button 
                     className={`flex items-center gap-1.5 cursor-pointer transition-colors dark:text-gray-300 ${
@@ -551,6 +579,28 @@ export const Thread = () => {
                       focusOnLoad={replyingTo === post._id}
                     />
                   </div>
+                )}
+                {editingPostId[post._id] && (
+                  <CreatePostModal 
+                    postId={post._id} 
+                    isOpen={editingPostId[post._id]} 
+                    mode="edit" 
+                    weaviateId={post.weaviateId} 
+                    initialContent={post.content} 
+                    onClose={() => setEditingPostId(prev => ({ ...prev, [post._id]: false }))} 
+                  />
+                )}
+
+                {deleteModalOpen[post._id] && (
+                  <DeleteModal 
+                    deleteHandler={() => deletePost(post._id, post.weaviateId, isAdmin)}
+                    isModalOpen={deleteModalOpen[post._id]}
+                    setIsModalOpen={(isOpen) => {
+                      setDeleteModalOpen(prev => ({ ...prev, [post._id]: isOpen }));
+                      // Removed unused setSelectedPost call
+                    }}
+                    content="Are you sure you want to delete this post? This action cannot be undone."
+                  />
                 )}
               </div>
             );
