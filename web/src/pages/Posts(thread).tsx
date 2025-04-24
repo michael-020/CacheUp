@@ -31,7 +31,7 @@ export const Thread = () => {
   const [selectedPost, setSelectedPost] = useState<{id: string, weaviateId: string, isAdmin? : boolean} | null>(null);
   const [menuOpen, setMenuOpen] = useState<{[key: string]: boolean}>({});
   const { authUser } = useAuthStore()
-  const isAdmin = authAdmin ? true : false
+  const isAdmin = Boolean(authAdmin) 
   const [isEditingPost, setIsEditingPost] = useState(false)
 
 

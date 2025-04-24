@@ -5,7 +5,6 @@ import { AxiosError } from "axios";
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../AuthStore/useAuthStore';
 
-
 export const useForumStore = create<ForumStore>((set, get) => ({
   forums: [],
   currentForum: {
