@@ -153,6 +153,7 @@ export interface ForumActions {
   fetchPosts: (threadId: string, isAdmin?: boolean) => Promise<void>
   createPost: (threadMongo: string, threadWeaviate: string, content:string) => Promise<void>
   toggleLike: (mongoId: string) => Promise<number | undefined>
+  toggleDislike: (mongoId: string) => Promise<number | undefined>
   isLiked: (postId: string) => boolean;
   fetchComments: (postId: string) => Promise<Comment[]>;
   createComment: (postId: string, postWeaviateId: string, content: string) => Promise<Comment>;
@@ -173,6 +174,7 @@ export interface ForumActions {
   fetchRequestedForums: () => Promise<void>;
   deletePost: (postId: string, weaviateId: string, isAdmin?:boolean) => Promise<void>;
   editPost: (mongoId: string, weaviateId: string, content: string) => Promise<void>
+  setPosts: (posts: PostSchema[]) => void;
 }
 
 export type ForumStore = ForumState & ForumActions;

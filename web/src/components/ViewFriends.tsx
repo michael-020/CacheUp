@@ -160,7 +160,7 @@ export const ViewFriends = () => {
   
   return (
     <motion.div
-      className="flex flex-col w-full min-h-screen bg-gray-50 dark:bg-neutral-950 p-4 pt-16 md:pt-20"
+      className="flex flex-col w-full min-h-screen bg-gray-50 dark:bg-neutral-950 p-4 pt-16 md:pt-24"
       variants={routeVariants}
       initial="initial"
       animate="final"

@@ -248,6 +248,43 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     }
   },
 
+  toggleDislike: async (postId: string) => {
+    try {
+      const response = await axiosInstance.put(`/forums/dislike-post/${postId}`);
+      
+      set((state) => {
+        const posts = state.posts.map(post => {
+          if (post._id === postId) {
+            const userId = useAuthStore.getState().authUser?._id;
+            if (!userId) return post;
+            
+            const isDisliked = post.disLikedBy?.includes(userId);
+            
+            return {
+              ...post,
+              disLikedBy: isDisliked 
+                ? post.disLikedBy?.filter(id => id !== userId)
+                : [...(post.disLikedBy || []), userId],
+              likedBy: post.likedBy?.filter(id => id !== userId)
+            };
+          }
+          return post;
+        });
+        
+        return { posts };
+      });
+      
+      return response.data;
+    } catch (err) {
+      console.error("Dislike API error:", err);
+      throw err;
+    }
+  },
+
+  setPosts: (posts: PostSchema[]) => {
+    set({ posts });
+  },
+
   isLiked: (postId: string) => get().likedPosts.has(postId),
 
   fetchComments: async (postId) => {
