@@ -148,7 +148,11 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
   };
 
   async function deleteCommentHandler(postId: string, commentId: string) {
-    await deleteComment(postId, commentId);
+    if (isAdmin) {
+      await useAdminStore.getState().adminDeleteComment({ postId, commentId });
+    } else {
+      await deleteComment(postId, commentId);
+    }
     
     setComments((prevComments) => 
       prevComments.filter((comment) => comment._id !== commentId) 

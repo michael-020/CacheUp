@@ -118,9 +118,32 @@ export const useAdminStore = create<AdminStates & AdminActions>((set,get) => ({
         }
       },
 
-    deleteComment: async () => {
-        
-    },
+      adminDeleteComment: async ({ postId, commentId }: { postId: string, commentId: string }) => {
+        try {
+          await axiosInstance.delete(`/admin/comment/${postId}/${commentId}`);
+          
+          const { posts } = get();
+          const updatedPosts = posts.map(post => {
+            if (post._id === postId) {
+              return {
+                ...post,
+                comments: post.comments.filter(comment => comment._id !== commentId)
+              };
+            }
+            return post;
+          });
+          
+          set({ posts: updatedPosts });
+          toast.success("Comment deleted successfully by admin");
+          
+        } catch (error) {
+          if (error instanceof AxiosError && error.response?.data?.msg) {
+            toast.error(error.response.data.msg as string);
+          } else {
+            toast.error("An unexpected error occurred.");
+          }
+        }
+      },
 
     getReportedPosts: async () => {
         set({isGettingReportedPosts: true})
