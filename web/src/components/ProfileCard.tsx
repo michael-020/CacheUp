@@ -4,6 +4,7 @@ import { IUser } from '@/lib/utils';
 import { useChatStore } from '@/stores/chatStore/useChatStore';
 import { useState, useEffect } from 'react';
 import { useFriendsStore } from '@/stores/FriendsStore/useFriendsStore';
+import { useAdminStore } from '@/stores/AdminStore/useAdminStore';
 
 interface ProfileCardProps {
   isOwnProfile: boolean;
@@ -37,7 +38,7 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
   
   const { profilePicture, name, username, email, bio, department, friends: userFriends, _id: userId } = userInfo;
   const shouldRender = (location.pathname.endsWith("/profile") || isOwnProfile || isAdmin) && location.pathname !== "/" ;
-  
+  const { authAdmin } = useAdminStore()
   const isFriend = friends?.some(friend => friend._id === userId);
   const isPendingRequest = sentRequests?.some(request => request._id === userId);
 
@@ -158,17 +159,20 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
                   </button>
                 </Link>
               ) : (
-                <>
-                  <Link to="/message" >
-                    <button 
-                      className="w-full flex items-center justify-center space-x-2 py-2 px-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-xs font-medium rounded-md hover:from-blue-600 hover:to-indigo-600 transition-colors"
-                      onClick={() => setSelectedUser(userInfo)}
-                    >
-                      <Mail className='size-4' /> <span> Message </span>
-                    </button>
-                  </Link>
-                  {renderFriendButton()}
-                </>
+                <div>
+                  {!authAdmin && <div className='space-y-3'>
+                      <Link to="/message" >
+                        <button 
+                          className="w-full flex items-center justify-center space-x-2 py-2 px-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-xs font-medium rounded-md hover:from-blue-600 hover:to-indigo-600 transition-colors"
+                          onClick={() => setSelectedUser(userInfo)}
+                        >
+                          <Mail className='size-4' /> <span> Message </span>
+                        </button>
+                      </Link>
+                      {renderFriendButton()}
+                    </div>
+                  }
+                </div>
               )}
             </div>
           </div>
