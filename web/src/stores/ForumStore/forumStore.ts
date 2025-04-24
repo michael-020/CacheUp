@@ -437,16 +437,26 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     }
   },
 
-  deleteThread : async (threadId: string) => {
+  deleteThread: async (threadId: string, weaviateId: string) => {
     try {
-      await axiosInstance.delete(`/admin/forums/thread/${threadId}`)
-
+      await axiosInstance.delete(`/admin/delete-thread/${threadId}/${weaviateId}`)
+      
+      set((state) => ({
+        currentForum: {
+          ...state.currentForum,
+          threads: state.currentForum.threads.filter(
+            (thread) => thread._id !== threadId
+          )
+        }
+      }))
+  
+      toast.success("Thread deleted successfully")
     } catch (error) {
       toast.error("Could not delete the thread")
       console.error(error)
     }
   },
-
+  
   watchThread : async (threadId: string) => {
     try{
       const response = await axiosInstance.put(`/forums/watch-thread/${threadId}`)
