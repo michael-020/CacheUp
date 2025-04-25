@@ -1,11 +1,10 @@
 import { z } from "zod";
 import bcrypt from "bcrypt"
 import { Request, RequestHandler, Response } from "express";
-import jwt from "jsonwebtoken";
 import { userModel } from "../models/db";
-import JWT_SECRET from "../config";
 import mongoose from "mongoose";
 import { generateToken } from "../lib/utils";
+import { loggingService } from '../services/loggingService';
 
 export const loginHandler: RequestHandler = async (req: Request, res: Response) => {
     const mySchema = z.object({
@@ -49,6 +48,9 @@ export const loginHandler: RequestHandler = async (req: Request, res: Response) 
 
         generateToken(new mongoose.Types.ObjectId(user._id), res);
 
+        // Add logging after successful login
+        await loggingService.createLoginLog(user._id.toString(), req);
+
         res.status(200).json({
             _id: user._id,
             username: user.username,
@@ -71,3 +73,16 @@ export const loginHandler: RequestHandler = async (req: Request, res: Response) 
         return;
     }
 }
+
+// filepath: /Users/michel/Desktop/CampusConnect/Backend/src/handlers/logOutHandler.ts
+export const logOutHandler = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user._id.toString();
+    await loggingService.createLogoutLog(userId, req);
+    
+    res.cookie("jwt", "", { maxAge: 0 });
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
+    // ... existing error handling ...
+  }
+};

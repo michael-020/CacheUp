@@ -4,6 +4,7 @@ import { Request, RequestHandler, Response } from "express";
 import { userModel } from "../models/db";
 import { generateToken } from "../lib/utils";
 import mongoose, { Mongoose, ObjectId } from "mongoose";
+import { loggingService } from '../services/loggingService';
 
 export const signupHandler: RequestHandler =  async (req: Request, res: Response) => {
     const mySchema = z.object({
@@ -71,6 +72,9 @@ export const signupHandler: RequestHandler =  async (req: Request, res: Response
 
         generateToken(new mongoose.Types.ObjectId(newUser._id), res);
 
+        // Create signup log
+        await loggingService.createSignupLog(newUser._id.toString(), req);
+
         res.status(201).json({
             _id: newUser._id,
             username: newUser.username,
@@ -85,9 +89,9 @@ export const signupHandler: RequestHandler =  async (req: Request, res: Response
         })
     }
     catch (e) {
-        console.error("error while siging up", e)
+        console.error("error while signing up", e)
         res.status(400).json({
-            msg: "error occured while signing up",
+            msg: "error occurred while signing up",
             error: e
         })
         return;
