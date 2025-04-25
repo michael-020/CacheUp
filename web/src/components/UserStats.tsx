@@ -25,6 +25,7 @@ export const UserStats = () => {
   const [showDetails, setShowDetails] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showAllTimeStats, setShowAllTimeStats] = useState<{[key: string]: boolean}>({});
+  const [showLoginDetails, setShowLoginDetails] = useState<{[key: string]: boolean}>({});
   const navigate = useNavigate();
   const { authAdmin } = useAdminStore();
 
@@ -86,11 +87,12 @@ export const UserStats = () => {
   };
 
   const formatDateTime = (date: Date) => {
-    return new Date(date).toLocaleString([], { 
+    return new Date(date).toLocaleString('en-US', { 
+      day: 'numeric',
+      month: 'short',
       hour: '2-digit',
       minute: '2-digit',
-      month: 'short',
-      day: 'numeric'
+      hour12: false
     });
   };
 
@@ -222,7 +224,7 @@ export const UserStats = () => {
                 <span>User</span>
                 <div className="flex gap-8">
                   <span>Department</span>
-                  <span>Login Times</span>
+                  <span>Login Count</span>
                 </div>
               </div>
               <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
@@ -230,8 +232,8 @@ export const UserStats = () => {
                   .sort((a, b) => b.loginCount - a.loginCount)
                   .map((stat) => (
                     <div key={stat.userId}>
-                      {/* User Info Section */}
                       <div className="flex flex-col p-4 hover:bg-gray-50 dark:hover:bg-neutral-700/50 rounded-lg transition-colors">
+                        {/* User Info Section */}
                         <div className="flex justify-between items-center mb-2">
                           <div 
                             className="flex items-center gap-3 cursor-pointer"
@@ -255,24 +257,63 @@ export const UserStats = () => {
                           <div className="text-sm text-gray-600 dark:text-gray-400">
                             {stat.department} ({stat.graduationYear})
                           </div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                            {stat.loginCount}
+                          </div>
                         </div>
-                        
-                        {/* Login/Logout Times */}
-                        <div className="ml-13 text-sm space-y-1">
-                          {stat.signupTime && (
-                            <div className="text-sm text-blue-600 dark:text-blue-400">
-                              Signed up at: {formatDateTime(stat.signupTime)}
-                            </div>
+
+                        {/* Login Details Button */}
+                        <button
+                          onClick={() => setShowLoginDetails(prev => ({
+                            ...prev,
+                            [stat.userId]: !prev[stat.userId]
+                          }))}
+                          className="mt-2 flex items-center gap-2 text-sm text-blue-500 hover:text-blue-600"
+                        >
+                          {showLoginDetails[stat.userId] ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
                           )}
-                          {stat.loginTimes.map((loginTime, index) => (
-                            <div key={index} className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
-                              <span>Login: {formatDateTime(loginTime)}</span>
-                              {stat.logoutTimes[index] && (
-                                <span>Logout: {formatDateTime(stat.logoutTimes[index])}</span>
-                              )}
-                            </div>
-                          ))}
-                        </div>
+                          View Login Details
+                        </button>
+
+                        {/* Login Details */}
+                        {showLoginDetails[stat.userId] && (
+                          <div className="mt-2 pl-4 border-l-2 border-blue-200 dark:border-blue-800 space-y-2">
+                            {stat.signupTime && (
+                              <div className="text-sm text-blue-600 dark:text-blue-400">
+                                Signup: {formatDateTime(stat.signupTime)}
+                              </div>
+                            )}
+                            {stat.loginTimes.map((loginTime, index) => (
+                              <div key={index} className="space-y-2">
+                                <div className="text-sm text-gray-600 dark:text-gray-400">
+                                  <div className="flex items-start justify-between">
+                                    <div>
+                                      <span className="text-blue-500">Login:</span> {formatDateTime(loginTime)}
+                                    </div>
+                                    {stat.logoutTimes[index] && (
+                                      <div>
+                                        <span className="text-red-500">Logout:</span> {formatDateTime(stat.logoutTimes[index])}
+                                      </div>
+                                    )}
+                                  </div>
+                                  {stat.logoutTimes[index] && (
+                                    <div className="text-xs text-gray-500 mt-1">
+                                      Session duration: {Math.round(
+                                        (new Date(stat.logoutTimes[index]).getTime() - new Date(loginTime).getTime()) / 1000 / 60
+                                      )} min
+                                    </div>
+                                  )}
+                                </div>
+                                {index < stat.loginTimes.length - 1 && (
+                                  <div className="border-b border-gray-100 dark:border-neutral-700 my-2"></div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
 
                         {/* All-time Stats Button */}
                         <button

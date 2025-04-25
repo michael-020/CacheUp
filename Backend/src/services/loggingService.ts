@@ -33,25 +33,29 @@ export const loggingService = {
 
   async createLogoutLog(userId: string, req: Request) {
     try {
+      // Find the most recent login for this user that doesn't have a matching logout
       const lastLogin = await UserLog.findOne({ 
         userId, 
-        action: 'LOGIN' 
+        action: 'LOGIN',
       }).sort({ timestamp: -1 });
 
-      if (lastLogin) {
-        const sessionDuration = (Date.now() - lastLogin.timestamp.getTime()) / 1000 / 60; // in minutes
-        
-        await UserLog.create({
-          userId,
-          action: 'LOGOUT',
-          sessionDuration,
-          device: req.headers['user-agent'],
-          ipAddress: req.ip,
-          timestamp: new Date()
-        });
-      }
+      const now = new Date();
+      
+      // Create logout log regardless of finding last login
+      const logoutLog = await UserLog.create({
+        userId,
+        action: 'LOGOUT',
+        sessionDuration: lastLogin ? (now.getTime() - lastLogin.timestamp.getTime()) / 1000 / 60 : 0,
+        device: req.headers['user-agent'],
+        ipAddress: req.ip,
+        timestamp: now
+      });
+
+      // Return the created log
+      return logoutLog;
     } catch (error) {
       console.error('Error creating logout log:', error);
+      throw error;
     }
   },
 
@@ -101,15 +105,14 @@ export const loggingService = {
       nextDay.setDate(queryDate.getDate() + 1);
 
       // Get all logs for the specified date
-      const dailyLogs = await UserLog.find({
+      const logs = await UserLog.find({
         timestamp: { 
           $gte: queryDate,
           $lt: nextDay
         }
       }).sort({ timestamp: 1 });
 
-      // Get unique users who had activity on this date
-      const uniqueUserIds = [...new Set(dailyLogs.map(log => log.userId.toString()))];
+      const uniqueUserIds = [...new Set(logs.map(log => log.userId.toString()))];
 
       const usersStats = await Promise.all(
         uniqueUserIds.map(async (userId) => {
@@ -118,23 +121,23 @@ export const loggingService = {
 
           if (!user) return null;
 
-          const userDayLogs = dailyLogs.filter(log => 
-            log.userId.toString() === userId
-          );
+          // Filter logs for this user
+          const userLogs = logs.filter(log => log.userId.toString() === userId);
+          
+          // Get login and logout logs
+          const loginLogs = userLogs.filter(log => log.action === 'LOGIN');
+          const logoutLogs = userLogs.filter(log => log.action === 'LOGOUT');
+          const signupLog = userLogs.find(log => log.action === 'SIGNUP');
 
-          const loginLogs = userDayLogs.filter(log => log.action === 'LOGIN');
-          const logoutLogs = userDayLogs.filter(log => log.action === 'LOGOUT');
-          const signupLog = userDayLogs.find(log => log.action === 'SIGNUP');
-
-          // Get total all-time logins for this user
-          const totalLogins = await UserLog.countDocuments({
-            userId,
-            action: 'LOGIN'
+          // Calculate total time spent
+          let totalTimeSpent = 0;
+          loginLogs.forEach((login, index) => {
+            const logout = logoutLogs[index];
+            if (logout) {
+              const duration = (logout.timestamp.getTime() - login.timestamp.getTime()) / 1000 / 60;
+              totalTimeSpent += duration;
+            }
           });
-
-          // Calculate total time spent (from available logout logs)
-          const totalTimeSpent = logoutLogs.reduce((acc, log) => 
-            acc + (log.sessionDuration || 0), 0);
 
           return {
             userId: user._id,
@@ -148,7 +151,7 @@ export const loggingService = {
             loginTimes: loginLogs.map(log => log.timestamp),
             logoutTimes: logoutLogs.map(log => log.timestamp),
             totalTimeSpent,
-            totalLogins
+            totalLogins: loginLogs.length + (signupLog ? 1 : 0)
           };
         })
       );
