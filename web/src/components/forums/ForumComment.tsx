@@ -30,6 +30,7 @@ const ForumComment: React.FC<CommentSectionProps> = memo(({ postId, postWeaviate
   const [editText, setEditText] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState<{id: string, weaviateId: string} | null>(null);
+  const [editLoading, setEditLoading] = useState<{[key: string]: boolean}>({});
   
   const { authUser } = useAuthStore();
   const { 
@@ -103,13 +104,14 @@ const ForumComment: React.FC<CommentSectionProps> = memo(({ postId, postWeaviate
     if (!editText.trim()) return;
     
     try {
-      setActionLoading(prev => ({ ...prev, [commentId]: true}));
+      setEditLoading(prev => ({ ...prev, [commentId]: true }));
       await editComment(commentId, weaviateId, editText);
       setEditingComment(null);
+      setEditText("");
     } catch (error) {
       console.error("Error editing comment:", error);
     } finally {
-      setActionLoading(prev => ({ ...prev, [commentId]: false }));
+      setEditLoading(prev => ({ ...prev, [commentId]: false }));
     }
   };
 
@@ -179,7 +181,7 @@ const ForumComment: React.FC<CommentSectionProps> = memo(({ postId, postWeaviate
   );
 
   return (
-    <div className="px-5 py-4 dark:bg-neutral-950">
+    <div className="px-5 py-4 dark:bg-neutral-950 rounded-b-xl">
       <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
           <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
@@ -193,13 +195,13 @@ const ForumComment: React.FC<CommentSectionProps> = memo(({ postId, postWeaviate
           placeholder="Add a comment..."
           value={commentText}
           onChange={(e) => setCommentText(e.target.value)}
-          className="w-full p-3 border rounded-lg mb-2 focus:ring-blue-500 focus:border-blue-500"
+          className="w-full p-3 border rounded-lg resize-none mb-2 focus:ring-blue-500 focus:border-blue-500"
           rows={3}
         />
         <Button 
           type="submit"
           disabled={submitting || !commentText.trim()} 
-          className="bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+          className="bg-blue-600 hover:bg-blue-700 text-white transition-colors translate-y-1"
         >
           {submitting ? "Posting..." : "Post Comment"}
         </Button>
@@ -234,12 +236,14 @@ const ForumComment: React.FC<CommentSectionProps> = memo(({ postId, postWeaviate
                   </div>
                 )}
                 <div>
-                  <span className="font-medium">
-                    {comment.createdBy?.username || "Anonymous User"}
-                  </span>
-                  <div className="text-xs text-gray-500">
-                    {formatDate(comment.createdAt)}
-                  </div>
+                <Link to={`/profile/${comment.createdBy?._id}`}>
+                  <h2 className="font-medium hover:underline">
+                    {comment.createdBy?.username}
+                  </h2>
+                </Link>
+                <div className="text-xs text-gray-500">
+                  {formatDate(comment.createdAt)}
+                </div>
                 </div>
               </div>
 
@@ -248,21 +252,33 @@ const ForumComment: React.FC<CommentSectionProps> = memo(({ postId, postWeaviate
                   <Textarea
                     value={editText}
                     onChange={(e) => setEditText(e.target.value)}
-                    className="w-full p-2 border rounded mb-2"
+                    className="w-full p-2 resize-none border rounded mb-2 dark:bg-neutral-700"
                     rows={2}
                     autoFocus
+                    disabled={editLoading[comment._id]}
                   />
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 translate-y-1">
                     <Button
                       onClick={() => handleEditComment(comment._id, comment.weaviateId)}
-                      disabled={actionLoading[comment._id]}
+                      disabled={editLoading[comment._id]}
                       className="bg-blue-500 hover:bg-blue-600 text-white text-sm py-1 px-3"
                       size="sm"
                     >
-                      Save
+                      {editLoading[comment._id] ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          <span>Saving...</span>
+                        </div>
+                      ) : (
+                        "Save"
+                      )}
                     </Button>
                     <Button
-                      onClick={() => setEditingComment(null)}
+                      onClick={() => {
+                        setEditingComment(null);
+                        setEditText("");
+                      }}
+                      disabled={editLoading[comment._id]}
                       className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm py-1 px-3"
                       size="sm"
                     >

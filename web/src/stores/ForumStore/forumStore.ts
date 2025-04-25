@@ -248,6 +248,43 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     }
   },
 
+  toggleDislike: async (postId: string) => {
+    try {
+      const response = await axiosInstance.put(`/forums/dislike-post/${postId}`);
+      
+      set((state) => {
+        const posts = state.posts.map(post => {
+          if (post._id === postId) {
+            const userId = useAuthStore.getState().authUser?._id;
+            if (!userId) return post;
+            
+            const isDisliked = post.disLikedBy?.includes(userId);
+            
+            return {
+              ...post,
+              disLikedBy: isDisliked 
+                ? post.disLikedBy?.filter(id => id !== userId)
+                : [...(post.disLikedBy || []), userId],
+              likedBy: post.likedBy?.filter(id => id !== userId)
+            };
+          }
+          return post;
+        });
+        
+        return { posts };
+      });
+      
+      return response.data;
+    } catch (err) {
+      console.error("Dislike API error:", err);
+      throw err;
+    }
+  },
+
+  setPosts: (posts: PostSchema[]) => {
+    set({ posts });
+  },
+
   isLiked: (postId: string) => get().likedPosts.has(postId),
 
   fetchComments: async (postId) => {
@@ -283,33 +320,61 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   
   createComment: async (postId, postWeaviateId, content) => {
     try {
-      const response = await axiosInstance.post(`/forums/create-comment/${postId}/${postWeaviateId}`, {
-        content
-      });
-      
-      const newComment = response.data.comment;
-      
-      set((state) => {
-        const currentPostComments = state.comments[postId] || [];
-        return {
-          comments: {
-            ...state.comments,
-            [postId]: [...currentPostComments, newComment]
-          }
+        const response = await axiosInstance.post(`/forums/create-comment/${postId}/${postWeaviateId}`, {
+            content
+        });
+        
+        // Get current user info
+        const currentUser = useAuthStore.getState().authUser;
+        
+        if (!currentUser) {
+            throw new Error('User not authenticated');
+        }
+        
+        // Create populated comment with user data
+        const commentData = response.data.commentMongo;
+        const populatedComment = {
+            ...commentData,
+            createdBy: {
+                _id: currentUser._id,
+                username: currentUser.username,
+                profilePicture: currentUser.profilePicture || null
+            }
         };
-      });
-      
-      get().fetchComments(postId);
-      
-      return newComment;
+        
+        // Update both comments and post's comment count
+        set((state) => {
+            const currentPostComments = state.comments[postId] || [];
+            const updatedPosts = state.posts.map(post => {
+                if (post._id === postId) {
+                    return {
+                        ...post,
+                        commentsCount: (post.commentsCount || 0) + 1
+                    };
+                }
+                return post;
+            });
+
+            return {
+                comments: {
+                    ...state.comments,
+                    [postId]: [...currentPostComments, populatedComment]
+                },
+                posts: updatedPosts
+            };
+        });
+        
+        return populatedComment;
     } catch (err) {
-      const error = err as AxiosError<{ msg: string }>;
-      throw error;
+        console.error("Error creating comment:", err);
+        toast.error("Failed to create comment");
+        throw err;
     }
-  },
-  
+},
+
   likeComment: async (commentId, userId) => {
     try {
+      // Optimistically update UI
       set(state => ({
         comments: Object.fromEntries(
           Object.entries(state.comments).map(([postId, comments]) => [
@@ -318,8 +383,10 @@ export const useForumStore = create<ForumStore>((set, get) => ({
               comment._id === commentId
                 ? {
                     ...comment,
-                    likedBy: [...comment.likedBy, userId],
-                    disLikedBy: comment.disLikedBy.filter(id => id !== userId)
+                    likedBy: comment.likedBy.includes(userId) 
+                      ? comment.likedBy.filter(id => id !== userId)  // Unlike
+                      : [...comment.likedBy, userId],                // Like
+                    disLikedBy: comment.disLikedBy.filter(id => id !== userId) // Remove from dislikes if exists
                   }
                 : comment
             )
@@ -329,27 +396,15 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   
       await axiosInstance.put(`/forums/like-comment/${commentId}`);
     } catch (err) {
-      set(state => ({
-        comments: Object.fromEntries(
-          Object.entries(state.comments).map(([postId, comments]) => [
-            postId,
-            comments.map(comment => 
-              comment._id === commentId
-                ? {
-                    ...comment,
-                    likedBy: comment.likedBy.filter(id => id !== userId)
-                  }
-                : comment
-            )
-          ])
-        )
-      }));
+      // Revert on error
+      await get().fetchComments(Object.keys(get().comments)[0]);
       throw err;
     }
   },
   
   dislikeComment: async (commentId, userId) => {
     try {
+      // Optimistically update UI
       set(state => ({
         comments: Object.fromEntries(
           Object.entries(state.comments).map(([postId, comments]) => [
@@ -358,8 +413,10 @@ export const useForumStore = create<ForumStore>((set, get) => ({
               comment._id === commentId
                 ? {
                     ...comment,
-                    disLikedBy: [...comment.disLikedBy, userId],
-                    likedBy: comment.likedBy.filter(id => id !== userId)
+                    disLikedBy: comment.disLikedBy.includes(userId)
+                      ? comment.disLikedBy.filter(id => id !== userId)  // Un-dislike
+                      : [...comment.disLikedBy, userId],                // Dislike
+                    likedBy: comment.likedBy.filter(id => id !== userId) // Remove from likes if exists
                   }
                 : comment
             )
@@ -369,73 +426,88 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   
       await axiosInstance.put(`/forums/dislike-comment/${commentId}`);
     } catch (err) {
+      // Revert on error
+      await get().fetchComments(Object.keys(get().comments)[0]);
+      throw err;
+    }
+  },
+  
+  editComment: async (commentId: string, weaviateId: string, content: string) => {
+    try {
+      const response = await axiosInstance.put(`/forums/edit-comment/${commentId}/${weaviateId}`, { content });
+      const updatedComment = response.data.commentMongo;
+      
+      // Update both comments and post state
       set(state => ({
         comments: Object.fromEntries(
           Object.entries(state.comments).map(([postId, comments]) => [
             postId,
-            comments.map(comment =>
+            comments.map(comment => 
               comment._id === commentId
                 ? {
                     ...comment,
-                    disLikedBy: comment.disLikedBy.filter(id => id !== userId)
+                    content,
+                    updatedAt: new Date().toISOString()
                   }
                 : comment
             )
           ])
         )
       }));
-      throw err;
-    }
-  },
-  
-  editComment: async (commentId, weaviateId, content) => {
-    try {
-      set(state => ({
-        comments: Object.fromEntries(
-          Object.entries(state.comments).map(([postId, comments]) => [
-            postId,
-            comments.map(comment => 
-              comment._id === commentId
-                ? { ...comment, content }
-                : comment
-            )
-          ])
-        )
-      }));
-  
-      await axiosInstance.put(`/forums/edit-comment/${commentId}/${weaviateId}`, { content });
+
+      toast.success("Comment updated successfully");
+      return updatedComment;
     } catch (err) {
-      set(state => ({
-        comments: Object.fromEntries(
-          Object.entries(state.comments).map(([postId, comments]) => [
-            postId,
-            comments.map(comment => 
-              comment._id === commentId
-                ? { ...comment, content: comment.content } 
-                : comment
-            )
-          ])
-        )
-      }));
+      console.error("Error updating comment:", err);
+      toast.error("Failed to update comment");
       throw err;
     }
   },
   
   deleteComment: async (commentId, weaviateId) => {
     try {
-      await axiosInstance.delete(`/forums/delete-comment/${commentId}/${weaviateId}`);
-      
-      const comments = get().comments;
-      for (const postId in comments) {
-        if (comments[postId].some(comment => comment._id === commentId)) {
-          get().fetchComments(postId);
-        }
-      }
+        await axiosInstance.delete(`/forums/delete-comment/${commentId}/${weaviateId}`);
+        
+        // Find which post this comment belongs to
+        set((state) => {
+            let postId: string | null = null;
+            
+            // Find the post that contains this comment
+            for (const [pid, comments] of Object.entries(state.comments)) {
+                if (comments.some(c => c._id === commentId)) {
+                    postId = pid;
+                    break;
+                }
+            }
+            
+            if (!postId) return state;
+
+            // Update both comments and post count
+            const updatedComments = {
+                ...state.comments,
+                [postId]: state.comments[postId].filter(c => c._id !== commentId)
+            };
+
+            const updatedPosts = state.posts.map(post => {
+                if (post._id === postId) {
+                    return {
+                        ...post,
+                        commentsCount: Math.max((post.commentsCount || 0) - 1, 0)
+                    };
+                }
+                return post;
+            });
+
+            return {
+                comments: updatedComments,
+                posts: updatedPosts
+            };
+        });
     } catch (err) {
-      const error = err as AxiosError<{ msg: string }>;
-      throw error;
+        const error = err as AxiosError<{ msg: string }>;
+        throw error;
     }
-  },
+},
 
   deleteThread: async (threadId: string, weaviateId: string) => {
     try {
@@ -667,5 +739,45 @@ editPost: async (mongoId: string, weaviateId: string, content: string) => {
     toast.error("Failed to update post");
   }
 },
+
+approveRequest: async  (id: string) => {
+  try {
+    const res = await axiosInstance.post(`/admin/approve-forum/${id}`)
+    const forum = res.data.requestedForum
+    set((state) => ({
+      ...state,
+      requestedForums: state.requestedForums.filter((r) => {
+        if(r._id !== forum._id){
+          return r;
+        }
+      })
+    }))
+
+    toast.success("Forum Approved")
+  } catch (error) {
+    console.error(error)
+    toast.error("Error while approving request")
+  }
+},
+
+denyRequest: async (id: string) => {
+  try {
+    const res = await axiosInstance.post(`/admin/reject-forum/${id}`)
+    const forum = res.data.requestedForum
+    set((state) => ({
+      ...state,
+      requestedForums: state.requestedForums.filter((r) => {
+        if(r._id !== forum._id){
+          return r;
+        }
+      })
+    }))
+
+    toast.success("Forum Denied")
+  } catch (error) {
+    console.error(error)
+    toast.error("Error while denying request")
+  }
+}
 
 }));

@@ -28,17 +28,29 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
     }
   },
 
+  fetchUserFriends: async (userId: string) => {
+    set({ loading: true });
+    try {
+      const { data } = await axiosInstance.get<{ friends: IUser[] }>(`/user/friends/${userId}`);
+      return data.friends || [];
+    } catch (error) {
+      const err = error as AxiosError<{ message?: string }>;
+      console.error("Error fetching user's friends:", err);
+      toast.error(err.response?.data?.message || "Failed to load user's friends");
+      return [];
+    } finally {
+      set({ loading: false });
+    }
+  },
+
   fetchRequests: async () => {
     try {
       const { data } = await axiosInstance.get<{ friendRequests: IUser[] }>("/user/friends/requests");
       
-      // Get current requests
       const currentRequests = get().requests;
       const newRequests = data.friendRequests || [];
       
-      // Only update if there's an actual change in the requests
       if (JSON.stringify(currentRequests) !== JSON.stringify(newRequests)) {
-        // Instead of directly setting, merge the new requests
         set(state => ({
           requests: mergeRequests(state.requests, newRequests)
         }));

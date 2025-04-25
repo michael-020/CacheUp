@@ -2,11 +2,11 @@ import { useEffect } from "react";
 import { useForumStore } from "@/stores/ForumStore/forumStore";
 
 export const RequestedForums = () => {
-  const { requestedForums, loading, error, fetchRequestedForums } = useForumStore();
+  const { requestedForums, loading, error, fetchRequestedForums, approveRequest, denyRequest } = useForumStore();
 
   useEffect(() => {
     fetchRequestedForums();
-  }, []);
+  }, [fetchRequestedForums]);
 
   if (loading) {
     return (
@@ -61,12 +61,12 @@ export const RequestedForums = () => {
               <div className="bg-gray-50 p-4 flex justify-between items-center">
                 <button
                   className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition"
-                  onClick={() => console.log('Approve action')}>
+                  onClick={() =>approveRequest(req._id)}>
                   Approve
                 </button>
                 <button
                   className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
-                  onClick={() => console.log('Deny action')}>
+                  onClick={() => denyRequest(req._id)}>
                   Deny
                 </button>
               </div>

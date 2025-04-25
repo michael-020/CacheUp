@@ -358,4 +358,34 @@ friendHandler.delete("/cancel-request", async (req: Request, res: Response) => {
   }
 });
 
+friendHandler.get("/:userId", async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    
+    if (!isValidObjectId(userId)) {
+      res.status(400).json({ message: "Invalid user ID" });
+      return;
+    }
+    
+    const user = await userModel.findById(userId)
+      .populate({
+        path: "friends",
+        select: "name username profilePicture department graduationYear",
+        options: { lean: true }
+      });
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    res.status(200).json({ friends: user.friends });
+    return;
+  } catch (error) {
+    console.error("Error fetching user's friends:", error);
+    res.status(500).json({ message: "Internal server error" });
+    return;
+  }
+});
+
 export default friendHandler;

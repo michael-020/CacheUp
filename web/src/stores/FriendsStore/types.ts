@@ -10,6 +10,7 @@ export interface FriendsState  {
   
 export interface FriendsActions  {
   fetchFriends: () => Promise<void>;
+  fetchUserFriends: (userId: string) => Promise<IUser[]>
   // fetchSuggestions: () => Promise<void>;
   fetchRequests: () => Promise<void>;
   fetchSentRequests: () => Promise<void>;

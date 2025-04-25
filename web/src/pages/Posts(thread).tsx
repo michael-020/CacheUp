@@ -27,7 +27,6 @@ export const Thread = () => {
   const navigate = useNavigate()
   const [expandedComments, setExpandedComments] = useState<{[key: string]: boolean}>({});
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
-  // Removed unused selectedPost state
   const [menuOpen, setMenuOpen] = useState<{[key: string]: boolean}>({});
   const { authUser } = useAuthStore()
   const isAdmin = Boolean(authAdmin) 
@@ -39,10 +38,8 @@ export const Thread = () => {
     setMenuOpen(prev => {
       const isOpening = !prev[postId];
       if (!isOpening) {
-        // Reset edit and delete states for this post when closing menu
         setEditingPostId(prev => ({ ...prev, [postId]: false }));
         setDeleteModalOpen(prev => ({ ...prev, [postId]: false }));
-        // Removed unused setSelectedPost call
       }
       return {
         ...prev,
@@ -56,8 +53,7 @@ export const Thread = () => {
       return
     fetchPosts(id, isAdmin);
     checkWatchStatus (id)
-     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, fetchPosts, checkWatchStatus]);
+  }, [id, fetchPosts, checkWatchStatus, isAdmin]);
 
   useEffect(() => {
     if (!loading && posts && posts.length > 0) {
@@ -134,39 +130,51 @@ export const Thread = () => {
     return post.disLikedBy.some((id: string) => id.toString() === currentUserId.toString());
   };
 
-  const handleLikePost = useCallback( async (postId: string) => {
+  const handleLikePost = useCallback(async (postId: string) => {
     try {
       setLikeLoading(prev => ({ ...prev, [postId]: true }));
       
       const response = await axiosInstance.put(`/forums/like-post/${postId}`);
       
       if (response.status === 200) {
-        fetchPosts(id as string, isAdmin);
+        const userId = authUser?._id;
+        if (!userId) return;
+        
+        const updatedPosts = posts.map(post => {
+          if (post._id === postId) {
+            const isAlreadyLiked = post.likedBy?.includes(userId);
+            
+            return {
+              ...post,
+              likedBy: isAlreadyLiked 
+                ? post.likedBy?.filter(id => id !== userId)
+                : [...(post.likedBy || []), userId],
+              disLikedBy: post.disLikedBy?.filter(id => id !== userId)
+            };
+          }
+          return post;
+        });
+        
+        useForumStore.getState().setPosts(updatedPosts);
       }
     } catch (error) {
       console.error("Error liking post:", error);
     } finally {
       setLikeLoading(prev => ({ ...prev, [postId]: false }));
     }
-     // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[id, setLikeLoading, fetchPosts]);
+  }, [posts, authUser, setLikeLoading]);
 
-  const handleDislikePost = useCallback( async (postId: string) => {
+
+  const handleDislikePost = useCallback(async (postId: string) => {
     try {
       setLikeLoading(prev => ({ ...prev, [postId]: true }));
-      
-      const response = await axiosInstance.put(`/forums/dislike-post/${postId}`);
-
-      if (response.status === 200) {
-        fetchPosts(id as string, isAdmin);
-      }
+      await useForumStore.getState().toggleDislike(postId);
     } catch (error) {
       console.error("Error disliking post:", error);
     } finally {
       setLikeLoading(prev => ({ ...prev, [postId]: false }));
     }
-     // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[id, setLikeLoading, fetchPosts]);
+  }, []);
 
   const toggleExpandPost = (postId: string) => {
     setExpandedPosts(prev => ({
@@ -326,7 +334,7 @@ export const Thread = () => {
                 {isWatched ? (
                   <>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-14-14zM10 18a8 8 0 100-16 8 8 0 000 16zm-2.293-7.707l-1-1A1 1 0 118.707 8.293l1 1a1 1 0 01-1.414 1.414z" clipRule="evenodd" />
+                      <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a 1 1 0 001.414-1.414l-14-14zM10 18a8 8 0 100-16 8 8 0 000 16zm-2.293-7.707l-1-1A1 1 0 118.707 8.293l1 1a1 1 0 01-1.414 1.414z" clipRule="evenodd" />
                     </svg>
                     Un-Subscribe
                   </>
@@ -534,25 +542,28 @@ export const Thread = () => {
                       <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
                     </svg>
                     <span>{post.likedBy?.length || 0}</span>
-                                </button>
-                  <button 
-                    className={`flex items-center gap-1.5 cursor-pointer transition-colors mt-1 dark:text-gray-300 ${
-                      isDisliked 
-                        ? 'text-red-600 fill-red-600' 
-                        : 'text-gray-500 fill-gray-500 hover:text-red-600 hover:fill-red-600'
-                    }`}
-                    onClick={() => handleDislikePost(post._id)}
-                    disabled={likeLoading[post._id]}
-                  >
-                    <svg 
-                      xmlns="http://www.w3.org/2000/svg" 
-                      className="h-5 w-5" 
-                      viewBox="0 0 20 20" 
-                    >
-                      <path d="M18 9.5a1.5 1.5 0 11-3 0v-6a1.5 1.5 0 013 0v6zM14 9.667v-5.43a2 2 0 00-1.105-1.79l-.05-.025A4 4 0 0011.055 2H5.64a2 2 0 00-1.962 1.608l-1.2 6A2 2 0 004.44 12H8v4a2 2 0 002 2 1 1 0 001-1v-.667a4 4 0 01.8-2.4l1.4-1.866a4 4 0 00.8-2.4z" />
-                    </svg>
-                    <span>{likeLoading[post._id] ? 'Updating...' : `${post.disLikedBy?.length || 0}`}</span>
                   </button>
+                   <button 
+                        className={`flex items-center gap-1.5 cursor-pointer transition-colors mt-1 dark:text-gray-300 ${
+                          isDisliked 
+                            ? 'text-red-600 fill-red-600' 
+                            : 'text-gray-500 fill-gray-500 hover:text-red-600 hover:fill-red-600'
+                        }`}
+                        onClick={() => {
+                          if (likeLoading[post._id]) return;
+                          handleDislikePost(post._id);
+                        }}
+                        disabled={likeLoading[post._id]}
+                      >
+                        <svg 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          className="h-5 w-5" 
+                          viewBox="0 0 20 20" 
+                        >
+                          <path d="M18 9.5a1.5 1.5 0 11-3 0v-6a1.5 1.5 0 013 0v6zM14 9.667v-5.43a2 2 0 00-1.105-1.79l-.05-.025A4 4 0 0011.055 2H5.64a2 2 0 00-1.962 1.608l-1.2 6A2 2 0 004.44 12H8v4a2 2 0 002 2 1 1 0 001-1v-.667a4 4 0 01.8-2.4l1.4-1.866a4 4 0 00.8-2.4z" />
+                        </svg>
+                        <span>{post.disLikedBy?.length || 0}</span>
+                   </button>
 
                   <button 
                     className={`flex items-center gap-1.5 cursor-pointer transition-colors ${
@@ -565,10 +576,8 @@ export const Thread = () => {
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
                     </svg>
-                    <span>{expandedComments[post._id] ? "" : ""}</span>
+                    <span>{post.commentsCount || 0}</span>
                   </button>
-                  
-                
                 </div>
 
                 {expandedComments[post._id] && (
@@ -597,7 +606,6 @@ export const Thread = () => {
                     isModalOpen={deleteModalOpen[post._id]}
                     setIsModalOpen={(isOpen) => {
                       setDeleteModalOpen(prev => ({ ...prev, [post._id]: isOpen }));
-                      // Removed unused setSelectedPost call
                     }}
                     content="Are you sure you want to delete this post? This action cannot be undone."
                   />

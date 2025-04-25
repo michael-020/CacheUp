@@ -33,6 +33,7 @@ import { usePostStore } from './stores/PostStore/usePostStore'
 import { ScrollToTop } from './components/ScrollToTop'
 import { useFriendsStore } from './stores/FriendsStore/useFriendsStore'
 import { RequestedForums } from './pages/admin/RequestedForums'
+import { ViewFriends } from './components/ViewFriends'
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore()
@@ -174,8 +175,7 @@ function App() {
           <Route path='/forums/thread/:id' element={authUser ? <Thread /> : <Navigate to='/signin' />} />
           <Route path="/change-password" element={authUser ? <ChangePassword /> : <Navigate to="/signin" />} />
           <Route path="/saved-posts" element={<SavedPostsPage />} />
-
-
+          <Route path="/friends/:id" element={authUser ? <ViewFriends /> : <Navigate to="/signin" />}/>
 
           {/* Admin Routes */}
           <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to="/admin/home" /> } />

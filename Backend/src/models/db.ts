@@ -122,7 +122,8 @@ export interface IPostForum extends Document {
   likedBy?: mongoose.Types.ObjectId[];
   disLikedBy?: mongoose.Types.ObjectId[];
   reportedBy?: mongoose.Types.ObjectId[];
-  weaviateId: string
+  weaviateId: string;
+  commentsCount: number;
   visibility?: Boolean
 }
 
@@ -456,7 +457,8 @@ const postForumSchema = new Schema<IPostForum>({
     required: true
   },
   visibility: {type: Boolean, default: true} 
-
+,
+  commentsCount: Number
 })
 
 // Comment Forum Schema
