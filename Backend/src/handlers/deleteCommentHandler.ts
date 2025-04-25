@@ -23,9 +23,9 @@ export const deleteCommentHandler = async (req: Request, res: Response) => {
             return;
         }
 
-        await post.updateOne({
-            $pull: { comments: { _id: commentId } }
-        });
+        comment.visibility = false
+        
+        await post.save()
 
         res.status(200).json({ 
             message: "Comment deleted successfully"

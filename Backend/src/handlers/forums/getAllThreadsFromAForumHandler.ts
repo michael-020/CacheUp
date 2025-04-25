@@ -6,7 +6,8 @@ export const getAllThreadsFromAForumHandler = async(req: Request, res: Response)
     try{
         const { forumId } = req.params 
         const allThreads = await threadForumModel.find({
-            forum: forumId
+            forum: forumId,
+            visibility: true
         })
         res.json({
             msg:"All your forums",

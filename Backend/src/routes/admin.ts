@@ -28,6 +28,7 @@ import { adminGetForumRequestHandler } from "../handlers/forums/adminGetForumReq
 import { adminApproveForumHandler } from "../handlers/forums/adminApproveForumRequestHandler";
 import { adminRejectForumRequestHandler } from "../handlers/forums/adminRejectForumRequestHandler";
 import { adminGetRejectedForumRequestHandler } from "../handlers/forums/adminGetRejectedForumRequestHandler";
+import { getAllCommentsFromAPostHandler } from "../handlers/forums/getAllCommentsFromAPostHandler";
 import { getAllUsersStatsHandler, getUserStatsHandler } from "../handlers/userStatsHandler";
 
 const adminRouter: Router = Router();
@@ -83,6 +84,9 @@ adminRouter.get("/get-threads/:forumId", viewAllThreadsHandler)
 
 // get all posts in a thread
 adminRouter.get("/get-thread-posts/:threadId", viewPostsInThreadHandler)
+
+// get forums comments 
+adminRouter.get("/get-comments/:postId", getAllCommentsFromAPostHandler)
 
 // delete post
 adminRouter.delete("/delete-post/:mongoId/:weaviateId", adminDeletePostForumHandler)
