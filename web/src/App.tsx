@@ -34,6 +34,7 @@ import { ScrollToTop } from './components/ScrollToTop'
 import { useFriendsStore } from './stores/FriendsStore/useFriendsStore'
 import { RequestedForums } from './pages/admin/RequestedForums'
 import { ViewFriends } from './components/ViewFriends'
+import Statistics from './pages/admin/Statistics'
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore()
@@ -43,19 +44,25 @@ function App() {
   const location = useLocation()
   const navigate = useNavigate()
   const [returnPath, setReturnPath] = useState<string | null>(null)
+  const [adminReturnPath, setAdminReturnPath] = useState<string | null>(null)
   const { fetchSavedPosts } = usePostStore();
-
   
   const isAdminRoute = location.pathname.startsWith('/admin')
   const initialized = useRef(false)
   const authenticated = useRef(false)
+  const adminInitialized = useRef(false)
+  const adminAuthenticated = useRef(false)
 
   useEffect(() => {
     const currentPath = location.pathname
     if (!currentPath.includes('/signin') && 
         !currentPath.includes('/signup') && 
         !currentPath.includes('/admin/signin')) {
-      sessionStorage.setItem('lastPath', currentPath)
+      if (currentPath.startsWith('/admin')) {
+        sessionStorage.setItem('adminLastPath', currentPath)
+      } else {
+        sessionStorage.setItem('lastPath', currentPath)
+      }
     }
   }, [location.pathname])
 
@@ -72,8 +79,14 @@ function App() {
   }, [checkAuth, isAdminRoute])
 
   useEffect(() => {
-    if(isAdminRoute) {
+    if (isAdminRoute && !adminInitialized.current) {
+      const adminLastPath = sessionStorage.getItem('adminLastPath')
+      if (adminLastPath) {
+        setAdminReturnPath(adminLastPath)
+      }
+      
       checkAdminAuth()
+      adminInitialized.current = true
     }
   }, [checkAdminAuth, isAdminRoute])
 
@@ -105,6 +118,15 @@ function App() {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authUser, isAdminRoute, returnPath, navigate, fetchRequests, setLoading])
+
+  useEffect(() => {
+    if (authAdmin && isAdminRoute) {
+      if (adminReturnPath && !adminAuthenticated.current) {
+        navigate(adminReturnPath)
+        adminAuthenticated.current = true
+      }
+    }
+  }, [authAdmin, isAdminRoute, adminReturnPath, navigate])
 
   useEffect(() => {
     if (authUser) {
@@ -178,7 +200,7 @@ function App() {
           <Route path="/friends/:id" element={authUser ? <ViewFriends /> : <Navigate to="/signin" />}/>
 
           {/* Admin Routes */}
-          <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to="/admin/home" /> } />
+          <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to={adminReturnPath || "/admin/home"} /> } />
           <Route path="/admin/home" element={authAdmin ? <AdminHome /> : <Navigate to="/admin/signin" />} />
           <Route path="/admin/reported-posts" element={authAdmin ? <ReportedPosts /> : <Navigate to="/admin/signin" /> } />
           <Route path="/admin/user-list" element={authAdmin ? <UserList /> : <Navigate to="/admin/signin" />} />
@@ -189,6 +211,7 @@ function App() {
           <Route path='/admin/forums/thread/:id' element={authAdmin ? <Thread /> : <Navigate to='/admin/signin' />} />
           <Route path='/admin/settings' element={authAdmin ? <SettingsPage /> : <Navigate to='/admin/signin' />} />
           <Route path='/admin/requested-forums' element={authAdmin ? <RequestedForums /> : <Navigate to="/admin/signin" />} />
+          <Route path='/admin/stats' element={authAdmin ? <Statistics /> : <Navigate to="/admin/signin" />} />
         </Routes>
       </AnimatePresence>
       <Toaster />  

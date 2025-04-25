@@ -561,7 +561,27 @@ const requestForumSchema = new Schema<IRequestForum>({
   }
 })
 
+const userLogSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  action: {
+    type: String,
+    required: true,
+    enum: ['LOGIN', 'LOGOUT', 'SIGNUP']
+  },
+  timestamp: {
+    type: Date,
+    default: Date.now
+  },
+  device: String,
+  ipAddress: String,
+  sessionDuration: Number
+});
 
+export const UserLog = mongoose.model('UserLog', userLogSchema);
 export const userModel = mongoose.model<IUser, Model<IUser>>('users', userSchema);
 export const postModel = mongoose.model<IPost, Model<IPost>>('posts', postSchema);
 export const adminModel = mongoose.model<IAdmin, Model<IAdmin>>('Admin', adminSchema);

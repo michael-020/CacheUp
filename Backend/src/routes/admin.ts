@@ -29,6 +29,7 @@ import { adminApproveForumHandler } from "../handlers/forums/adminApproveForumRe
 import { adminRejectForumRequestHandler } from "../handlers/forums/adminRejectForumRequestHandler";
 import { adminGetRejectedForumRequestHandler } from "../handlers/forums/adminGetRejectedForumRequestHandler";
 import { getAllCommentsFromAPostHandler } from "../handlers/forums/getAllCommentsFromAPostHandler";
+import { getAllUsersStatsHandler, getUserStatsHandler } from "../handlers/userStatsHandler";
 
 const adminRouter: Router = Router();
 
@@ -116,5 +117,11 @@ adminRouter.post("/reject-forum/:requestId", adminRejectForumRequestHandler)
 
 // get rejected forums
 adminRouter.get("/rejected-forums", adminGetRejectedForumRequestHandler)
+
+// get all users stats (admin only)
+adminRouter.get("/stats", getAllUsersStatsHandler);
+
+// get specific user stats (admin only)
+adminRouter.get("/stats/:userId", getUserStatsHandler);
 
 export default adminRouter;
