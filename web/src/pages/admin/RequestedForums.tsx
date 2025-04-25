@@ -6,7 +6,7 @@ export const RequestedForums = () => {
 
   useEffect(() => {
     fetchRequestedForums();
-  }, []);
+  }, [fetchRequestedForums]);
 
   if (loading) {
     return (
