@@ -8,7 +8,7 @@ const AdminHome = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-hidden">
       <div className="fixed hidden md:block">
         <AdminLeftbar />
       </div>
