@@ -38,7 +38,7 @@ viewProfileHanler.get("/:id", async (req: Request, res: Response) => {
     try {
         const userId = req.params.id
 
-        const user = await userModel.findById(userId);
+        const user = await userModel.find({_id: userId, visibility: true});
 
         if(!user){
             res.status(401).json({

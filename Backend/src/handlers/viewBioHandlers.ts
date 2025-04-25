@@ -34,7 +34,7 @@ viewBioHandler.get("/:id", async (req: Request, res: Response) => {
 
         const user = await userModel.findById(userId)
 
-        if(!user) {
+        if(!user || (user.visibility === false)) {
             res.status(403).json({
                 msg: "user not found"
             })

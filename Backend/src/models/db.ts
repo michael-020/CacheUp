@@ -1,5 +1,4 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
-import { boolean, number, string } from 'zod';
 
 // User Interface
 export interface IUser extends Document {
@@ -18,6 +17,7 @@ export interface IUser extends Document {
   _doc?: Omit<IUser, '_doc'>;
   createdAt: Date;
   updatedAt: Date;
+  visibility?: Boolean
 }
 
 // Admin Interface
@@ -29,6 +29,7 @@ export interface IAdmin extends Document {
   _doc?: Omit<IAdmin, '_doc'>;
   createdAt: Date;
   updatedAt: Date;
+  visibility?: Boolean
 }
 
 export interface Comment {
@@ -37,6 +38,7 @@ export interface Comment {
     content: string;
     user: mongoose.Types.ObjectId;
     date: Date;
+    visibility?: Boolean
   }
 
 // Post Interface
@@ -53,6 +55,7 @@ export interface IPost extends Document {
   _doc?: Omit<IPost, '_doc'>;
   createdAt: Date;
   updatedAt: Date;
+  visibility?: Boolean
 }
 
 // OTP Interface
@@ -74,6 +77,7 @@ interface IChat extends Document {
   isRead?: boolean;
   createdAt: Date;
   updatedAt: Date;
+  visibility?: Boolean
 }
 
 export interface IChatRoom extends Document {
@@ -82,6 +86,7 @@ export interface IChatRoom extends Document {
   messages?: mongoose.Types.ObjectId[]; 
   createdAt: Date;
   updatedAt: Date;
+  visibility?: Boolean
 }
 
 // Forum Interface
@@ -91,6 +96,7 @@ export interface IForum extends Document {
   createdBy: mongoose.Types.ObjectId;
   createdAt: Date;
   weaviateId: string;
+  visibility?: Boolean
 }
 
 
@@ -104,6 +110,7 @@ export interface IThreadForum extends Document {
   watchedBy?: mongoose.Types.ObjectId[];
   reportedBy?: mongoose.Types.ObjectId[];
   weaviateId?: string
+  visibility?: Boolean
 }
 
 // Forums Post Interface
@@ -117,6 +124,7 @@ export interface IPostForum extends Document {
   reportedBy?: mongoose.Types.ObjectId[];
   weaviateId: string;
   commentsCount: number;
+  visibility?: Boolean
 }
 
 // Forums Comment Interface
@@ -129,6 +137,7 @@ export interface ICommentForum extends Document {
   disLikedBy?: mongoose.Types.ObjectId[];
   reportedBy?: mongoose.Types.ObjectId[];
   weaviateId: string;
+  visibility?: Boolean
 }
 
 // Notification Interface
@@ -149,7 +158,7 @@ interface IRequestForum extends Document {
   description: string;
   requestedBy: Schema.Types.ObjectId;
   status: 'pending' | 'approved' | 'rejected';
-  createdAt: Date
+  createdAt: Date;
 }
 
 // SCHEMAS FROM HERE
@@ -207,7 +216,8 @@ const userSchema = new Schema<IUser>({
   friendRequests: [{ 
     type: Schema.Types.ObjectId, 
     ref: 'users' 
-  }]
+  }],
+  visibility: {type: Boolean, default: true} 
 }, { 
   timestamps: true,
   toJSON: { virtuals: true },
@@ -232,7 +242,8 @@ const adminSchema = new Schema<IAdmin>({
   role: { 
     type: String, 
     default: 'admin' 
-  }
+  },
+  visibility: {type: Boolean, default: true}
 }, { 
   timestamps: true 
 });
@@ -276,8 +287,10 @@ const postSchema = new Schema<IPost>({
     date: { 
       type: Date, 
       default: Date.now 
-    }
-  }]
+    },
+    visibility: {type: Boolean, default: true}
+  }],
+  visibility: {type: Boolean, default: true} 
 }, { 
   timestamps: true 
 });
@@ -328,7 +341,8 @@ const chatSchema = new Schema<IChat>({
   isRead: {
     type: Boolean,
     default: false,
-  }
+  },
+  visibility: {type: Boolean, default: true} 
 }, { 
   timestamps: true 
 });
@@ -342,7 +356,8 @@ const chatRoomSchema = new Schema<IChatRoom>({
   messages: [{ 
       type: Schema.Types.ObjectId, 
       ref: 'messages' 
-  }]
+  }],
+  visibility: {type: Boolean, default: true} 
 }, {
   timestamps: true
 })
@@ -369,7 +384,8 @@ const forumSchema = new Schema<IForum>({
   weaviateId: {
     type: String,
     required: true
-  }
+  },
+  visibility: {type: Boolean, default: true} 
 })
 
 // Thread Forum Schema
@@ -405,7 +421,8 @@ const threadForumSchema = new Schema<IThreadForum>({
   }],
   weaviateId: {
     type: String
-  }
+  },
+  visibility: {type: Boolean, default: true} 
 })
 
 // Post Forum Schema
@@ -440,6 +457,8 @@ const postForumSchema = new Schema<IPostForum>({
     type: String,
     required: true
   },
+  visibility: {type: Boolean, default: true} 
+,
   commentsCount: Number
 })
 
@@ -476,7 +495,8 @@ const commentForumSchema = new Schema<ICommentForum>({
   weaviateId: {
     type: String,
     required: true
-  }
+  },
+  visibility: {type: Boolean, default: true} 
 })
 
 // Watch Thread Notification Forum Schema

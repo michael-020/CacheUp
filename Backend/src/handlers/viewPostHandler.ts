@@ -10,7 +10,7 @@ const viewPostHandler: Router = Router();
 viewPostHandler.get("/", async (req: Request, res: Response) => {
     try{
         const userId = req.user._id
-        const allPosts = await postModel.find({}).sort({ createdAt: -1});
+        const allPosts = await postModel.find({visibility: true}).sort({ createdAt: -1});
 
         if(!allPosts){
             res.status(401).json({
@@ -25,6 +25,8 @@ viewPostHandler.get("/", async (req: Request, res: Response) => {
             const isLiked = post.likes.includes(userId);
 
             const isSaved = post.savedBy.includes(userId)
+
+            const visibleComments = post.comments.filter(comment => comment.visibility !== false);
             
             return {
                 ...post._doc,
@@ -32,7 +34,8 @@ viewPostHandler.get("/", async (req: Request, res: Response) => {
                 reportButtonText: isReported ? 'Unreport' : 'Report',
                 reportCount: post.reportedBy.length,
                 isLiked, 
-                isSaved
+                isSaved,
+                comments: visibleComments
             };
         });
 
@@ -54,7 +57,7 @@ viewPostHandler.get("/get-post/:postId", async (req: Request, res: Response) => 
         const postId = req.params.postId
         const post = await postModel.findById(postId).sort({ createdAt: -1});
 
-        if(!post){
+        if(!post || (post.visibility === false)){
             res.status(401).json({
                 msg: "No post found"
             })
@@ -90,7 +93,7 @@ viewPostHandler.get("/myPosts", async (req: Request, res: Response) => {
     try{
         const userId = req.user._id;
 
-        const posts = await postModel.find({ postedBy: userId }).sort({ createdAt: -1});
+        const posts = (await postModel.find({ postedBy: userId, visibility: true }).sort({ createdAt: -1}));
 
         if(!posts){
             res.status(401).json({
@@ -125,7 +128,7 @@ viewPostHandler.get("/:id", async (req: Request, res: Response) => {
         const otherUserId = req.params.id;
         const currentUserId = req.user._id;
 
-        const posts = await postModel.find({ postedBy: otherUserId }).sort({ createdAt: -1});
+        const posts = await postModel.find({ postedBy: otherUserId, visibility: true }).sort({ createdAt: -1});
 
         if(!posts){
             res.status(401).json({

@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
 import mongoose, { ObjectId } from 'mongoose';
 import { postModel, userModel } from '../models/db';
-import { IPost, IUser, Comment } from '../models/db';
-import { mongo } from 'mongoose';
+import {  Comment } from '../models/db';
 
 // Define a type for processed comments
 type ProcessedComment = Omit<Comment, 'user'> & { 
@@ -16,7 +15,8 @@ type ProcessedComment = Omit<Comment, 'user'> & {
 export const getCommentHandler = async (req: Request, res: Response) => {
     try {
         const postId = req.params.id;
-        
+
+        // Find the post by ID
         const post = await postModel.findById(postId);
         if (!post) {
             res.status(404).json({
@@ -25,13 +25,14 @@ export const getCommentHandler = async (req: Request, res: Response) => {
             return;
         }
 
-        const comments = [...post.comments]; // Create a copy to avoid mutating the original
+        // Filter out comments with visibility set to false
+        const visibleComments = post.comments.filter(comment => comment.visibility !== false);
 
         // Sort comments by date in descending order
-        comments.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        visibleComments.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
         // Process comments with user information
-        const processedComments: ProcessedComment[] = await Promise.all(comments.map(async (comment): Promise<ProcessedComment> => {
+        const processedComments: ProcessedComment[] = await Promise.all(visibleComments.map(async (comment): Promise<ProcessedComment> => {
             try {
                 // If comment.user is null or undefined, return null user
                 if (!comment.user) {
@@ -42,7 +43,7 @@ export const getCommentHandler = async (req: Request, res: Response) => {
                 }
 
                 const commentUser = await userModel.findById(comment.user);
-                
+
                 if (!commentUser) {
                     // Handle case where user might have been deleted
                     return {
