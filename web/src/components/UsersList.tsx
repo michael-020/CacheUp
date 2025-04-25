@@ -58,7 +58,6 @@ const UsersList = ({ searchTerm = "" }: UsersListProps) => {
    setLoading(true);
    setError("");
    try {
-    await new Promise(resolve => setTimeout(resolve, 1000));
      const res = await axiosInstance.get("user/friends/all-users");
      
      if (res.data && res.data.users) {

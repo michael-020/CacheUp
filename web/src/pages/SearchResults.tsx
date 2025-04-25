@@ -162,7 +162,7 @@ export function SearchResults() {
 
   return (
     <motion.div 
-      className="dark:bg-neutral-950 mx-auto p-10"
+      className="dark:bg-neutral-950 mx-auto p-10 min-h-screen"
       variants={routeVariants}
       initial="initial"
       animate="final"
