@@ -206,8 +206,15 @@ export const Profile = () => {
                   </div>
                 )}
                 <div className="flex items-center">
-                  <Users className="size-4 text-indigo-500 mr-1" />
-                  <span>{userInfo.friends?.length || 0}</span>
+                <Link
+                    to={isOwnProfile ? "/friends" : `/friends/${userInfo._id}`}
+                    className="focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
+                  >
+                    <div className="flex items-center cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                      <Users className="size-4 text-indigo-500 mr-1" />
+                      <span>{userInfo.friends?.length || 0}</span>
+                    </div>
+                  </Link>
                 </div>
               </div>
               
