@@ -17,7 +17,7 @@ export interface PostState {
 
 export interface PostActions {
   createPost: (data: {text: string, image: string}) => Promise<void>;
-  fetchPosts: () => Promise<void>;
+  fetchPosts: (isAdmin? : boolean) => Promise<void>;
   toggleLike: (postId: string) => void;
   toggleSave: (postId: string) => void;
   addComment: (postId: string, content: string) => void;
