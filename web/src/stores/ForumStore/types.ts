@@ -175,6 +175,8 @@ export interface ForumActions {
   deletePost: (postId: string, weaviateId: string, isAdmin?:boolean) => Promise<void>;
   editPost: (mongoId: string, weaviateId: string, content: string) => Promise<void>
   setPosts: (posts: PostSchema[]) => void;
+  approveRequest: (id: string) => void;
+  denyRequest: (id: string) => void;
 }
 
 export type ForumStore = ForumState & ForumActions;

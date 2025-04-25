@@ -705,4 +705,44 @@ editPost: async (mongoId: string, weaviateId: string, content: string) => {
   }
 },
 
+approveRequest: async  (id: string) => {
+  try {
+    const res = await axiosInstance.post(`/admin/approve-forum/${id}`)
+    const forum = res.data.requestedForum
+    set((state) => ({
+      ...state,
+      requestedForums: state.requestedForums.filter((r) => {
+        if(r._id !== forum._id){
+          return r;
+        }
+      })
+    }))
+
+    toast.success("Forum Approved")
+  } catch (error) {
+    console.error(error)
+    toast.error("Error while approving request")
+  }
+},
+
+denyRequest: async (id: string) => {
+  try {
+    const res = await axiosInstance.post(`/admin/reject-forum/${id}`)
+    const forum = res.data.requestedForum
+    set((state) => ({
+      ...state,
+      requestedForums: state.requestedForums.filter((r) => {
+        if(r._id !== forum._id){
+          return r;
+        }
+      })
+    }))
+
+    toast.success("Forum Denied")
+  } catch (error) {
+    console.error(error)
+    toast.error("Error while denying request")
+  }
+}
+
 }));
