@@ -7,7 +7,7 @@ export const deletePost = async(mongoId: string, weaviateId: string) => {
     try{
         
         const [deleteCommentsMongo, commentWeaviate] = await Promise.all([
-            commentForumModel.deleteMany({post: mongoId}),
+            commentForumModel.updateMany({post: mongoId}, {$set: {visibility: false}}),
             weaviateClient.graphql.get()
                 .withClassName("Comment")
                 .withFields("_additional { id }")
@@ -30,7 +30,7 @@ export const deletePost = async(mongoId: string, weaviateId: string) => {
                     .withId(commentId)
                     .do()
             }),
-            postForumModel.findByIdAndDelete(mongoId),
+            postForumModel.findByIdAndUpdate(mongoId, {visibility: false}),
             weaviateClient.data.deleter()
                 .withClassName("Post")
                 .withId(weaviateId)
@@ -40,7 +40,7 @@ export const deletePost = async(mongoId: string, weaviateId: string) => {
         return {
             success: true, 
             msg: "Deleted the post and all the comments associated with it",
-            deletedMongoComments : deleteCommentsMongo.deletedCount,
+            deletedMongoComments : deleteCommentsMongo.modifiedCount,
             deletedWeaviateComments: commentIdsWeaviate.length 
         }
     } catch(e){ 

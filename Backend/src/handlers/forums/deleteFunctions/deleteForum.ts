@@ -16,7 +16,7 @@ export const deleteForum = async(mongoId: string, weaviateId: string) => {
         await Promise.all(threadIdsMongo.map((id, index) => deleteThread(id as string, threadIdsWeaviate[index] as string)))
 
         await Promise.all([
-            forumModel.findByIdAndDelete(mongoId),
+            forumModel.findByIdAndUpdate(mongoId, {visibility: false}),
             weaviateClient.data.deleter()
                 .withClassName("Forum")
                 .withId(weaviateId)

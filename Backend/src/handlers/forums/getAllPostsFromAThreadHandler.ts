@@ -6,7 +6,7 @@ export const getAllPostsFromAThreadHandler = async (req: Request, res: Response)
         const { threadId } = req.params;
 
         const posts = await postForumModel
-            .find({ thread: threadId })
+            .find({ thread: threadId, visibility: true })
             .sort({ createdAt: -1 })
             .populate({
                 path: "createdBy",

@@ -17,7 +17,7 @@ export interface IUser extends Document {
   _doc?: Omit<IUser, '_doc'>;
   createdAt: Date;
   updatedAt: Date;
-  visibility: Boolean
+  visibility?: Boolean
 }
 
 // Admin Interface
@@ -29,7 +29,7 @@ export interface IAdmin extends Document {
   _doc?: Omit<IAdmin, '_doc'>;
   createdAt: Date;
   updatedAt: Date;
-  visibility: Boolean
+  visibility?: Boolean
 }
 
 export interface Comment {
@@ -38,7 +38,7 @@ export interface Comment {
     content: string;
     user: mongoose.Types.ObjectId;
     date: Date;
-    visibility: Boolean
+    visibility?: Boolean
   }
 
 // Post Interface
@@ -55,7 +55,7 @@ export interface IPost extends Document {
   _doc?: Omit<IPost, '_doc'>;
   createdAt: Date;
   updatedAt: Date;
-  visibility: Boolean
+  visibility?: Boolean
 }
 
 // OTP Interface
@@ -77,7 +77,7 @@ interface IChat extends Document {
   isRead?: boolean;
   createdAt: Date;
   updatedAt: Date;
-  visibility: Boolean
+  visibility?: Boolean
 }
 
 export interface IChatRoom extends Document {
@@ -86,7 +86,7 @@ export interface IChatRoom extends Document {
   messages?: mongoose.Types.ObjectId[]; 
   createdAt: Date;
   updatedAt: Date;
-  visibility: Boolean
+  visibility?: Boolean
 }
 
 // Forum Interface
@@ -96,7 +96,7 @@ export interface IForum extends Document {
   createdBy: mongoose.Types.ObjectId;
   createdAt: Date;
   weaviateId: string;
-  visibility: Boolean
+  visibility?: Boolean
 }
 
 
@@ -110,7 +110,7 @@ export interface IThreadForum extends Document {
   watchedBy?: mongoose.Types.ObjectId[];
   reportedBy?: mongoose.Types.ObjectId[];
   weaviateId?: string
-  visibility: Boolean
+  visibility?: Boolean
 }
 
 // Forums Post Interface
@@ -123,7 +123,7 @@ export interface IPostForum extends Document {
   disLikedBy?: mongoose.Types.ObjectId[];
   reportedBy?: mongoose.Types.ObjectId[];
   weaviateId: string
-  visibility: Boolean
+  visibility?: Boolean
 }
 
 // Forums Comment Interface
@@ -136,7 +136,7 @@ export interface ICommentForum extends Document {
   disLikedBy?: mongoose.Types.ObjectId[];
   reportedBy?: mongoose.Types.ObjectId[];
   weaviateId: string;
-  visibility: Boolean
+  visibility?: Boolean
 }
 
 // Notification Interface

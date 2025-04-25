@@ -5,7 +5,7 @@ import { weaviateClient } from "../../../models/weaviate"
 export const deleteComment = async (mongoId: string, weaviateId: string) => {
     try{
         await Promise.all([
-            commentForumModel.findByIdAndDelete(mongoId),
+            commentForumModel.findByIdAndUpdate(mongoId, {visibility: false}),
             weaviateClient.data.deleter()
                 .withClassName("Comment")
                 .withId(weaviateId)
