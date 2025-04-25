@@ -50,6 +50,7 @@ export interface PostSchema {
   disLikedBy?: string[];
   reportedBy?: string[];
   weaviateId: string;
+  commentsCount: number;
 }
 
 export interface Thread {

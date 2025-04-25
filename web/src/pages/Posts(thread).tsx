@@ -53,7 +53,7 @@ export const Thread = () => {
       return
     fetchPosts(id, isAdmin);
     checkWatchStatus (id)
-  }, [id, fetchPosts, checkWatchStatus]);
+  }, [id, fetchPosts, checkWatchStatus, isAdmin]);
 
   useEffect(() => {
     if (!loading && posts && posts.length > 0) {
@@ -334,7 +334,7 @@ export const Thread = () => {
                 {isWatched ? (
                   <>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-14-14zM10 18a8 8 0 100-16 8 8 0 000 16zm-2.293-7.707l-1-1A1 1 0 118.707 8.293l1 1a1 1 0 01-1.414 1.414z" clipRule="evenodd" />
+                      <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a 1 1 0 001.414-1.414l-14-14zM10 18a8 8 0 100-16 8 8 0 000 16zm-2.293-7.707l-1-1A1 1 0 118.707 8.293l1 1a1 1 0 01-1.414 1.414z" clipRule="evenodd" />
                     </svg>
                     Un-Subscribe
                   </>
@@ -576,7 +576,7 @@ export const Thread = () => {
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
                     </svg>
-                    <span>{expandedComments[post._id] ? "" : ""}</span>
+                    <span>{post.commentsCount || 0}</span>
                   </button>
                 </div>
 

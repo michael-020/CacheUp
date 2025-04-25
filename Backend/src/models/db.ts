@@ -1,5 +1,5 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
-import { boolean, string } from 'zod';
+import { boolean, number, string } from 'zod';
 
 // User Interface
 export interface IUser extends Document {
@@ -115,7 +115,8 @@ export interface IPostForum extends Document {
   likedBy?: mongoose.Types.ObjectId[];
   disLikedBy?: mongoose.Types.ObjectId[];
   reportedBy?: mongoose.Types.ObjectId[];
-  weaviateId: string
+  weaviateId: string;
+  commentsCount: number;
 }
 
 // Forums Comment Interface
@@ -438,7 +439,8 @@ const postForumSchema = new Schema<IPostForum>({
   weaviateId: {
     type: String,
     required: true
-  }
+  },
+  commentsCount: Number
 })
 
 // Comment Forum Schema
