@@ -25,6 +25,8 @@ viewPostHandler.get("/", async (req: Request, res: Response) => {
             const isLiked = post.likes.includes(userId);
 
             const isSaved = post.savedBy.includes(userId)
+
+            const visibleComments = post.comments.filter(comment => comment.visibility !== false);
             
             return {
                 ...post._doc,
@@ -32,7 +34,8 @@ viewPostHandler.get("/", async (req: Request, res: Response) => {
                 reportButtonText: isReported ? 'Unreport' : 'Report',
                 reportCount: post.reportedBy.length,
                 isLiked, 
-                isSaved
+                isSaved,
+                comments: visibleComments
             };
         });
 

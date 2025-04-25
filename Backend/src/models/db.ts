@@ -287,7 +287,8 @@ const postSchema = new Schema<IPost>({
     date: { 
       type: Date, 
       default: Date.now 
-    }
+    },
+    visibility: {type: Boolean, default: true}
   }],
   visibility: {type: Boolean, default: true} 
 }, { 
