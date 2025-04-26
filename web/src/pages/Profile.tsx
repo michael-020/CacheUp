@@ -47,7 +47,7 @@ export const Profile = () => {
         }
 
         const response = await axiosInstance(url);
-        const profileData = response.data.userInfo;
+        const profileData = response.data.userInfo[0];
         setUserInfo(profileData);
 
         const isOwn =

@@ -2,30 +2,29 @@ import { Router, Request, Response } from "express";
 import { postModel, userModel } from "../models/db";
 import { mongo } from "mongoose";
 
-
 const viewPostHandler: Router = Router();
-
 
 // get all posts
 viewPostHandler.get("/", async (req: Request, res: Response) => {
-    try{
-        const userId = req.user._id
-        const allPosts = await postModel.find({visibility: true}).sort({ createdAt: -1});
+    try {
+        const userId = req.user._id;
+        // Fixed populate syntax - assuming user schema has username and userImagePath fields
+        const allPosts = await postModel
+            .find({ visibility: true })
+            .populate("comments.user", "username profilePicture") // Corrected field selection
+            .sort({ createdAt: -1 });
 
-        if(!allPosts){
+        if (!allPosts) {
             res.status(401).json({
                 msg: "No posts found"
-            })
-            return
+            });
+            return;
         }
-
+        
         const processedPosts = allPosts.map(post => {
             const isReported = post.reportedBy.includes(userId); 
-            
             const isLiked = post.likes.includes(userId);
-
-            const isSaved = post.savedBy.includes(userId)
-
+            const isSaved = post.savedBy.includes(userId);
             const visibleComments = post.comments.filter(comment => comment.visibility !== false);
             
             return {
@@ -39,29 +38,31 @@ viewPostHandler.get("/", async (req: Request, res: Response) => {
             };
         });
 
-        res.status(200).json(processedPosts)
-    }   
-    catch (e) {
-        console.error("Error while getting all posts", e)
+        res.status(200).json(processedPosts);
+    } catch (e) {
+        console.error("Error while getting all posts", e);
         res.status(401).json({
             msg: "Error while getting all posts"
-        })
-        return
-    }   
-})
+        });
+        return;
+    }
+});
 
 // get a specific post
 viewPostHandler.get("/get-post/:postId", async (req: Request, res: Response) => {
-    try{
-        const userId = req.user._id
-        const postId = req.params.postId
-        const post = await postModel.findById(postId).sort({ createdAt: -1});
+    try {
+        const userId = req.user._id;
+        const postId = req.params.postId;
+        const post = await postModel
+            .findById(postId)
+            .populate("comments.user", "username profilePicture") // Added population for comments
+            .sort({ createdAt: -1 });
 
-        if(!post || (post.visibility === false)){
+        if (!post || (post.visibility === false)) {
             res.status(401).json({
                 msg: "No post found"
-            })
-            return
+            });
+            return;
         }
 
         const isReported = post.reportedBy.includes(userId);
@@ -77,29 +78,31 @@ viewPostHandler.get("/get-post/:postId", async (req: Request, res: Response) => 
             isSaved
         };
 
-        res.status(200).json(processedPost)
-    }   
-    catch (e) {
-        console.error("Error while getting all posts", e)
+        res.status(200).json(processedPost);
+    } catch (e) {
+        console.error("Error while getting post", e);
         res.status(401).json({
-            msg: "Error while getting all posts"
-        })
-        return
-    }   
-})
+            msg: "Error while getting post"
+        });
+        return;
+    }
+});
 
 // get my posts
 viewPostHandler.get("/myPosts", async (req: Request, res: Response) => {
-    try{
+    try {
         const userId = req.user._id;
 
-        const posts = (await postModel.find({ postedBy: userId, visibility: true }).sort({ createdAt: -1}));
+        const posts = await postModel
+            .find({ postedBy: userId, visibility: true })
+            .populate("comments.user", "username profilePicture") // Added population for comments
+            .sort({ createdAt: -1 });
 
-        if(!posts){
+        if (!posts) {
             res.status(401).json({
                 msg: "User posts not found"
-            })
-            return
+            });
+            return;
         }
 
         const processedPosts = posts.map(post => {
@@ -111,30 +114,32 @@ viewPostHandler.get("/myPosts", async (req: Request, res: Response) => {
             };
         });
 
-        res.status(200).json(processedPosts)
-    }
-    catch (e) {
-        console.error("Error while getting my posts")
+        res.status(200).json(processedPosts);
+    } catch (e) {
+        console.error("Error while getting my posts", e);
         res.status(401).json({
             msg: "Error while getting my posts"
-        })
-        return
+        });
+        return;
     }
-})
+});
 
 // get other user's post
 viewPostHandler.get("/:id", async (req: Request, res: Response) => {
-    try{
+    try {
         const otherUserId = req.params.id;
         const currentUserId = req.user._id;
 
-        const posts = await postModel.find({ postedBy: otherUserId, visibility: true }).sort({ createdAt: -1});
+        const posts = await postModel
+            .find({ postedBy: otherUserId, visibility: true })
+            .populate("comments.user", "username profilePicture") // Added population for comments
+            .sort({ createdAt: -1 });
 
-        if(!posts){
+        if (!posts) {
             res.status(401).json({
                 msg: "User posts not found"
-            })
-            return
+            });
+            return;
         }
 
         const processedPosts = posts.map(post => {
@@ -146,15 +151,14 @@ viewPostHandler.get("/:id", async (req: Request, res: Response) => {
             };
         });
 
-        res.status(200).json(processedPosts)
-    }
-    catch (e) {
-        console.error("Error while getting all posts")
+        res.status(200).json(processedPosts);
+    } catch (e) {
+        console.error("Error while getting user posts", e);
         res.status(401).json({
-            msg: "Error while getting all posts"
-        })
-        return
+            msg: "Error while getting user posts"
+        });
+        return;
     }
-})
+});
 
 export default viewPostHandler;

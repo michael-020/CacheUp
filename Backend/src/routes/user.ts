@@ -14,8 +14,6 @@ import { logOutHandler } from "../handlers/logOutHandler";
 import { editProfileHandler } from "../handlers/editProfileHandler";
 import { getTokenHandler } from "../handlers/getTokenHandler";
 import { getUsernameHandler } from "../handlers/getUsernameHandler";
-import { createThreadHandler } from "../handlers/forums/createThreadHandler";
-import { getAllForumsHandler } from "../handlers/forums/getAllForumsHandler";
 import { 
     sendPasswordResetOTP, 
     verifyPasswordResetOTP, 

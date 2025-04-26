@@ -3,8 +3,7 @@ import HeartIcon from "@/icons/HeartIcon";
 import SaveIcon from "../icons/SaveIcon";
 import { usePostStore } from "../stores/PostStore/usePostStore";
 import Threedot from "../icons/Threedot";
-import { Comment, Post, LikedUser } from "../lib/utils";
-import { axiosInstance } from "@/lib/axios";
+import { Post, LikedUser } from "../lib/utils";
 import { Loader, MessageSquareText, Pencil, SendHorizonal, Trash, X } from "lucide-react";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { useNavigate } from "react-router-dom";
@@ -29,12 +28,12 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
   const [showLikes, setShowLikes] = useState(false);
   const [likedUsers, setLikedUsers] = useState<LikedUser[]>([]);
   const [isLoadingLikes, setIsLoadingLikes] = useState(false);
-  const [comments, setComments] = useState<Comment[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState<{postId: string, commentId: string} | null>(null);
   const reportRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const profile = post.userImagePath
   
   // Local state for tracking post properties
   const [localPost, setLocalPost] = useState<Post>(post);
@@ -44,16 +43,7 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
     setLocalPost(post);
   }, [post]);
 
-  const getComments = async (postId: string) => {
-    if(isAdmin){
-      const res = await axiosInstance.get(`/admin/comment/${postId}`)
-      setComments(res.data);
-    }
-    else {
-      const res = await axiosInstance.get(`/post/comment/${postId}`)
-      setComments(res.data)
-    }
-  }
+  const comments = post.comments
 
   const fetchLikedUsers = async (postId: string) => {
     if (showLikes) {
@@ -84,7 +74,7 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
     }
   };
 
-  const handleCommentToggle = async (postId: string) => {
+  const handleCommentToggle = async () => {
     if (showCommentInput) {
       setShowCommentInput(false);
       return;
@@ -93,8 +83,7 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
     if (showLikes) {
       setShowLikes(false);
     }
-    
-    await getComments(postId);
+
     setShowCommentInput(true);
   };
 
@@ -134,19 +123,9 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
     }
   };
   
-  const handleCommentSubmit = async () => {
-    if (commentText.trim()) {
-      const result = await addComment(post._id, commentText);
-      const newComment = result as unknown as Comment | null;
-
-      if (newComment) {
-        setComments((prevComments) => [newComment, ...prevComments]);
-        setCommentText("");
-      } else {
-        console.error("Failed to add comment.");
-        await getComments(post._id);
-      }
-    }
+  const handleCommentSubmit = () => {
+      addComment(post._id, commentText);
+      setCommentText("");
   };
   
   const prepareCommentDelete = (postId: string, commentId: string) => {
@@ -164,12 +143,7 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
     } else {
       await deleteComment(postId, commentId);
     }
-    
-    setComments((prevComments) => 
-      prevComments.filter((comment) => comment._id !== commentId) 
-    );
-    
-    // Update local post comment count - maintain Post type integrity
+
     const updatedPost = {
       ...localPost,
       comments: localPost.comments.filter(comment => comment._id !== commentId)
@@ -196,19 +170,10 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
     }
   }
 
-  async function submitEditedComment(postId: string, commentId: string) {
+  function submitEditedComment(postId: string, commentId: string) {
     if (editCommentText.trim()) {
-      await updateComment(postId, commentId, editCommentText);
-      
-      setComments((prevComments) => 
-        prevComments.map((comment) => 
-          comment._id === commentId 
-            ? { ...comment, content: editCommentText } 
-            : comment
-        )
-      );
-      
-      // Reset edit state
+      updateComment(postId, commentId, editCommentText);
+
       setEditingCommentId(null);
       setEditCommentText("");
     }
@@ -217,26 +182,11 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
   const handleReportToggle = async (postId: string) => {
     try {
       if (localPost.isReported) {
-        await unReportPost(postId);
+        unReportPost(postId);
       } else {
-        await reportPost(postId);
+        reportPost(postId);
       }
       
-      // Update local state with new report status
-      const updatedPost = {
-        ...localPost,
-        isReported: !localPost.isReported,
-        reportCount: localPost.isReported 
-          ? (localPost.reportCount || 1) - 1 
-          : (localPost.reportCount || 0) + 1
-      };
-      
-      setLocalPost(updatedPost);
-      
-      // Notify parent component if callback exists
-      if (onPostUpdate) {
-        onPostUpdate(updatedPost);
-      }
     } catch (error) {
       console.error("Report action failed:", error);
     }
@@ -396,7 +346,7 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
 
         <button
           className="flex items-center mr-6 hover:text-blue-500 transition-colors"
-          onClick={() => handleCommentToggle(localPost._id)}
+          onClick={() => handleCommentToggle()}
         >
           <MessageSquareText />
           <span className="ml-2 font-medium">{localPost.comments.length}</span>
@@ -517,7 +467,7 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
                       <div className="flex items-center text-xs text-gray-500">
                         <img
                           src={
-                            comment.user.profileImagePath || "/avatar.jpeg"
+                            comment.user.profilePicture || "/avatar.jpeg"
                           }
                           className="w-5 h-5 rounded-full mr-2"
                           alt={comment.user.username}                          
@@ -553,7 +503,7 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
                       <div className="flex items-center text-xs text-gray-500">
                         <img
                           src={
-                            comment.user.profileImagePath || "/avatar.jpeg"
+                            comment.user.profilePicture || "/avatar.jpeg"
                           }
                           className="w-5 h-5 rounded-full mr-2 cursor-pointer"
                           alt={comment.user.username}

@@ -8,7 +8,7 @@ import { adminLoginHandler } from "../handlers/adminLoginHandler";
 import { adminMiddleware } from "../middlewares/auth";
 import { adminDeletePostHandler } from "../handlers/deletePostHandler";
 import { viewUsersHandler } from "../handlers/viewUsersHanlder";
-import { getCommentHandler } from "../handlers/getCommentHandler";
+// import { getCommentHandler } from "../handlers/getCommentHandler";
 import { adminDeleteCommentHandler } from "../handlers/deleteCommentHandler";
 import { adminInfoHandler } from "../handlers/adminInfoHandlert";
 import { checkAdminAuth } from "../handlers/checkAdminHandler";
@@ -68,7 +68,7 @@ adminRouter.use("/view-profile", viewProfileHanler)
 adminRouter.get("/view-users", viewUsersHandler)
 
 // comment get handler
-adminRouter.get("/comment/:id", getCommentHandler)
+// adminRouter.get("/comment/:id", getCommentHandler)
 
 // delete comment
 adminRouter.delete("/comment/:postId/:commentId", adminDeleteCommentHandler)

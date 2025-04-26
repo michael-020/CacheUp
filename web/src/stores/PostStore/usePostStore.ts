@@ -22,10 +22,11 @@ export const usePostStore = create<PostState & PostActions>((set,get) => ({
   setError: (error) => set({ error }),
   clearError: () => set({ error: null }),
 
-  fetchPosts: async () => {
+  fetchPosts: async (isAdmin) => {
     set({ isFetchingPosts: true });
     try {
-      const res = await axiosInstance.get("/post/viewPosts/");
+      const url = isAdmin ? "/admin/view-posts" : "/post/viewPosts/"
+      const res = await axiosInstance.get(url);
       const posts = res.data as Post[]
       const postsWithLikeStatus = posts.map(post  => {
         return {

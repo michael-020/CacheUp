@@ -6,7 +6,6 @@ import viewPostHandler from "../handlers/viewPostHandler";
 import { authMiddleware } from "../middlewares/auth";
 import { uploadPostsHandler } from "../handlers/uploadPostsHandler";
 import { deletePostHandler } from "../handlers/deletePostHandler";
-import { upload } from "../middlewares/upload";
 import unReportPostHandler from "../handlers/unReportPostHandler";
 import savePostHandler from "../handlers/savePostHandler"
 
