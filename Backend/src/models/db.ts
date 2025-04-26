@@ -77,7 +77,6 @@ interface IChat extends Document {
   isRead?: boolean;
   createdAt: Date;
   updatedAt: Date;
-  visibility?: Boolean
 }
 
 export interface IChatRoom extends Document {
@@ -86,7 +85,6 @@ export interface IChatRoom extends Document {
   messages?: mongoose.Types.ObjectId[]; 
   createdAt: Date;
   updatedAt: Date;
-  visibility?: Boolean
 }
 
 // Forum Interface
@@ -342,7 +340,6 @@ const chatSchema = new Schema<IChat>({
     type: Boolean,
     default: false,
   },
-  visibility: {type: Boolean, default: true} 
 }, { 
   timestamps: true 
 });
@@ -357,7 +354,6 @@ const chatRoomSchema = new Schema<IChatRoom>({
       type: Schema.Types.ObjectId, 
       ref: 'messages' 
   }],
-  visibility: {type: Boolean, default: true} 
 }, {
   timestamps: true
 })

@@ -15,8 +15,8 @@ messageRouter.get("/chat/:id", async (req: Request, res: Response) => {
         const userId = req.user._id
         const user2Id = req.params.id
 
-        const user = await userModel.find({_id: userId, visibility: true });
-        const user2 = await userModel.find({_id: userId, visibility: true })
+        const user = await userModel.findById(userId);
+        const user2 = await userModel.findById(user2Id)
         
         if(!user || !user2){
             res.status(404).json({
@@ -65,7 +65,7 @@ messageRouter.post("/chat/:id", async (req: Request, res: Response) => {
             return
         }
 
-        const otherUser = await userModel.find({_id: otherUserId, visibility: true })
+        const otherUser = await userModel.findById(otherUserId)
         if(!otherUser){
             res.status(404).json({ msg: "User not found" })
             return
@@ -73,7 +73,7 @@ messageRouter.post("/chat/:id", async (req: Request, res: Response) => {
     
         // Find or create chat room
         let chatRoom = await chatRoomModel.findOne({
-            participants: { $all: [myId, otherUserId ] }, visibility: true
+            participants: { $all: [myId, otherUserId ] } 
         })
         if(!chatRoom){
             chatRoom = new chatRoomModel({
@@ -142,7 +142,7 @@ messageRouter.post("/chat/:id", async (req: Request, res: Response) => {
 messageRouter.get("/get-all-messages", async (req: Request, res: Response) => {
     try {
         const userId = req.user
-        const chats = await chatModel.find({ receiver: userId, visibility: true })
+        const chats = await chatModel.find({ receiver: userId })
         if(!chats) {
             res.json({
                 msg: "Messages not found"
@@ -213,7 +213,7 @@ messageRouter.get("/previous-chats", async (req: Request, res: Response) => {
         const userId = req.user._id
         
         // Fetch chat rooms where the user is a participant
-        const chatRooms = await chatRoomModel.find({ participants: userId , visibility: true}).populate("participants");
+        const chatRooms = await chatRoomModel.find({ participants: userId }).populate("participants");
 
         if (!chatRooms || chatRooms.length === 0) {
             res.json({ msg: "No previous chats found" });
