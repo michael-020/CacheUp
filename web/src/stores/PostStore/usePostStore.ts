@@ -200,35 +200,40 @@ export const usePostStore = create<PostState & PostActions>((set,get) => ({
   },
 
   addComment: async (postId, content): Promise<Comment | null> => {
-    set({isUplaodingComment: true})
+    set({ isUplaodingComment: true });
+  
     try {
       const res = await axiosInstance.put(`/post/comment/${postId}`, { content });
-      
-      const newComment = res.data;
+      const newComment: Comment = res.data;
+  
       set((state) => ({
-        isLoading: false,
+        isUploadingComment: false,  
         posts: state.posts.map(post => 
-          post._id === postId ? {
-            ...post,
-            comments: [newComment, ...post.comments]
-          } : post
+          post._id === postId 
+            ? { ...post, comments: [ ...post.comments, newComment] }
+            : post
         )
       }));
-      toast.success("Comment uploaded successfully")
-      
+  
+      toast.success("Comment uploaded successfully");
       return newComment;
-    } catch (error) { 
+  
+    } catch (error) {
       console.error("Error uploading comment:", error);
+  
       if (error instanceof AxiosError && error.response?.data?.msg) {
-          toast.error(error.response.data.msg as string);
+        toast.error(error.response.data.msg as string);
       } else {
-          toast.error("An unexpected error occurred.");
+        toast.error("An unexpected error occurred.");
       }
-      return null
+  
+      return null;
+  
     } finally {
-      set({isUplaodingComment: false})
+      set({ isUplaodingComment: false });  // ✅ Correct key
     }
-  },
+  }
+  ,
 
   deleteComment: async (postId: string, commentId: string) => {
     set({isDeletingComment: true})

@@ -49,7 +49,7 @@ forumsRouter.post("/create-comment/:postMongo/:postWeaviate", createCommentForum
 forumsRouter.get("/search-forums/:query", searchForumHandler)
 
 // get posts from a thread
-forumsRouter.get("/get-posts/:threadId", getAllPostsFromAThreadHandler)
+forumsRouter.get("/get-posts/:threadId/:page", getAllPostsFromAThreadHandler)
 
 // get comments of a post 
 forumsRouter.get("/get-comments/:postId", getAllCommentsFromAPostHandler)

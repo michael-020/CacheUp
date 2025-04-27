@@ -4,10 +4,20 @@ import { postForumModel, threadForumModel, userModel, commentForumModel } from "
 export const getAllPostsFromAThreadHandler = async (req: Request, res: Response) => {
   try {
     const { threadId } = req.params;
+    const page = parseInt(req.params.page) || 1
+    const limit = 10
+    const skip = (page-1)*limit
+
+    const totalPosts = await postForumModel.countDocuments({
+      thread: threadId,
+      visibility: true
+    })
 
     const posts = await postForumModel
       .find({ thread: threadId, visibility: true })
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: 1 })
+      .skip(skip)
+      .limit(limit)
       .populate({
         path: "createdBy",
         select: "_id username profilePicture"
@@ -23,6 +33,9 @@ export const getAllPostsFromAThreadHandler = async (req: Request, res: Response)
     }));
 
     const thread = await threadForumModel.findById(threadId);
+    const totalPages = Math.ceil(totalPosts/limit)
+    const hasNextPage = page < totalPages;
+    const hasPreviousPage = page > 1;
 
     res.json({
       msg: "Posts Fetched successfully",
@@ -31,7 +44,15 @@ export const getAllPostsFromAThreadHandler = async (req: Request, res: Response)
       threadDescription: thread?.description,
       threadMongo: thread?._id,
       threadWeaviate: thread?.weaviateId,
-      watchedBy: thread?.watchedBy
+      watchedBy: thread?.watchedBy,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalPosts,
+        postPerPage: limit,
+        hasNextPage,
+        hasPreviousPage
+      }
     });
   } catch (e) {
     console.error(e);
