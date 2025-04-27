@@ -34,7 +34,6 @@ export const Thread = () => {
   const menuRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const [editingPostId, setEditingPostId] = useState<{[key: string]: boolean}>({});
   const [deleteModalOpen, setDeleteModalOpen] = useState<{[key: string]: boolean}>({});
-  // const page = parseInt(pageParam);
   const [paginationInput, setPaginationInput] = useState(page?.toString());
 
   const toggleMenu = (postId: string) => {
@@ -59,7 +58,7 @@ export const Thread = () => {
   }, [id, page, fetchPosts, checkWatchStatus, isAdmin]);
 
   useEffect(() => {
-    setPaginationInput(page.toString());
+    setPaginationInput(page?.toString());
   }, [page]);
 
   useEffect(() => {
@@ -312,13 +311,13 @@ export const Thread = () => {
   }
 
   const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((part) => part[0])
+    if (!name) return "??";
+    return name.split(" ")
+      .map(part => part[0] || '')
       .join("")
       .toUpperCase()
       .substring(0, 2);
-  };
+  }
 
   const getUserColor = (username?: string) => {
     if (!username) return "bg-gray-400"; 
@@ -488,7 +487,7 @@ export const Thread = () => {
         <div className="space-y-6">
           {posts.map((post, index) => {
             const author = post.createdBy.username;
-            const profileImage = post.createdBy.profilePicture || "/avatar.jpeg";
+              const profileImage = post.createdBy.profilePicture;
             const isLiked = checkIfLiked(post)
             const isDisliked = checkIfDisliked(post)
             const isHighlighted = highlightedPostId === post._id;
@@ -520,7 +519,7 @@ export const Thread = () => {
                       to={authAdmin ? `/admin/profile/${post.createdBy?._id}` : `/profile/${post.createdBy?._id}`}
                     >
                       <div className={`w-10 h-10 rounded-full cursor-pointer items-center justify-center text-white flex ${getUserColor(author)}`}>
-                        <h3>{getInitials(author)} !</h3>
+                        <h3>{getInitials(author)}</h3>
                       </div>
                     </Link>
                   )}
