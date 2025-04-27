@@ -131,6 +131,8 @@ export interface ForumState {
   reportLoading: ReportStatus
   requestedForums: ForumRequest[];
   isCreatingPost:boolean;
+  totalPosts: number;
+  totalPages: number;
 }
 
 
@@ -151,7 +153,7 @@ export interface ForumActions {
     isAdminRoute: boolean
   ) => Promise<void>;
   searchForums: (query: string) => Promise<void>;
-  fetchPosts: (threadId: string, isAdmin?: boolean) => Promise<void>
+  fetchPosts: (threadId: string, page: string, isAdmin?: boolean) => Promise<void>
   createPost: (threadMongo: string, threadWeaviate: string, content:string) => Promise<void>
   toggleLike: (mongoId: string) => Promise<number | undefined>
   toggleDislike: (mongoId: string) => Promise<number | undefined>

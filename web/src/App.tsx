@@ -194,7 +194,7 @@ function App() {
           <Route path="/forums/get-forums" element={authUser ? <ForumList /> : <Navigate to='/signin'/>} />
           <Route path="/forums/:forumMongoId/:forumWeaviateId" element={authUser ? <ForumPage /> : <Navigate to='/signin' />} />
           <Route path="/forums/search" element={authUser ? <SearchResults /> : <Navigate to='/signin' />} />
-          <Route path='/forums/thread/:id' element={authUser ? <Thread /> : <Navigate to='/signin' />} />
+          <Route path='/forums/thread/:id/:page' element={authUser ? <Thread /> : <Navigate to='/signin' />} />
           <Route path="/change-password" element={authUser ? <ChangePassword /> : <Navigate to="/signin" />} />
           <Route path="/saved-posts" element={<SavedPostsPage />} />
           <Route path="/friends/:id" element={authUser ? <ViewFriends /> : <Navigate to="/signin" />}/>

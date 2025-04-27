@@ -1,15 +1,17 @@
 import { Request, Response } from "express";
 import { postForumModel, threadForumModel, commentForumModel, requestForumModel, postModel } from "../../models/db";
+import mongoose from "mongoose";
 
 export const getAllPostsFromAThreadHandler = async (req: Request, res: Response) => {
   try {
     const { threadId } = req.params
-    const page = parseInt(req.params.page as string) || 1
+    const validThreadId = new mongoose.Types.ObjectId(threadId)
+    const page = parseInt(req.params.page as string)
     const limit = 10
     const skip = (page - 1) * limit;
 
     const postQuery = postForumModel
-      .find({thread: threadId, visibility: true})
+      .find({thread: validThreadId, visibility: true})
       .sort({createdAt: 1})
       .skip(skip)
       .limit(limit)
@@ -19,9 +21,9 @@ export const getAllPostsFromAThreadHandler = async (req: Request, res: Response)
       })
       .lean()
 
-      const threadQuery = threadForumModel.findOne({_id: threadId, visibility: true}).lean()
+      const threadQuery = threadForumModel.findOne({_id: validThreadId, visibility: true}).lean()
 
-      const totalPostsQuery = postForumModel.countDocuments({thread: threadId, visibility: true})
+      const totalPostsQuery = postForumModel.countDocuments({thread: validThreadId, visibility: true})
       
       const [posts, thread, totalPosts] = await Promise.all([
         postQuery,
