@@ -23,6 +23,7 @@ export interface SearchResultItem {
     weaviateId?: string
   };
   certainty: number;
+  page: number
 }
 
 export interface ReportStatus {

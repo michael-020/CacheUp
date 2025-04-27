@@ -61,50 +61,27 @@ export const Thread = () => {
     setPaginationInput(page?.toString());
   }, [page]);
 
-  useEffect(() => {
-    if (!loading && posts && posts.length > 0) {
-      const pathParts = location.pathname.split('/');
-      const searchParams = new URLSearchParams(location.search);
-      let postId = null;
-      
-      const postIndex = pathParts.indexOf('post');
-      if (postIndex !== -1 && postIndex < pathParts.length - 1) {
-        postId = pathParts[postIndex + 1];
-      }
-      
-      if (!postId) {
-        postId = searchParams.get('post');
-      }
-      
-      if (!postId && location.search) {
-        if (location.search.includes('post/')) {
-          const matches = location.search.match(/post\/([^/?&]+)/);
-          if (matches && matches[1]) {
-            postId = matches[1];
-          }
-        }
-      }
-      
-      if (postId) {
-        const scrollTimeout = setTimeout(() => {
-          if (postRefs.current[postId]) {
-            postRefs.current[postId]?.scrollIntoView({ 
-              behavior: 'smooth', 
-              block: 'start' 
-            });
-            
-            setHighlightedPostId(postId);
-            setExpandedPosts(prev => ({...prev, [postId]: true}));
-            setTimeout(() => {
-              setHighlightedPostId(null);
-            }, 2000);
-          }
-        }, 500);
-        
-        return () => clearTimeout(scrollTimeout);
-      }
+  const useQuery = () => {
+    return new URLSearchParams(useLocation().search)
+  }
+
+  const query = useQuery()
+  const postQuery = query.get("post")
+
+  const scrollToPost = (postId: string) => {
+    const element = document.getElementById(`post-${postId}`)
+    if(element){
+      element.scrollIntoView({ behavior: "smooth", block: "start" })
     }
-  }, [location, loading, posts]);
+  }
+
+  useEffect(() => {
+    if(postQuery){
+      setTimeout(() => {
+        scrollToPost(postQuery)
+      }, 500)
+    }    
+  },[])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
