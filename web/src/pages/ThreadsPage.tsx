@@ -19,7 +19,6 @@ const ForumPage: React.FC = () => {
 
   const {
     currentForum,
-    fetchForumDetails,
     fetchThreads,
     createThread,
     deleteThread,
@@ -40,7 +39,6 @@ const ForumPage: React.FC = () => {
     const loadData = async () => {
       setIsLoading(true);
       if (forumMongoId) {
-        await fetchForumDetails(forumMongoId);
         await fetchThreads(forumMongoId, isAdminRoute);
       }
       setTimeout(() => {
@@ -49,7 +47,7 @@ const ForumPage: React.FC = () => {
     };
     
     loadData();
-  }, [forumMongoId, fetchForumDetails, fetchThreads, isAdminRoute]);
+  }, [forumMongoId, fetchThreads, isAdminRoute]);
 
   const handleCreateThread = async (threadData: { title: string; description: string }) => {
     try {
@@ -95,7 +93,7 @@ const ForumPage: React.FC = () => {
           >
             <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
           </button>
-          <h1 className="text-2xl font-bold">{currentForum.title}</h1>
+          <h1 className="text-2xl font-bold">{currentForum.title}'s Forum</h1>
           {authUser && <button
             onClick={() => setShowModal(true)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
