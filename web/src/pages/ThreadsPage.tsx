@@ -8,6 +8,7 @@ import { useAuthStore } from '@/stores/AuthStore/useAuthStore';
 import { MoreVertical } from 'lucide-react';
 import { useAdminStore } from '@/stores/AdminStore/useAdminStore';
 import { DeleteModal } from '@/components/DeleteModal';
+import { SearchBar } from '@/components/forums/search-bar';
 
 const ForumPage: React.FC = () => {
   const { forumMongoId, forumWeaviateId } = useParams<{
@@ -86,6 +87,7 @@ const ForumPage: React.FC = () => {
   return (
     <div className='pb-24'>
       <div className="max-w-6xl mx-auto p-6 translate-y-24 h-full" >
+      <SearchBar />
         <div className="flex justify-between items-center mb-6">
           <button
               onClick={() => navigate(-1)}

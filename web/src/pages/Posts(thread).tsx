@@ -13,6 +13,7 @@ import { routeVariants } from "@/lib/routeAnimation";
 import {ThreadSkeleton} from "@/components/skeletons/ThreadSkeleton"
 import { DeleteModal } from "@/components/DeleteModal";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
+import { SearchBar } from "@/components/forums/search-bar";
 
 export const Thread = () => {
   const { id } = useParams();
@@ -244,6 +245,7 @@ export const Thread = () => {
   if (posts.length === 0) {
     return (
       <div className="p-8 mx-auto max-w-3xl bg-gray-50 dark:bg-neutral-800 translate-y-20 dark:border-neutral-600 border border-gray-200 rounded-lg text-center mt-16">
+        <SearchBar />
         <div className="text-gray-500 text-lg dark:text-white">No posts found in Thread {threadTitle}</div>
         <div className="text-gray-600 dark:text-gray-200 mb-2">{threadDescription}</div>
         <div className="mt-4 text-sm text-gray-400">Be the first to post in this discussion</div>
@@ -332,6 +334,7 @@ export const Thread = () => {
       exit="exit"  
     >
       <div className="container mx-auto p-4 max-w-4xl translate-y-20 pb-20 lg:pb-10">
+      <SearchBar />
         <div className="mb-4 border-b pb-4">
           <div className="flex items-center mb-2">
             <button
