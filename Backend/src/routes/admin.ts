@@ -30,6 +30,7 @@ import { adminRejectForumRequestHandler } from "../handlers/forums/adminRejectFo
 import { adminGetRejectedForumRequestHandler } from "../handlers/forums/adminGetRejectedForumRequestHandler";
 import { getAllCommentsFromAPostHandler } from "../handlers/forums/getAllCommentsFromAPostHandler";
 import { getAllUsersStatsHandler, getUserStatsHandler } from "../handlers/userStatsHandler";
+import { getDailyTimeSpentHandler } from '../handlers/timeTrackingHandler';
 
 const adminRouter: Router = Router();
 
@@ -123,5 +124,8 @@ adminRouter.get("/stats", getAllUsersStatsHandler);
 
 // get specific user stats (admin only)
 adminRouter.get("/stats/:userId", getUserStatsHandler);
+
+// get daily time spent (admin only)
+adminRouter.get('/stats/time-spent', getDailyTimeSpentHandler);
 
 export default adminRouter;

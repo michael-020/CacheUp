@@ -26,6 +26,7 @@ export const UserStats = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showAllTimeStats, setShowAllTimeStats] = useState<{[key: string]: boolean}>({});
   const [showLoginDetails, setShowLoginDetails] = useState<{[key: string]: boolean}>({});
+  const [showLogoutDetails, setShowLogoutDetails] = useState<{[key: string]: boolean}>({});
   const navigate = useNavigate();
   const { authAdmin } = useAdminStore();
 
@@ -107,11 +108,13 @@ export const UserStats = () => {
 
   if (loading) {
     return (
-      <div className="p-6 bg-white dark:bg-neutral-800 rounded-lg shadow animate-pulse">
-        <div className="h-6 w-32 bg-gray-200 dark:bg-neutral-700 rounded mb-4"></div>
-        <div className="space-y-3">
-          <div className="h-4 w-24 bg-gray-200 dark:bg-neutral-700 rounded"></div>
-          <div className="h-4 w-28 bg-gray-200 dark:bg-neutral-700 rounded"></div>
+      <div className='max-w-4xl mx-auto'>
+        <div className="p-6 bg-white dark:bg-neutral-800 rounded-lg shadow animate-pulse">
+          <div className="h-6 w-32 mx-auto bg-gray-200 dark:bg-neutral-700 rounded mb-4"></div>
+          <div className="space-y-3">
+            <div className="h-4 w-24 bg-gray-200 dark:bg-neutral-700 rounded"></div>
+            <div className="h-4 w-28 bg-gray-200 dark:bg-neutral-700 rounded"></div>
+          </div>
         </div>
       </div>
     );
@@ -312,6 +315,46 @@ export const UserStats = () => {
                                 )}
                               </div>
                             ))}
+                          </div>
+                        )}
+
+                        {/* Logout Details Button */}
+                        <button
+                          onClick={() => setShowLogoutDetails(prev => ({
+                            ...prev,
+                            [stat.userId]: !prev[stat.userId]
+                          }))}
+                          className="mt-2 flex items-center gap-2 text-sm text-red-500 hover:text-red-600"
+                        >
+                          {showLogoutDetails[stat.userId] ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
+                          )}
+                          View Logout Details
+                        </button>
+
+                        {/* Logout Details */}
+                        {showLogoutDetails[stat.userId] && (
+                          <div className="mt-2 pl-4 border-l-2 border-red-200 dark:border-red-800 space-y-2">
+                            {stat.logoutTimes.map((logoutTime, index) => {
+                              const previousLogin = stat.loginTimes[index];
+                              const sessionDuration = previousLogin && 
+                                (new Date(logoutTime).getTime() - new Date(previousLogin).getTime()) / 1000 / 60;
+
+                              return (
+                                <div key={index} className="text-sm text-gray-600 dark:text-gray-400">
+                                  <div>
+                                    <span className="text-red-500">Logout:</span> {formatDateTime(logoutTime)}
+                                    {sessionDuration > 0 && (
+                                      <div className="text-xs text-gray-500 mt-1">
+                                        Session duration: {Math.round(sessionDuration)} min
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
                         )}
 

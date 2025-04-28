@@ -1,4 +1,5 @@
 import { UserStats } from "@/components/UserStats";
+import { Statistics as TimeTrackingStats } from "@/components/admin/Statistics";
 import { motion } from "framer-motion";
 import { routeVariants } from "@/lib/routeAnimation";
 import { ArrowLeft } from "lucide-react";
@@ -25,8 +26,12 @@ const Statistics = () => {
           </button>
           <h1 className="text-2xl font-bold">User Statistics</h1>
         </div>
-        
-        <div className="mt-24">
+
+        <div className="mt-24 space-y-8">
+          {/* Time Tracking Statistics */}
+          <TimeTrackingStats />
+          
+          {/* User Login/Logout Statistics */}
           <UserStats />
         </div>
       </div>

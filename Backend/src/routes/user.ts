@@ -20,6 +20,7 @@ import {
     resetPassword 
   } from "../handlers/changePasswordHandler";
 import { deleteAccountHandler } from "../handlers/deleteAccountHandler";
+import { logPageViewHandler } from '../handlers/timeTrackingHandler';
 
 const userRouter: Router = Router();
 
@@ -73,5 +74,7 @@ userRouter.get("/get-token", getTokenHandler)
 
 // delete account
 userRouter.delete("/delete-account", deleteAccountHandler)
+
+userRouter.post('/log-page-view', logPageViewHandler);
 
 export default userRouter;
