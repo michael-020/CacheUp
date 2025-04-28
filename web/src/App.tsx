@@ -36,6 +36,7 @@ import { RequestedForums } from './pages/admin/RequestedForums'
 import { ViewFriends } from './components/ViewFriends'
 import Statistics from './pages/admin/Statistics'
 import { TimeTracker } from './components/TimeTracker'
+import PageViews from "@/pages/admin/PageViews";
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore()
@@ -214,6 +215,7 @@ function App() {
           <Route path='/admin/settings' element={authAdmin ? <SettingsPage /> : <Navigate to='/admin/signin' />} />
           <Route path='/admin/requested-forums' element={authAdmin ? <RequestedForums /> : <Navigate to="/admin/signin" />} />
           <Route path='/admin/stats' element={authAdmin ? <Statistics /> : <Navigate to="/admin/signin" />} />
+          <Route path='/admin/page-views' element={authAdmin ? <PageViews /> : <Navigate to="/admin/signin" />} />
         </Routes>
       </AnimatePresence>
       <Toaster />  

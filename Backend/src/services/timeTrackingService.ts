@@ -25,55 +25,95 @@ export const timeTrackingService = {
     endOfDay.setHours(23, 59, 59, 999);
 
     try {
-      const dailyStats = await UserLog.aggregate([
-        {
-          $match: {
-            timestamp: {
-              $gte: startOfDay,
-              $lte: endOfDay
-            }
-          }
-        },
-        {
-          $group: {
-            _id: '$userId',
-            totalTimeSpent: {
-              $sum: {
-                $add: [
-                  '$timeSpent',
-                  { $ifNull: ['$sessionDuration', 0] }
-                ]
-              }
-            },
-            pageViews: {
-              $push: {
-                $cond: [
-                  { $eq: ['$action', 'PAGE_VIEW'] },
-                  {
-                    page: '$page',
-                    timeSpent: '$timeSpent'
-                  },
-                  null
-                ]
-              }
-            }
-          }
+      const logs = await UserLog.find({
+        timestamp: { 
+          $gte: startOfDay,
+          $lte: endOfDay
         }
-      ]);
+      }).populate({
+        path: 'userId',
+        model: 'users',
+        select: 'name username'
+      });
 
-      return await Promise.all(dailyStats.map(async (stat) => {
-        const user = await userModel.findById(stat._id)
-          .select('name username');
-        return {
-          userId: stat._id,
-          name: user?.name,
-          username: user?.username,
-          totalTimeSpent: stat.totalTimeSpent,
-          pageViews: stat.pageViews.filter(Boolean)
+      const userStats = new Map();
+
+      for (const log of logs) {
+        const userId = log.userId._id.toString();
+        const userDoc = log.userId as any;
+        
+        const current = userStats.get(userId) || {
+          userId,
+          name: userDoc.name,
+          username: userDoc.username,
+          totalTimeSpent: 0
         };
-      }));
+
+        current.totalTimeSpent += log.sessionDuration || log.timeSpent || 0;
+        userStats.set(userId, current);
+      }
+
+      return Array.from(userStats.values());
     } catch (error) {
       console.error('Error getting daily time spent:', error);
+      throw error;
+    }
+  },
+
+  // Add new method for page views
+  async getDailyPageViews(date: Date) {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    try {
+      const logs = await UserLog.find({
+        timestamp: { 
+          $gte: startOfDay,
+          $lte: endOfDay
+        },
+        action: 'PAGE_VIEW'
+      }).populate({
+        path: 'userId',
+        model: 'users',
+        select: 'name username'
+      });
+
+      const userStats = new Map();
+
+      for (const log of logs) {
+        const userId = log.userId._id.toString();
+        const userDoc = log.userId as any;
+        
+        const current = userStats.get(userId) || {
+          userId,
+          name: userDoc.name,
+          username: userDoc.username,
+          pageViews: new Map()
+        };
+
+        // Aggregate time spent per page
+        const currentPageTime = current.pageViews.get(log.page) || 0;
+        current.pageViews.set(log.page, currentPageTime + (log.timeSpent || 0));
+        userStats.set(userId, current);
+      }
+
+      // Convert Map to array and format page views
+      return Array.from(userStats.values()).map(user => ({
+        ...user,
+        pageViews: Array.from(user.pageViews.entries())
+          .map(entry => {
+            const [page, timeSpent] = entry as [string, number];
+            return {
+              page,
+              timeSpent
+            };
+          })
+      }));
+    } catch (error) {
+      console.error('Error getting page views:', error);
       throw error;
     }
   },
@@ -101,7 +141,7 @@ export const timeTrackingService = {
             totalTime: {
               $sum: {
                 $add: [
-                  '$timeSpent',
+                  { $ifNull: ['$timeSpent', 0] },
                   { $ifNull: ['$sessionDuration', 0] }
                 ]
               }

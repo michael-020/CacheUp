@@ -23,12 +23,28 @@ export const logPageViewHandler = async (req: Request, res: Response) => {
 
 export const getDailyTimeSpentHandler = async (req: Request, res: Response) => {
   try {
-    const date = req.query.date ? new Date(req.query.date as string) : new Date();
-    const stats = await timeTrackingService.getDailyTimeSpent(date);
+    const date = req.params.date ? new Date(req.params.date) : new Date();
+    
+    // Get both stats and total time in parallel
+    const [stats, totalTime] = await Promise.all([
+      timeTrackingService.getDailyTimeSpent(date),
+      timeTrackingService.getTotalTimeSpent(date)
+    ]);
+
+    if (!stats || stats.length === 0) {
+      res.status(404).json({
+        success: false,
+        message: 'No stats found for this date'
+      });
+      return
+    }
 
     res.json({
       success: true,
-      data: stats
+      data: {
+        userStats: stats,
+        totalTime
+      }
     });
   } catch (error) {
     console.error('Error getting daily time spent:', error);
