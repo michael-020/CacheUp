@@ -31,7 +31,6 @@ postRouter.use("/reportPost", reportPostHandler)
 // un-report posts
 postRouter.use("/unReportPost", unReportPostHandler)
 
-
 // Like handler
 postRouter.use("/like", likeHandler)
 

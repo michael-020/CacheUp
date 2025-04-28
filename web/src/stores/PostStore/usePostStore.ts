@@ -199,25 +199,24 @@ export const usePostStore = create<PostState & PostActions>((set,get) => ({
     } 
   },
 
-  addComment: async (postId, content): Promise<Comment | null> => {
+  addComment: async (postId, content) => {
     set({ isUplaodingComment: true });
   
     try {
       const res = await axiosInstance.put(`/post/comment/${postId}`, { content });
       const newComment: Comment = res.data;
-  
+      console.log("comments before: ", get().posts[0].comments)
       set((state) => ({
-        isUploadingComment: false,  
         posts: state.posts.map(post => 
-          post._id === postId 
-            ? { ...post, comments: [ ...post.comments, newComment] }
-            : post
+          post._id === postId ? {
+            ...post,
+            comments: [newComment, ...post.comments]
+          } : post
         )
       }));
-  
-      toast.success("Comment uploaded successfully");
-      return newComment;
-  
+     
+      console.log("comments after: ", get().posts[0].comments)
+      toast.success("Comment uploaded successfully");  
     } catch (error) {
       console.error("Error uploading comment:", error);
   
