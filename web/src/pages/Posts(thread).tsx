@@ -17,7 +17,6 @@ import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 export const Thread = () => {
   const { id } = useParams();
   const { page } = useParams();
-  const location = useLocation();
   const { fetchPosts, posts, loading, error, threadTitle, threadDescription, threadWeaviate, isWatched, watchThread, checkWatchStatus, deletePost, totalPages, totalPosts } = useForumStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { authAdmin } = useAdminStore();
