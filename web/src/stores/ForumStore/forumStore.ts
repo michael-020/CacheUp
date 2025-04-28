@@ -37,7 +37,8 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   requestedForums: [],
   totalPages: 0,
   totalPosts: 0,
-  
+  hasNextPage: false,
+
   fetchForums: async (isAdminRoute: boolean) => {
     set((state) => ({ ...state, loadingForums: true, errorForums: '' }));
   
@@ -182,7 +183,8 @@ export const useForumStore = create<ForumStore>((set, get) => ({
         threadWeaviate,
         loading: false,
         totalPages: data.pagination.totalPages, 
-        totalPosts: data.pagination.totalPosts
+        totalPosts: data.pagination.totalPosts,
+        hasNextPage: data.pagination.hasNextPage
       }));
   
       return posts;

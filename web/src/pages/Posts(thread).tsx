@@ -17,7 +17,7 @@ import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 export const Thread = () => {
   const { id } = useParams();
   const { page } = useParams();
-  const { fetchPosts, posts, loading, error, threadTitle, threadDescription, threadWeaviate, isWatched, watchThread, checkWatchStatus, deletePost, totalPages, totalPosts } = useForumStore();
+  const { fetchPosts, posts, loading, error, threadTitle, threadDescription, threadWeaviate, isWatched, watchThread, checkWatchStatus, deletePost, totalPages, totalPosts, hasNextPage } = useForumStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { authAdmin } = useAdminStore();
   const [likeLoading, setLikeLoading] = useState<{[key: string]: boolean}>({});
@@ -78,7 +78,7 @@ export const Thread = () => {
     if(postQuery){
       setTimeout(() => {
         scrollToPost(postQuery)
-      }, 250)
+      }, 300)
     }    
   },[])
 
@@ -268,9 +268,9 @@ export const Thread = () => {
                   </>
                 )}
               </Button>
-        <Button onClick={() => setIsModalOpen(true)} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 mt-3">
+        {!hasNextPage && <Button onClick={() => setIsModalOpen(true)} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 mt-3">
           + New Post
-        </Button>
+        </Button>}
 
         </div>
         {isModalOpen && (
@@ -372,12 +372,12 @@ export const Thread = () => {
                 )}
               </Button>
 
-              <Button
+              {!hasNextPage && <Button
                 onClick={() => setIsModalOpen(true)}
                 className="bg-green-600 hover:bg-green-700 text-white"
               >
                 + New Post
-              </Button>
+              </Button>}
             </div>
           </div>
         </div>
@@ -508,9 +508,7 @@ export const Thread = () => {
                 </div>
 
                   </div>
-                  {index === 0 && page === '1' && (
-                    <div className="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">Latest Post</div>
-                  )}
+                 
                   {/* Add this menu button */}
                 <div className="relative">
                   <button 

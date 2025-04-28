@@ -123,7 +123,6 @@ export interface IPostForum extends Document {
   weaviateId: string;
   commentsCount: number;
   visibility?: Boolean
-  page?: number
 }
 
 // Forums Comment Interface
@@ -456,7 +455,6 @@ const postForumSchema = new Schema<IPostForum>({
   },
   visibility: {type: Boolean, default: true} 
 ,
-  page: {type: Number},
   commentsCount: Number
 })
 

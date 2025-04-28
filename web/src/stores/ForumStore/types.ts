@@ -134,6 +134,7 @@ export interface ForumState {
   isCreatingPost:boolean;
   totalPosts: number;
   totalPages: number;
+  hasNextPage: boolean
 }
 
 
