@@ -42,7 +42,7 @@ export function SearchResults() {
         navigate(`/forums/${item.data._id}/${item.data.weaviateId}`);
         break;
       case 'Thread':
-        navigate(`/forums/thread/${item.data._id}`);
+        navigate(`/forums/thread/${item.data._id}/1`);
         break;
       case 'Post':
         // Use correct format for post URL to ensure scrolling works
