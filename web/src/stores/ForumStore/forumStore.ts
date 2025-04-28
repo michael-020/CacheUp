@@ -105,7 +105,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
         ? `/admin/get-threads/`
         : `/forums/get-threads/`;
       const response = await axiosInstance.get(`${endpoint + forumId}`);
-      set({ currentForum: { ...get().currentForum, title: response.data.allThreads[0].forum.title,  threads: response.data.allThreads, loading: false } });
+      set({ currentForum: { ...get().currentForum, title: response.data.forum.title,  threads: response.data.allThreads, loading: false } });
     } catch (err) {
       const error = err as AxiosError<{ msg: string }>;
       set({ currentForum: { ...get().currentForum, error: error.response?.data?.msg || 'Failed to fetch threads', loading: false } });
