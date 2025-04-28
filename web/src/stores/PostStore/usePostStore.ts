@@ -209,7 +209,7 @@ export const usePostStore = create<PostState & PostActions>((set,get) => ({
       set((state) => ({
         isUploadingComment: false,  
         posts: state.posts.map(post => 
-          post._id === postId 
+          post._id == postId 
             ? { ...post, comments: [ ...post.comments, newComment] }
             : post
         )
