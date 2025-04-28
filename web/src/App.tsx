@@ -35,6 +35,7 @@ import { useFriendsStore } from './stores/FriendsStore/useFriendsStore'
 import { RequestedForums } from './pages/admin/RequestedForums'
 import { ViewFriends } from './components/ViewFriends'
 import Statistics from './pages/admin/Statistics'
+import { TimeTracker } from './components/TimeTracker'
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore()
@@ -162,6 +163,7 @@ function App() {
 
   return (
     <div className='bg-gray-100 dark:bg-neutral-900 min-h-screen custom-scrollbar'>
+      {authUser && <TimeTracker />}
       <ScrollToTop />
       {authUser && !isAdminRoute && (
         <div className='fixed top-0 w-screen z-40'>

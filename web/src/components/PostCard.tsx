@@ -33,7 +33,6 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
   const [commentToDelete, setCommentToDelete] = useState<{postId: string, commentId: string} | null>(null);
   const reportRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const profile = post.userImagePath
   
   // Local state for tracking post properties
   const [localPost, setLocalPost] = useState<Post>(post);
@@ -484,7 +483,7 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
                     <div className="w-full pt-1 flex gap-2">
                       <input 
                         type="text" 
-                        className="px-2 py-1 placeholder:text-sm border rounded-lg w-full" 
+                        className="px-2 py-1 dark:bg-neutral-700 placeholder:text-sm border rounded-lg w-full" 
                         placeholder="Edit your comment..."
                         value={editCommentText}
                         onChange={(e) => setEditCommentText(e.target.value)}

@@ -28,9 +28,10 @@ export const uploadCommentHandler = async (req: Request, res: Response) => {
         const user = await userModel.findById(userId).select("_id profilePicture username");
 
         const responseComment = {
-        content,
-        user,
-        date: new Date()
+            _id: post.comments[post.comments.length - 1]._id,
+            content,
+            user,
+            date: new Date()
         };
 
         res.status(200).json(responseComment)

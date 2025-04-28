@@ -4,7 +4,6 @@ import type { Comment, ForumStore, PostSchema } from '@/stores/ForumStore/types'
 import { AxiosError } from "axios";
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../AuthStore/useAuthStore';
-import { number } from 'zod';
 
 export const useForumStore = create<ForumStore>((set, get) => ({
   forums: [],
@@ -220,13 +219,13 @@ export const useForumStore = create<ForumStore>((set, get) => ({
         loading: false
       }));
   
+      toast.success("Post Created Successfully")
       return populatedPost;
     } catch (error) {
       toast.error("Error Creating Post")
       throw error;
     } finally {
       set({ isCreatingPost: false })
-      toast.success("Post Created Successfully")
     }
   },
 

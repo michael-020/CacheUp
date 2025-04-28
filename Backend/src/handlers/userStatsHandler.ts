@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { loggingService } from '../services/loggingService';
+import { timeTrackingService } from '../services/timeTrackingService';
 
 export const getUserStatsHandler = async (req: Request, res: Response) => {
   try {
@@ -37,7 +38,7 @@ export const getAllUsersStatsHandler = async (req: Request, res: Response) => {
       return
     }
 
-    const stats = await loggingService.getAllUsersStats(date);
+    const stats = await timeTrackingService.getAllUsersStats(date);
     
     if (!stats) {
       res.status(404).json({

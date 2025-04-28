@@ -578,15 +578,32 @@ const userLogSchema = new mongoose.Schema({
   action: {
     type: String,
     required: true,
-    enum: ['LOGIN', 'LOGOUT', 'SIGNUP']
+    enum: ['LOGIN', 'LOGOUT', 'SIGNUP', 'PAGE_VIEW']
   },
   timestamp: {
     type: Date,
     default: Date.now
   },
+  sessionDuration: {
+    type: Number,
+    default: 0 // Duration in minutes
+  },
+  page: {
+    type: String,
+    // Fix: Change the validation to use a validate function
+    validate: {
+      validator: function(this: any) {
+        return this.action !== 'PAGE_VIEW' || (this.action === 'PAGE_VIEW' && this.page);
+      },
+      message: 'Page is required for PAGE_VIEW actions'
+    }
+  },
+  timeSpent: {
+    type: Number,
+    default: 0 // Time spent in minutes
+  },
   device: String,
-  ipAddress: String,
-  sessionDuration: Number
+  ipAddress: String
 });
 
 export const UserLog = mongoose.model('UserLog', userLogSchema);

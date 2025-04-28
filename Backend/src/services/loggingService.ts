@@ -36,23 +36,26 @@ export const loggingService = {
       // Find the most recent login for this user that doesn't have a matching logout
       const lastLogin = await UserLog.findOne({ 
         userId, 
-        action: 'LOGIN',
+        action: 'LOGIN'
       }).sort({ timestamp: -1 });
 
       const now = new Date();
       
-      // Create logout log regardless of finding last login
-      const logoutLog = await UserLog.create({
-        userId,
-        action: 'LOGOUT',
-        sessionDuration: lastLogin ? (now.getTime() - lastLogin.timestamp.getTime()) / 1000 / 60 : 0,
-        device: req.headers['user-agent'],
-        ipAddress: req.ip,
-        timestamp: now
-      });
+      if (lastLogin) {
+        // Only calculate duration if login time is before logout time
+        const sessionDuration = lastLogin.timestamp <= now ? 
+          (now.getTime() - lastLogin.timestamp.getTime()) / 1000 / 60 : 
+          0;
 
-      // Return the created log
-      return logoutLog;
+        await UserLog.create({
+          userId,
+          action: 'LOGOUT',
+          sessionDuration: Math.max(0, sessionDuration), // Ensure non-negative
+          device: req.headers['user-agent'],
+          ipAddress: req.ip,
+          timestamp: now
+        });
+      }
     } catch (error) {
       console.error('Error creating logout log:', error);
       throw error;
