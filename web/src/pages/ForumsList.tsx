@@ -214,7 +214,7 @@ const ForumList: React.FC = () => {
       animate="final"
       exit="exit"
     >
-      <div className="max-w-6xl mx-auto p-6 translate-y-20 min-h-[calc(100vh-5.1rem)] h-[calc(100vh-6rem)]">
+      <div className="max-w-6xl mx-auto p-6 translate-y-20 min-h-[calc(100vh-5.1rem)]">
         <div className="flex flex-col mb-6">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold">
