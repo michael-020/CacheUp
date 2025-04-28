@@ -17,7 +17,7 @@ export const uploadCommentHandler = async (req: Request, res: Response) => {
         }
         const userIdObject = new mongo.ObjectId(userId?.toString())
       
-        const processedPost = post.comments.push({
+        post.comments.push({
             content,
             user: userIdObject,
             date: new Date()
@@ -25,7 +25,15 @@ export const uploadCommentHandler = async (req: Request, res: Response) => {
 
         await post.save()
 
-        res.status(200).json(processedPost)
+        const user = await userModel.findById(userId).select("_id profilePicture username");
+
+        const responseComment = {
+        content,
+        user,
+        date: new Date()
+        };
+
+        res.status(200).json(responseComment)
     }
     catch (e) {
         console.error("Error while uploading a comment", e)

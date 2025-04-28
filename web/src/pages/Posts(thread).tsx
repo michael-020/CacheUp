@@ -5,7 +5,7 @@ import CreatePostModal from "@/components/forums/CreatePostModalForums";
 import { Button } from "@/components/ui/button"; 
 import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
 import { axiosInstance } from "@/lib/axios";
-import { ArrowLeft, EllipsisVertical } from "lucide-react";
+import { ArrowLeft, EllipsisVertical, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { PostSchema } from "@/stores/ForumStore/types";
 import ForumComment from "@/components/forums/ForumComment";
 import { motion } from "framer-motion"
@@ -16,23 +16,25 @@ import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 
 export const Thread = () => {
   const { id } = useParams();
+  const { page } = useParams();
   const location = useLocation();
-  const { fetchPosts, posts, loading, error, threadTitle, threadDescription, threadWeaviate, isWatched, watchThread, checkWatchStatus, deletePost } = useForumStore();
+  const { fetchPosts, posts, loading, error, threadTitle, threadDescription, threadWeaviate, isWatched, watchThread, checkWatchStatus, deletePost, totalPages, totalPosts } = useForumStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { authAdmin } = useAdminStore();
   const [likeLoading, setLikeLoading] = useState<{[key: string]: boolean}>({});
   const postRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
   const [highlightedPostId, setHighlightedPostId] = useState<string | null>(null);
   const [expandedPosts, setExpandedPosts] = useState<{[key: string]: boolean}>({});
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [expandedComments, setExpandedComments] = useState<{[key: string]: boolean}>({});
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState<{[key: string]: boolean}>({});
-  const { authUser } = useAuthStore()
-  const isAdmin = Boolean(authAdmin) 
+  const { authUser } = useAuthStore();
+  const isAdmin = Boolean(authAdmin);
   const menuRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const [editingPostId, setEditingPostId] = useState<{[key: string]: boolean}>({});
   const [deleteModalOpen, setDeleteModalOpen] = useState<{[key: string]: boolean}>({});
+  const [paginationInput, setPaginationInput] = useState(page?.toString());
 
   const toggleMenu = (postId: string) => {
     setMenuOpen(prev => {
@@ -49,56 +51,37 @@ export const Thread = () => {
   };
 
   useEffect(() => {
-    if(typeof(id) !== "string")
-      return
-    fetchPosts(id, isAdmin);
-    checkWatchStatus (id)
-  }, [id, fetchPosts, checkWatchStatus, isAdmin]);
+    if((typeof(id) !== "string") || (typeof(page) !== "string"))
+      return;
+    fetchPosts(id, page, isAdmin);
+    checkWatchStatus(id);
+  }, [id, page, fetchPosts, checkWatchStatus, isAdmin]);
 
   useEffect(() => {
-    if (!loading && posts && posts.length > 0) {
-      const pathParts = location.pathname.split('/');
-      const searchParams = new URLSearchParams(location.search);
-      let postId = null;
-      
-      const postIndex = pathParts.indexOf('post');
-      if (postIndex !== -1 && postIndex < pathParts.length - 1) {
-        postId = pathParts[postIndex + 1];
-      }
-      
-      if (!postId) {
-        postId = searchParams.get('post');
-      }
-      
-      if (!postId && location.search) {
-        if (location.search.includes('post/')) {
-          const matches = location.search.match(/post\/([^/?&]+)/);
-          if (matches && matches[1]) {
-            postId = matches[1];
-          }
-        }
-      }
-      
-      if (postId) {
-        const scrollTimeout = setTimeout(() => {
-          if (postRefs.current[postId]) {
-            postRefs.current[postId]?.scrollIntoView({ 
-              behavior: 'smooth', 
-              block: 'start' 
-            });
-            
-            setHighlightedPostId(postId);
-            setExpandedPosts(prev => ({...prev, [postId]: true}));
-            setTimeout(() => {
-              setHighlightedPostId(null);
-            }, 2000);
-          }
-        }, 500);
-        
-        return () => clearTimeout(scrollTimeout);
-      }
+    setPaginationInput(page?.toString());
+  }, [page]);
+
+  const useQuery = () => {
+    return new URLSearchParams(useLocation().search)
+  }
+
+  const query = useQuery()
+  const postQuery = query.get("post")
+
+  const scrollToPost = (postId: string) => {
+    const element = document.getElementById(`post-${postId}`)
+    if(element){
+      element.scrollIntoView({ behavior: "smooth", block: "start" })
     }
-  }, [location, loading, posts]);
+  }
+
+  useEffect(() => {
+    if(postQuery){
+      setTimeout(() => {
+        scrollToPost(postQuery)
+      }, 500)
+    }    
+  },[])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -118,7 +101,7 @@ export const Thread = () => {
     };
   }, [menuOpen]);
 
-  const currentUserId = authUser?._id
+  const currentUserId = authUser?._id;
 
   const checkIfLiked = (post: PostSchema) => {
     if (!currentUserId || !post.likedBy) return false;
@@ -164,7 +147,6 @@ export const Thread = () => {
     }
   }, [posts, authUser, setLikeLoading]);
 
-
   const handleDislikePost = useCallback(async (postId: string) => {
     try {
       setLikeLoading(prev => ({ ...prev, [postId]: true }));
@@ -203,7 +185,50 @@ export const Thread = () => {
     }
     return content.substring(0, 500);
   };
+
+  // Pagination handlers
+  const goToFirstPage = () => {
+    navigate(`/forums/thread/${id}/1`);
+  };
   
+  const goToPreviousPage = () => {
+    if (Number(page) > 1) {
+      navigate(`/forums/thread/${id}/${Number(page) - 1}`);
+    }
+  };
+
+  const goToNextPage = () => {
+    if (Number(page) < totalPages) {
+      navigate(`/forums/thread/${id}/${Number(page) + 1}`);
+    }
+  };
+
+  const goToLastPage = () => {
+    navigate(`/forums/thread/${id}/${totalPages}`);
+  };
+
+  const handlePageInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (/^\d*$/.test(value)) {
+      setPaginationInput(value);
+    }
+  };
+
+  const goToPage = () => {
+    const pageNumber = Number(paginationInput);
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      navigate(`/forums/thread/${id}/${pageNumber}`);
+    } else {
+      setPaginationInput(page?.toString());
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      goToPage();
+    }
+  };
+
   if (loading) {
     return <ThreadSkeleton />;
   }
@@ -263,13 +288,13 @@ export const Thread = () => {
   }
 
   const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((part) => part[0])
+    if (!name) return "??";
+    return name.split(" ")
+      .map(part => part[0] || '')
       .join("")
       .toUpperCase()
       .substring(0, 2);
-  };
+  }
 
   const getUserColor = (username?: string) => {
     if (!username) return "bg-gray-400"; 
@@ -324,7 +349,7 @@ export const Thread = () => {
           {/* Post count + Centered Button Row */}
           <div className="flex flex-col items-center gap-3 mt-2">
             <p className="text-gray-500 text-sm">
-              {posts.length} post{posts.length !== 1 ? "s" : ""}
+              {totalPosts ? `${totalPosts} post${totalPosts !== 1 ? "s" : ""}` : `${posts.length} post${posts.length !== 1 ? "s" : ""}`}
             </p>
             <div className="flex gap-4 flex-wrap justify-center">
               <Button
@@ -369,11 +394,77 @@ export const Thread = () => {
           />
         )}
 
+        {/* Pagination Controls - Top */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between mb-6 bg-white dark:bg-neutral-900 p-3 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700">
+            <div className="flex items-center gap-2">
+              <Button 
+                onClick={goToFirstPage} 
+                disabled={page === '1'}
+                variant="outline"
+                size="icon"
+                className={`${page === '1' ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                <ChevronsLeft className="h-4 w-4" />
+              </Button>
+              <Button 
+                onClick={goToPreviousPage} 
+                disabled={page === '1'}
+                variant="outline"
+                size="icon"
+                className={`${page === '1' ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600 dark:text-gray-300">
+                Page
+              </span>
+              <div className="flex items-center">
+                <input
+                  type="text"
+                  value={paginationInput}
+                  onChange={handlePageInputChange}
+                  onKeyPress={handleKeyPress}
+                  onBlur={goToPage}
+                  className="w-12 h-8 text-center border border-gray-300 dark:border-neutral-600 rounded dark:bg-neutral-800"
+                  aria-label="Page number"
+                />
+                <span className="ml-1 text-sm text-gray-600 dark:text-gray-300">
+                  of {totalPages}
+                </span>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Button 
+                onClick={goToNextPage} 
+                disabled={page === `${totalPages}`}
+                variant="outline"
+                size="icon"
+                className={`${page === `${totalPages}` ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              <Button 
+                onClick={goToLastPage} 
+                disabled={page === `${totalPages}`}
+                variant="outline"
+                size="icon"
+                className={`${page === `${totalPages}` ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                <ChevronsRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
           
         <div className="space-y-6">
           {posts.map((post, index) => {
             const author = post.createdBy.username;
-            const profileImage = post.createdBy.profilePicture || "/avatar.jpeg";
+              const profileImage = post.createdBy.profilePicture;
             const isLiked = checkIfLiked(post)
             const isDisliked = checkIfDisliked(post)
             const isHighlighted = highlightedPostId === post._id;
@@ -385,7 +476,7 @@ export const Thread = () => {
                 key={post._id}
                 ref={(el) => postRefs.current[post._id] = el}
                 id={`post-${post._id}`}
-                className={`rounded-lg shadow border ${index === 0 ? "border-blue-200 dark:bg-neutral-800" : "border-gray-100 bg-white"} transition-all duration-300 ${
+                className={`rounded-lg shadow border ${index === 0 && page === '1' ? "border-blue-200 dark:bg-neutral-800" : "border-gray-100 bg-white"} transition-all duration-300 ${
                   isHighlighted ? "ring-4 ring-blue-300 ring-opacity-70" : ""
                 }`}
               >
@@ -405,7 +496,7 @@ export const Thread = () => {
                       to={authAdmin ? `/admin/profile/${post.createdBy?._id}` : `/profile/${post.createdBy?._id}`}
                     >
                       <div className={`w-10 h-10 rounded-full cursor-pointer items-center justify-center text-white flex ${getUserColor(author)}`}>
-                        <h3>{getInitials(author)} !</h3>
+                        <h3>{getInitials(author)}</h3>
                       </div>
                     </Link>
                   )}
@@ -418,7 +509,7 @@ export const Thread = () => {
                 </div>
 
                   </div>
-                  {index === 0 && (
+                  {index === 0 && page === '1' && (
                     <div className="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">Latest Post</div>
                   )}
                   {/* Add this menu button */}
@@ -456,7 +547,6 @@ export const Thread = () => {
 
                             <button
                               onClick={() => {
-                                // Removed unused setSelectedPost call
                                 setDeleteModalOpen(prev => ({ ...prev, [post._id]: true }));
                                 setMenuOpen(prev => ({ ...prev, [post._id]: false }));
                               }}
@@ -470,7 +560,6 @@ export const Thread = () => {
                         {authAdmin && post.createdBy._id !== currentUserId && (
                           <button
                             onClick={() => {
-                              // Removed unused setSelectedPost call
                               setDeleteModalOpen(prev => ({ ...prev, [post._id]: true }));
                               setMenuOpen(prev => ({ ...prev, [post._id]: false }));
                             }}
@@ -543,7 +632,7 @@ export const Thread = () => {
                     </svg>
                     <span>{post.likedBy?.length || 0}</span>
                   </button>
-                   <button 
+                          <button 
                         className={`flex items-center gap-1.5 cursor-pointer transition-colors mt-1 dark:text-gray-300 ${
                           isDisliked 
                             ? 'text-red-600 fill-red-600' 
@@ -614,6 +703,93 @@ export const Thread = () => {
             );
           })}
         </div>
+
+        {/* Pagination Controls - Bottom */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between mt-8 bg-white dark:bg-neutral-900 p-3 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700">
+            <div className="sm:flex sm:flex-1 sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm text-gray-700 dark:text-gray-200">
+                  Showing <span className="font-medium">{posts.length}</span> results
+                  {totalPosts && (
+                    <>
+                      {" "}- Page <span className="font-medium">{page}</span> of{" "}
+                      <span className="font-medium">{totalPages}</span>
+                    </>
+                  )}
+                </p>
+              </div>
+              
+              <div className="flex items-center justify-end gap-2 mt-3 sm:mt-0">
+                <Button
+                  onClick={goToFirstPage}
+                  disabled={page === '1'}
+                  variant="outline"
+                  size="sm"
+                  className={`${page === '1' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  <ChevronsLeft className="h-4 w-4 mr-1" />
+                  First
+                </Button>
+                <Button
+                  onClick={goToPreviousPage}
+                  disabled={page === '1'}
+                  variant="outline"
+                  size="sm"
+                  className={`${page === '1' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  Previous
+                </Button>
+                
+                {/* Page number input */}
+                <div className="flex items-center px-2">
+                  <input
+                    type="text"
+                    value={paginationInput}
+                    onChange={handlePageInputChange}
+                    onKeyPress={handleKeyPress}
+                    onBlur={goToPage}
+                    className="w-12 h-8 text-center border border-gray-300 dark:border-neutral-600 rounded dark:bg-neutral-800"
+                    aria-label="Page number"
+                  />
+                  <span className="ml-1 text-sm text-gray-600 dark:text-gray-300">
+                    / {totalPages}
+                  </span>
+                  <Button 
+                    onClick={goToPage}
+                    size="sm" 
+                    variant="ghost"
+                    className="ml-1"
+                  >
+                    Go
+                  </Button>
+                </div>
+                
+                <Button
+                  onClick={goToNextPage}
+                  disabled={page === `${totalPages}`}
+                  variant="outline"
+                  size="sm"
+                  className={`${page === `${totalPages}` ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+                <Button
+                  onClick={goToLastPage}
+                  disabled={page === `${totalPages}`}
+                  variant="outline"
+                  size="sm"
+                  className={`${page === `${totalPages}` ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  Last
+                  <ChevronsRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </motion.div>
   );

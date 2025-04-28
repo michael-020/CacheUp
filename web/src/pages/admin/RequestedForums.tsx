@@ -51,7 +51,7 @@ export const RequestedForums = () => {
                 <div className="mt-4 flex items-center">
                   <img
                     className="w-8 h-8 rounded-full object-cover"
-                    src={req.requestedBy.profilePicture || "/default-profile.png"}
+                    src={req.requestedBy.profilePicture || "/avatar.jpeg"}
                     alt={req.requestedBy.username}
                   />
                   <span className="ml-2 text-gray-700">{req.requestedBy.username}</span>

@@ -116,7 +116,7 @@ const ForumPage: React.FC = () => {
           <div className="space-y-4">
             {currentForum.threads.map((thread) => (
               <div key={thread._id}>
-                <Link to={linkToPosts+thread._id}>
+                <Link to={linkToPosts+thread._id+"/"+1}>
                   <div className="border p-4 rounded hover:bg-gray-50 dark:hover:bg-neutral-700">
                     <div className="flex justify-between items-start">
                       <h2 className="text-xl font-semibold">{thread.title}</h2>

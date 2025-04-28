@@ -76,20 +76,27 @@ const queryMongo = async (searchAlgoResult: Array<{
             const objectId = item.mongoId;
 
             let data;
+            let page
 
             switch(item.type){
                 case "Forum":
                     data = await forumModel.findById(objectId)
+                    page = null
                     break;
                 case "Thread":
                     data = await threadForumModel.findById(objectId)
+                    page = null
                     break;
                 case "Post": 
                     data = await postForumModel.findById(objectId)
+                    page = await getPageNumberOfPost(objectId)
                     break;
                 case "Comment": 
                     const postId = await commentForumModel.findById(objectId).select("post")
                     data = await postForumModel.findById(postId)
+                    if(postId){
+                        page = await getPageNumberOfPost(postId._id as string)
+                    }
                     break;
                 default:
                     continue;
@@ -99,7 +106,8 @@ const queryMongo = async (searchAlgoResult: Array<{
                 finalResults.push({
                     type: item.type,
                     data: data.toObject(),
-                    certainty: item.certainty
+                    certainty: item.certainty,
+                    page  
                 })
             }
         }
@@ -108,6 +116,26 @@ const queryMongo = async (searchAlgoResult: Array<{
         console.error("mongodb error",e)
     }
 }
+
+async function getPageNumberOfPost(postId: string) {
+    try{
+        const post = await postForumModel.findById(postId).lean();
+  
+    const countBefore = await postForumModel.countDocuments({
+      thread: post?.thread,
+      visibility: true,
+      createdAt: { $lt: post?.createdAt }
+    });
+  
+    const postsPerPage = 10;
+    const pageNumber = Math.floor(countBefore / postsPerPage) + 1;
+  
+    return pageNumber;
+}catch(err){
+    console.error(err)
+}
+  }
+  
 
 export const searchForumHandler = async (req: Request, res: Response) => {
     const searchSchema = z.object({
@@ -136,7 +164,7 @@ export const searchForumHandler = async (req: Request, res: Response) => {
 
         res.json({
             msg: "Query Successfull",
-            searchResults
+            searchResults,
         })
     }catch(e){
         console.error(e)

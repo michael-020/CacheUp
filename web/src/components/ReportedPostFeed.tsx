@@ -284,7 +284,7 @@ export default function ReportedPostFeed({ post, isAdmin }: PostCardProps) {
                       <div className="flex items-center text-xs text-gray-500">
                         <img
                           src={
-                            comment.user.profileImagePath || "/avatar.jpeg"
+                            comment.user.profilePicture || "/avatar.jpeg"
                           }
                           className="w-5 h-5 rounded-full mr-2"
                           alt={comment.user.username}
@@ -323,7 +323,7 @@ export default function ReportedPostFeed({ post, isAdmin }: PostCardProps) {
                       <div className="flex items-center text-xs text-gray-500">
                         <img
                           src={
-                            comment.user.profileImagePath || "/avatar.jpeg"
+                            comment.user.profilePicture || "/avatar.jpeg"
                           }
                           className="w-5 h-5 rounded-full mr-2"
                           alt={comment.user.username}

@@ -46,11 +46,11 @@ export function SearchResults() {
         break;
       case 'Post':
         // Use correct format for post URL to ensure scrolling works
-        navigate(`/forums/thread/${item.data.thread}?post/${item.data._id}`);
+        navigate(`/forums/thread/${item.data.thread}/${item.page}?post=${item.data._id}`);
         break;
       case 'Comment':
         // Use correct format for comment's parent post URL
-        navigate(`/forums/thread/${item.data.thread}?post/${item.data.post}`);
+        navigate(`/forums/thread/${item.data.thread}/${item.page}?post=${item.data.post}`);
         break;
     }
   };

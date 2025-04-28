@@ -78,8 +78,6 @@ export interface Comment {
   _id: string;
   content: string;       
   user: Partial<IUser>
-  username: string;
-  profilePicture: string
   date: Date;          
 }
 

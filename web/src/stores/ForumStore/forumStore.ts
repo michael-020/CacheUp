@@ -4,6 +4,7 @@ import type { Comment, ForumStore, PostSchema } from '@/stores/ForumStore/types'
 import { AxiosError } from "axios";
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../AuthStore/useAuthStore';
+import { number } from 'zod';
 
 export const useForumStore = create<ForumStore>((set, get) => ({
   forums: [],
@@ -35,7 +36,8 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   notifications: [],
   reportLoading: {},
   requestedForums: [],
-
+  totalPages: 0,
+  totalPosts: 0,
   
   fetchForums: async (isAdminRoute: boolean) => {
     set((state) => ({ ...state, loadingForums: true, errorForums: '' }));
@@ -155,14 +157,14 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     }
   },
 
-  fetchPosts: async (threadId: string, isAdmin?: boolean) => {
+  fetchPosts: async (threadId: string, page: string, isAdmin?: boolean) => {
     if (!threadId) throw new Error("Thread ID is required");
   
     set((state) => ({ ...state, loading: true }));
   
     try {
       const endpoint = isAdmin ? "/admin/get-thread-posts/" : "/forums/get-posts/";
-      const { data } = await axiosInstance.get(`${endpoint}${threadId}`);
+      const { data } = await axiosInstance.get(`${endpoint}${threadId}/${page}`);
   
       const {
         posts = [],
@@ -180,6 +182,8 @@ export const useForumStore = create<ForumStore>((set, get) => ({
         threadMongo,
         threadWeaviate,
         loading: false,
+        totalPages: data.pagination.totalPages, 
+        totalPosts: data.pagination.totalPosts
       }));
   
       return posts;
@@ -212,7 +216,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
         threadDescription: state.threadDescription,
         threadMongo: state.threadMongo,
         threadWeaviate: state.threadWeaviate,
-        posts: [populatedPost, ...state.posts],
+        posts: [...state.posts, populatedPost],
         loading: false
       }));
   

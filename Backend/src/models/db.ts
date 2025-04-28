@@ -123,6 +123,7 @@ export interface IPostForum extends Document {
   weaviateId: string;
   commentsCount: number;
   visibility?: Boolean
+  page?: number
 }
 
 // Forums Comment Interface
@@ -455,9 +456,15 @@ const postForumSchema = new Schema<IPostForum>({
   },
   visibility: {type: Boolean, default: true} 
 ,
+  page: {type: Number},
   commentsCount: Number
 })
 
+// indexing
+postForumSchema.index(
+  { thread: 1, createdAt: 1 },
+  { partialFilterExpression: {visibility: true} }
+);
 // Comment Forum Schema
 const commentForumSchema = new Schema<ICommentForum>({
   content: {
@@ -494,6 +501,11 @@ const commentForumSchema = new Schema<ICommentForum>({
   },
   visibility: {type: Boolean, default: true} 
 })
+// indexing
+commentForumSchema.index(
+  { post: 1, createdAt: 1},
+  {partialFilterExpression: {visibility: true}}
+)
 
 // Watch Thread Notification Forum Schema
 const watchNotificationSchema = new Schema<INotification>({
