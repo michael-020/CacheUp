@@ -79,7 +79,7 @@ export const Thread = () => {
     if(postQuery){
       setTimeout(() => {
         scrollToPost(postQuery)
-      }, 500)
+      }, 250)
     }    
   },[])
 
