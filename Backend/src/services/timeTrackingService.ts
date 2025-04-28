@@ -1,15 +1,40 @@
 import { UserLog, userModel } from '../models/db';
 import mongoose from 'mongoose';
 
+interface UserSession {
+  userId: string;
+  action: 'LOGIN' | 'LOGOUT';
+  timestamp: Date;
+  sessionDuration?: number;
+}
+
 export const timeTrackingService = {
-  async logPageView(userId: string, page: string, timeSpent: number) {
+  async logPageView(userId: string, page: string, timeSpent: number, isHeartbeat: boolean = false) {
     try {
+      const now = new Date();
+      
+      if (isHeartbeat) {
+        // Update last active timestamp for the user's session
+        await UserLog.findOneAndUpdate(
+          { 
+            userId,
+            action: 'LOGIN',
+            timestamp: { 
+              $lte: now,
+              $gte: new Date(now.getTime() - 24 * 60 * 60 * 1000) // Last 24 hours
+            }
+          },
+          { lastActive: now },
+          { sort: { timestamp: -1 } }
+        );
+      }
+
       await UserLog.create({
         userId,
         action: 'PAGE_VIEW',
         page,
         timeSpent,
-        timestamp: new Date()
+        timestamp: now
       });
     } catch (error) {
       console.error('Error logging page view:', error);
@@ -25,20 +50,39 @@ export const timeTrackingService = {
     endOfDay.setHours(23, 59, 59, 999);
 
     try {
-      const logs = await UserLog.find({
-        timestamp: { 
-          $gte: startOfDay,
-          $lte: endOfDay
-        }
-      }).populate({
-        path: 'userId',
-        model: 'users',
-        select: 'name username'
-      });
+      // Get both page views and session logs
+      const [pageLogs, sessionLogs] = await Promise.all([
+        UserLog.find({
+          timestamp: { 
+            $gte: startOfDay,
+            $lte: endOfDay
+          },
+          action: 'PAGE_VIEW'
+        }).populate({
+          path: 'userId',
+          model: 'users',
+          select: 'name username'
+        }),
+        UserLog.find({
+          timestamp: { 
+            $gte: startOfDay,
+            $lte: endOfDay
+          },
+          $or: [
+            { action: 'LOGIN' },
+            { action: 'LOGOUT' }
+          ]
+        }).populate({
+          path: 'userId',
+          model: 'users',
+          select: 'name username'
+        })
+      ]);
 
       const userStats = new Map();
 
-      for (const log of logs) {
+      // Process page view times
+      for (const log of pageLogs) {
         const userId = log.userId._id.toString();
         const userDoc = log.userId as any;
         
@@ -49,8 +93,43 @@ export const timeTrackingService = {
           totalTimeSpent: 0
         };
 
-        current.totalTimeSpent += log.sessionDuration || log.timeSpent || 0;
+        current.totalTimeSpent += log.timeSpent || 0;
         userStats.set(userId, current);
+      }
+
+      // Process session times
+      const sessionsByUser = new Map<string, UserSession[]>();
+      for (const log of sessionLogs) {
+        if (!log.userId) continue;
+        const userId = log.userId._id.toString();
+        const userSessions = sessionsByUser.get(userId) || [];
+        userSessions.push({
+          ...log.toObject(),
+          userId: userId
+        } as UserSession);
+        sessionsByUser.set(userId, userSessions);
+      }
+
+      // Calculate session durations
+      for (const [userId, sessions] of sessionsByUser) {
+        const sortedSessions = sessions.sort((a: UserSession, b: UserSession) => 
+          a.timestamp.getTime() - b.timestamp.getTime()
+        );
+        let sessionTime = 0;
+
+        for (let i = 0; i < sortedSessions.length - 1; i++) {
+          if (sortedSessions[i].action === 'LOGIN' && sortedSessions[i + 1].action === 'LOGOUT') {
+            const duration = (sortedSessions[i + 1].timestamp.getTime() - 
+              sortedSessions[i].timestamp.getTime()) / 1000 / 60;
+            sessionTime += Math.max(0, duration);
+          }
+        }
+
+        // Add session time to user's total
+        if (userStats.has(userId)) {
+          const stats = userStats.get(userId);
+          stats.totalTimeSpent += sessionTime;
+        }
       }
 
       return Array.from(userStats.values());
@@ -126,31 +205,33 @@ export const timeTrackingService = {
     endOfDay.setHours(23, 59, 59, 999);
 
     try {
-      const result = await UserLog.aggregate([
-        {
-          $match: {
-            timestamp: {
-              $gte: startOfDay,
-              $lte: endOfDay
-            }
-          }
-        },
-        {
-          $group: {
-            _id: null,
-            totalTime: {
-              $sum: {
-                $add: [
-                  { $ifNull: ['$timeSpent', 0] },
-                  { $ifNull: ['$sessionDuration', 0] }
-                ]
-              }
-            }
-          }
-        }
+      // Get both page views and session logs for the specific date
+      const [pageLogs, sessionLogs] = await Promise.all([
+        UserLog.find({
+          timestamp: {
+            $gte: startOfDay,
+            $lte: endOfDay
+          },
+          action: 'PAGE_VIEW'
+        }),
+        UserLog.find({
+          timestamp: {
+            $gte: startOfDay,
+            $lte: endOfDay
+          },
+          action: 'LOGOUT'
+        })
       ]);
 
-      return result[0]?.totalTime || 0;
+      // Calculate total time from page views
+      const pageViewTime = pageLogs.reduce((total, log) => 
+        total + (log.timeSpent || 0), 0);
+
+      // Calculate total time from sessions
+      const sessionTime = sessionLogs.reduce((total, log) => 
+        total + (log.sessionDuration || 0), 0);
+
+      return pageViewTime + sessionTime;
     } catch (error) {
       console.error('Error getting total time spent:', error);
       throw error;

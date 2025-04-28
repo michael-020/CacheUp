@@ -1,6 +1,8 @@
-import { axiosInstance } from '@/lib/axios';
 import { useState, useEffect } from 'react';
 import { Link } from "react-router-dom";
+import { axiosInstance } from '@/lib/axios';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
 
 interface TimeSpentStat {
   userId: string;
@@ -12,7 +14,7 @@ interface TimeSpentStat {
 export const Statistics = () => {
   const [timeStats, setTimeStats] = useState<TimeSpentStat[]>([]);
   const [totalDailyTime, setTotalDailyTime] = useState(0);
-  const [selectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   const fetchTimeStats = async (date: Date) => {
     try {
@@ -20,11 +22,14 @@ export const Statistics = () => {
       const response = await axiosInstance.get(`/admin/stats/daily-time/${formattedDate}`);
       
       if (response.data.success) {
-        setTimeStats(response.data.data.userStats || []);
-        setTotalDailyTime(response.data.data.totalTime || 0);
+        const { userStats, totalTime } = response.data.data;
+        setTimeStats(userStats || []);
+        setTotalDailyTime(totalTime || 0);
       }
     } catch (error) {
       console.error('Error fetching time stats:', error);
+      setTimeStats([]);
+      setTotalDailyTime(0);
     }
   };
 
@@ -44,10 +49,20 @@ export const Statistics = () => {
             View Page Statistics →
           </Link>
         </div>
+
+        {/* Date Picker */}
+        <div className="mb-4">
+          <DatePicker
+            selected={selectedDate}
+            onChange={(date: Date | null) => date && setSelectedDate(date)}
+            className="px-3 py-2 border rounded-md dark:bg-neutral-700 dark:border-neutral-600"
+            maxDate={new Date()}
+          />
+        </div>
         
         {/* Total Time for All Users */}
         <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-          <h3 className="text-lg font-medium mb-2">Total Time Spent Today</h3>
+          <h3 className="text-lg font-medium mb-2">Total Time Spent</h3>
           <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
             {Math.round(totalDailyTime)} minutes
           </p>
@@ -56,19 +71,16 @@ export const Statistics = () => {
         {/* Individual User Stats */}
         <div className="space-y-4">
           {timeStats.map((stat) => (
-            <Link to={`/admin/profile/${stat.userId}`}>
-                <div 
-                key={stat.userId}
-                className="p-4 border dark:border-neutral-700 rounded-lg"
-                >
+            <Link to={`/admin/profile/${stat.userId}`} key={stat.userId}>
+              <div className="p-4 border dark:border-neutral-700 rounded-lg">
                 <div className="flex justify-between items-center">
-                    <h4 className="font-medium">{stat.name}</h4>
-                    <span className="text-sm text-gray-500">@{stat.username}</span>
+                  <h4 className="font-medium">{stat.name}</h4>
+                  <span className="text-sm text-gray-500">@{stat.username}</span>
                 </div>
                 <div className="mt-2 text-gray-600 dark:text-gray-400">
-                    Total Time: {Math.round(stat.totalTimeSpent)} minutes
+                  Total Time: {Math.round(stat.totalTimeSpent)} minutes
                 </div>
-                </div>
+              </div>
             </Link>
           ))}
         </div>

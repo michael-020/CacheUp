@@ -39,11 +39,14 @@ export const getDailyTimeSpentHandler = async (req: Request, res: Response) => {
       return
     }
 
+    // Calculate total time from individual user stats
+    const usersTotalTime = stats.reduce((total, stat) => total + (stat.totalTimeSpent || 0), 0);
+
     res.json({
       success: true,
       data: {
         userStats: stats,
-        totalTime
+        totalTime: usersTotalTime // Use aggregated user times instead
       }
     });
   } catch (error) {
