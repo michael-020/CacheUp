@@ -37,7 +37,7 @@ export const ViewFriends = () => {
       try {
         const url = id ? `/user/viewProfile/${id}` : "/user/viewProfile";
         const response = await axiosInstance(url);
-        const profileData = response.data.userInfo;
+        const profileData = response.data.userInfo[0];
         setUserInfo(profileData);
         
         const isOwn = response.data.isOwnProfile || 
