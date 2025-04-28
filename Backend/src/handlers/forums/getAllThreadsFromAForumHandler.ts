@@ -8,7 +8,7 @@ export const getAllThreadsFromAForumHandler = async(req: Request, res: Response)
         const allThreads = await threadForumModel.find({
             forum: forumId,
             visibility: true
-        })
+        }).populate({path: "forum", select: "title"})
         res.json({
             msg:"All your forums",
             allThreads
