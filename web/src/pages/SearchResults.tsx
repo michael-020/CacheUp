@@ -42,7 +42,7 @@ export function SearchResults() {
         navigate(`/forums/${item.data._id}/${item.data.weaviateId}`);
         break;
       case 'Thread':
-        navigate(`/forums/thread/${item.data._id}`);
+        navigate(`/forums/thread/${item.data._id}/1`);
         break;
       case 'Post':
         // Use correct format for post URL to ensure scrolling works
@@ -50,7 +50,7 @@ export function SearchResults() {
         break;
       case 'Comment':
         // Use correct format for comment's parent post URL
-        navigate(`/forums/thread/${item.data.thread}/${item.page}?post=${item.data.post}`);
+        navigate(`/forums/thread/${item.data.thread}/${item.page}?post=${item.data._id}`);
         break;
     }
   };
