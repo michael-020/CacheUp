@@ -475,11 +475,11 @@ export const Thread = () => {
                 key={post._id}
                 ref={(el) => postRefs.current[post._id] = el}
                 id={`post-${post._id}`}
-                className={`rounded-lg shadow border ${index === 0 && page === '1' ? "border-blue-200 dark:bg-neutral-800" : "border-gray-100 bg-white"} transition-all duration-300 ${
+                className={`rounded-lg shadow border dark:bg-neutral-800 bg-white" ${index === 0 && page === '1' ? "border-blue-600 dark:border-blue-900" : "border-gray-100 dark:border-neutral-700"} transition-all duration-300 ${
                   isHighlighted ? "ring-4 ring-blue-300 ring-opacity-70" : ""
                 }`}
               >
-                <div className="flex items-center gap-3 p-4 dark:bg-neutral-950 rounded-t-lg">
+                <div className="flex items-center gap-3 p-4 dark:bg-neutral-800 rounded-t-lg">
                   {profileImage ? (
                     <Link 
                       to={authAdmin ? `/admin/profile/${post.createdBy._id}` : `/profile/${post.createdBy._id}`} 
@@ -586,7 +586,7 @@ export const Thread = () => {
 
                 </div>
 
-                <div className="p-5 dark:bg-neutral-950">
+                <div className="p-5">
                   <div className="prose max-w-none whitespace-pre-wrap text-gray-800 dark:text-white">
                     {truncateContent(post.content, post._id)}
                     {contentIsTruncated && !isExpanded && (
@@ -608,7 +608,7 @@ export const Thread = () => {
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-4 px-5 py-3 rounded-b-lg  dark:border-neutral-600 bg-gray-50 border-t text-sm text-gray-500 dark:bg-neutral-950">
+                <div className="flex items-center gap-4 px-5 py-3 rounded-b-lg  dark:border-neutral-600 bg-gray-50 border-t text-sm text-gray-500 dark:bg-neutral-800">
                   
                   <button 
                     className={`flex items-center gap-1.5 cursor-pointer transition-colors dark:text-gray-300 ${
