@@ -10,7 +10,7 @@ const Statistics = () => {
 
   return (
     <motion.div
-      className="min-h-screen bg-gray-50 dark:bg-neutral-900"
+      className="min-h-screen bg-gray-50 dark:bg-neutral-950"
       variants={routeVariants}
       initial="initial"
       animate="final"

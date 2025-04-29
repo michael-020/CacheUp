@@ -101,3 +101,28 @@ Custom scrollbar styling
 html, body, #root, main, .overflow-y-auto, .overflow-auto {
   @apply custom-scrollbar;
 }
+
+.react-datepicker {
+  @apply dark:bg-neutral-800 dark:border-neutral-700;
+}
+
+.react-datepicker__header {
+  @apply dark:bg-neutral-700 dark:border-neutral-600;
+}
+
+.react-datepicker__current-month, 
+.react-datepicker__day-name {
+  @apply dark:text-gray-200;
+}
+
+.react-datepicker__day {
+  @apply dark:text-gray-300 dark:hover:bg-neutral-600;
+}
+
+.react-datepicker__day--selected {
+  @apply dark:bg-blue-600 dark:text-white;
+}
+
+.react-datepicker__day--disabled {
+  @apply dark:text-gray-600;
+}

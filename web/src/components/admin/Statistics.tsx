@@ -57,6 +57,7 @@ export const Statistics = () => {
             onChange={(date: Date | null) => date && setSelectedDate(date)}
             className="px-3 py-2 border rounded-md dark:bg-neutral-700 dark:border-neutral-600"
             maxDate={new Date()}
+            dateFormat="dd/MM/yyyy"
           />
         </div>
         
