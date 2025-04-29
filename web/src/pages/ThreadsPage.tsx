@@ -86,7 +86,7 @@ const ForumPage: React.FC = () => {
   }
   
   return (
-    <div className='pb-24'>
+    <div className='pb-24 dark:bg-neutral-950 min-h-screen'>
       <div className="max-w-6xl mx-auto p-6 translate-y-24 h-full" >
         <div className="flex justify-between items-center mb-6">
           <button
@@ -117,7 +117,7 @@ const ForumPage: React.FC = () => {
             {currentForum.threads.map((thread) => (
               <div key={thread._id}>
                 <Link to={linkToPosts+thread._id+"/"+1}>
-                  <div className="border p-4 rounded hover:bg-gray-50 dark:hover:bg-neutral-700">
+                  <div className="border p-4 rounded hover:bg-gray-50 bg-white dark:bg-neutral-800 dark:hover:bg-neutral-700">
                     <div className="flex justify-between items-start">
                       <h2 className="text-xl font-semibold">{thread.title}</h2>
                       {authAdmin && (
