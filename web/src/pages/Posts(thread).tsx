@@ -14,6 +14,7 @@ import {ThreadSkeleton} from "@/components/skeletons/ThreadSkeleton"
 import { DeleteModal } from "@/components/DeleteModal";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { SearchBar } from "@/components/forums/search-bar";
+import { Helmet } from "react-helmet-async";
 
 export const Thread = () => {
   const { id } = useParams();
@@ -229,6 +230,16 @@ export const Thread = () => {
     }
   };
 
+  const generateMetaDescription = () => {
+    let description = threadDescription;
+    const canonicalUrl = `${window.location.origin}/forums/thread/${id}/${page}`
+    if(posts.length > 0){
+      return { posts, description, canonicalUrl }
+    }else{
+      return {description, canonicalUrl}
+    }
+  }
+
   if (loading) {
     return <ThreadSkeleton />;
   }
@@ -243,7 +254,11 @@ export const Thread = () => {
   }
 
   if (posts.length === 0) {
-    return (
+    return (<>
+      <Helmet>
+      <title>{`${threadTitle} | Forum Discussion`}</title>
+      <meta name="description" content={`${threadDescription}`} />
+      </Helmet>
       <div className="p-8 mx-auto max-w-3xl bg-gray-50 dark:bg-neutral-800 translate-y-20 dark:border-neutral-600 border border-gray-200 rounded-lg text-center mt-16">
         <SearchBar />
         <div className="text-gray-500 text-lg dark:text-white">No posts found in Thread {threadTitle}</div>
@@ -285,6 +300,7 @@ export const Thread = () => {
           />
         )}
       </div>
+      </>
     );
   }
 
@@ -333,6 +349,18 @@ export const Thread = () => {
       animate="final"
       exit="exit"  
     >
+      <Helmet>
+        <title>{`${threadTitle} | Forum Discussion`}</title>
+        <meta name="description" content={`${generateMetaDescription()}`} />
+        <meta property="og:title" content={threadTitle} />
+        <meta property="og:description" content={`${generateMetaDescription()}`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={generateMetaDescription().canonicalUrl} />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content={threadTitle} />
+        <meta name="twitter:description" content={`${generateMetaDescription()}`} />
+        <meta name="keywords" content={`${threadTitle}, ${threadDescription}, forum, description, ${posts.map(post => post.content).join(', ')}`} />
+      </Helmet>
       <div className="container mx-auto p-4 max-w-4xl translate-y-20 pb-20 lg:pb-10">
       <SearchBar />
         <div className="mb-4 border-b pb-4">

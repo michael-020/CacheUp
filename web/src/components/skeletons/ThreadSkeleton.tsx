@@ -2,6 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import { useForumStore } from "@/stores/ForumStore/forumStore";
+import { SearchBar } from "../forums/search-bar";
 
 
 export const ThreadSkeleton = () => {
@@ -11,6 +12,7 @@ export const ThreadSkeleton = () => {
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-neutral-950 pb-20">
       <div className="container mx-auto p-4 max-w-4xl translate-y-20 pb-10">
+      <SearchBar />
         <div className="flex flex-col gap-3">
           <div className="flex gap-3">
             <button

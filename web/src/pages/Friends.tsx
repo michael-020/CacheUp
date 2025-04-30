@@ -8,6 +8,7 @@ import FriendRequests from "@/components/FriendRequests";
 import UsersList from "@/components/UsersList";
 import { motion } from "framer-motion"
 import { routeVariants } from "@/lib/routeAnimation";
+import { Helmet } from "react-helmet-async";
 
 const FriendsPage = () => {
   const [activeTab, setActiveTab] = useState("friends");
@@ -57,6 +58,9 @@ const FriendsPage = () => {
       animate="final"
       exit="exit"  
     >
+      <Helmet>
+        <title>Friends | Campus Connect</title>
+      </Helmet>
       <div className="max-w-5xl mx-auto p-6 translate-y-20">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
