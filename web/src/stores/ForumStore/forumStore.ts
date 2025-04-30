@@ -37,7 +37,8 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   requestedForums: [],
   totalPages: 0,
   totalPosts: 0,
-  
+  hasNextPage: false,
+
   fetchForums: async (isAdminRoute: boolean) => {
     set((state) => ({ ...state, loadingForums: true, errorForums: '' }));
   
@@ -96,18 +97,6 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     }
   },
 
-  
-  fetchForumDetails: async (forumId) => {
-    set({ currentForum: { ...get().currentForum, loading: true, error: '' } });
-    try {
-      const response = await axiosInstance.get(`/get-threads/${forumId}`);
-      set({ currentForum: { ...get().currentForum, title: response.data.forum.title } });
-    } catch (err) {
-    //   const error = err as AxiosError<{ msg: string }>;
-    //   set({ currentForum: { ...get().currentForum, error: error.response?.data?.msg || 'Failed to fetch forum' } });
-      console.error(err)
-    }
-  },
 
   fetchThreads: async (forumId, isAdminRoute) => {
     set({ currentForum: { ...get().currentForum, loading: true } });
@@ -116,7 +105,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
         ? `/admin/get-threads/`
         : `/forums/get-threads/`;
       const response = await axiosInstance.get(`${endpoint + forumId}`);
-      set({ currentForum: { ...get().currentForum, threads: response.data.allThreads, loading: false } });
+      set({ currentForum: { ...get().currentForum, title: response.data.forum.title,  threads: response.data.allThreads, loading: false } });
     } catch (err) {
       const error = err as AxiosError<{ msg: string }>;
       set({ currentForum: { ...get().currentForum, error: error.response?.data?.msg || 'Failed to fetch threads', loading: false } });
@@ -182,7 +171,8 @@ export const useForumStore = create<ForumStore>((set, get) => ({
         threadWeaviate,
         loading: false,
         totalPages: data.pagination.totalPages, 
-        totalPosts: data.pagination.totalPosts
+        totalPosts: data.pagination.totalPosts,
+        hasNextPage: data.pagination.hasNextPage
       }));
   
       return posts;

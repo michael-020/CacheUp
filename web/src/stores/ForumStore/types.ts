@@ -134,6 +134,7 @@ export interface ForumState {
   isCreatingPost:boolean;
   totalPosts: number;
   totalPages: number;
+  hasNextPage: boolean
 }
 
 
@@ -145,7 +146,6 @@ export interface ForumActions {
     weaviateId: string, 
     data: { title: string; description: string }
   ) => Promise<void>;
-  fetchForumDetails: (forumId: string) => Promise<void>;
   fetchThreads: (forumId: string, isAdminRoute: boolean) => Promise<void>;
   createThread: (
     forumId: string,

@@ -8,6 +8,7 @@ import { useAuthStore } from '@/stores/AuthStore/useAuthStore';
 import { MoreVertical } from 'lucide-react';
 import { useAdminStore } from '@/stores/AdminStore/useAdminStore';
 import { DeleteModal } from '@/components/DeleteModal';
+import { SearchBar } from '@/components/forums/search-bar';
 
 const ForumPage: React.FC = () => {
   const { forumMongoId, forumWeaviateId } = useParams<{
@@ -19,7 +20,6 @@ const ForumPage: React.FC = () => {
 
   const {
     currentForum,
-    fetchForumDetails,
     fetchThreads,
     createThread,
     deleteThread,
@@ -40,7 +40,6 @@ const ForumPage: React.FC = () => {
     const loadData = async () => {
       setIsLoading(true);
       if (forumMongoId) {
-        await fetchForumDetails(forumMongoId);
         await fetchThreads(forumMongoId, isAdminRoute);
       }
       setTimeout(() => {
@@ -49,7 +48,7 @@ const ForumPage: React.FC = () => {
     };
     
     loadData();
-  }, [forumMongoId, fetchForumDetails, fetchThreads, isAdminRoute]);
+  }, [forumMongoId, fetchThreads, isAdminRoute]);
 
   const handleCreateThread = async (threadData: { title: string; description: string }) => {
     try {
@@ -88,6 +87,7 @@ const ForumPage: React.FC = () => {
   return (
     <div className='pb-24 dark:bg-neutral-950 min-h-screen'>
       <div className="max-w-6xl mx-auto p-6 translate-y-24 h-full" >
+      <SearchBar />
         <div className="flex justify-between items-center mb-6">
           <button
               onClick={() => navigate(-1)}
@@ -95,7 +95,7 @@ const ForumPage: React.FC = () => {
           >
             <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
           </button>
-          <h1 className="text-2xl font-bold">{currentForum.title}</h1>
+          <h1 className="text-2xl font-bold">{currentForum.title}'s Forum</h1>
           {authUser && <button
             onClick={() => setShowModal(true)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"

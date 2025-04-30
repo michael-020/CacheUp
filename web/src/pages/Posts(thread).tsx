@@ -13,11 +13,12 @@ import { routeVariants } from "@/lib/routeAnimation";
 import {ThreadSkeleton} from "@/components/skeletons/ThreadSkeleton"
 import { DeleteModal } from "@/components/DeleteModal";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
+import { SearchBar } from "@/components/forums/search-bar";
 
 export const Thread = () => {
   const { id } = useParams();
   const { page } = useParams();
-  const { fetchPosts, posts, loading, error, threadTitle, threadDescription, threadWeaviate, isWatched, watchThread, checkWatchStatus, deletePost, totalPages, totalPosts } = useForumStore();
+  const { fetchPosts, posts, loading, error, threadTitle, threadDescription, threadWeaviate, isWatched, watchThread, checkWatchStatus, deletePost, totalPages, totalPosts, hasNextPage } = useForumStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { authAdmin } = useAdminStore();
   const [likeLoading, setLikeLoading] = useState<{[key: string]: boolean}>({});
@@ -78,7 +79,7 @@ export const Thread = () => {
     if(postQuery){
       setTimeout(() => {
         scrollToPost(postQuery)
-      }, 250)
+      }, 300)
     }    
   },[])
 
@@ -244,6 +245,7 @@ export const Thread = () => {
   if (posts.length === 0) {
     return (
       <div className="p-8 mx-auto max-w-3xl bg-gray-50 dark:bg-neutral-800 translate-y-20 dark:border-neutral-600 border border-gray-200 rounded-lg text-center mt-16">
+        <SearchBar />
         <div className="text-gray-500 text-lg dark:text-white">No posts found in Thread {threadTitle}</div>
         <div className="text-gray-600 dark:text-gray-200 mb-2">{threadDescription}</div>
         <div className="mt-4 text-sm text-gray-400">Be the first to post in this discussion</div>
@@ -268,9 +270,9 @@ export const Thread = () => {
                   </>
                 )}
               </Button>
-        <Button onClick={() => setIsModalOpen(true)} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 mt-3">
+        {!hasNextPage && <Button onClick={() => setIsModalOpen(true)} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 mt-3">
           + New Post
-        </Button>
+        </Button>}
 
         </div>
         {isModalOpen && (
@@ -332,6 +334,7 @@ export const Thread = () => {
       exit="exit"  
     >
       <div className="container mx-auto p-4 max-w-4xl translate-y-20 pb-20 lg:pb-10">
+      <SearchBar />
         <div className="mb-4 border-b pb-4">
           <div className="flex items-center mb-2">
             <button
@@ -372,12 +375,12 @@ export const Thread = () => {
                 )}
               </Button>
 
-              <Button
+              {!hasNextPage && <Button
                 onClick={() => setIsModalOpen(true)}
                 className="bg-green-600 hover:bg-green-700 text-white"
               >
                 + New Post
-              </Button>
+              </Button>}
             </div>
           </div>
         </div>
@@ -508,9 +511,7 @@ export const Thread = () => {
                 </div>
 
                   </div>
-                  {index === 0 && page === '1' && (
-                    <div className="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">Latest Post</div>
-                  )}
+                 
                   {/* Add this menu button */}
                 <div className="relative">
                   <button 

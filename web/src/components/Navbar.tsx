@@ -23,10 +23,7 @@ export const Navbar = () => {
   const currentPath = location.pathname;
   const [dotMenuOpen, setDotMenuOpen] = useState(false);
   const dotMenuRef = useRef<HTMLDivElement | null>(null);
-  const isForumPath = 
-    currentPath === "/forums/get-forums" || 
-    /^\/forums\/[^/]+\/[^/]+$/.test(currentPath) ||
-    currentPath.startsWith("/forums/search");
+  const isForumPath = currentPath.startsWith("/forums");
   const { isDark, toggleTheme } = useThemeStore();
 
   const handleToggleTheme = () => {
