@@ -186,10 +186,10 @@ function App() {
       <AnimatePresence mode="wait" >
         <Routes>
           {/* User Routes */}
-          <Route path="/signup" element={!authUser ? <Signup /> : <Navigate to={returnPath || "/home"} /> } />
-          <Route path="/signin" element={!authUser ? <Signin /> : <Navigate to={returnPath || "/home"} /> } />
-          <Route path='/verify-email' element={!authUser ? <EmailVerify /> : <Navigate to={returnPath || "/home"} />} />
-          <Route path='/' element={!authUser ? <Landing /> : <Navigate to={returnPath || "/home"} />} />
+          <Route path="/signup" element={!authUser ? <Signup /> : <Navigate to={returnPath && returnPath !== "/" ? returnPath : "/home"} />} />
+          <Route path="/signin" element={!authUser ? <Signin /> : <Navigate to={returnPath && returnPath !== "/" ? returnPath : "/home"} />} />
+          <Route path='/' element={!authUser ? <Landing /> : <Navigate to={returnPath && returnPath !== "/" ? returnPath : "/home"} />} />
+          <Route path='/verify-email' element={!authUser ? <EmailVerify /> : <Navigate to={returnPath && returnPath !== "/" ? returnPath : "/home"} />} />
           <Route path="/home" element={authUser ? <Home /> : <Navigate to="/signin" />} />
           <Route path='/profile' element={authUser ? <Profile /> : <Navigate to="/signin"/>} />
           <Route path="/profile/:id" element={authUser ? <Profile /> : <Navigate to="/signin"/>} />
