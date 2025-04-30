@@ -1,81 +1,54 @@
-import { motion } from "framer-motion"
-import { ArrowRight, Users, MessageSquare, Search, Share2 } from "lucide-react"
-import { Link } from "react-router-dom"
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { ArrowRight, MessageSquare, Moon, Search, Share2, Sun, Users } from "lucide-react";
+import { useThemeStore } from "@/stores/ThemeStore/useThemeStore";
 
 export const Landing = () => {
+  const { isDark, toggleTheme } = useThemeStore();
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-neutral-900 dark:to-neutral-950">
-      <header className="container mx-auto px-4 py-6">
-        <nav className="flex items-center justify-between">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-            className="flex items-center gap-2"
-          >
-            <div className="h-10 w-10  flex items-center justify-center">
-              {/* <span className="text-white font-bold text-xl">C</span> */}
-              <img src="/favicon.svg" />
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-neutral-950 dark:to-neutral-900">
+      <nav className="fixed top-0 w-full bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-b border-gray-200 dark:border-neutral-800 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex justify-center items-center">
+              <img src="/favicon.svg" className="size-10" />
+              <h1 className="font-extrabold text-2xl text-blue-600">
+                CacheUp
+              </h1>
             </div>
-            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-500">
-              CacheUp
-            </span>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="hidden md:flex items-center gap-8"
-          >
-            <a
-              href="#features"
-              className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            >
-              Features
-            </a>
-            <a
-              href="#about"
-              className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            >
-              About
-            </a>
-            <a
-              href="#testimonials"
-              className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            >
-              Testimonials
-            </a>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-            className="flex items-center gap-4"
-          >
-            <Link to="/signin">
+            <div className="flex items-center gap-4">
+              {/* Add Theme Toggle Button */}
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-4 py-2 text-blue-600 dark:text-blue-400 font-medium rounded-lg hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors"
+                onClick={toggleTheme}
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
+                aria-label="Toggle theme"
               >
-                Signin
+                {isDark ? (
+                  <Sun className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                ) : (
+                  <Moon className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                )}
               </motion.button>
-            </Link>
-            <Link to="/signup">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+              <Link 
+                to="/signin"
+                className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
-                Sign Up
-              </motion.button>
-            </Link>
-          </motion.div>
-        </nav>
-      </header>
-
+                Sign In
+              </Link>
+              <Link 
+                to="/signup"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Get Started
+              </Link>
+            </div>
+          </div>
+        </div>
+      </nav>
+      
       <main>
         {/* Hero Section */}
         <section className="container mx-auto px-4 py-20 flex flex-col md:flex-row items-center h-[calc(100vh-5rem)]">
@@ -149,7 +122,7 @@ export const Landing = () => {
                 className="absolute bottom-0 right-[10%] bg-white dark:bg-neutral-800 p-6 rounded-xl shadow-xl"
               >
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-blue-200 dark:bg-blue-200 dark:bg-blue-400"></div>
+                  <div className="w-10 h-10 rounded-full bg-blue-200 dark:bg-blue-400"></div>
                   <div>
                     <div className="h-3 w-20 bg-gray-200 dark:bg-gray-600 rounded mb-1"></div>
                     <div className="h-3 w-16 bg-gray-200 dark:bg-gray-600 rounded"></div>
@@ -485,7 +458,7 @@ export const Landing = () => {
         </div>
       </footer>
     </div>
-  )
-}
+  );
+};
 
-export default Landing
+export default Landing;
