@@ -81,7 +81,7 @@ export const Navbar = () => {
         <div className="flex-shrink-0">
           <Link to={"/"} onClick={() => fetchPosts()}>
             <h1 className="font-extrabold text-xl md:text-3xl text-black dark:text-gray-100">
-              CampusConnect
+              CacheUp
             </h1>
           </Link>
         </div>

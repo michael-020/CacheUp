@@ -8,15 +8,26 @@ const viewPostHandler: Router = Router();
 viewPostHandler.get("/", async (req: Request, res: Response) => {
     try {
         const userId = req.user._id;
-        // Fixed populate syntax - assuming user schema has username and userImagePath fields
+        const page = parseInt(req.query.page as string) || 1; // Default to page 1
+        const limit = parseInt(req.query.limit as string) || 5; // Default 5 posts per page
+        const skip = (page - 1) * limit;
+        
+        // Get total count for checking if more posts exist
+        const totalPosts = await postModel.countDocuments({ visibility: true });
+        
+        // Get posts for infinite scroll
         const allPosts = await postModel
             .find({ visibility: true })
-            .populate("comments.user", "username profilePicture") // Corrected field selection
-            .sort({ createdAt: -1 });
+            .populate("comments.user", "username profilePicture")
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
 
-        if (!allPosts) {
-            res.status(401).json({
-                msg: "No posts found"
+        if (!allPosts || allPosts.length === 0) {
+            res.status(200).json({
+                posts: [],
+                hasMore: false,
+                nextPage: null
             });
             return;
         }
@@ -38,7 +49,14 @@ viewPostHandler.get("/", async (req: Request, res: Response) => {
             };
         });
 
-        res.status(200).json(processedPosts);
+        // Check if there are more posts to load
+        const hasMore = totalPosts > skip + allPosts.length;
+
+        res.status(200).json({
+            posts: processedPosts,
+            hasMore,
+            nextPage: hasMore ? page + 1 : null
+        });
     } catch (e) {
         console.error("Error while getting all posts", e);
         res.status(401).json({
