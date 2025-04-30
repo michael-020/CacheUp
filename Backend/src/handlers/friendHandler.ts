@@ -398,7 +398,7 @@ friendHandler.get("/mutual/:friendId", async (req: Request, res: Response) => {
   }
 });
 
-//Friends suggestions endpoint
+// Friends suggestions endpoint
 friendHandler.get("/suggestions", async (req: Request, res: Response) => {
   try {
     const userId = req.user._id;
@@ -409,6 +409,14 @@ friendHandler.get("/suggestions", async (req: Request, res: Response) => {
        res.status(404).json({ message: "User not found" });
        return
     }
+
+    const pendingSentRequestsUsers = await userModel.find({
+      friendRequests: userId
+    }).select("_id").lean();
+    
+    const pendingRequestUserIds = pendingSentRequestsUsers.map(user => user._id);
+
+    const excludeUserIds = [...currentUser.friends, userId, ...pendingRequestUserIds];
 
     const friendsOfFriends = await userModel.aggregate([
       { $match: { _id: { $in: currentUser.friends } } },
@@ -424,7 +432,7 @@ friendHandler.get("/suggestions", async (req: Request, res: Response) => {
       {
         $match: {
           "friendsOfFriends._id": {
-            $nin: [...currentUser.friends, userId]
+            $nin: excludeUserIds
           }
         }
       },
@@ -440,7 +448,7 @@ friendHandler.get("/suggestions", async (req: Request, res: Response) => {
     ]);
 
     const departmentMatches = await userModel.find({
-      _id: { $nin: [...currentUser.friends, userId] },
+      _id: { $nin: excludeUserIds },
       $or: [
         { department: currentUser.department },
         { graduationYear: currentUser.graduationYear }
@@ -478,28 +486,15 @@ friendHandler.get("/suggestions", async (req: Request, res: Response) => {
       suggestions = [...suggestions, ...additionalSuggestions];
     }
 
-    const pendingRequests = await userModel.find({
-      _id: { $in: suggestions.map(s => s._id) },
-      friendRequests: userId
-    }).select("_id").lean();
-
-    const pendingRequestIds = new Set(pendingRequests.map(p => p._id.toString()));
-
-    suggestions = suggestions.map(s => ({
-      ...s,
-      hasPendingRequest: pendingRequestIds.has(s._id.toString())
-    }));
-
-     res.status(200).json({ suggestions });
-     return
+    res.status(200).json({ suggestions });
+    return
 
   } catch (error) {
     console.error("Error fetching suggestions:", error);
-     res.status(500).json({ message: "Internal server error" });
-     return
+    res.status(500).json({ message: "Internal server error" });
+    return
   }
 });
-
 
 friendHandler.get("/:userId", async (req: Request, res: Response) => {
   try {
