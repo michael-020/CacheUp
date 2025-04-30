@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useFriendsStore } from "@/stores/FriendsStore/useFriendsStore";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserPlus, RefreshCw, X, Check, Users } from "lucide-react";
+import { UserPlus, RefreshCw, X, Users } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,7 +18,6 @@ const FriendSuggestions = () => {
     refreshSuggestions 
   } = useFriendsStore();
   const [processingUsers, setProcessingUsers] = useState<string[]>([]);
-  const [localPendingStatus, setLocalPendingStatus] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     fetchSuggestions();
@@ -38,10 +37,6 @@ const FriendSuggestions = () => {
     
     try {
       await sendRequest(userId);
-      setLocalPendingStatus(prev => ({
-        ...prev,
-        [userId]: true
-      }));
     } catch (err) {
       console.error("Error sending request:", err);
     } finally {
@@ -141,10 +136,9 @@ const FriendSuggestions = () => {
       </CardHeader>
       <CardContent>
         <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1">
-          {suggestions.map((suggestion: SuggestionUser) => {
+                  {suggestions.map((suggestion: SuggestionUser) => {
             const isProcessing = processingUsers.includes(suggestion._id);
-            // Check both the original status and our local status
-            const hasPendingRequest = suggestion.hasPendingRequest || localPendingStatus[suggestion._id];
+            const isPending = suggestion.isPending;
             
             return (
               <div key={suggestion._id} className="flex items-center gap-3 p-2 rounded-md hover:bg-gray-50 dark:hover:bg-neutral-900 transition-colors">
@@ -160,7 +154,6 @@ const FriendSuggestions = () => {
                     <h4 className="font-medium text-sm hover:underline truncate">{suggestion.name}</h4>
                   </Link>
                   
-                  {/* Safely access mutualFriends with optional chaining/nullish coalescing */}
                   {(suggestion.mutualFriends ?? 0) > 0 && (
                     <p className="text-xs text-gray-500 flex items-center gap-1">
                       <Users className="h-3 w-3" />
@@ -174,38 +167,40 @@ const FriendSuggestions = () => {
                 </div>
                 
                 <div className="flex items-center gap-1">
-                  {hasPendingRequest ? (
-                    <Button variant="outline" size="sm" disabled className="flex items-center gap-1 bg-gray-50 dark:bg-neutral-900">
-                      <Check className="h-3 w-3 text-green-500" />
-                      <span className="text-xs">Sent</span>
+                  {isPending ? (
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      disabled
+                      className="flex items-center gap-1 shadow-sm text-xs"
+                    >
+                      Sent
                     </Button>
                   ) : (
-                    <>
-                      <Button 
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => handleRequest(suggestion._id)}
-                        disabled={isProcessing}
-                        className="flex items-center gap-1 shadow-sm text-xs"
-                      >
-                        {isProcessing ? (
-                          <RefreshCw className="h-3 w-3 animate-spin" />
-                        ) : (
-                          <UserPlus className="h-3 w-3" />
-                        )}
-                      </Button>
-                      
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => handleIgnore(suggestion._id)}
-                        className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                        title="Ignore suggestion"
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </>
+                    <Button 
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => handleRequest(suggestion._id)}
+                      disabled={isProcessing}
+                      className="flex items-center gap-1 shadow-sm text-xs"
+                    >
+                      {isProcessing ? (
+                        <RefreshCw className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <UserPlus className="h-3 w-3" />
+                      )}
+                    </Button>
                   )}
+                  
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => handleIgnore(suggestion._id)}
+                    className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                    title="Ignore suggestion"
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
                 </div>
               </div>
             );

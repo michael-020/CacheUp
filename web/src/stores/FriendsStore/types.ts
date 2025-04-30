@@ -3,6 +3,7 @@ import { IUser } from "@/lib/utils";
 export interface SuggestionUser extends IUser {
   mutualFriends?: number;
   hasPendingRequest?: boolean;
+  isPending?: boolean;
 }
 
 

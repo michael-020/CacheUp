@@ -130,36 +130,44 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
   },
 
   refreshSuggestions: async () => {
-    await get().fetchSuggestions();
-    toast.success("Suggestions refreshed");
-  },
-
-
-  sendRequest: async (userId: string) => {
+    set({ loading: true });
     try {
-      set(state => ({
-        sentRequests: [...state.sentRequests, { _id: userId } as IUser]
-      }));
-      
-      await axiosInstance.post("/user/friends/send-request", { receiverId: userId });
-      set(state => ({
-        suggestions: state.suggestions.map(suggestion => 
-          suggestion._id === userId 
-            ? { ...suggestion, hasPendingRequest: true } 
-            : suggestion
-        )
-      }));
-      
-      toast.success("Friend request sent");
-    } catch (error) {
-      const err = error as AxiosError<{ message?: string }>;
-      set(state => ({
-        sentRequests: state.sentRequests.filter(req => req._id !== userId)
-      }));
-      console.error("Error sending request:", err);
-      toast.error(err.response?.data?.message || "Failed to send request");
+      await get().fetchSuggestions();
+      toast.success("Suggestions refreshed");
+    } finally {
+      set({ loading: false });
     }
   },
+
+  sendRequest: async (userId: string) => {
+  try {
+    set(state => ({
+      suggestions: state.suggestions.map(suggestion => 
+        suggestion._id === userId 
+          ? { ...suggestion, isPending: true } 
+          : suggestion
+      ),
+      sentRequests: [...state.sentRequests, { _id: userId } as IUser]
+    }));
+    
+    await axiosInstance.post("/user/friends/send-request", { receiverId: userId });
+    toast.success("Friend request sent");
+  } catch (error) {
+    const err = error as AxiosError<{ message?: string }>;
+    
+    set(state => ({
+      suggestions: state.suggestions.map(suggestion => 
+        suggestion._id === userId 
+          ? { ...suggestion, isPending: false } 
+          : suggestion
+      ),
+      sentRequests: state.sentRequests.filter(req => req._id !== userId)
+    }));
+    
+    console.error("Error sending request:", err);
+    toast.error(err.response?.data?.message || "Failed to send request");
+  }
+},
 
   acceptRequest: async (userId: string) => {
     try {
