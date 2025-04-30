@@ -1,11 +1,12 @@
-import { useEffect } from "react";
+import { useEffect } from 'react';
 import { usePostStore } from "../../stores/PostStore/usePostStore";
 import PostCard from "../PostCard";
 import PostCardSkeleton from "../skeletons/PostCardSkeleton";
 import Share from "../Share";
+import { FriendSuggestionsSlider } from '../FriendSuggestionsSlider';
 
-export function Feed() {
-  const { posts, fetchPosts, isFetchingPosts } = usePostStore();
+export const Feed = () => {
+  const { fetchPosts, isFetchingPosts, posts } = usePostStore();
   
   useEffect(() => {
     fetchPosts()
@@ -22,8 +23,16 @@ export function Feed() {
             <PostCardSkeleton />
           </div>
         ) : posts && posts.length > 0 ? (          
-          posts.map((post) => (
-            <PostCard key={post._id} post={post} />
+          posts.map((post, index) => (
+            <>
+              <PostCard key={post._id} post={post} />
+              {/* Show FriendSuggestions after 6th post on mobile/tablet */}
+              {index === 1 && (
+                <div className="lg:hidden">
+                  <FriendSuggestionsSlider />
+                </div>
+              )}
+            </>
           ))
         ) : (
           <div className="min-h-screen">
@@ -35,4 +44,4 @@ export function Feed() {
       </div>
     </div>
   );
-}
+};

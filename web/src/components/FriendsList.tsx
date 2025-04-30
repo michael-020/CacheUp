@@ -120,7 +120,7 @@ const FriendsList = ({ searchTerm = "" }: FriendsListProps) => {
               <div className="flex items-center gap-3">
                 <Link to={`/profile/${friend._id}`}>
                   <Avatar className="h-12 w-12 border border-gray-200 dark:border-gray-600">
-                    <AvatarImage src={friend.profilePicture || ""} alt={friend.name} />
+                    <AvatarImage src={friend.profilePicture || "avatar.jpeg" } alt={friend.name} />
                     <AvatarFallback>{getInitials(friend.name)}</AvatarFallback>
                   </Avatar>
                 </Link>

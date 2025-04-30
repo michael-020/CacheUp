@@ -201,7 +201,7 @@ const UsersList = ({ searchTerm = "" }: UsersListProps) => {
         <div className="flex items-center gap-3 mb-3">
           <Link to={`/profile/${user._id}`}>
             <Avatar className="h-12 w-12 cursor-pointer hover:opacity-80 transition-opacity">
-              <AvatarImage src={user.profilePicture} alt={user.name} />
+              <AvatarImage src={user.profilePicture || "avatar.jpeg"} alt={user.name} />
               <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
             </Avatar>
           </Link>

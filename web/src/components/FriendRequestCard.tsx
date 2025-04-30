@@ -46,7 +46,7 @@ const FriendRequestCard = ({ user, onAccept, onReject }: FriendRequestCardProps)
       <div className="flex items-center gap-3">
         <Link to={`/profile/${user._id}`}>
           <Avatar className="h-14 w-14 border-2 border-purple-100 dark:border-purple-900">
-            <AvatarImage src={user.profilePicture || ""} alt={user.name} />
+            <AvatarImage src={user.profilePicture || "avatar.jpeg"} alt={user.name} />
             <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
           </Avatar>
         </Link>
