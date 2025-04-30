@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { axiosInstance } from "@/lib/axios";
 import { toast } from "sonner";
-import { FriendsState, FriendsActions } from "./types";
+import { FriendsState, FriendsActions,SuggestionUser } from "./types";
 import { AxiosError } from "axios";
 import { IUser } from "@/lib/utils";
 
@@ -9,8 +9,10 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
   friends: [],
   requests: [],
   sentRequests: [],
+  suggestions: [],
+  viewedSuggestions: [],
   loading: false,
-  // mutualFriends: {},
+  mutualFriends: {},
 
   setLoading: (loading: boolean) => set({ loading }),
 
@@ -76,40 +78,62 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
     }
   },
 
-  // fetchSuggestions: async () => {
-  //   set({ loading: true });
-  //   try {
-  //     const { data } = await axiosInstance.get<{ suggestions: IUser[] }>("user/friends/suggestions");
-  //     set({ friends: data.suggestions || [] });
-  //   } catch (error) {
-  //     const err = error as AxiosError<{ message?: string }>;
-  //     console.error("Error fetching suggestions:", err);
-  //     toast.error(err.response?.data?.message || "Failed to load suggestions");
-  //   } finally {
-  //     set({ loading: false });
-  //   }
-  // },
+  fetchSuggestions: async () => {
+    set({ loading: true });
+    try {
+      const { data } = await axiosInstance.get<{ suggestions: SuggestionUser[] }>("user/friends/suggestions");
 
-  // fetchMutualFriends: async (friendId: string) => {
-  //   try {
-  //     const { data } = await axiosInstance.get<{ count: number }>(`user/friends/mutual/${friendId}`);
-  //     set(state => ({
-  //       mutualFriends: {
-  //         ...state.mutualFriends,
-  //         [friendId]: data.count || 0
-  //       }
-  //     }));
-  //   } catch (error) {
-  //     const err = error as AxiosError;
-  //     console.error("Error fetching mutual friends:", err);
-  //     set(state => ({
-  //       mutualFriends: {
-  //         ...state.mutualFriends,
-  //         [friendId]: 0
-  //       }
-  //     }));
-  //   }
-  // },
+      set({ suggestions: data.suggestions || [] });
+    } catch (error) {
+      const err = error as AxiosError<{ message?: string }>;
+      console.error("Error fetching suggestions:", err);
+      toast.error(err.response?.data?.message || "Failed to load suggestions");
+    } finally {
+      set({ loading: false });
+    }
+  },
+  
+
+  fetchMutualFriends: async (friendId: string) => {
+    try {
+      
+      const response = await axiosInstance.get(`friends/mutual/${friendId}`);
+      
+      set(state => ({
+        mutualFriends: {
+          ...state.mutualFriends,
+          [friendId]: response.data.count
+        }
+      }));
+      
+      return response.data.count;
+    } catch (error) {
+      const err = error as AxiosError;
+      console.error("Error fetching mutual friends:", err);
+      
+      set(state => ({
+        mutualFriends: {
+          ...state.mutualFriends,
+          [friendId]: 0
+        }
+      }));
+      
+      return 0;
+    }
+  },
+
+  ignoreSuggestion: (userId: string) => {
+    set((state) => ({
+      suggestions: state.suggestions.filter(suggestion => suggestion._id !== userId),
+      viewedSuggestions: [...state.viewedSuggestions, userId]
+    }));
+  },
+
+  refreshSuggestions: async () => {
+    await get().fetchSuggestions();
+    toast.success("Suggestions refreshed");
+  },
+
 
   sendRequest: async (userId: string) => {
     try {
@@ -118,6 +142,14 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
       }));
       
       await axiosInstance.post("/user/friends/send-request", { receiverId: userId });
+      set(state => ({
+        suggestions: state.suggestions.map(suggestion => 
+          suggestion._id === userId 
+            ? { ...suggestion, hasPendingRequest: true } 
+            : suggestion
+        )
+      }));
+      
       toast.success("Friend request sent");
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;

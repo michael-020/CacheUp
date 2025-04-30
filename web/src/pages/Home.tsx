@@ -3,6 +3,7 @@ import { Feed } from '../components/feeds/Feed';
 import { useAuthStore } from '@/stores/AuthStore/useAuthStore';
 import { motion } from "framer-motion"
 import { routeVariants } from '@/lib/routeAnimation';
+import FriendSuggestions from '@/components/FriendsSuggestions';
 
 export const Home = () => {
   const { authUser } = useAuthStore()
@@ -25,6 +26,11 @@ export const Home = () => {
       <div className="ml-[1rem] pb-36 md:pb-36 lg:pb-20">
         <Feed />
       </div>
+
+      <div className="absolute right-2 top-24 hidden lg:block">
+        <FriendSuggestions />
+      </div>
+
     </motion.div>
   );
 };
