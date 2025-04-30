@@ -88,10 +88,10 @@ export const Navbar = () => {
         
         {/* Desktop Navigation Icons */}
         <div className="hidden lg:flex items-center justify-center space-x-4">
-          <Link to={"/"}>
+          <Link to={"/home"}>
             <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
               <HomeIcont
-                className={`w-6 h-6 ${currentPath === "/" ? "text-blue-500 fill-current" : "text-gray-600 dark:fill-none"}`}
+                className={`w-6 h-6 ${currentPath === "/home" ? "text-blue-500 fill-current" : "text-gray-600 dark:fill-none"}`}
               />
             </button>
           </Link>
