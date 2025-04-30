@@ -18,27 +18,79 @@ export const usePostStore = create<PostState & PostActions>((set,get) => ({
   isPostDeleting: false,
   savedPosts: [],
   isFetchingSavedPosts: false,
+  currentPage: 1,
+  hasMore: true,
+  isLoadingMore: false,
 
   setError: (error) => set({ error }),
   clearError: () => set({ error: null }),
-
-  fetchPosts: async (isAdmin) => {
-    set({ isFetchingPosts: true });
+  
+  fetchPosts: async (isAdmin = false) => {
+    set({ 
+      isFetchingPosts: true,
+      currentPage: 1 
+    });
+    
     try {
-      const url = isAdmin ? "/admin/view-posts" : "/post/viewPosts/"
+      const url = isAdmin 
+        ? `/admin/view-posts?page=1&limit=5` 
+        : `/post/viewPosts?page=1&limit=5`;
+        
       const res = await axiosInstance.get(url);
-      const posts = res.data as Post[]
-      const postsWithLikeStatus = posts.map(post  => {
+      const { posts, hasMore } = res.data;
+      
+      const postsWithLikeStatus = posts.map(post => {
         return {
           ...post,
           isLiked: post.isLiked !== undefined ? post.isLiked : false
         };
       });
       
-      set({ posts: postsWithLikeStatus, isFetchingPosts: false });
+      set({ 
+        posts: postsWithLikeStatus,
+        hasMore,
+        isFetchingPosts: false,
+        currentPage: 1
+      });
     } catch (error) {
       console.error("Error fetching posts:", error);
-      set({ isFetchingPosts: false })
+      set({ isFetchingPosts: false });
+    }
+  },
+  
+  loadMorePosts: async (isAdmin = false) => {
+    const { hasMore, currentPage, isLoadingMore } = get();
+    
+    if (!hasMore || isLoadingMore) return;
+    
+    set({ isLoadingMore: true });
+    
+    try {
+      await new Promise(resolve => setTimeout(resolve, 800));
+      const nextPage = currentPage + 1;
+      const url = isAdmin 
+        ? `/admin/view-posts?page=${nextPage}&limit=5` 
+        : `/post/viewPosts?page=${nextPage}&limit=5`;
+        
+      const res = await axiosInstance.get(url);
+      const { posts, hasMore: morePostsAvailable } = res.data;
+      
+      const postsWithLikeStatus = posts.map(post => {
+        return {
+          ...post,
+          isLiked: post.isLiked !== undefined ? post.isLiked : false
+        };
+      });
+      
+      set(state => ({ 
+        posts: [...state.posts, ...postsWithLikeStatus],
+        hasMore: morePostsAvailable,
+        currentPage: nextPage,
+        isLoadingMore: false
+      }));
+    } catch (error) {
+      console.error("Error loading more posts:", error);
+      set({ isLoadingMore: false });
     }
   },
   
