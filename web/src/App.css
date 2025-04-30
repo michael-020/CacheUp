@@ -126,3 +126,13 @@ html, body, #root, main, .overflow-y-auto, .overflow-auto {
 .react-datepicker__day--disabled {
   @apply dark:text-gray-600;
 }
+
+/* Add to your global CSS file */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
