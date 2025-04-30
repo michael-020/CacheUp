@@ -81,17 +81,17 @@ export const Navbar = () => {
         <div className="flex-shrink-0">
           <Link to={"/"} onClick={() => fetchPosts()}>
             <h1 className="font-extrabold text-xl md:text-3xl text-black dark:text-gray-100">
-              CampusConnect
+              CacheUp
             </h1>
           </Link>
         </div>
         
         {/* Desktop Navigation Icons */}
         <div className="hidden lg:flex items-center justify-center space-x-4">
-          <Link to={"/"}>
+          <Link to={"/home"}>
             <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
               <HomeIcont
-                className={`w-6 h-6 ${currentPath === "/" ? "text-blue-500 fill-current" : "text-gray-600 dark:fill-none"}`}
+                className={`w-6 h-6 ${currentPath === "/home" ? "text-blue-500 fill-current" : "text-gray-600 dark:fill-none"}`}
               />
             </button>
           </Link>
@@ -286,10 +286,10 @@ export const BottomNavigationBar = () => {
 
       <div className="fixed bottom-0 z-10 left-0 right-0 bg-white dark:bg-neutral-800 border-t border-gray-200 dark:border-neutral-700">
         <nav className="flex items-center justify-around h-16">
-          <Link to={"/"}>
+          <Link to={"/home"}>
             <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
               <HomeIcont
-                className={`w-6 h-6 ${currentPath === "/" ? "text-blue-500 fill-current" : "text-gray-600 dark:fill-none"}`}
+                className={`w-6 h-6 ${currentPath === "/home" ? "text-blue-500 fill-current" : "text-gray-600 dark:fill-none"}`}
               />
             </button>
           </Link>

@@ -5,6 +5,7 @@ import { Profile } from './pages/Profile'
 import { Messages } from './pages/Messages'
 import { Signup } from './pages/Signup'
 import { Signin } from './pages/Signin'
+import { Landing } from './pages/Landing'
 import { useAuthStore } from './stores/AuthStore/useAuthStore'
 import { useEffect, useRef, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
@@ -59,6 +60,7 @@ function App() {
     const currentPath = location.pathname
     if (!currentPath.includes('/signin') && 
         !currentPath.includes('/signup') && 
+        !currentPath.includes('/') && 
         !currentPath.includes('/admin/signin')) {
       if (currentPath.startsWith('/admin')) {
         sessionStorage.setItem('adminLastPath', currentPath)
@@ -184,10 +186,11 @@ function App() {
       <AnimatePresence mode="wait" >
         <Routes>
           {/* User Routes */}
-          <Route path="/signup" element={!authUser ? <Signup /> : <Navigate to={returnPath || "/"} /> } />
-          <Route path="/signin" element={!authUser ? <Signin /> : <Navigate to={returnPath || "/"} /> } />
-          <Route path='/verify-email' element={!authUser ? <EmailVerify /> : <Navigate to={returnPath || "/"} />} />
-          <Route path="/" element={authUser ? <Home /> : <Navigate to="/signin" />} />
+          <Route path="/signup" element={!authUser ? <Signup /> : <Navigate to={returnPath && returnPath !== "/" ? returnPath : "/home"} />} />
+          <Route path="/signin" element={!authUser ? <Signin /> : <Navigate to={returnPath && returnPath !== "/" ? returnPath : "/home"} />} />
+          <Route path='/' element={!authUser ? <Landing /> : <Navigate to={returnPath && returnPath !== "/" ? returnPath : "/home"} />} />
+          <Route path='/verify-email' element={!authUser ? <EmailVerify /> : <Navigate to={returnPath && returnPath !== "/" ? returnPath : "/home"} />} />
+          <Route path="/home" element={authUser ? <Home /> : <Navigate to="/signin" />} />
           <Route path='/profile' element={authUser ? <Profile /> : <Navigate to="/signin"/>} />
           <Route path="/profile/:id" element={authUser ? <Profile /> : <Navigate to="/signin"/>} />
           <Route path='/message' element={authUser ? <Messages /> : <Navigate to="/signin" />} />
