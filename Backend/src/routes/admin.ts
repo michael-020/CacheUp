@@ -31,6 +31,7 @@ import { getAllUsersStatsHandler, getUserStatsHandler } from "../handlers/userSt
 import { getDailyTimeSpentHandler } from '../handlers/timeTrackingHandler';
 import { timeTrackingService } from "../services/timeTrackingService";
 import viewProfileHanler from "../handlers/viewProfileHandler";
+import { adminGetReportedPostsCommentsThreadsHandler } from "../handlers/forums/adminGetReportedPostsCommentsThreadsHandler";
 
 const adminRouter: Router = Router();
 
@@ -145,5 +146,8 @@ adminRouter.get('/stats/page-views/:date', async (req, res) => {
     });
   }
 });
+
+// get reported forums content
+adminRouter.get("/reported-content", adminGetReportedPostsCommentsThreadsHandler)
 
 export default adminRouter;
