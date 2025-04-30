@@ -51,7 +51,7 @@ export const Landing = () => {
       
       <main>
         {/* Hero Section */}
-        <section className="container mx-auto px-4 py-20 flex flex-col md:flex-row items-center h-[calc(100vh-5rem)]">
+        <section className="container mx-auto px-4 py-20 flex flex-col md:flex-row items-center h-screen">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
