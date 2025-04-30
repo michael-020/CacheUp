@@ -13,9 +13,9 @@ export const Landing = () => {
             transition={{ duration: 0.5 }}
             className="flex items-center gap-2"
           >
-            <div className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center">
+            <div className="h-10 w-10  flex items-center justify-center">
               {/* <span className="text-white font-bold text-xl">C</span> */}
-              <img src="/favicon-4.ico" />
+              <img src="/favicon.svg" />
             </div>
             <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-500">
               CacheUp
