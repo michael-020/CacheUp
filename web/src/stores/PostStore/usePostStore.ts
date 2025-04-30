@@ -39,7 +39,7 @@ export const usePostStore = create<PostState & PostActions>((set,get) => ({
       const res = await axiosInstance.get(url);
       const { posts, hasMore } = res.data;
       
-      const postsWithLikeStatus = posts.map(post => {
+      const postsWithLikeStatus = posts.map((post: { isLiked?: boolean }) => {
         return {
           ...post,
           isLiked: post.isLiked !== undefined ? post.isLiked : false
@@ -75,7 +75,7 @@ export const usePostStore = create<PostState & PostActions>((set,get) => ({
       const res = await axiosInstance.get(url);
       const { posts, hasMore: morePostsAvailable } = res.data;
       
-      const postsWithLikeStatus = posts.map(post => {
+      const postsWithLikeStatus = posts.map((post: { isLiked?: boolean }) => {
         return {
           ...post,
           isLiked: post.isLiked !== undefined ? post.isLiked : false
