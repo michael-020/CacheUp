@@ -20,7 +20,7 @@ export const Home = () => {
       exit="exit"
     >
       <Helmet>
-        <title>Home | Campus Connect</title>
+        <title>Home | CacheUp</title>
       </Helmet>
       <div className="absolute left-40 top-5 hidden lg:block">
         <ProfileCard userInfo={authUser} isOwnProfile={true} />

@@ -59,7 +59,7 @@ const FriendsPage = () => {
       exit="exit"  
     >
       <Helmet>
-        <title>Friends | Campus Connect</title>
+        <title>Friends | CahceUp</title>
       </Helmet>
       <div className="max-w-5xl mx-auto p-6 translate-y-20">
         {/* Header Section */}

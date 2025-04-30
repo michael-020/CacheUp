@@ -1,5 +1,5 @@
-import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
-import { HelmetProvider, Helmet } from "react-helmet-async"
+import { Navigate, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import {  Helmet } from "react-helmet-async"
 import './App.css'
 import { Home } from './pages/Home'
 import { Profile } from './pages/Profile'
@@ -168,7 +168,7 @@ function App() {
     
     <div className='bg-gray-100 dark:bg-neutral-900 min-h-screen custom-scrollbar'>
     <Helmet>
-      <title>Campus Connect | Social Media and Forums</title>
+      <title>CacheUp | Social Media and Forums</title>
       
       <meta name="description" content="Campus Connect is your social media hub. Chat with friends, join community forums, post updates, comment on discussions, and find everything fast with smart search. Connect, share, and grow together!" />
       <meta name="keywords" content="Campus Connect, college social media, student forums, chat app for students, make friends in college, college communities, campus life platform, discussion boards, vector search, smart forums" />

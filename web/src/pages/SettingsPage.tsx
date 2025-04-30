@@ -63,7 +63,7 @@ export default function SettingsPage() {
       exit="exit"  
     >
       <Helmet>
-        <title>Settings | Campus Connect</title>
+        <title>Settings | CacheUp</title>
       </Helmet>
       <div className="max-w-4xl mx-auto p-4">
         {/* Header */}

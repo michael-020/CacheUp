@@ -216,7 +216,7 @@ const ForumList: React.FC = () => {
       exit="exit"
     >
       <Helmet>
-        <title>Forums | Campus Connect</title>
+        <title>Forums | CacheUp</title>
       </Helmet>
       <div className="max-w-6xl mx-auto p-6 translate-y-20 min-h-[calc(100vh-5.1rem)]">
         <div className="flex flex-col mb-6">
