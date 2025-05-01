@@ -8,9 +8,7 @@ import { loggingService } from '../services/loggingService';
 
 export const loginHandler: RequestHandler = async (req: Request, res: Response) => {
     const mySchema = z.object({
-        email: z.string().email().refine(val => val.endsWith("@pvppcoe.ac.in"), {
-            message: "Only Emails existing with @pvppcoe.ac.in can login"
-        }),
+        email: z.string().email(),
         password: z.string()
     }). strict({
         message: "Extra fields are not allowed"
@@ -55,8 +53,6 @@ export const loginHandler: RequestHandler = async (req: Request, res: Response) 
             _id: user._id,
             username: user.username,
             email: user.email,
-            department: user.department,
-            graduationYear: user.graduationYear,
             profilePicture: user.profilePicture,
             bio: user.bio,
             friends: user.friends,

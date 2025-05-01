@@ -3,36 +3,17 @@ import { useAuthStore } from "../stores/AuthStore/useAuthStore"
 import toast from "react-hot-toast"
 import { Eye, EyeOff, Loader } from "lucide-react"
 import { z } from "zod"
-import { Controller, SubmitHandler, useForm } from "react-hook-form"
+import { SubmitHandler, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Link } from "react-router-dom"
-import { Combobox } from "@/components/ui/combobox"
 import { motion } from "framer-motion"
 import { routeVariants } from "@/lib/routeAnimation"
 
-const VALID_DEPARTMENTS = ["IT", "CS", "AI", "MT"];
-const VALID_GRADUATION_YEARS = ["2025", "2026", "2027", "2028"];
-
-const graduationYearOptions = [
-    { value: "2025", label: "2025" },
-    { value: "2026", label: "2026" },
-    { value: "2027", label: "2027" },
-    { value: "2028", label: "2028" },
-];
-  
-const departmentOptions = [
-    { value: "IT", label: "Information Technology" },
-    { value: "CS", label: "Computer Engineering" },
-    { value: "AI", label: "Artificial Intelligence and Data Science" },
-    { value: "MT", label: "Mechatronics" },
-];
 
 const schema = z.object({
     name: z.string().min(1, "Name is required"),
     username: z.string().min(1, "Username is required"),
-    email: z.string().email("Valid email is required").refine((val) => val.endsWith('@pvppcoe.ac.in'), {
-      message: "Only emails ending with @pvppcoe.ac.in can register"
-    }),
+    email: z.string().email("Valid email is required"),
     password: z.string()
       .min(8, "Password should be at least 8 characters")
       .max(100, "Password should not exceed 100 characters")
@@ -41,14 +22,6 @@ const schema = z.object({
       .regex(/[0-9]/, "Password must contain at least 1 number")
       .regex(/[^A-Za-z0-9]/, "Password must contain at least 1 special character"),
     confirmPassword: z.string(),
-    department: z.string()
-      .refine(val => VALID_DEPARTMENTS.includes(val), {
-        message: "Please select a valid Department"
-      }),
-    graduationYear: z.string()
-      .refine(val => VALID_GRADUATION_YEARS.includes(val), {
-        message: "Please select a valid Year of Passing"
-      }),
   }).refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"]
@@ -64,7 +37,6 @@ export const Signup = () => {
         register,
         handleSubmit,
         setError,
-        control,
         formState: {errors}
     } = useForm<FormFields>({
         defaultValues: {
@@ -75,8 +47,8 @@ export const Signup = () => {
 
     const onSubmit: SubmitHandler<FormFields> = async (data) => {
         try {
-            const {name, email, password, username, department, graduationYear} = data;
-            await signup({name, email, password, username, department, graduationYear})
+            const {name, email, password, username } = data;
+            await signup({name, email, password, username})
             console.log(data)
         } catch (error) {
             setError("root", {
@@ -98,7 +70,7 @@ export const Signup = () => {
             <div className="w-full max-w-xl bg-white dark:bg-neutral-700 backdrop-blur-sm rounded-xl shadow-2xl p-6 border border-white/20">
             <div className="text-center mb-6">
                 <h1 className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">Sign Up</h1>
-                <p className="text-gray-600 dark:text-gray-300 mt-2">Join the PVPPCOE Campus Network</p>
+                <p className="text-gray-600 dark:text-gray-300 mt-2">Join the CacheUp Network</p>
             </div>
     
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -129,35 +101,17 @@ export const Signup = () => {
     
                 {/* Email */}
                 <div>
-                    <label className="text-gray-600 dark:text-gray-200 text-sm font-medium">College Email</label>
+                    <label className="text-gray-600 dark:text-gray-200 text-sm font-medium">Email</label>
                     <input
                     type="email"
                     {...register("email")}
-                    placeholder="you@pvppcoe.ac.in"
+                    placeholder="xyz@gmail.com"
                     className="w-full px-4 py-2.5 bg-blue-50/50 dark:bg-gray-600/60 dark:placeholder:text-gray-400/40 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
                     {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
                 </div>
-    
-                {/* Department */}
-                <div>
-                    <label className="text-gray-600 dark:text-gray-200 text-sm font-medium">Department</label>
-                    <div className="border border-gray-300 dark:border-gray-600 bg-blue-50/50 dark:bg-gray-600/60 rounded-lg">
-                    <Controller
-                        control={control}
-                        name="department"
-                        render={({ field }) => (
-                        <Combobox
-                            options={departmentOptions}
-                            {...field}
-                            placeholder="Select Department"
-                            className="w-full px-4 py-2.5"
-                        />
-                        )}
-                    />
-                    </div>
-                    {errors.department && <p className="text-red-400 text-xs mt-1">{errors.department.message}</p>}
-                </div>
+                
+                
     
                 {/* Password */}
                 <div className="relative">
@@ -180,25 +134,7 @@ export const Signup = () => {
                     {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password.message}</p>}
                 </div>
     
-                {/* Graduation Year */}
-                <div>
-                    <label className="text-gray-600 dark:text-gray-200 text-sm font-medium">Graduation Year</label>
-                    <div className="border border-gray-300 dark:border-gray-600 bg-blue-50/50 dark:bg-gray-600/60 rounded-lg">
-                    <Controller
-                        control={control}
-                        name="graduationYear"
-                        render={({ field }) => (
-                        <Combobox
-                            options={graduationYearOptions}
-                            {...field}
-                            placeholder="Select Year of Passing"
-                            className="w-full px-4 py-2.5"
-                        />
-                        )}
-                    />
-                    </div>
-                    {errors.graduationYear && <p className="text-red-400 text-xs mt-1">{errors.graduationYear.message}</p>}
-                </div>
+                
     
                 {/* Confirm Password */}
                 <div className="relative">

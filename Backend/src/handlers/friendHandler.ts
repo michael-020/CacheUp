@@ -447,16 +447,16 @@ friendHandler.get("/suggestions", async (req: Request, res: Response) => {
       { $limit: limit }
     ]);
 
-    const departmentMatches = await userModel.find({
-      _id: { $nin: excludeUserIds },
-      $or: [
-        { department: currentUser.department },
-        { graduationYear: currentUser.graduationYear }
-      ]
-    })
-      .select("name username profilePicture department graduationYear")
-      .limit(limit)
-      .lean();
+    // const departmentMatches = await userModel.find({
+    //   _id: { $nin: excludeUserIds },
+    //   $or: [
+    //     { department: currentUser.department },
+    //     { graduationYear: currentUser.graduationYear }
+    //   ]
+    // })
+    //   .select("name username profilePicture department graduationYear")
+    //   .limit(limit)
+    //   .lean();
 
     let suggestions: Suggestion[] = [];
 
@@ -475,15 +475,15 @@ friendHandler.get("/suggestions", async (req: Request, res: Response) => {
     if (suggestions.length < limit) {
       const suggestionIds = new Set(suggestions.map(s => s._id.toString()));
 
-      const additionalSuggestions = departmentMatches
-        .filter(user => !suggestionIds.has(user._id.toString()))
-        .map(user => ({
-          ...user,
-          mutualFriends: 0
-        }))
-        .slice(0, limit - suggestions.length);
+      // const additionalSuggestions = departmentMatches
+      //   .filter(user => !suggestionIds.has(user._id.toString()))
+      //   .map(user => ({
+      //     ...user,
+      //     mutualFriends: 0
+      //   }))
+      //   .slice(0, limit - suggestions.length);
 
-      suggestions = [...suggestions, ...additionalSuggestions];
+      // suggestions = [...suggestions, ...additionalSuggestions];
     }
 
     res.status(200).json({ suggestions });

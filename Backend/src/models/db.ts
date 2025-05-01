@@ -8,8 +8,6 @@ export interface IUser extends Document {
   email: string;
   password: string;
   profilePicture?: string;
-  department: string;
-  graduationYear: string;
   bio?: string;
   posts: mongoose.Types.ObjectId[];
   friends: mongoose.Types.ObjectId[];
@@ -188,16 +186,6 @@ const userSchema = new Schema<IUser>({
   profilePicture: { 
     type: String, 
     default: '' 
-  },
-  department: { 
-    type: String, 
-    required: [true, 'Department is required'] 
-  },
-  graduationYear: { 
-    type: String, 
-    required: [true, 'Graduation year is required'],
-    min: [2000, 'Graduation year must be after 2000'],
-    max: [2100, 'Graduation year must be before 2100']
   },
   bio: { 
     type: String, 
