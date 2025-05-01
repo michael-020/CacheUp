@@ -59,18 +59,18 @@ function App() {
   const adminAuthenticated = useRef(false)
 
   useEffect(() => {
-    const currentPath = location.pathname
-    if (!currentPath.includes('/signin') && 
-        !currentPath.includes('/signup') && 
-        !currentPath.includes('/') && 
-        !currentPath.includes('/admin/signin')) {
+    const currentPath = location.pathname;
+
+    const nonReturnPaths = ['/', '/signin', '/signup', '/verify-email'];
+    
+    if (!nonReturnPaths.includes(currentPath)) {
       if (currentPath.startsWith('/admin')) {
-        sessionStorage.setItem('adminLastPath', currentPath)
+        sessionStorage.setItem('adminLastPath', currentPath);
       } else {
-        sessionStorage.setItem('lastPath', currentPath)
+        sessionStorage.setItem('lastPath', currentPath);
       }
     }
-  }, [location.pathname])
+  }, [location.pathname]);
 
   useEffect(() => {
     if(!isAdminRoute && !initialized.current){
@@ -214,7 +214,7 @@ function App() {
           <Route path='/' element={!authUser ? <Landing /> : <Navigate to={returnPath && returnPath !== "/" ? returnPath : "/home"} />} />
           <Route path='/verify-email' element={!authUser ? <EmailVerify /> : <Navigate to={returnPath && returnPath !== "/" ? returnPath : "/home"} />} />
           <Route path="/home" element={authUser ? <Home /> : <Navigate to="/" />} />
-          <Route path='/profile' element={authUser ? <Profile /> : <Navigate to="/"/>} />
+          <Route path='/profile' element={authUser ? <Profile /> : <Navigate to={`/`} />} />
           <Route path="/profile/:id" element={authUser ? <Profile /> : <Navigate to="/"/>} />
           <Route path='/message' element={authUser ? <Messages /> : <Navigate to="/" />} />
           <Route path='/edit-profile' element={authUser ? <EditProfile /> : <Navigate to="/" />} />

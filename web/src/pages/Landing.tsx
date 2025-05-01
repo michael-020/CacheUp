@@ -297,12 +297,10 @@ export const Landing = () => {
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">S</span>
-                </div>
-                <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-500">
-                  SocialSphere
-                </span>
+                <img src="/favicon.svg" className="size-10" />
+                <h1 className="font-extrabold text-2xl text-blue-600">
+                  CacheUp
+                </h1>
               </div>
               <p className="text-gray-600 dark:text-gray-400 mb-4">
                 Connect, share, and discover together on our modern social platform.
