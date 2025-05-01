@@ -41,7 +41,8 @@ const ForumPage: React.FC = () => {
     const loadData = async () => {
       setIsLoading(true);
       if (forumMongoId) {
-        await fetchThreads(forumMongoId, isAdminRoute);
+        const result = await fetchThreads(forumMongoId, isAdminRoute);
+        console.log("Fetched threads for admin:", isAdminRoute, result);
       }
       setTimeout(() => {
         setIsLoading(false);
@@ -50,7 +51,7 @@ const ForumPage: React.FC = () => {
     
     loadData();
   }, [forumMongoId, fetchThreads, isAdminRoute]);
-
+  
   const handleCreateThread = async (threadData: { title: string; description: string }) => {
     try {
       if (!forumMongoId || !forumWeaviateId) return;

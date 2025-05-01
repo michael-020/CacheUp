@@ -238,7 +238,7 @@ function App() {
           <Route path="/admin/forums" element={authAdmin ? <CreateForum/> : <Navigate to="/admin/signin" />} />
           <Route path="/admin/forums/get-forums" element={authAdmin ? <ForumList /> : <Navigate to="/admin/signin" />} />
           <Route path="/admin/forums/:forumMongoId/:forumWeaviateId" element={authAdmin ? <ForumPage /> : <Navigate to="/admin/signin" />} />
-          <Route path='/admin/forums/thread/:id' element={authAdmin ? <Thread /> : <Navigate to='/admin/signin' />} />
+          <Route path='/admin/forums/thread/:id/:page' element={authAdmin ? <Thread /> : <Navigate to='/admin/signin' />} />
           <Route path='/admin/settings' element={authAdmin ? <SettingsPage /> : <Navigate to='/admin/signin' />} />
           <Route path='/admin/requested-forums' element={authAdmin ? <RequestedForums /> : <Navigate to="/admin/signin" />} />
           <Route path='/admin/stats' element={authAdmin ? <Statistics /> : <Navigate to="/admin/signin" />} />

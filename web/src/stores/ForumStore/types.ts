@@ -165,7 +165,7 @@ export interface ForumActions {
   toggleLike: (mongoId: string) => Promise<number | undefined>
   toggleDislike: (mongoId: string) => Promise<number | undefined>
   isLiked: (postId: string) => boolean;
-  fetchComments: (postId: string) => Promise<Comment[]>;
+  fetchComments: (postId: string, isAdmin?: boolean) => Promise<Comment[]>;
   createComment: (postId: string, postWeaviateId: string, content: string) => Promise<Comment>;
   likeComment: (commentId: string, userId: string) => Promise<void>;
   dislikeComment: (commentId: string, userId: string) => Promise<void>;
