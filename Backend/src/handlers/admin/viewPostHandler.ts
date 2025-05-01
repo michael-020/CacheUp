@@ -11,7 +11,7 @@ const viewPostHandler: Router = Router();
 viewPostHandler.get("/", async (req: Request, res: Response) => {
     try{
         // const userId = req.user._id
-        const allPosts = await postModel.find({}).sort({ createdAt: -1});
+        const allPosts = await postModel.find({}).sort({ createdAt: -1}).lean();
 
         if(!allPosts){
             res.status(401).json({
@@ -46,7 +46,7 @@ viewPostHandler.get("/myPosts", async (req: Request, res: Response) => {
     try{
         const userId = req.user._id;
 
-        const posts = await postModel.find({ postedBy: userId }).sort({ createdAt: -1});
+        const posts = await postModel.find({ postedBy: userId }).sort({ createdAt: -1}).lean();
 
         if(!posts){
             res.status(401).json({
@@ -71,7 +71,7 @@ viewPostHandler.get("/:id", async (req: Request, res: Response) => {
     try{
         const userId = req.params.id;
 
-        const posts = await postModel.find({ postedBy: userId }).sort({ createdAt: -1});
+        const posts = await postModel.find({ postedBy: userId }).sort({ createdAt: -1}).lean();
 
         if(!posts){
             res.status(401).json({

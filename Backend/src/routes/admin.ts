@@ -31,6 +31,7 @@ import { timeTrackingService } from "../services/timeTrackingService";
 import viewProfileHanler from "../handlers/viewProfileHandler";
 import { adminGetReportedPostsCommentsThreadsHandler } from "../handlers/forums/adminGetReportedPostsCommentsThreadsHandler";
 import { getAllPostsFromAThreadHandler } from "../handlers/forums/getAllPostsFromAThreadHandler";
+import { pageViewHandler } from "../handlers/admin/pageViewsHandler";
 
 const adminRouter: Router = Router();
 
@@ -128,23 +129,7 @@ adminRouter.get("/stats/:userId", getUserStatsHandler);
 // Change the route to be more specific and avoid conflict with user ID routes
 adminRouter.get('/stats/daily-time/:date', getDailyTimeSpentHandler);
 
-adminRouter.get('/stats/page-views/:date', async (req, res) => {
-  try {
-    const date = new Date(req.params.date);
-    const stats = await timeTrackingService.getDailyPageViews(date);
-    
-    res.json({
-      success: true,
-      data: stats
-    });
-  } catch (error) {
-    console.error('Error getting page views:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to get page views'
-    });
-  }
-});
+adminRouter.get('/stats/page-views/:date', pageViewHandler);
 
 // get reported forums content
 adminRouter.get("/reported-content", adminGetReportedPostsCommentsThreadsHandler)

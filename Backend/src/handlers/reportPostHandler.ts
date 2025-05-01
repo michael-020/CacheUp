@@ -52,30 +52,17 @@ reportPostHandler.put("/:id", async (req: Request, res: Response) => {
 // view reported posts
 reportPostHandler.get("/", async (req: Request, res: Response) => {
     try{
-        const posts = await postModel.find()
+        const reportedPosts = await postModel.find({
+            "reportedBy.0": { $exists: true } 
+        });
 
-        const reportedPosts = posts.filter(post =>{
-            if(post.reportedBy.length > 0){
-                if(post !== null){
-                    return {
-                        ...post.toObject()
-                    }
-                }
-            }
-        })
+        // Map the posts to include the report count
+        const reportedPostsWithCount = reportedPosts.map(post => ({
+            ...post.toObject(),
+            reportCount: post.reportedBy.length
+        }));
 
-        const reportedPostsWithCount = reportedPosts.map(post =>{
-            if(post.reportedBy.length > 0){
-                if(post !== null){
-                    return {
-                        ...post._doc,
-                        reportCount: post.reportedBy.length
-                    }
-                }
-            }
-        })
-
-        res.status(200).json(reportedPostsWithCount)
+        res.status(200).json(reportedPostsWithCount);
     }
     catch(e) {
         console.error("Error while fetching reported posts", e)
