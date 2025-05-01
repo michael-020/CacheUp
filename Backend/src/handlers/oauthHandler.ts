@@ -1,9 +1,7 @@
 import { Request, Response } from "express";
 import { GOOGLE_CONFIG } from "../config/oauth";
 import axios from "axios";
-import { generateToken } from "../lib/utils";
 import { userModel } from "../models/db";
-import mongoose from "mongoose";
 import jwt from "jsonwebtoken"
 
 export const initiateGoogleAuth = (req: Request, res: Response) => {
@@ -39,11 +37,11 @@ export const handleGoogleCallback = async (req: Request, res: Response) => {
       headers: { Authorization: `Bearer ${access_token}` }
     });
 
-    const { email, name, picture } = userInfoResponse.data;
+    const { email, name } = userInfoResponse.data;
 
     // Verify email domain
     if (!email.endsWith("@pvppcoe.ac.in")) {
-      return res.redirect(`${process.env.FRONTEND_URL}/signin?error=invalid_domain`);
+      return res.redirect("/signin?error=invalid_domain");
     }
 
     // Find or create user
@@ -56,8 +54,8 @@ export const handleGoogleCallback = async (req: Request, res: Response) => {
         email,
         name,
         username,
-        profilePicture: picture,
-        isEmailVerified: true,
+        isEmailVerified: true, // Google accounts are pre-verified
+        authType: 'google', // Set auth type to google
         department: "",
         graduationYear: "",
         bio: "",
@@ -82,10 +80,10 @@ export const handleGoogleCallback = async (req: Request, res: Response) => {
     });
 
     // Redirect to frontend with success
-    res.redirect(`${process.env.FRONTEND_URL}/home`);
+    res.redirect("/home");
 
   } catch (error) {
     console.error("OAuth error:", error);
-    res.redirect(`${process.env.FRONTEND_URL}/signin?error=oauth_failed`);
+    res.redirect("/signin?error=oauth_failed");
   }
 };

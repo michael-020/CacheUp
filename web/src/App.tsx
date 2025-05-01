@@ -243,6 +243,17 @@ function App() {
           <Route path='/admin/stats' element={authAdmin ? <Statistics /> : <Navigate to="/admin/signin" />} />
           <Route path='/admin/page-views' element={authAdmin ? <PageViews /> : <Navigate to="/admin/signin" />} />
           <Route path='/admin/reported-content' element={authAdmin ? <ReportedContentPage /> : <Navigate to="/admin/signin" />} />
+
+          {/* Add OAuth route */}
+          <Route 
+            path="/auth/google" 
+            element={
+              <Navigate 
+                to={`${import.meta.env.VITE_API_URL}/auth/google`} 
+                replace 
+              />
+            } 
+          />
         </Routes>
        
       </AnimatePresence>

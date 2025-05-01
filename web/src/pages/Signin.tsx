@@ -31,6 +31,7 @@ export const Signin = () => {
     }
 
     const handleGoogleSignIn = () => {
+        // Direct navigation to backend OAuth endpoint
         window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
     };
     

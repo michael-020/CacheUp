@@ -87,6 +87,10 @@ export const Signup = () => {
         }
     }
 
+    const handleGoogleSignIn = () => {
+        window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
+    };
+
     return (
         <motion.div 
             className="min-h-screen flex items-center justify-center dark:text-white"
@@ -241,6 +245,26 @@ export const Signup = () => {
                 </p>
                 </div>
             </form>
+
+            {/* Add Google Sign In */}
+            <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300 dark:border-neutral-600" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white dark:bg-neutral-700 text-gray-500">
+                        Or continue with
+                    </span>
+                </div>
+            </div>
+
+            <button
+                onClick={handleGoogleSignIn}
+                className="w-full flex items-center justify-center gap-2 p-2 border border-gray-300 dark:border-neutral-600 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-600 transition-colors"
+            >
+                <img src="/google.svg" alt="Google" className="w-6 h-6" />
+                <span className="dark:text-gray-200">Sign up with Google</span>
+            </button>
             </div>
         </motion.div>
     )
