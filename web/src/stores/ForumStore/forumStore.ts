@@ -283,7 +283,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
 
   isLiked: (postId: string) => get().likedPosts.has(postId),
 
-  fetchComments: async (postId) => {
+  fetchComments: async (postId, isAdmin?) => {
     if (!postId) return [];
     
     set((state) => ({
@@ -292,7 +292,8 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     }));
     
     try {
-      const response = await axiosInstance.get(`/forums/get-comments/${postId}`);
+      const url = isAdmin ? `/admin/get-comments/${postId}` : `/forums/get-comments/${postId}`
+      const response = await axiosInstance.get(url);
       const fetchedComments = response.data.comments || [];
       
       set((state) => ({

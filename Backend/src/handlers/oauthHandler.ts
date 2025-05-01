@@ -1,9 +1,7 @@
 import { Request, Response } from "express";
 import { GOOGLE_CONFIG } from "../config/oauth";
 import axios from "axios";
-import { generateToken } from "../lib/utils";
 import { userModel } from "../models/db";
-import mongoose from "mongoose";
 import jwt from "jsonwebtoken"
 
 export const initiateGoogleAuth = (req: Request, res: Response) => {
@@ -39,7 +37,7 @@ export const handleGoogleCallback = async (req: Request, res: Response) => {
       headers: { Authorization: `Bearer ${access_token}` }
     });
 
-    const { email, name, picture } = userInfoResponse.data;
+    const { email, name } = userInfoResponse.data;
 
     // Verify email domain
     if (!email.endsWith("@pvppcoe.ac.in")) {
@@ -56,8 +54,8 @@ export const handleGoogleCallback = async (req: Request, res: Response) => {
         email,
         name,
         username,
-        profilePicture: picture,
-        isEmailVerified: true,
+        isEmailVerified: true, // Google accounts are pre-verified
+        authType: 'google', // Set auth type to google
         department: "",
         graduationYear: "",
         bio: "",

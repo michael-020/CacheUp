@@ -52,6 +52,7 @@ export interface PostSchema {
   reportedBy?: string[];
   weaviateId: string;
   commentsCount: number;
+  pageNumber? :number
 }
 
 export interface Thread {
@@ -76,6 +77,7 @@ export interface Comment {
   disLikedBy: string[];
   reportedBy?: string[];
   weaviateId: string;
+  pageNumber: number
 }
 
 export interface Notification {
@@ -95,6 +97,7 @@ export interface Notification {
   } | null;
   createdAt: string;
   __v?: number;
+  pageNumber: number
 }
 export interface Forum {
         _id: string;
@@ -162,7 +165,7 @@ export interface ForumActions {
   toggleLike: (mongoId: string) => Promise<number | undefined>
   toggleDislike: (mongoId: string) => Promise<number | undefined>
   isLiked: (postId: string) => boolean;
-  fetchComments: (postId: string) => Promise<Comment[]>;
+  fetchComments: (postId: string, isAdmin?: boolean) => Promise<Comment[]>;
   createComment: (postId: string, postWeaviateId: string, content: string) => Promise<Comment>;
   likeComment: (commentId: string, userId: string) => Promise<void>;
   dislikeComment: (commentId: string, userId: string) => Promise<void>;

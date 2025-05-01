@@ -41,6 +41,7 @@ import { TimeTracker } from './components/TimeTracker'
 import PageViews from "@/pages/admin/PageViews";
 import ReportedContentPage from './pages/ReportedContentForums'
 
+
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore()
   const { authAdmin, checkAdminAuth, isAdminCheckingAuth } = useAdminStore()
@@ -59,18 +60,18 @@ function App() {
   const adminAuthenticated = useRef(false)
 
   useEffect(() => {
-    const currentPath = location.pathname
-    if (!currentPath.includes('/signin') && 
-        !currentPath.includes('/signup') && 
-        !currentPath.includes('/') && 
-        !currentPath.includes('/admin/signin')) {
+    const currentPath = location.pathname;
+
+    const nonReturnPaths = ['/', '/signin', '/signup', '/verify-email'];
+    
+    if (!nonReturnPaths.includes(currentPath)) {
       if (currentPath.startsWith('/admin')) {
-        sessionStorage.setItem('adminLastPath', currentPath)
+        sessionStorage.setItem('adminLastPath', currentPath);
       } else {
-        sessionStorage.setItem('lastPath', currentPath)
+        sessionStorage.setItem('lastPath', currentPath);
       }
     }
-  }, [location.pathname])
+  }, [location.pathname]);
 
   useEffect(() => {
     if(!isAdminRoute && !initialized.current){
@@ -214,7 +215,7 @@ function App() {
           <Route path='/' element={!authUser ? <Landing /> : <Navigate to={returnPath && returnPath !== "/" ? returnPath : "/home"} />} />
           <Route path='/verify-email' element={!authUser ? <EmailVerify /> : <Navigate to={returnPath && returnPath !== "/" ? returnPath : "/home"} />} />
           <Route path="/home" element={authUser ? <Home /> : <Navigate to="/" />} />
-          <Route path='/profile' element={authUser ? <Profile /> : <Navigate to="/"/>} />
+          <Route path='/profile' element={authUser ? <Profile /> : <Navigate to={`/`} />} />
           <Route path="/profile/:id" element={authUser ? <Profile /> : <Navigate to="/"/>} />
           <Route path='/message' element={authUser ? <Messages /> : <Navigate to="/" />} />
           <Route path='/edit-profile' element={authUser ? <EditProfile /> : <Navigate to="/" />} />
@@ -237,12 +238,23 @@ function App() {
           <Route path="/admin/forums" element={authAdmin ? <CreateForum/> : <Navigate to="/admin/signin" />} />
           <Route path="/admin/forums/get-forums" element={authAdmin ? <ForumList /> : <Navigate to="/admin/signin" />} />
           <Route path="/admin/forums/:forumMongoId/:forumWeaviateId" element={authAdmin ? <ForumPage /> : <Navigate to="/admin/signin" />} />
-          <Route path='/admin/forums/thread/:id' element={authAdmin ? <Thread /> : <Navigate to='/admin/signin' />} />
+          <Route path='/admin/forums/thread/:id/:page' element={authAdmin ? <Thread /> : <Navigate to='/admin/signin' />} />
           <Route path='/admin/settings' element={authAdmin ? <SettingsPage /> : <Navigate to='/admin/signin' />} />
           <Route path='/admin/requested-forums' element={authAdmin ? <RequestedForums /> : <Navigate to="/admin/signin" />} />
           <Route path='/admin/stats' element={authAdmin ? <Statistics /> : <Navigate to="/admin/signin" />} />
           <Route path='/admin/page-views' element={authAdmin ? <PageViews /> : <Navigate to="/admin/signin" />} />
           <Route path='/admin/reported-content' element={authAdmin ? <ReportedContentPage /> : <Navigate to="/admin/signin" />} />
+
+          {/* Add OAuth route */}
+          <Route 
+            path="/auth/google" 
+            element={
+              <Navigate 
+                to={`${import.meta.env.VITE_API_URL}/auth/google`} 
+                replace 
+              />
+            } 
+          />
         </Routes>
        
       </AnimatePresence>

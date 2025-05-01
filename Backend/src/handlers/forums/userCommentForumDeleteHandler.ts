@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { commentForumModel } from "../../models/db";
-import { deleteComment } from "./deleteFunctions/deleteComment";
+import { deleteComment } from "./utils/deleteComment";
 
 
 export const userCommentForumDeleteHandler = async(req: Request, res: Response) => {
