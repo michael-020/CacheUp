@@ -41,7 +41,7 @@ export const handleGoogleCallback = async (req: Request, res: Response) => {
 
     // Verify email domain
     if (!email.endsWith("@pvppcoe.ac.in")) {
-      return res.redirect("/signin?error=invalid_domain");
+      return res.redirect(`${process.env.FRONTEND_URL}/signin?error=invalid_domain`);
     }
 
     // Find or create user
@@ -80,10 +80,10 @@ export const handleGoogleCallback = async (req: Request, res: Response) => {
     });
 
     // Redirect to frontend with success
-    res.redirect("/home");
+    res.redirect(`${process.env.FRONTEND_URL}/home`);
 
   } catch (error) {
     console.error("OAuth error:", error);
-    res.redirect("/signin?error=oauth_failed");
+    res.redirect(`${process.env.FRONTEND_URL}/signin?error=oauth_failed`);
   }
 };
