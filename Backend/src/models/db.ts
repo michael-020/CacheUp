@@ -145,7 +145,7 @@ interface INotification extends Document {
   threadId: Schema.Types.ObjectId;
   seenBy: Schema.Types.ObjectId[];
   createdAt: Date; 
-  postId?: Schema.Types.ObjectId
+  postId: Schema.Types.ObjectId
   commentId?: Schema.Types.ObjectId
   createdBy: Schema.Types.ObjectId
 }

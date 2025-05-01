@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { deleteComment } from "./deleteFunctions/deleteComment";
+import { deleteComment } from "./utils/deleteComment";
 
 
 export const adminDeleteCommentForumHandler = async(req: Request, res: Response) => {

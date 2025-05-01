@@ -3,6 +3,7 @@ import { weaviateClient } from "../../models/weaviate";
 import { commentForumModel, forumModel, postForumModel, threadForumModel } from "../../models/db";
 import { z } from "zod";
 import { embedtext } from "../../lib/vectorizeText";
+import { calculatePostPage } from "./utils/pagination"; 
 
 const queryWeaviate = async (query: number[]) => {
     const limits = {
@@ -89,23 +90,10 @@ const queryMongo = async(searchAlgoResult: Array<{ type: string; mongoId: string
         
         const commentPostMap = new Map(commentPosts.map(doc => [doc._id.toString(), doc]))
 
-        // Pagination logic
-        const threadIdsForPage = [...new Set(commentPosts.map(cp => cp.thread.toString()))]
-
-        const threadPostCounts = await Promise.all(
-            threadIdsForPage.map(threadId => 
-                postForumModel.find({ thread: threadId, visibility: true }).sort({createdAt: 1}).select("_id createdAt").lean()
-            )
-        );
-
-        const threadPostMap = new Map();
-        threadIdsForPage.forEach((threadId, index) => {
-            threadPostMap.set(threadId, threadPostCounts[index])
-        })
-
+        // Process each search result
         for (const { type, mongoId, certainty } of searchAlgoResult) {
             let data = null;
-            let page: number | null = null;
+            let page;
       
             if (type === "Forum") {
               data = forumMap.get(mongoId);
@@ -113,14 +101,18 @@ const queryMongo = async(searchAlgoResult: Array<{ type: string; mongoId: string
               data = threadMap.get(mongoId);
             } else if (type === "Post") {
               data = postMap.get(mongoId);
-              if (data) page = await calculatePage(data.thread.toString(), mongoId, threadPostMap);
+              if (data) {
+                // Calculate page for this post
+                page = await calculatePostPage(data.thread.toString(), mongoId);
+              }
             } else if (type === "Comment") {
               const comment = commentMap.get(mongoId);
               if (comment && comment.post) {
                 const post = commentPostMap.get(comment.post.toString());
                 if (post) {
                   data = post;
-                  page = await calculatePage(post.thread.toString(), post._id.toString(), threadPostMap);
+                  // Calculate page for the post
+                  page = await calculatePostPage(post.thread.toString(), post._id.toString());
                 }
               }
             }
@@ -133,27 +125,17 @@ const queryMongo = async(searchAlgoResult: Array<{ type: string; mongoId: string
                 page
               });
             }
-          }
+        }
       
-          return finalResults;
+        return finalResults;
 
     } catch (error) {
-        
+        console.error("Error querying MongoDB:", error);
+        return [];
     }
 }
-const calculatePage = (threadId: string, postId: string, threadPostMap: Map<string, any[]>) => {
-    const posts = threadPostMap.get(threadId);
-    if (!posts) return null;
-  
-    const index = posts.findIndex((post) => post._id.toString() === postId);
-    if (index === -1) return null;
-  
-    const postsPerPage = 10;
-    const pageNumber = Math.floor(index / postsPerPage) + 1;
-    return pageNumber;
-  };
 
-  export const searchForumHandler = async (req: Request, res: Response) => {
+export const searchForumHandler = async (req: Request, res: Response) => {
     const searchSchema = z.object({
         query: z.string().min(3)
     })
@@ -192,4 +174,4 @@ const calculatePage = (threadId: string, postId: string, threadPostMap: Map<stri
             msg: "Server error"
         })
     }
-  }
+}

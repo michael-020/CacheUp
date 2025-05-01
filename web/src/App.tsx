@@ -39,7 +39,7 @@ import { ViewFriends } from './components/ViewFriends'
 import Statistics from './pages/admin/Statistics'
 import { TimeTracker } from './components/TimeTracker'
 import PageViews from "@/pages/admin/PageViews";
-import ReportedContentPage from './pages/reportedContentForums'
+import ReportedContentPage from './pages/ReportedContentForums'
 
 
 function App() {

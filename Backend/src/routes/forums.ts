@@ -21,7 +21,7 @@ import { editThreadForumHandler } from "../handlers/forums/editThreadForumHandle
 import { watchThreadHandler } from "../handlers/forums/watchThreadHandler";
 import { reportPostForumHandler } from "../handlers/forums/reportPostForumHandler";
 import { reportThreadHandler } from "../handlers/forums/reportThreadHandler";
-import { getNotification } from "../handlers/forums/getNotificationHandler";
+import { getNotificationHandler } from "../handlers/forums/getNotificationHandler";
 import { createForumRequestHandler } from "../handlers/forums/createForumRequestHandler";
 import { getWatchStatusThreadHandler } from "../handlers/forums/getWatchStatusThreadHandler";
 import { markNotificationAsReadHandler } from "../handlers/forums/markNotificationAsReadHandler";
@@ -94,7 +94,7 @@ forumsRouter.put("/report-post/:mongoId", reportPostForumHandler)
 forumsRouter.put("/report-thread/:mongoId", reportThreadHandler)
 
 // notification route
-forumsRouter.get("/notification", getNotification)
+forumsRouter.get("/notification", getNotificationHandler)
 
 // request forum route
 forumsRouter.post("/request-forum", createForumRequestHandler)
