@@ -52,6 +52,7 @@ export interface PostSchema {
   reportedBy?: string[];
   weaviateId: string;
   commentsCount: number;
+  pageNumber? :number
 }
 
 export interface Thread {
@@ -76,6 +77,7 @@ export interface Comment {
   disLikedBy: string[];
   reportedBy?: string[];
   weaviateId: string;
+  pageNumber: number
 }
 
 export interface Notification {
