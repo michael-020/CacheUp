@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useForumStore } from '@/stores/ForumStore/forumStore';
 import { AlertCircle, Check, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const ReportedContentPage = () => {
   const { reportedComments, reportedPosts, reportedThreads, fetchReportedContent, deleteThread, deleteComment, deletePost } = useForumStore();
@@ -120,12 +121,14 @@ const ReportedContentPage = () => {
                 {reportedPosts.map(post => (
                   <div key={post._id} className="border rounded-lg p-4 bg-white shadow-sm dark:bg-black">
                     <div className="flex justify-between items-start mb-2">
+                      <Link to={`/admin/forums/thread/${post.thread}/${post.pageNumber}?post=${post._id}`}>
                       <div>
                         <h3 className="font-medium text-lg">{post.content}</h3>
                         <span className="text-gray-500 text-sm">
                           Posted by {post.createdBy.username} · {new Date(post.createdAt).toLocaleString()}
                         </span>
                       </div>
+                      </Link>
                       <div className="flex space-x-2">
                         <button 
                           onClick={() => handleKeep('post', post._id)}

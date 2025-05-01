@@ -15,6 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
 
 interface CommentSectionProps {
   postId: string;
@@ -31,7 +32,8 @@ const ForumComment: React.FC<CommentSectionProps> = memo(({ postId, postWeaviate
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState<{id: string, weaviateId: string} | null>(null);
   const [editLoading, setEditLoading] = useState<{[key: string]: boolean}>({});
-  
+  const { authAdmin } = useAdminStore()
+  const isAdmin = Boolean(authAdmin)
   const { authUser } = useAuthStore();
   const { 
     fetchComments,
@@ -48,7 +50,7 @@ const ForumComment: React.FC<CommentSectionProps> = memo(({ postId, postWeaviate
   const commentInputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    fetchComments(postId);
+    fetchComments(postId, isAdmin);
   }, [postId, fetchComments]);
 
   useEffect(() => {

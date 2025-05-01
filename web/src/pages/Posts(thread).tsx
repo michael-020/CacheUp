@@ -189,23 +189,23 @@ export const Thread = () => {
 
   // Pagination handlers
   const goToFirstPage = () => {
-    navigate(`/forums/thread/${id}/1`);
+    isAdmin ? navigate(`/admin/forums/thread/${id}/1`) : navigate(`/forums/thread/${id}/1`);
   };
   
   const goToPreviousPage = () => {
     if (Number(page) > 1) {
-      navigate(`/forums/thread/${id}/${Number(page) - 1}`);
+      isAdmin ? navigate(`/admin/forums/thread/${id}/${Number(page) - 1}`) : navigate(`/forums/thread/${id}/${Number(page) - 1}`);
     }
   };
 
   const goToNextPage = () => {
     if (Number(page) < totalPages) {
-      navigate(`/forums/thread/${id}/${Number(page) + 1}`);
+      isAdmin ? navigate(`/admin/forums/thread/${id}/${Number(page) + 1}`) : navigate(`/forums/thread/${id}/${Number(page) + 1}`);
     }
   };
 
   const goToLastPage = () => {
-    navigate(`/forums/thread/${id}/${totalPages}`);
+    isAdmin ? navigate(`/forums/thread/${id}/${totalPages}`) : navigate(`/forums/thread/${id}/${totalPages}`);
   };
 
   const handlePageInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -218,7 +218,7 @@ export const Thread = () => {
   const goToPage = () => {
     const pageNumber = Number(paginationInput);
     if (pageNumber >= 1 && pageNumber <= totalPages) {
-      navigate(`/forums/thread/${id}/${pageNumber}`);
+      isAdmin ? navigate(`/admin/forums/thread/${id}/${pageNumber}`) : navigate(`/forums/thread/${id}/${pageNumber}`);
     } else {
       setPaginationInput(page?.toString());
     }

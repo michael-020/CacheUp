@@ -83,7 +83,7 @@ const FriendSuggestions = () => {
 
   if (suggestions.length === 0) {
     return (
-      <Card className="w-full shadow-sm border border-gray-200 dark:border-neutral-800">
+      <Card className="w-fit shadow-sm border border-gray-200 dark:border-neutral-800">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-base">

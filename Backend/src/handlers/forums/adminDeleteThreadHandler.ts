@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { deleteThread } from "./deleteFunctions/deleteThread";
+import { deleteThread } from "./utils/deleteThread";
 
 
 export const adminDeleteThreadHandler = async (req: Request, res: Response) => {
