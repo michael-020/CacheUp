@@ -23,6 +23,12 @@ const AdminHome = () => {
               <BarChart3 className="h-4 w-4" />
               View Statistics
             </Button>
+            <Button 
+              onClick={() => navigate('/admin/reported-content')}
+              className="flex items-center gap-2"
+              >
+                View Reported Content Forums
+              </Button>
           </div>
           <AdminFeed />
         </div>

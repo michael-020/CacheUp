@@ -39,6 +39,7 @@ import { ViewFriends } from './components/ViewFriends'
 import Statistics from './pages/admin/Statistics'
 import { TimeTracker } from './components/TimeTracker'
 import PageViews from "@/pages/admin/PageViews";
+import ReportedContentPage from './pages/reportedContentForums'
 
 
 function App() {
@@ -242,6 +243,7 @@ function App() {
           <Route path='/admin/requested-forums' element={authAdmin ? <RequestedForums /> : <Navigate to="/admin/signin" />} />
           <Route path='/admin/stats' element={authAdmin ? <Statistics /> : <Navigate to="/admin/signin" />} />
           <Route path='/admin/page-views' element={authAdmin ? <PageViews /> : <Navigate to="/admin/signin" />} />
+          <Route path='/admin/reported-content' element={authAdmin ? <ReportedContentPage /> : <Navigate to="/admin/signin" />} />
         </Routes>
        
       </AnimatePresence>

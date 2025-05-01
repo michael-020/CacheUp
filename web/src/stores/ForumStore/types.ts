@@ -134,7 +134,10 @@ export interface ForumState {
   isCreatingPost:boolean;
   totalPosts: number;
   totalPages: number;
-  hasNextPage: boolean
+  hasNextPage: boolean;
+  reportedComments: Comment[];
+  reportedPosts: PostSchema[];
+  reportedThreads: Thread[]
 }
 
 
@@ -164,7 +167,7 @@ export interface ForumActions {
   likeComment: (commentId: string, userId: string) => Promise<void>;
   dislikeComment: (commentId: string, userId: string) => Promise<void>;
   editComment: (commentId: string, weaviateId: string, content: string) => Promise<void>;
-  deleteComment: (commentId: string, weaviateId: string) => Promise<void>;
+  deleteComment: (commentId: string, weaviateId: string, isAdmin?: boolean) => Promise<void>;
   deleteThread: (threadId: string, weaviateId: string) => void;
   watchThread: (threadId: string) => Promise<void>;
   checkWatchStatus: (threadId: string) => Promise<void>
@@ -181,6 +184,7 @@ export interface ForumActions {
   setPosts: (posts: PostSchema[]) => void;
   approveRequest: (id: string) => void;
   denyRequest: (id: string) => void;
+  fetchReportedContent: () => void;
 }
 
 export type ForumStore = ForumState & ForumActions;
