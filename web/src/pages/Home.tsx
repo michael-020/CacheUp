@@ -22,7 +22,7 @@ export const Home = () => {
       <Helmet>
         <title>Home | CacheUp</title>
       </Helmet>
-      <div className="absolute left-40 top-5 hidden lg:block">
+      <div className="sticky left-40 top-5 hidden lg:block">
         <ProfileCard userInfo={authUser} isOwnProfile={true} />
       </div>
 
@@ -30,7 +30,7 @@ export const Home = () => {
         <Feed />
       </div>
 
-      <div className="absolute right-2 top-24 hidden lg:block">
+      <div className="sticky right-2 top-24 hidden lg:block">
         <FriendSuggestions />
       </div>
     </motion.div>
