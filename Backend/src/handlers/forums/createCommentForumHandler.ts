@@ -55,7 +55,7 @@ export const createCommentForumHandler = async (req: Request, res: Response) => 
         if(watchers && watchers.length > 0){
             await watchNotificationModel.create({
                 userIds: watchers,
-                message: `${req.user.name} created a comment in ${thread?.title}`,
+                message: `${req.user.username} created a comment in ${thread?.title}`,
                 threadId: thread?._id,
                 seenBy: [],
                 postId: post?._id,

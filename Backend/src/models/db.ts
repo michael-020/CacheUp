@@ -17,7 +17,9 @@ export interface IUser extends Document {
   _doc?: Omit<IUser, '_doc'>;
   createdAt: Date;
   updatedAt: Date;
-  visibility?: Boolean
+  visibility?: Boolean;
+  authType: 'local' | 'google';
+  isEmailVerified: boolean;
 }
 
 // Admin Interface
@@ -181,9 +183,21 @@ const userSchema = new Schema<IUser>({
     lowercase: true,
     match: [/^\S+@\S+\.\S+$/, 'Please use a valid email address']
   },
+  authType: {
+    type: String,
+    enum: ['local', 'google'],
+    required: true,
+    default: 'local'
+  },
   password: { 
     type: String, 
-    required: [true, 'Password is required'] 
+    required: function(this: { authType: string }) {
+      return this.authType === 'local'; // Only required for local auth
+    }
+  },
+  isEmailVerified: {
+    type: Boolean,
+    default: false
   },
   profilePicture: { 
     type: String, 
@@ -191,11 +205,11 @@ const userSchema = new Schema<IUser>({
   },
   department: { 
     type: String, 
-    required: [true, 'Department is required'] 
+    required: [false, 'Department is required'] 
   },
   graduationYear: { 
     type: String, 
-    required: [true, 'Graduation year is required'],
+    required: [false, 'Graduation year is required'],
     min: [2000, 'Graduation year must be after 2000'],
     max: [2100, 'Graduation year must be before 2100']
   },

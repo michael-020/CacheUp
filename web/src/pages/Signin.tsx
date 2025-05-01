@@ -1,20 +1,39 @@
-import { MouseEvent, useState } from "react"
+import { MouseEvent, useState, useEffect } from "react"
 import { useAuthStore } from "../stores/AuthStore/useAuthStore"
 import { Eye, EyeOff, Loader } from "lucide-react"
-import { Link } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 import { motion } from "framer-motion"
 import { routeVariants } from "@/lib/routeAnimation"
+import toast from "react-hot-toast"
 
 export const Signin = () => {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)
     const { signin, isSigningIn } = useAuthStore()
+    const location = useLocation();
+    
+    useEffect(() => {
+        // Handle OAuth errors
+        const searchParams = new URLSearchParams(location.search);
+        const error = searchParams.get('error');
+        
+        if (error === 'oauth_failed') {
+            toast.error('Failed to sign in with Google');
+        } else if (error === 'invalid_domain') {
+            toast.error('Only @pvppcoe.ac.in email addresses are allowed');
+        }
+    }, [location]);
 
     async function onClickHandler(e: MouseEvent<HTMLButtonElement>) {
         e.preventDefault();
         signin({email, password})
     }
+
+    const handleGoogleSignIn = () => {
+        // Direct navigation to backend OAuth endpoint
+        window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
+    };
     
     return (
         <motion.div 
@@ -86,6 +105,25 @@ export const Signin = () => {
                             </p>
                         </div>
                     </form>
+
+                    <div className="relative my-6">
+                        <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-gray-300 dark:border-neutral-600" />
+                        </div>
+                        <div className="relative flex justify-center text-sm">
+                            <span className="px-2 bg-white dark:bg-neutral-700 text-gray-500">
+                                Or continue with
+                            </span>
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={handleGoogleSignIn}
+                        className="w-full flex items-center justify-center gap-2 p-2 border border-gray-300 dark:border-neutral-600 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-600 transition-colors"
+                    >
+                        <img src="/google.svg" alt="Google" className="w-6 h-6" />
+                        <span>Sign in with Google</span>
+                    </button>
                 </div>
             </div>
         </motion.div>

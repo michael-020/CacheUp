@@ -10,7 +10,6 @@ export const getNotificationHandler = async(req: Request, res: Response) => {
             seenBy: { $nin: [req.user._id] }
         })
         .populate('createdBy', 'username _id')
-        .populate('threadId', 'title')
         .sort({ createdAt: -1 })
         .lean();
 
@@ -30,12 +29,14 @@ export const getNotificationHandler = async(req: Request, res: Response) => {
         const postPageMap = await calculateBatchPostPages(postThreadPairs)
 
         const enrichedNotifications = notifications.map(n => {
-            const page = postPageMap.get(n.postId.toString())
+            const postIdStr = typeof n.postId === 'object' && n.postId?.toString ? n.postId.toString() : n.postId
+            const page = postPageMap.get(postIdStr) || null;
             return {
                 ...n,
-                page
-            }
-        })
+                pageNumber: page
+            };
+        });
+
         res.json({
             msg: "Notifications fetched successfully",
             notifications: enrichedNotifications

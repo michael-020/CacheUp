@@ -95,6 +95,7 @@ export interface Notification {
   } | null;
   createdAt: string;
   __v?: number;
+  pageNumber: number
 }
 export interface Forum {
         _id: string;

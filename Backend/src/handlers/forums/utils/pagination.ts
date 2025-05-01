@@ -46,7 +46,7 @@ export const getThreadPostMap = async (threadIds: string[]) => {
 
         const threadPostCounts = await Promise.all(
             uniqueThreadIds.map(threadId => {
-                postForumModel.find({ thread: threadId, visibility: true }).sort({ createdAt: 1 }).select("_id createdAt").lean()
+                return postForumModel.find({ thread: threadId, visibility: true }).sort({ createdAt: 1 }).select("_id createdAt").lean()
             })
         )
 
