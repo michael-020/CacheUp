@@ -1,4 +1,5 @@
 import { Navigate, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import {  Helmet } from "react-helmet-async"
 import './App.css'
 import { Home } from './pages/Home'
 import { Profile } from './pages/Profile'
@@ -38,6 +39,8 @@ import { ViewFriends } from './components/ViewFriends'
 import Statistics from './pages/admin/Statistics'
 import { TimeTracker } from './components/TimeTracker'
 import PageViews from "@/pages/admin/PageViews";
+import ReportedContentPage from './pages/reportedContentForums'
+
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore()
@@ -165,7 +168,27 @@ function App() {
   }
 
   return (
+    
     <div className='bg-gray-100 dark:bg-neutral-900 min-h-screen custom-scrollbar'>
+    <Helmet>
+      <title>CacheUp | Social Media and Forums</title>
+      
+      <meta name="description" content="Campus Connect is your social media hub. Chat with friends, join community forums, post updates, comment on discussions, and find everything fast with smart search. Connect, share, and grow together!" />
+      <meta name="keywords" content="Campus Connect, college social media, student forums, chat app for students, make friends in college, college communities, campus life platform, discussion boards, vector search, smart forums" />
+
+      {/* Open Graph Tags */}
+      <meta property="og:title" content="Campus Connect | Social Media for College Communities" />
+      <meta property="og:description" content="Chat, post, make friends, join forums, and discover trending topics easily on Campus Connect. Built for real life Discussions." />
+      <meta property="og:type" content="website" />
+      <meta property="og:url" content="https://your-campusconnect-site.com" /> {/* Update with your domain */}
+      <meta property="og:image" content="https://your-campusconnect-site.com/og-image.png" /> {/* Update this too */}
+      
+      {/* Twitter Card (Optional, looks good on shares) */}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content="Campus Connect | Social Media for College Communities" />
+      <meta name="twitter:description" content="Chat, post updates, join forums, and meet friends. Campus Connect makes college life easier and more fun!" />
+      <meta name="twitter:image" content="https://your-campusconnect-site.com/og-image.png" />
+    </Helmet>
       {authUser && <TimeTracker />}
       <ScrollToTop />
       {authUser && !isAdminRoute && (
@@ -184,6 +207,7 @@ function App() {
         </div>
       )}
       <AnimatePresence mode="wait" >
+      
         <Routes>
           {/* User Routes */}
           <Route path="/signup" element={!authUser ? <Signup /> : <Navigate to={returnPath && returnPath !== "/" ? returnPath : "/home"} />} />
@@ -219,10 +243,13 @@ function App() {
           <Route path='/admin/requested-forums' element={authAdmin ? <RequestedForums /> : <Navigate to="/admin/signin" />} />
           <Route path='/admin/stats' element={authAdmin ? <Statistics /> : <Navigate to="/admin/signin" />} />
           <Route path='/admin/page-views' element={authAdmin ? <PageViews /> : <Navigate to="/admin/signin" />} />
+          <Route path='/admin/reported-content' element={authAdmin ? <ReportedContentPage /> : <Navigate to="/admin/signin" />} />
         </Routes>
+       
       </AnimatePresence>
       <Toaster />  
     </div>
+    
   )
 }
 

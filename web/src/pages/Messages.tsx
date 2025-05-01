@@ -4,6 +4,7 @@ import NoChatSelected from "@/components/NoChatSelected"
 import { routeVariants } from "@/lib/routeAnimation"
 import { useChatStore } from "@/stores/chatStore/useChatStore"
 import { motion } from "framer-motion"
+import { Helmet } from "react-helmet-async"
 
 export const Messages = () => {
   const { selectedUser } = useChatStore()
@@ -16,6 +17,9 @@ export const Messages = () => {
       animate="final"
       exit="exit"
     >
+      <Helmet>
+        <title>{`Chats | CacheUp`}</title>
+      </Helmet>
         <div className="rounded-lg pb-20 lg:pb-0 shadow-cl w-full max-w-6xl h-[calc(100vh-8rem)]">
           <div className="hidden md:flex h-full rounded-lg overflow-hidden border shadow-xl dark:border-neutral-800 dark:shadow-neutral-700 dark:shadow-md">
             <ChatSidebar />

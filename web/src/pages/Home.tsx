@@ -3,6 +3,7 @@ import { Feed } from '../components/feeds/Feed';
 import { useAuthStore } from '@/stores/AuthStore/useAuthStore';
 import { motion } from "framer-motion"
 import { routeVariants } from '@/lib/routeAnimation';
+import { Helmet } from 'react-helmet-async';
 import FriendSuggestions from '@/components/FriendsSuggestions';
 
 export const Home = () => {
@@ -18,6 +19,9 @@ export const Home = () => {
       animate="final"
       exit="exit"
     >
+      <Helmet>
+        <title>Home | CacheUp</title>
+      </Helmet>
       <div className="absolute left-40 top-5 hidden lg:block">
         <ProfileCard userInfo={authUser} isOwnProfile={true} />
       </div>

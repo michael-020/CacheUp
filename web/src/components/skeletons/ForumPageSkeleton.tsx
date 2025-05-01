@@ -1,10 +1,12 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
+import { SearchBar } from '../forums/search-bar';
 
 const ForumPageSkeleton: React.FC = () => {
   return (
     <div>
       <div className="max-w-6xl mx-auto p-6 translate-y-24 h-full">
+        <SearchBar />
         <div className="flex justify-between items-center mb-6">
           <button
             className="mr-4 p-3 rounded-full hover:bg-gray-400 dark:hover:bg-neutral-700"

@@ -38,6 +38,9 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   totalPages: 0,
   totalPosts: 0,
   hasNextPage: false,
+  reportedComments:[],
+  reportedPosts: [],
+  reportedThreads: [],
 
   fetchForums: async (isAdminRoute: boolean) => {
     set((state) => ({ ...state, loadingForums: true, errorForums: '' }));
@@ -457,9 +460,10 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     }
   },
   
-  deleteComment: async (commentId, weaviateId) => {
+  deleteComment: async (commentId, weaviateId, isAdmin? ) => {
     try {
-        await axiosInstance.delete(`/forums/delete-comment/${commentId}/${weaviateId}`);
+        const url = isAdmin ? "/admin/delete-comment" : "/forums/delete-comment"
+        await axiosInstance.delete(`${url}/${commentId}/${weaviateId}`);
         
         // Find which post this comment belongs to
         set((state) => {
@@ -496,6 +500,10 @@ export const useForumStore = create<ForumStore>((set, get) => ({
                 posts: updatedPosts
             };
         });
+        set((state) => ({
+          ...state,
+          reportedComments: state.reportedComments.filter((comment) => comment._id !== commentId)
+        }))
     } catch (err) {
         const error = err as AxiosError<{ msg: string }>;
         throw error;
@@ -512,7 +520,10 @@ export const useForumStore = create<ForumStore>((set, get) => ({
           threads: state.currentForum.threads.filter(
             (thread) => thread._id !== threadId
           )
-        }
+        },
+        reportedThreads: state.reportedThreads.filter(
+          (thread) => thread._id !== threadId
+        )
       }))
   
       toast.success("Thread deleted successfully")
@@ -629,6 +640,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
       await axiosInstance.delete(url);
       set((state) => ({
         posts: state.posts.filter((post) => post._id !== postId),
+        reportedPosts: state.reportedPosts.filter((post) => post._id !== postId)
       }));
     } catch (err) {
       console.error("Failed to delete post:", err);
@@ -771,6 +783,21 @@ denyRequest: async (id: string) => {
     console.error(error)
     toast.error("Error while denying request")
   }
+},
+
+fetchReportedContent: async () => {
+  try {
+    set({loading: true})
+    const res = await axiosInstance.get("/admin/reported-content")
+    set({reportedComments: res.data.reportedComments, reportedPosts: res.data.reportedPosts, reportedThreads: res.data.reportedThreads})
+    toast.success("Fetched Reported Posts Successfully")
+  } catch (error) {
+    console.error(error)
+    toast.error("Error while fetching reported posts")
+  } finally{
+    set({loading: false})
+  }
 }
 
 }));
+  
