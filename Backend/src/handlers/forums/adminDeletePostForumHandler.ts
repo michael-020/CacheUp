@@ -1,7 +1,5 @@
 import { Request, Response } from "express";
-import { commentForumModel, postForumModel } from "../../models/db";
-import { weaviateClient } from "../../models/weaviate";
-import { deletePost } from "./deleteFunctions/deletePost";
+import { deletePost } from "./utils/deletePost";
 
 
 export const adminDeletePostForumHandler = async (req: Request, res: Response) => {

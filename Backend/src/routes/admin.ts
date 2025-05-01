@@ -20,8 +20,6 @@ import { adminDeleteThreadHandler } from "../handlers/forums/adminDeleteThreadHa
 import { adminDeleteForumHandler } from "../handlers/forums/adminDeleteForumHandler";
 import { editForumAdminHandler } from "../handlers/forums/editForumAdminHandler";
 import { getAllThreadsFromAForumHandler } from "../handlers/forums/getAllThreadsFromAForumHandler";
-import { viewAllThreadsHandler } from "../handlers/admin/viewThreadsHandler";
-import { viewPostsInThreadHandler } from "../handlers/admin/viewPostsInThreadHandler";
 import { adminGetForumRequestHandler } from "../handlers/forums/adminGetForumRequestHandler";
 import { adminApproveForumHandler } from "../handlers/forums/adminApproveForumRequestHandler";
 import { adminRejectForumRequestHandler } from "../handlers/forums/adminRejectForumRequestHandler";
@@ -32,6 +30,7 @@ import { getDailyTimeSpentHandler } from '../handlers/timeTrackingHandler';
 import { timeTrackingService } from "../services/timeTrackingService";
 import viewProfileHanler from "../handlers/viewProfileHandler";
 import { adminGetReportedPostsCommentsThreadsHandler } from "../handlers/forums/adminGetReportedPostsCommentsThreadsHandler";
+import { getAllPostsFromAThreadHandler } from "../handlers/forums/getAllPostsFromAThreadHandler";
 
 const adminRouter: Router = Router();
 
@@ -82,10 +81,10 @@ adminRouter.post("/create-forum", createForumhandler)
 adminRouter.get("/get-forums", getAllForumsHandler)
 
 // get all threads in a forum
-adminRouter.get("/get-threads/:forumId", viewAllThreadsHandler)
+adminRouter.get("/get-threads/:forumId", getAllThreadsFromAForumHandler)
 
 // get all posts in a thread
-adminRouter.get("/get-thread-posts/:threadId", viewPostsInThreadHandler)
+adminRouter.get("/get-thread-posts/:threadId/:page", getAllPostsFromAThreadHandler)
 
 // get forums comments 
 adminRouter.get("/get-comments/:postId", getAllCommentsFromAPostHandler)
