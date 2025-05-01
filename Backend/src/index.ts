@@ -12,9 +12,10 @@ import cookieParser from "cookie-parser";
 import messageRouter from "./routes/message";
 import app, { server } from "./websockets";
 import forumsRouter from "./routes/forums";
+import authRouter from "./routes/auth";
 
 app.use(cors({
-    origin: "http://localhost:5173", 
+    origin: process.env.FRONTEND_URL,
     credentials: true
 }));
 app.use(express.json({ limit: '50mb' }));
@@ -26,6 +27,10 @@ app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/post", postRouter);
 app.use("/api/v1/messages", messageRouter);
 app.use("/api/v1/forums", forumsRouter)
+app.use("/api/v1/auth", authRouter);
+
+// // Remove duplicate mounting of routes
+app.use("/auth", authRouter);
 
 async function main() {
     try {

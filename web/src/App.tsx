@@ -39,8 +39,7 @@ import { ViewFriends } from './components/ViewFriends'
 import Statistics from './pages/admin/Statistics'
 import { TimeTracker } from './components/TimeTracker'
 import PageViews from "@/pages/admin/PageViews";
-import ReportedContentPage from './pages/reportedContentForums'
-
+import ReportedContentPage from './pages/ReportedContentForums'
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore()
@@ -214,18 +213,18 @@ function App() {
           <Route path="/signin" element={!authUser ? <Signin /> : <Navigate to={returnPath && returnPath !== "/" ? returnPath : "/home"} />} />
           <Route path='/' element={!authUser ? <Landing /> : <Navigate to={returnPath && returnPath !== "/" ? returnPath : "/home"} />} />
           <Route path='/verify-email' element={!authUser ? <EmailVerify /> : <Navigate to={returnPath && returnPath !== "/" ? returnPath : "/home"} />} />
-          <Route path="/home" element={authUser ? <Home /> : <Navigate to="/signin" />} />
-          <Route path='/profile' element={authUser ? <Profile /> : <Navigate to="/signin"/>} />
-          <Route path="/profile/:id" element={authUser ? <Profile /> : <Navigate to="/signin"/>} />
-          <Route path='/message' element={authUser ? <Messages /> : <Navigate to="/signin" />} />
-          <Route path='/edit-profile' element={authUser ? <EditProfile /> : <Navigate to="/signin" />} />
-          <Route path='/friends' element={authUser ? <FriendsPage /> : <Navigate to="/signin" />} />
-          <Route path='/settings' element={authUser ? <SettingsPage /> : <Navigate to="/signin" />} />
-          <Route path="/forums/get-forums" element={authUser ? <ForumList /> : <Navigate to='/signin'/>} />
-          <Route path="/forums/:forumMongoId/:forumWeaviateId" element={authUser ? <ForumPage /> : <Navigate to='/signin' />} />
-          <Route path="/forums/search" element={authUser ? <SearchResults /> : <Navigate to='/signin' />} />
-          <Route path='/forums/thread/:id/:page' element={authUser ? <Thread /> : <Navigate to='/signin' />} />
-          <Route path="/change-password" element={authUser ? <ChangePassword /> : <Navigate to="/signin" />} />
+          <Route path="/home" element={authUser ? <Home /> : <Navigate to="/" />} />
+          <Route path='/profile' element={authUser ? <Profile /> : <Navigate to="/"/>} />
+          <Route path="/profile/:id" element={authUser ? <Profile /> : <Navigate to="/"/>} />
+          <Route path='/message' element={authUser ? <Messages /> : <Navigate to="/" />} />
+          <Route path='/edit-profile' element={authUser ? <EditProfile /> : <Navigate to="/" />} />
+          <Route path='/friends' element={authUser ? <FriendsPage /> : <Navigate to="/" />} />
+          <Route path='/settings' element={authUser ? <SettingsPage /> : <Navigate to="/" />} />
+          <Route path="/forums/get-forums" element={authUser ? <ForumList /> : <Navigate to='/'/>} />
+          <Route path="/forums/:forumMongoId/:forumWeaviateId" element={authUser ? <ForumPage /> : <Navigate to='/' />} />
+          <Route path="/forums/search" element={authUser ? <SearchResults /> : <Navigate to='/' />} />
+          <Route path='/forums/thread/:id/:page' element={authUser ? <Thread /> : <Navigate to='/' />} />
+          <Route path="/change-password" element={authUser ? <ChangePassword /> : <Navigate to="/" />} />
           <Route path="/saved-posts" element={<SavedPostsPage />} />
           <Route path="/friends/:id" element={authUser ? <ViewFriends /> : <Navigate to="/signin" />}/>
 
