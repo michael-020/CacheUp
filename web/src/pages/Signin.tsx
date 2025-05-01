@@ -43,7 +43,7 @@ export const Signin = () => {
             animate="final"
             exit="exit"    
         >
-            <div className="w-full max-w-md bg-white dark:bg-neutral-700 rounded-lg shadow-lg p-8">
+            <div className="w-full max-w-md bg-white dark:bg-neutral-800 rounded-lg shadow-lg p-8">
                 <div className="grid gap-6">
                     <div className="text-center">
                         <h1 className="text-3xl font-bold text-indigo-600 dark:text-indigo-500">Sign In</h1>
@@ -106,12 +106,12 @@ export const Signin = () => {
                         </div>
                     </form>
 
-                    <div className="relative my-6">
+                    <div className="relative ">
                         <div className="absolute inset-0 flex items-center">
                             <div className="w-full border-t border-gray-300 dark:border-neutral-600" />
                         </div>
                         <div className="relative flex justify-center text-sm">
-                            <span className="px-2 bg-white dark:bg-neutral-700 text-gray-500">
+                            <span className="px-2 bg-white dark:bg-neutral-800 text-gray-500">
                                 Or continue with
                             </span>
                         </div>
@@ -119,10 +119,10 @@ export const Signin = () => {
 
                     <button
                         onClick={handleGoogleSignIn}
-                        className="w-full flex items-center justify-center gap-2 p-2 border border-gray-300 dark:border-neutral-600 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-600 transition-colors"
+                        className="w-full flex items-center justify-center gap-2 p-2 border dark:bg-neutral-950 bg-gray-50 border-gray-100 dark:border-neutral-800 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-900 transition-colors"
                     >
                         <img src="/google.svg" alt="Google" className="w-6 h-6" />
-                        <span>Sign in with Google</span>
+                        <span className="dark:text-gray-100">Sign in with Google</span>
                     </button>
                 </div>
             </div>
