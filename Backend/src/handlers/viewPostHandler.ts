@@ -12,17 +12,15 @@ viewPostHandler.get("/", async (req: Request, res: Response) => {
         const limit = parseInt(req.query.limit as string) || 5; // Default 5 posts per page
         const skip = (page - 1) * limit;
         
-        // Get total count for checking if more posts exist
-        const totalPosts = await postModel.countDocuments({ visibility: true });
-        
-        // Get posts for infinite scroll
-        const allPosts = await postModel
-            .find({ visibility: true })
-            .populate("comments.user", "username profilePicture")
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit)
-            .lean()
+        const [totalPosts, allPosts] = await Promise.all([
+            postModel.countDocuments({ visibility: true }),
+            postModel.find({ visibility: true })
+                .populate("comments.user", "username profilePicture")
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .lean()
+        ])
 
         if (!allPosts || allPosts.length === 0) {
             res.status(200).json({
