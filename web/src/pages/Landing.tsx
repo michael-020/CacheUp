@@ -39,7 +39,7 @@ export const Landing = () => {
                 Sign In
               </Link>
               <Link 
-                to="/signup"
+                to="/verify-email"
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 Get Started
@@ -84,7 +84,7 @@ export const Landing = () => {
               transition={{ delay: 0.6, duration: 0.7 }}
               className="flex flex-col sm:flex-row gap-4"
             >
-              <Link to="/signup">
+              <Link to="/verify-email">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -277,7 +277,7 @@ export const Landing = () => {
                 viewport={{ once: true }}
                 transition={{ delay: 0.6, duration: 0.7 }}
               >
-                <Link to="/signup">
+                <Link to="/verify-email">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}

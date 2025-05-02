@@ -104,7 +104,7 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
         try {
             await axiosInstance.post("/user/initiate-signup", data)
             set({inputEmail: data.email})
-            toast.success("Email is sent to your account")
+            toast.success("OTP is sent to your account")
         } catch(error) {
             if (error instanceof AxiosError && error.response?.data?.msg) {
                 toast.error(error.response.data.msg as string);
@@ -120,7 +120,7 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
         set({isVerifying: true})
         try {
             await axiosInstance.post("/user/verify-otp", data)
-            toast.success("Please enter your details")
+            toast.success("Email verification is Successful")
         } catch (error) {
             if (error instanceof AxiosError && error.response?.data?.msg) {
                 toast.error(error.response.data.msg as string);

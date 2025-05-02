@@ -197,7 +197,7 @@ export const Signup = () => {
 
             <button
                 onClick={handleGoogleSignIn}
-                className="w-full flex items-center justify-center gap-2 p-2 border border-gray-300 dark:border-neutral-600 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-600 transition-colors"
+                className="w-full flex items-center justify-center gap-2 p-2 border dark:bg-neutral-950 bg-gray-50 border-gray-100 dark:border-neutral-800 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-900 transition-colors"
             >
                 <img src="/google.svg" alt="Google" className="w-6 h-6" />
                 <span className="dark:text-gray-200">Sign up with Google</span>
