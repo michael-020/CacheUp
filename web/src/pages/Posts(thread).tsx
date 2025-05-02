@@ -37,6 +37,8 @@ export const Thread = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState<{[key: string]: boolean}>({});
   const [paginationInput, setPaginationInput] = useState(page?.toString());
 
+  const highlightTimeoutRef = useRef<number | null> (null)
+
   const toggleMenu = (postId: string) => {
     setMenuOpen(prev => {
       const isOpening = !prev[postId];
@@ -73,6 +75,13 @@ export const Thread = () => {
     const element = document.getElementById(`post-${postId}`)
     if(element){
       element.scrollIntoView({ behavior: "smooth", block: "start" })
+      setHighlightedPostId(postId)
+      if(highlightTimeoutRef.current) {
+        clearTimeout(highlightTimeoutRef.current)
+      }
+      highlightTimeoutRef.current = window.setTimeout(() => {
+        setHighlightedPostId(null)
+      },3000)
     }
   }
 
@@ -82,7 +91,12 @@ export const Thread = () => {
         scrollToPost(postQuery)
       }, 300)
     }    
-  },[])
+    return () => {
+      if(highlightTimeoutRef.current){
+        clearTimeout(highlightTimeoutRef.current)
+      }
+    }
+  },[postQuery])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -510,6 +524,7 @@ export const Thread = () => {
                   isHighlighted ? "ring-4 ring-blue-300 ring-opacity-70" : ""
                 }`}
               >
+                <div className="absolute -mt-20 invisible" id={`anchor-${post._id}`}></div>
                 <div className="flex items-center gap-3 p-4 dark:bg-neutral-800 rounded-t-lg">
                   {profileImage ? (
                     <Link 
@@ -534,6 +549,7 @@ export const Thread = () => {
                     <Link to={authAdmin ? `/admin/profile/${post.createdBy?._id}` : `/profile/${post.createdBy?._id}`}>
                       <div className="font-medium text-blue-600 hover:underline cursor-pointer">{author}</div>
                     </Link>
+                    
                     <div className="text-xs text-gray-500">{formatDate(post.createdAt)}</div>
                     <div className="flex-1">
                 </div>
@@ -562,6 +578,26 @@ export const Thread = () => {
                       <div className="">
                         {(post.createdBy._id === authUser?._id) && (
                           <>
+                            <button
+                          onClick={() => {
+                            const url = `${window.location.origin}${window.location.pathname}?post=${post._id}`;
+                            navigator.clipboard.writeText(url);
+                            setMenuOpen(prev => ({ ...prev, [post._id]: false }));
+                            
+                            setHighlightedPostId(post._id);
+                            
+                            if (highlightTimeoutRef.current) {
+                              clearTimeout(highlightTimeoutRef.current);
+                            }
+                            
+                            highlightTimeoutRef.current = window.setTimeout(() => {
+                              setHighlightedPostId(null);
+                            }, 3000);
+                          }}
+                          className="block w-full text-left border-b dark:border-neutral-700 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700"
+                        >
+                          Copy link to post
+                        </button>
                             <button
                               onClick={() => {
                                 setEditingPostId(prev => ({ ...prev, [post._id]: true }));
