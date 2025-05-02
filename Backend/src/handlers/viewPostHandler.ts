@@ -87,12 +87,12 @@ viewPostHandler.get("/get-post/:postId", async (req: Request, res: Response) => 
             return;
         }
 
-        const isReported = post.reportedBy.includes(userId);
-        const isLiked = post.likes.includes(userId);
-        const isSaved = post.savedBy.includes(userId);
+        const isReported = post.reportedBy.map(id => id.toString()).includes(userId.toString());
+        const isLiked = post.likes.map(id => id.toString()).includes(userId.toString());
+        const isSaved = post.savedBy.map(id => id.toString()).includes(userId.toString());
 
         const processedPost = {
-            ...post._doc,
+            ...post,
             isReported,
             reportButtonText: isReported ? 'Unreport' : 'Report',
             reportCount: post.reportedBy.length,
@@ -129,10 +129,10 @@ viewPostHandler.get("/myPosts", async (req: Request, res: Response) => {
         }
 
         const processedPosts = posts.map(post => {
-            const isLiked = post.likes.includes(new mongo.ObjectId(userId?.toString()));
+            const isLiked = post.likes.map(id => id.toString()).includes(userId.toString());
             
             return {
-                ...post._doc,
+                ...post,
                 isLiked
             };
         });
@@ -167,10 +167,10 @@ viewPostHandler.get("/:id", async (req: Request, res: Response) => {
         }
 
         const processedPosts = posts.map(post => {
-            const isLiked = post.likes.includes(new mongo.ObjectId(currentUserId?.toString()));
+            const isLiked = post.likes.map(id => id.toString()).includes(currentUserId.toString());
             
             return {
-                ...post._doc,
+                ...post,
                 isLiked
             };
         });
