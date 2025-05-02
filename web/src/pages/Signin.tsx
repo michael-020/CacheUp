@@ -47,19 +47,19 @@ export const Signin = () => {
                 <div className="grid gap-6">
                     <div className="text-center">
                         <h1 className="text-3xl font-bold text-indigo-600 dark:text-indigo-500">Sign In</h1>
-                        <p className="text-gray-500 dark:text-gray-200 mt-2">Welcome back to PVPPCOE Campus Network</p>
+                        <p className="text-gray-500 dark:text-gray-200 mt-2">Welcome back to CatcheUp Network</p>
                     </div>
                     
                     <form className="grid gap-5">
                         {/* Email */}
                         <div className="grid gap-2">
-                            <label className="text-gray-600 dark:text-gray-200">College Email</label>
+                            <label className="text-gray-600 dark:text-gray-200">Email</label>
                             <input
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="w-full px-4 py-3 dark:bg-gray-600/60 dark:text-gray-100 dark:placeholder:text-gray-400/40 bg-blue-50/50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                placeholder="you@pvppcoe.ac.in"
+                                placeholder="xyz@gmail.com"
                             />
                         </div>
 
