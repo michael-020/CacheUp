@@ -39,11 +39,6 @@ export const handleGoogleCallback = async (req: Request, res: Response) => {
 
     const { email, name } = userInfoResponse.data;
 
-    // Verify email domain
-    if (!email.endsWith("@pvppcoe.ac.in")) {
-      return res.redirect(`${process.env.FRONTEND_URL}/signin?error=invalid_domain`);
-    }
-
     // Find or create user
     let user = await userModel.findOne({ email });
 
