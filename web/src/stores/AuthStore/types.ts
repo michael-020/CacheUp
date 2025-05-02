@@ -17,7 +17,7 @@ export type authState = {
 }
 
 export type authAction = {
-    signup: (data: {name: string, email: string, password: string, username: string, department: string, graduationYear: string}) => void;
+    signup: (data: {name: string, email: string, password: string, username: string}) => void;
     signin: (data: {email: string, password: string}) => void;
     logout: () => void;
     checkAuth: () => void;

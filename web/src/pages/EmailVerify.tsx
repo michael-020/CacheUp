@@ -36,18 +36,18 @@ export const EmailVerify = () => {
             exit="exit"
         >
             <div className="flex flex-col justify-center w-[30%] h-screen">
-                <div className="bg-white border border-gray-400 dark:border-neutral-600 shadow-lg dark:bg-neutral-700 p-6 rounded-lg">
+                <div className="bg-white border border-gray-400 dark:border-neutral-700 shadow-lg dark:bg-neutral-800 p-6 rounded-lg">
                     <div className="flex flex-col space-y-4">
-                        <div className="flex space-x-2">
+                        <div className="flex items-center gap-3">
                             <div className="w-2/3">
                                 <InputBox 
                                     type="email" 
                                     label="Email" 
-                                    placeholder="Enter Your College Email" 
+                                    placeholder="Enter Your Email" 
                                     onChange={(e => setEmail(e.target.value))} 
                                 />
                             </div>
-                            <div className="w-1/3 self-end">
+                            <div className="w-1/3 ">
                                 <Button 
                                     label="Send OTP" 
                                     onClick={onClickHandler} 
@@ -57,18 +57,22 @@ export const EmailVerify = () => {
                         </div>
                         
                         {inputEmail === email && inputEmail !== "" && (
-                            <div className="flex flex-col space-y-3 mt-2">
-                                <InputBox 
-                                    type="text" 
-                                    label="OTP" 
-                                    placeholder="Enter the OTP" 
-                                    onChange={(e) => setOtp((e.target.value))} 
-                                /> 
-                                <Button 
-                                    label="Submit OTP" 
-                                    active={isVerifying} 
-                                    onClick={otpHandler} 
-                                /> 
+                            <div className="flex items-center gap-3">
+                                <div className="w-2/3 ">
+                                    <InputBox 
+                                        type="text" 
+                                        label="OTP" 
+                                        placeholder="Enter the OTP" 
+                                        onChange={(e) => setOtp((e.target.value))} 
+                                    /> 
+                                </div>
+                                <div>
+                                    <Button 
+                                        label="Submit OTP" 
+                                        active={isVerifying} 
+                                        onClick={otpHandler} 
+                                    /> 
+                                </div>
                             </div>
                         )}
                     </div>
@@ -86,7 +90,7 @@ export const EmailVerify = () => {
 
                     <button
                         onClick={handleGoogleSignIn}
-                        className="w-full flex items-center justify-center gap-2 p-2 border border-gray-300 dark:border-neutral-600 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-600 transition-colors"
+                        className="w-full flex items-center justify-center gap-2 p-2 border dark:bg-neutral-950 bg-gray-50 border-gray-100 dark:border-neutral-800 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-900 transition-colors"
                     >
                         <img src="/google.svg" alt="Google" className="w-6 h-6" />
                         <span className="dark:text-gray-200">Continue with Google</span>
