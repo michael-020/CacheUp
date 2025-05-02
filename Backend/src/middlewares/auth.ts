@@ -23,7 +23,7 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
         const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
 
         if(decoded){
-            const user = await userModel.findById((decoded as customDecodedInterface).userId).select("-password")
+            const user = await userModel.findById((decoded as customDecodedInterface).userId).select("-password").lean()
             if(!user){
                 res.status(400).json({
                     msg: "user not found"
@@ -65,7 +65,7 @@ export const adminMiddleware = async (req: Request, res: Response, next: NextFun
         const decoded = jwt.verify(token, JWT_SECRET as string) as JwtPayload;
 
         if(decoded){
-            const user = await adminModel.findById((decoded as customDecodedInterface).userId).select("-password")
+            const user = await adminModel.findById((decoded as customDecodedInterface).userId).select("-password").lean()
             if(!user){
                 res.status(400).json({
                     msg: "user not found"

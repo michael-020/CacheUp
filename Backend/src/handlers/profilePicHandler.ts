@@ -72,7 +72,7 @@ PfpHanler.get("/", async (req: Request, res: Response) => {
     try{
         const userId = req.user._id;
 
-        const user = await userModel.findById(userId);
+        const user = await userModel.findById(userId).lean();
 
         if(!user){
             res.status(401).json({
@@ -99,7 +99,7 @@ PfpHanler.get("/:id", async (req: Request, res: Response) => {
     try {
         const userId = req.user._id;
 
-        const user = await userModel.findById(userId);
+        const user = await userModel.findById(userId).lean();
         if (!user) {
             res.status(404).json({ msg: "User not found" });
             return;

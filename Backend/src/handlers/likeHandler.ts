@@ -53,7 +53,7 @@ likeHandler.get("/:id", async (req: Request, res: Response) => {
     try {
         const postId = req.params.id
 
-        const post = await postModel.findById(postId)
+        const post = await postModel.findById(postId).lean()
 
         if(!post){
             res.status(401).json({

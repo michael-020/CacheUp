@@ -80,9 +80,12 @@ export const Navbar = () => {
         {/* Logo/Title - Always visible */}
         <div className="flex-shrink-0">
           <Link to={"/"} onClick={() => fetchPosts()}>
-            <h1 className="font-extrabold text-xl md:text-3xl text-black dark:text-gray-100">
-              CacheUp
-            </h1>
+            <div className="flex items-center justify-center select-none">
+              <img src="/favicon.svg" className="size-10" />
+              <h1 className="font-extrabold text-xl md:text-3xl text-blue-600">
+                CacheUp
+              </h1>
+            </div>
           </Link>
         </div>
         

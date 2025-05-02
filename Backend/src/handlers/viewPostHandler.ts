@@ -74,7 +74,8 @@ viewPostHandler.get("/get-post/:postId", async (req: Request, res: Response) => 
         const post = await postModel
             .findById(postId)
             .populate("comments.user", "username profilePicture") // Added population for comments
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .lean();
 
         if (!post || (post.visibility === false)) {
             res.status(401).json({
@@ -114,7 +115,8 @@ viewPostHandler.get("/myPosts", async (req: Request, res: Response) => {
         const posts = await postModel
             .find({ postedBy: userId, visibility: true })
             .populate("comments.user", "username profilePicture") // Added population for comments
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .lean();
 
         if (!posts) {
             res.status(401).json({
@@ -151,7 +153,8 @@ viewPostHandler.get("/:id", async (req: Request, res: Response) => {
         const posts = await postModel
             .find({ postedBy: otherUserId, visibility: true })
             .populate("comments.user", "username profilePicture") // Added population for comments
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .lean();
 
         if (!posts) {
             res.status(401).json({

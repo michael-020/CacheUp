@@ -169,7 +169,7 @@ function App() {
 
   return (
     
-    <div className='bg-gray-100 dark:bg-neutral-900 min-h-screen custom-scrollbar'>
+    <div className='bg-gray-100 dark:bg-neutral-950 min-h-screen custom-scrollbar'>
     <Helmet>
       <title>CacheUp | Social Media and Forums</title>
       

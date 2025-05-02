@@ -27,7 +27,7 @@ export const loginHandler: RequestHandler = async (req: Request, res: Response) 
     const {email, password} = req.body;
 
     try{
-        const  user = await userModel.findOne({email});
+        const user = await userModel.findOne({ email }).lean();
 
         if(!user){
             res.status(403).json({
@@ -69,16 +69,3 @@ export const loginHandler: RequestHandler = async (req: Request, res: Response) 
         return;
     }
 }
-
-// filepath: /Users/michel/Desktop/CampusConnect/Backend/src/handlers/logOutHandler.ts
-export const logOutHandler = async (req: Request, res: Response) => {
-  try {
-    const userId = req.user._id.toString();
-    await loggingService.createLogoutLog(userId, req);
-    
-    res.cookie("jwt", "", { maxAge: 0 });
-    res.status(200).json({ message: "Logged out successfully" });
-  } catch (error) {
-    // ... existing error handling ...
-  }
-};

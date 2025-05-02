@@ -33,7 +33,7 @@ savePostHandler.get("/", async (req: Request, res: Response) => {
     try {
       const userId = req.user.id;
       
-      const savedPosts = await postModel.find({ savedBy: userId }).sort({ createdAt: -1 })
+      const savedPosts = await postModel.find({ savedBy: userId }).sort({ createdAt: -1 }).lean()
   
       const postsWithFlags = savedPosts.map((post: any) => ({
         ...post._doc,

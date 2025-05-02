@@ -11,7 +11,7 @@ export const adminLoginHandler = async (req: Request, res: Response) => {
     try {
         const { adminId, password }  = req.body
 
-        const admin = await adminModel.findOne({adminId})
+        const admin = await adminModel.findOne({adminId}).lean();
 
         if(!admin){
             res.status(401).json({

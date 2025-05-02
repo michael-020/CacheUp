@@ -215,7 +215,8 @@ friendHandler.get("/", async (req: Request, res: Response) => {
         path: "friends",
         select: "name username profilePicture department graduationYear",
         options: { lean: true }
-      });
+      })
+      .lean();
 
     if (!user) {
        res.status(404).json({ message: "User not found" });
@@ -404,7 +405,7 @@ friendHandler.get("/suggestions", async (req: Request, res: Response) => {
     const userId = req.user._id;
     const limit = parseInt(req.query.limit as string) || 10;
 
-    const currentUser = await userModel.findById(userId).select("friends department graduationYear");
+    const currentUser = await userModel.findById(userId).select("friends department graduationYear").lean();
     if (!currentUser) {
        res.status(404).json({ message: "User not found" });
        return
@@ -510,7 +511,8 @@ friendHandler.get("/:userId", async (req: Request, res: Response) => {
         path: "friends",
         select: "name username profilePicture department graduationYear",
         options: { lean: true }
-      });
+      })
+      .lean();
 
     if (!user) {
       res.status(404).json({ message: "User not found" });
