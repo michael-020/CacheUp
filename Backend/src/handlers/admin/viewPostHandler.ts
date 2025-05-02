@@ -23,7 +23,7 @@ viewPostHandler.get("/", async (req: Request, res: Response) => {
             // const isReported = post.reportedBy.includes(new mongo.ObjectId(userId?.toString())); // to check if the logged in user has reported a certain post or not
             
             return {
-                ...post._doc,
+                ...post,
                 // isReported,
                 // reportButtonText: isReported ? 'Unreport' : 'Report',
                 reportCount: post.reportedBy.length
