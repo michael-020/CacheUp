@@ -791,7 +791,6 @@ fetchReportedContent: async () => {
     set({loading: true})
     const res = await axiosInstance.get("/admin/reported-content")
     set({reportedComments: res.data.reportedComments, reportedPosts: res.data.reportedPosts, reportedThreads: res.data.reportedThreads})
-    toast.success("Fetched Reported Posts Successfully")
   } catch (error) {
     console.error(error)
     toast.error("Error while fetching reported posts")
