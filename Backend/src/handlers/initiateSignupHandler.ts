@@ -5,11 +5,7 @@ import { generateOTP, sendOTP } from "../emailService";
 
 export const initiateSignUpHandler = async (req: Request, res: Response) => {
   
-  const mySchema = z.object({
-    email: z.string().email().refine((val) => val.endsWith('@pvppcoe.ac.in'), {
-      message: "Only Emails ending with @pvppcoe.ac.in can Register"
-    }),
-  }).strict();
+  const mySchema = z.object({email: z.string().email()}).strict();
 
   
   const validationResult = mySchema.safeParse(req.body);
