@@ -12,16 +12,15 @@ viewPostHandler.get("/", async (req: Request, res: Response) => {
         const limit = parseInt(req.query.limit as string) || 5; // Default 5 posts per page
         const skip = (page - 1) * limit;
         
-        // Get total count for checking if more posts exist
-        const totalPosts = await postModel.countDocuments({ visibility: true });
-        
-        // Get posts for infinite scroll
-        const allPosts = await postModel
-            .find({ visibility: true })
-            .populate("comments.user", "username profilePicture")
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit);
+        const [totalPosts, allPosts] = await Promise.all([
+            postModel.countDocuments({ visibility: true }),
+            postModel.find({ visibility: true })
+                .populate("comments.user", "username profilePicture")
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .lean()
+        ])
 
         if (!allPosts || allPosts.length === 0) {
             res.status(200).json({
@@ -31,15 +30,17 @@ viewPostHandler.get("/", async (req: Request, res: Response) => {
             });
             return;
         }
+
+        const userIdStr = userId.toString();
         
         const processedPosts = allPosts.map(post => {
-            const isReported = post.reportedBy.includes(userId); 
-            const isLiked = post.likes.includes(userId);
-            const isSaved = post.savedBy.includes(userId);
+            const isReported = post.reportedBy.map(id => id.toString()).includes(userIdStr);
+            const isLiked = post.likes.map(id => id.toString()).includes(userIdStr);
+            const isSaved = post.savedBy.map(id => id.toString()).includes(userIdStr);
             const visibleComments = post.comments.filter(comment => comment.visibility !== false);
             
             return {
-                ...post._doc,
+                ...post,
                 isReported,
                 reportButtonText: isReported ? 'Unreport' : 'Report',
                 reportCount: post.reportedBy.length,
@@ -84,12 +85,12 @@ viewPostHandler.get("/get-post/:postId", async (req: Request, res: Response) => 
             return;
         }
 
-        const isReported = post.reportedBy.includes(userId);
-        const isLiked = post.likes.includes(userId);
-        const isSaved = post.savedBy.includes(userId);
+        const isReported = post.reportedBy.map(id => id.toString()).includes(userId.toString());
+        const isLiked = post.likes.map(id => id.toString()).includes(userId.toString());
+        const isSaved = post.savedBy.map(id => id.toString()).includes(userId.toString());
 
         const processedPost = {
-            ...post._doc,
+            ...post,
             isReported,
             reportButtonText: isReported ? 'Unreport' : 'Report',
             reportCount: post.reportedBy.length,
@@ -126,10 +127,10 @@ viewPostHandler.get("/myPosts", async (req: Request, res: Response) => {
         }
 
         const processedPosts = posts.map(post => {
-            const isLiked = post.likes.includes(new mongo.ObjectId(userId?.toString()));
+            const isLiked = post.likes.map(id => id.toString()).includes(userId.toString());
             
             return {
-                ...post._doc,
+                ...post,
                 isLiked
             };
         });
@@ -164,10 +165,10 @@ viewPostHandler.get("/:id", async (req: Request, res: Response) => {
         }
 
         const processedPosts = posts.map(post => {
-            const isLiked = post.likes.includes(new mongo.ObjectId(currentUserId?.toString()));
+            const isLiked = post.likes.map(id => id.toString()).includes(currentUserId.toString());
             
             return {
-                ...post._doc,
+                ...post,
                 isLiked
             };
         });
