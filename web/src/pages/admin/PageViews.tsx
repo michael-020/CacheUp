@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { axiosInstance } from "@/lib/axios";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { routeVariants } from "@/lib/routeAnimation";
@@ -37,6 +37,11 @@ export const PageViews = () => {
     fetchPageViews(selectedDate);
   }, [selectedDate]);
 
+  const handleDateChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const newDate = new Date(e.target.value);
+    setSelectedDate(newDate);
+  };
+
   return (
     <motion.div
       className="min-h-screen bg-gray-50 dark:bg-neutral-900"
@@ -57,6 +62,19 @@ export const PageViews = () => {
         </div>
 
         <div className="mt-24 space-y-8">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold">Statistics</h2>
+            <div className="flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-gray-500" />
+              <input
+                type="date"
+                value={selectedDate.toISOString().split('T')[0]}
+                onChange={handleDateChange}
+                className="border dark:border-neutral-700 rounded-md p-2 bg-white dark:bg-neutral-800"
+              />
+            </div>
+          </div>
+
           <div className="bg-white dark:bg-neutral-800 rounded-lg shadow p-6">
             {pageViews.length === 0 ? (
               <p className="text-center text-gray-500 dark:text-gray-400">
