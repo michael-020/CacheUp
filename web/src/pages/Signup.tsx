@@ -109,6 +109,7 @@ export const Signup = () => {
                     <input
                     type="email"
                     {...register("email")}
+                    readOnly
                     placeholder="xyz@gmail.com"
                     className="w-full px-4 py-2.5 bg-blue-50/50 dark:bg-gray-600/60 dark:placeholder:text-gray-400/40 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
