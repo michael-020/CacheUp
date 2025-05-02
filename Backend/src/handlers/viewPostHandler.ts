@@ -21,7 +21,8 @@ viewPostHandler.get("/", async (req: Request, res: Response) => {
             .populate("comments.user", "username profilePicture")
             .sort({ createdAt: -1 })
             .skip(skip)
-            .limit(limit);
+            .limit(limit)
+            .lean()
 
         if (!allPosts || allPosts.length === 0) {
             res.status(200).json({
@@ -31,15 +32,17 @@ viewPostHandler.get("/", async (req: Request, res: Response) => {
             });
             return;
         }
+
+        const userIdStr = userId.toString();
         
         const processedPosts = allPosts.map(post => {
-            const isReported = post.reportedBy.includes(userId); 
-            const isLiked = post.likes.includes(userId);
-            const isSaved = post.savedBy.includes(userId);
+            const isReported = post.reportedBy.map(id => id.toString()).includes(userIdStr);
+            const isLiked = post.likes.map(id => id.toString()).includes(userIdStr);
+            const isSaved = post.savedBy.map(id => id.toString()).includes(userIdStr);
             const visibleComments = post.comments.filter(comment => comment.visibility !== false);
             
             return {
-                ...post._doc,
+                ...post,
                 isReported,
                 reportButtonText: isReported ? 'Unreport' : 'Report',
                 reportCount: post.reportedBy.length,
