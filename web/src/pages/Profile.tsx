@@ -42,8 +42,10 @@ export const Profile = () => {
         let url;
         if (isAdminView) {
           url = id ? `/admin/view-profile/${id}` : "/admin/view-profile";
-        } else {
+        } else if(authUser) {
           url = id ? `/user/viewProfile/${id}` : "/user/viewProfile";
+        } else {
+          url = `/user/profile/${id}`
         }
 
         const response = await axiosInstance(url);

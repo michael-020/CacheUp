@@ -214,20 +214,20 @@ function App() {
           <Route path="/signin" element={!authUser ? <Signin /> : <Navigate to={returnPath && returnPath !== "/" ? returnPath : "/home"} />} />
           <Route path='/' element={!authUser ? <Landing /> : <Navigate to={returnPath && returnPath !== "/" ? returnPath : "/home"} />} />
           <Route path='/verify-email' element={!authUser ? <EmailVerify /> : <Navigate to={returnPath && returnPath !== "/" ? returnPath : "/home"} />} />
-          <Route path="/home" element={authUser ? <Home /> : <Navigate to="/" />} />
+          <Route path="/home" element={<Home />} />
           <Route path='/profile' element={authUser ? <Profile /> : <Navigate to={`/`} />} />
-          <Route path="/profile/:id" element={authUser ? <Profile /> : <Navigate to="/"/>} />
-          <Route path='/message' element={authUser ? <Messages /> : <Navigate to="/" />} />
-          <Route path='/edit-profile' element={authUser ? <EditProfile /> : <Navigate to="/" />} />
-          <Route path='/friends' element={authUser ? <FriendsPage /> : <Navigate to="/" />} />
-          <Route path='/settings' element={authUser ? <SettingsPage /> : <Navigate to="/" />} />
-          <Route path="/forums/get-forums" element={authUser ? <ForumList /> : <Navigate to='/'/>} />
-          <Route path="/forums/:forumMongoId/:forumWeaviateId" element={authUser ? <ForumPage /> : <Navigate to='/' />} />
-          <Route path="/forums/search" element={authUser ? <SearchResults /> : <Navigate to='/' />} />
-          <Route path='/forums/thread/:id/:page' element={authUser ? <Thread /> : <Navigate to='/' />} />
-          <Route path="/change-password" element={authUser ? <ChangePassword /> : <Navigate to="/" />} />
+          <Route path="/profile/:id" element={<Profile /> } />
+          <Route path='/message' element={<Messages /> } />
+          <Route path='/edit-profile' element={<EditProfile /> } />
+          <Route path='/friends' element={<FriendsPage /> } />
+          <Route path='/settings' element={<SettingsPage /> } />
+          <Route path="/forums/get-forums" element={  <ForumList /> } />
+          <Route path="/forums/:forumMongoId/:forumWeaviateId" element={ <ForumPage /> } />
+          <Route path="/forums/search" element={<SearchResults /> } />
+          <Route path='/forums/thread/:id/:page' element={<Thread /> } />
+          <Route path="/change-password" element={<ChangePassword /> } />
           <Route path="/saved-posts" element={<SavedPostsPage />} />
-          <Route path="/friends/:id" element={authUser ? <ViewFriends /> : <Navigate to="/signin" />}/>
+          <Route path="/friends/:id" element={<ViewFriends /> }/>
 
           {/* Admin Routes */}
           <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to={adminReturnPath || "/admin/home"} /> } />

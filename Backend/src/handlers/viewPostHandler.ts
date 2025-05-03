@@ -7,7 +7,7 @@ const viewPostHandler: Router = Router();
 // get all posts
 viewPostHandler.get("/", async (req: Request, res: Response) => {
     try {
-        const userId = req.user._id;
+        const userId = req.user?._id;
         const page = parseInt(req.query.page as string) || 1; // Default to page 1
         const limit = parseInt(req.query.limit as string) || 5; // Default 5 posts per page
         const skip = (page - 1) * limit;
@@ -29,6 +29,13 @@ viewPostHandler.get("/", async (req: Request, res: Response) => {
                 nextPage: null
             });
             return;
+        }
+
+        if(!userId){
+            res.status(200).json({
+                posts: allPosts
+            })
+            return
         }
 
         const userIdStr = userId.toString();
