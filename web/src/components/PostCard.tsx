@@ -8,7 +8,7 @@ import { Loader, MessageSquareText, Pencil, SendHorizonal, Trash, X } from "luci
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { useNavigate } from "react-router-dom";
 import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
-import { DeleteModal } from "./DeleteModal";
+import { DeleteModal } from "./modals/DeleteModal";
 import { Textarea } from "./ui/textarea";
 
 interface PostCardProps {

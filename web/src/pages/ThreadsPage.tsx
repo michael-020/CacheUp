@@ -7,7 +7,7 @@ import ForumPageSkeleton from '../components/skeletons/ForumPageSkeleton';
 import { useAuthStore } from '@/stores/AuthStore/useAuthStore'; 
 import { MoreVertical } from 'lucide-react';
 import { useAdminStore } from '@/stores/AdminStore/useAdminStore';
-import { DeleteModal } from '@/components/DeleteModal';
+import { DeleteModal } from '@/components/modals/DeleteModal';
 import { SearchBar } from '@/components/forums/search-bar';
 import { Helmet } from 'react-helmet-async';
 

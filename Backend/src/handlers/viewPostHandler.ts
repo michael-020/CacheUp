@@ -7,9 +7,9 @@ const viewPostHandler: Router = Router();
 // get all posts
 viewPostHandler.get("/", async (req: Request, res: Response) => {
     try {
-        const userId = req.user?._id;
-        const page = parseInt(req.query.page as string) || 1; // Default to page 1
-        const limit = parseInt(req.query.limit as string) || 5; // Default 5 posts per page
+        const userId = req.user?._id; 
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 5;
         const skip = (page - 1) * limit;
         
         const [totalPosts, allPosts] = await Promise.all([
@@ -20,7 +20,7 @@ viewPostHandler.get("/", async (req: Request, res: Response) => {
                 .skip(skip)
                 .limit(limit)
                 .lean()
-        ])
+        ]);
 
         if (!allPosts || allPosts.length === 0) {
             res.status(200).json({
@@ -31,33 +31,27 @@ viewPostHandler.get("/", async (req: Request, res: Response) => {
             return;
         }
 
-        if(!userId){
-            res.status(200).json({
-                posts: allPosts
-            })
-            return
-        }
-
-        const userIdStr = userId.toString();
-        
-        const processedPosts = allPosts.map(post => {
-            const isReported = post.reportedBy.map(id => id.toString()).includes(userIdStr);
-            const isLiked = post.likes.map(id => id.toString()).includes(userIdStr);
-            const isSaved = post.savedBy.map(id => id.toString()).includes(userIdStr);
-            const visibleComments = post.comments.filter(comment => comment.visibility !== false);
-            
-            return {
+        const processedPosts = userId ? 
+            allPosts.map(post => {
+                const isReported = post.reportedBy.map(id => id.toString()).includes(userId.toString());
+                const isLiked = post.likes.map(id => id.toString()).includes(userId.toString());
+                const isSaved = post.savedBy.map(id => id.toString()).includes(userId.toString());
+                return {
+                    ...post,
+                    isReported,
+                    reportButtonText: isReported ? 'Unreport' : 'Report',
+                    reportCount: post.reportedBy.length,
+                    isLiked,
+                    isSaved
+                };
+            }) : 
+            allPosts.map(post => ({
                 ...post,
-                isReported,
-                reportButtonText: isReported ? 'Unreport' : 'Report',
-                reportCount: post.reportedBy.length,
-                isLiked, 
-                isSaved,
-                comments: visibleComments
-            };
-        });
+                isReported: false,
+                isLiked: false,
+                isSaved: false
+            }));
 
-        // Check if there are more posts to load
         const hasMore = totalPosts > skip + allPosts.length;
 
         res.status(200).json({
@@ -67,10 +61,9 @@ viewPostHandler.get("/", async (req: Request, res: Response) => {
         });
     } catch (e) {
         console.error("Error while getting all posts", e);
-        res.status(401).json({
+        res.status(500).json({
             msg: "Error while getting all posts"
         });
-        return;
     }
 });
 
