@@ -157,13 +157,15 @@ export const Navbar = () => {
             className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-black rounded-lg text-sm font-medium border border-gray-400"
           >
             Logout
-          </button>: 
-           <button 
-           onClick={logout}
-           className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-black rounded-lg text-sm font-medium border border-gray-400"
-         >
-           Sign In
-         </button>}
+          </button>:
+          <Link to="/signin">
+            <button 
+              className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-black rounded-lg text-sm font-medium border border-gray-400"
+            >
+              Sign In
+            </button>
+           </Link> 
+         }
          
         </div>
 

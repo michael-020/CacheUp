@@ -8,10 +8,11 @@ import { motion } from "framer-motion"
 import { routeVariants } from "@/lib/routeAnimation"
 import { BookMarked } from "lucide-react";
 import { Helmet } from "react-helmet-async"
+import SignInNavigation from "@/components/SignInNavigation"
 
 export default function SettingsPage() {
   const navigate = useNavigate()
-  const { logout, deleteAccount } = useAuthStore()
+  const { logout, deleteAccount, authUser } = useAuthStore()
   const { isDark, toggleTheme } = useThemeStore();
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -52,6 +53,12 @@ export default function SettingsPage() {
 
   const handleDeleteAccount = () => {
     deleteAccount()
+  }
+
+  if(!authUser){
+    return <div className="translate-y-[50vh]">
+      <SignInNavigation />
+    </div>
   }
 
   return (

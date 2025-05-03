@@ -1,4 +1,4 @@
-import { Navigate, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import {  Helmet } from "react-helmet-async"
 import './App.css'
 import { Home } from './pages/Home'
