@@ -175,6 +175,8 @@ export default function Share({ onPostSuccess }: ShareProps) {
       <LoginPromptModal 
         isOpen={showLoginPrompt} 
         onClose={() => setShowLoginPrompt(false)} 
+        title="Login Required"
+        content="Please login to create posts and interact with the community."
       />
     </>
   );

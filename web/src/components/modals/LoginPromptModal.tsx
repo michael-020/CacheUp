@@ -6,9 +6,11 @@ import { Link } from "react-router-dom";
 interface LoginPromptModalProps {
   isOpen: boolean;
   onClose: () => void;
+  title: string;
+  content: string;
 }
 
-export const LoginPromptModal = ({ isOpen, onClose }: LoginPromptModalProps) => {
+export const LoginPromptModal = ({ isOpen, onClose, title, content }: LoginPromptModalProps) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -48,20 +50,20 @@ export const LoginPromptModal = ({ isOpen, onClose }: LoginPromptModalProps) => 
           {/* Content */}
           <div className="text-center pt-4">
             <h3 className="text-xl font-semibold mb-2 dark:text-white">
-              Login Required
+              {title}
             </h3>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
-              Please login to create posts and interact with the community.
+              {content}
             </p>
             <div className="flex gap-4 justify-center">
               <Link
                 to="/signin"
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="px-6 py-2 border border-blue-600 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:border-blue-700 transition-colors"
               >
                 Sign In
               </Link>
               <Link
-                to="/signup"
+                to="/verify-email"
                 className="px-6 py-2 border border-gray-300 dark:border-neutral-600 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors dark:text-white"
               >
                 Sign Up
