@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import { useForumStore } from '@/stores/ForumStore/forumStore';
 import { AlertCircle, Check, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { UnreportContentType } from '@/stores/ForumStore/types'
 
 const ReportedContentPage = () => {
-  const { reportedComments, reportedPosts, reportedThreads, fetchReportedContent, deleteThread, deleteComment, deletePost } = useForumStore();
-  
+  const { reportedComments, reportedPosts, reportedThreads, fetchReportedContent, deleteThread, deleteComment, deletePost, unreportContent } = useForumStore();
   const [activeTab, setActiveTab] = useState('comments');
 
   const handleDelete = (type: string, id: string, weaviateId: string) => {
@@ -24,8 +24,8 @@ const ReportedContentPage = () => {
     }
   };
 
-  const handleKeep = (type: string, id: string) => {
-    console.log(id, type)
+  const handleKeep = (type: UnreportContentType, id: string) => {
+    unreportContent(type, id)
   }
 
   useEffect(()=> {

@@ -32,6 +32,7 @@ import viewProfileHanler from "../handlers/viewProfileHandler";
 import { adminGetReportedPostsCommentsThreadsHandler } from "../handlers/forums/adminGetReportedPostsCommentsThreadsHandler";
 import { getAllPostsFromAThreadHandler } from "../handlers/forums/getAllPostsFromAThreadHandler";
 import { pageViewHandler } from "../handlers/admin/pageViewsHandler";
+import { adminUnreportContentHandler } from "../handlers/forums/adminUnreportContentHandler";
 
 const adminRouter: Router = Router();
 
@@ -133,5 +134,8 @@ adminRouter.get('/stats/page-views/:date', pageViewHandler);
 
 // get reported forums content
 adminRouter.get("/reported-content", adminGetReportedPostsCommentsThreadsHandler)
+
+// unreport forum content
+adminRouter.put("/unreport-content/:id", adminUnreportContentHandler)
 
 export default adminRouter;

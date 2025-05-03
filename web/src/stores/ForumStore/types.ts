@@ -26,6 +26,8 @@ export interface SearchResultItem {
   page: number
 }
 
+export type UnreportContentType = 'thread' | 'post' | 'comment'
+
 export interface ReportStatus {
   [key: string]:boolean
 }
@@ -62,6 +64,7 @@ export interface Thread {
   createdAt: string;
   weaviateId: string;
   createdBy: IUser;
+  reportedBy: string[]
 }
 
 export interface Comment {
@@ -188,6 +191,8 @@ export interface ForumActions {
   approveRequest: (id: string) => void;
   denyRequest: (id: string) => void;
   fetchReportedContent: () => void;
+  unreportContent: (type: UnreportContentType, id: string) => void;
+  reportThread: (id: string, userId: string) => Promise<void>
 }
 
 export type ForumStore = ForumState & ForumActions;

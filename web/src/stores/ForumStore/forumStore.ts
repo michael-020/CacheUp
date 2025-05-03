@@ -797,7 +797,58 @@ fetchReportedContent: async () => {
   } finally{
     set({loading: false})
   }
+},
+
+unreportContent: async (type, id) => {
+  try {
+    await axiosInstance.put(`/admin/unreport-content/${id}`, { type })
+    set((state) => ({
+      ...state,
+      ...(type === 'thread' && {
+        reportedThreads: state.reportedThreads.filter(thread => thread._id !== id)
+      }),
+      ...(type === 'post' && {
+        reportedPosts: state.reportedPosts.filter(post => post._id !== id)
+      }),
+      ...(type === 'comment' && {
+        reportedComments: state.reportedComments.filter(comment => comment._id !== id)
+      }),
+    }))
+    toast.success("Kept successfully")
+  } catch (error) {
+    console.error(error)
+    toast.error("Error in keeping")
+  }
+},
+
+reportThread: async (id: string, userId: string) => {
+  try {
+    await axiosInstance.put(`/forums/report-thread/${id}`);
+
+    const { currentForum } = get();
+    const updatedThreads = currentForum.threads.map((thread) => {
+      if (thread._id === id) {
+        const alreadyReported = thread.reportedBy.includes(userId);
+        const updatedReportedBy = alreadyReported
+          ? thread.reportedBy.filter((uid) => uid !== userId) // unreport
+          : [...thread.reportedBy, userId]; // report
+
+        return { ...thread, reportedBy: updatedReportedBy };
+      }
+      return thread;
+    });
+
+    set({
+      currentForum: {
+        ...currentForum,
+        threads: updatedThreads,
+      },
+    });
+  } catch (error) {
+    console.error('Failed to report/unreport thread:', error);
+  }
 }
+
 
 }));
   
