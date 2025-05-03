@@ -69,11 +69,6 @@ export const Navbar = () => {
     };
   }, []);
 
-  if(!authUser)
-    return <div>
-      You are not logged in
-    </div>;
-
   return (
     <div className="h-16 border-b-2"> 
       <nav className="fixed top-0 left-0 right-0 flex items-center justify-between px-4 md:px-6 py-3 border-gray-100 border-b-2 dark:bg-neutral-900/80 dark:border-b-2 dark:border-b-neutral-800/50 dark:backdrop-blur-xl bg-white/80 backdrop-blur-md">
@@ -147,23 +142,35 @@ export const Navbar = () => {
               isDark ? <Sun className="size-5" /> : <Moon className="size-5" />
             }
           </button>
+          {authUser ?  
           <button className="hover:-translate-y-0.5 hover:scale-105">
             <Link to={"/profile"}>
-              <img src={authUser.profilePicture ? authUser.profilePicture : "/avatar.jpeg"} alt="Profile" className="size-9 rounded-full border" />
+              <img src={authUser?.profilePicture ? authUser.profilePicture : "/avatar.jpeg"} alt="Profile" className="size-9 rounded-full border" />
             </Link>
-          </button>
-          <button 
+          </button>:  
+          <button className="cursor-default">
+            <img src={"/avatar.jpeg"} alt="Profile" className="size-9 rounded-full border" />
+          </button>}
+         
+          {authUser ?  <button 
             onClick={logout}
             className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-black rounded-lg text-sm font-medium border border-gray-400"
           >
             Logout
-          </button>
+          </button>: 
+           <button 
+           onClick={logout}
+           className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-black rounded-lg text-sm font-medium border border-gray-400"
+         >
+           Sign In
+         </button>}
+         
         </div>
 
         {/* Mobile Right Controls - Always Visible */}
         <div className="flex lg:hidden items-center space-x-3 relative" ref={dotMenuRef}>
           <button 
-            className="hover:-translate-y-0.5 hover:scale-105 p-1.5"
+            className=" p-1.5"
             onClick={() => setDotMenuOpen(!dotMenuOpen)}
           >
             <MoreVertical className="size-6 text-gray-700 dark:text-gray-300" />
@@ -172,18 +179,32 @@ export const Navbar = () => {
           {/* Dot Menu Dropdown */}
           {dotMenuOpen && (
             <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-neutral-800 rounded-lg shadow-lg z-50 border border-gray-200 dark:border-neutral-700">
+              {authUser ? 
               <Link 
-                to="/profile" 
-                className="flex items-center px-4 py-2 pt-2.5 hover:bg-gray-100 dark:hover:bg-neutral-700"
-                onClick={() => setDotMenuOpen(false)}
-              >
-                <img 
-                  src={authUser.profilePicture ? authUser.profilePicture : "/avatar.jpeg"} 
-                  alt="Profile" 
-                  className="size-6 rounded-full mr-2" 
-                />
-                <span className="text-gray-800 dark:text-gray-200">Profile</span>
-              </Link>
+              to="/profile" 
+              className="flex items-center px-4 py-2 pt-2.5 hover:bg-gray-100 dark:hover:bg-neutral-700"
+              onClick={() => setDotMenuOpen(false)}
+            >
+              <img 
+                src={authUser?.profilePicture ? authUser.profilePicture : "/avatar.jpeg"} 
+                alt="Profile" 
+                className="size-6 rounded-full mr-2" 
+              />
+              <span className="text-gray-800 dark:text-gray-200">Profile</span>
+            </Link>: 
+            <button 
+              className="flex items-center px-4 py-2 pt-2.5 "
+              onClick={() => setDotMenuOpen(false)}
+            >
+              <img 
+                src={"/avatar.jpeg"} 
+                alt="Profile" 
+                className="size-6 rounded-full mr-2" 
+              />
+              <span className="text-gray-800 dark:text-gray-200">Guest</span>
+            </button>
+            }
+              
               
               <Link 
                 to="/settings" 
@@ -209,15 +230,26 @@ export const Navbar = () => {
               
               <div className="border-t border-gray-200 dark:border-neutral-700 "></div>
               
-              <button 
+              {authUser ?
+                 <button 
+                 onClick={() => {
+                   setDotMenuOpen(false);
+                   logout();
+                 }}
+                 className="w-full flex items-center px-4 py-2 text-red-600 hover:bg-gray-100 dark:hover:bg-neutral-700"
+               >
+                 <span>Logout</span>
+               </button> : 
+                <button 
                 onClick={() => {
                   setDotMenuOpen(false);
                   logout();
                 }}
-                className="w-full flex items-center px-4 py-2 text-red-600 hover:bg-gray-100 dark:hover:bg-neutral-700"
+                className="w-full flex items-center px-4 py-2 text-blue-600 hover:bg-gray-100 dark:hover:bg-neutral-700"
               >
-                <span>Logout</span>
+                <span>Sign In</span>
               </button>
+              }
             </div>
           )}
         </div>
@@ -252,34 +284,13 @@ export const BottomNavigationBar = () => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  
-  // State to track screen size
-  const [isMobile, setIsMobile] = useState(false);
-
-  // Update screen size state on resize
-  useEffect(() => {
-    const checkScreenSize = () => {
-      setIsMobile(window.innerWidth < 1024);
-    };
-    
-    // Initial check
-    checkScreenSize();
-    
-    // Add event listener
-    window.addEventListener('resize', checkScreenSize);
-    
-    // Clean up
-    return () => window.removeEventListener('resize', checkScreenSize);
-  }, []);
+ 
 
   // Close share component when location changes
   useEffect(() => {
     setShareOpen(false);
   }, [location]);
 
-  if (!isMobile) {
-    return null;
-  }
 
   return (
     <>

@@ -9,7 +9,7 @@ import { useAdminStore } from '@/stores/AdminStore/useAdminStore';
 interface ProfileCardProps {
   isOwnProfile: boolean;
   className?: string;
-  userInfo: IUser,
+  userInfo: IUser | null,
   isAdmin?: boolean
 }
 
@@ -17,7 +17,7 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
   const location = useLocation();
   const { setSelectedUser } = useChatStore();
   const [isLoading, setIsLoading] = useState(false);
-  
+  const { authAdmin } = useAdminStore()
   const { 
     friends, 
     sentRequests, 
@@ -36,9 +36,36 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
     
   }, [isOwnProfile, fetchFriends, fetchSentRequests]);
   
+  if (!userInfo) {
+    return (
+      <div className={`${className || 'absolute lg:w-52 xl:w-64 p-3 overflow-y-auto mt-16 ml-8 z-10'}`}>
+        <div className="bg-white dark:bg-neutral-800 dark:border-neutral-700 rounded-lg shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-xl">
+          <div className="p-4">
+            <div className="text-center">
+              <div className="relative w-16 h-16 mx-auto mb-3">
+                <div className="absolute inset-0 rounded-full  p-0.5">
+                  <div className="w-full h-full rounded-full overflow-hidden bg-white">
+                    <img
+                      className="w-full h-full object-cover"
+                      src="/avatar.jpeg"
+                      alt="Guest Profile"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <h3 className="text-sm font-bold text-gray-800 mb-1 dark:text-gray-300">
+                Guest
+              </h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const { profilePicture, name, username, email, bio, department, friends: userFriends, _id: userId } = userInfo;
   const shouldRender = (location.pathname.endsWith("/profile") || isOwnProfile || isAdmin) && location.pathname !== "/" ;
-  const { authAdmin } = useAdminStore()
   const isFriend = friends?.some(friend => friend._id === userId);
   const isPendingRequest = sentRequests?.some(request => request._id === userId);
 

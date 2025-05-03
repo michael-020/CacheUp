@@ -1,4 +1,4 @@
-import { Navigate, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import {  Helmet } from "react-helmet-async"
 import './App.css'
 import { Home } from './pages/Home'
@@ -58,6 +58,8 @@ function App() {
   const authenticated = useRef(false)
   const adminInitialized = useRef(false)
   const adminAuthenticated = useRef(false)
+  const noNavbarPaths = ['/', '/signin', '/signup', '/verify-email'];
+  const shouldShowNavbar = !noNavbarPaths.includes(location.pathname);
 
   useEffect(() => {
     const currentPath = location.pathname;
@@ -191,16 +193,14 @@ function App() {
     </Helmet>
       {authUser && <TimeTracker />}
       <ScrollToTop />
-      {authUser && !isAdminRoute && (
+      {shouldShowNavbar && !isAdminRoute && (
         <div className='fixed top-0 w-screen z-40'>
           <Navbar />
-          <main className=""> 
-            <Outlet />
-          </main>
           <BottomNavigationBar />
         </div>
       )}
       
+      {/* Admin navbar remains the same */}
       {authAdmin && isAdminRoute && (
         <div className='fixed top-0 w-screen z-40'>
           <AdminNavbar />
