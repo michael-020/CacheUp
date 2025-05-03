@@ -136,6 +136,6 @@ adminRouter.get('/stats/page-views/:date', pageViewHandler);
 adminRouter.get("/reported-content", adminGetReportedPostsCommentsThreadsHandler)
 
 // unreport forum content
-adminRouter.put("/unreport-content", adminUnreportContentHandler)
+adminRouter.put("/unreport-content/:id", adminUnreportContentHandler)
 
 export default adminRouter;

@@ -24,6 +24,7 @@ const ForumPage: React.FC = () => {
     fetchThreads,
     createThread,
     deleteThread,
+    reportThread
   } = useForumStore();
   
   const [showModal, setShowModal] = useState(false);
@@ -125,6 +126,39 @@ const ForumPage: React.FC = () => {
                   <div className="border p-4 rounded hover:bg-gray-50 bg-white dark:bg-neutral-800 dark:hover:bg-neutral-700">
                     <div className="flex justify-between items-start">
                       <h2 className="text-xl font-semibold">{thread.title}</h2>
+                      {authUser && !authAdmin && (
+                        <div className="relative">
+                          <button 
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setOpenMenuId(openMenuId === thread._id ? null : thread._id);
+                            }}
+                          >
+                            <MoreVertical className="w-5 h-5" />
+                          </button>
+
+                          {openMenuId === thread._id && (
+                            <div 
+                              className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded shadow-lg z-10 dark:bg-neutral-800 dark:border-neutral-700"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  reportThread(thread._id, authUser._id.toString())
+                                  setOpenMenuId(null);
+                                }}
+                                className="block w-full px-4 py-2 text-left text-sm hover:bg-yellow-50 dark:hover:bg-yellow-900 text-yellow-700 dark:text-yellow-300"
+                              >
+                                { thread.reportedBy.includes(authUser._id.toString()) ? "Unreport" : "Report" }
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
                       {authAdmin && (
                         <div className="relative">
                           <button 
