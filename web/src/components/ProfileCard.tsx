@@ -38,7 +38,7 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
   
   if (!userInfo) {
     return (
-      <div className={`${className || 'absolute lg:w-52 xl:w-64 p-3 overflow-y-auto mt-16 ml-8 z-10'}`}>
+      <div className={`${className || 'absolute lg:w-48 xl:w-64 p-3 overflow-y-auto mt-16 ml-8 z-10'}`}>
         <div className="bg-white dark:bg-neutral-800 dark:border-neutral-700 rounded-lg shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-xl">
           <div className="p-4">
             <div className="text-center">

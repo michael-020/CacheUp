@@ -298,7 +298,7 @@ export const BottomNavigationBar = () => {
         <Share onPostSuccess={() => setShareOpen(false)} />
       </ShareModal>
 
-      <div className="fixed bottom-0 z-10 left-0 right-0 bg-white dark:bg-neutral-800 border-t border-gray-200 dark:border-neutral-700">
+      <div className="fixed lg:hidden bottom-0 z-10 left-0 right-0 bg-white dark:bg-neutral-800 border-t border-gray-200 dark:border-neutral-700">
         <nav className="flex items-center justify-around h-16">
           <Link to={"/home"}>
             <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
