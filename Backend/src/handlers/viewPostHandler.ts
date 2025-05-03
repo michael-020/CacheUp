@@ -149,7 +149,7 @@ viewPostHandler.get("/myPosts", async (req: Request, res: Response) => {
 viewPostHandler.get("/:id", async (req: Request, res: Response) => {
     try {
         const otherUserId = req.params.id;
-        const currentUserId = req.user._id;
+        const currentUserId = req.user?._id;
 
         const posts = await postModel
             .find({ postedBy: otherUserId, visibility: true })
@@ -162,6 +162,11 @@ viewPostHandler.get("/:id", async (req: Request, res: Response) => {
                 msg: "User posts not found"
             });
             return;
+        }
+
+        if(!currentUserId){
+            res.status(200).json(posts);
+            return
         }
 
         const processedPosts = posts.map(post => {

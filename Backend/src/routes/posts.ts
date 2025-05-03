@@ -11,6 +11,9 @@ import savePostHandler from "../handlers/savePostHandler"
 
 const postRouter: Router = Router();
 
+// get endpoints for non-authenticated users: 
+postRouter.use("/get-posts", viewPostHandler)
+
 postRouter.use(authMiddleware)
 
 // upload posts
