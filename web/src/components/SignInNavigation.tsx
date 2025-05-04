@@ -7,8 +7,10 @@ const SignInNavigation = () => {
 
   const handleSignIn = () => {
     const authPaths = ['/', '/signin', '/signup', '/verify-email'];
-    if (!authPaths.includes(location.pathname)) {
-      setUserLastPath(location.pathname);
+    const currentPath = location.pathname;
+    
+    if (!authPaths.includes(currentPath) && !sessionStorage.getItem('lastPath')) {
+      setUserLastPath(currentPath);
     }
   };
 

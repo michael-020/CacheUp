@@ -64,7 +64,8 @@ function App() {
     const currentPath = location.pathname;
     const authPaths = ['/', '/signin', '/signup', '/verify-email', '/admin/signin'];
     
-    if (!authPaths.includes(currentPath)) {
+    // Only save path if we're not on an auth path AND we haven't authenticated yet
+    if (!authPaths.includes(currentPath) && !authenticated.current) {
       if (isAdminRoute) {
         setAdminLastPath(currentPath);
       } else {
