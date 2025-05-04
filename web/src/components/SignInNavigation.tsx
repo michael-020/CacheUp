@@ -1,8 +1,6 @@
-import { Link, useLocation } from "react-router-dom"
+import { Link } from "react-router-dom"
 
 const SignInNavigation = () => {
-  const location = useLocation();
-  const currentPath = location.pathname;
 
   return (
     <div>
@@ -11,7 +9,7 @@ const SignInNavigation = () => {
           Sign In to view this page  
         </p>
         <Link 
-          to={`/signin?redirect=${encodeURIComponent(currentPath)}`} 
+          to={`/signin`} 
           className="text-blue-500 underline"
         >
           Click here to sign-in
