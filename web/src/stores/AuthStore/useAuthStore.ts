@@ -22,14 +22,20 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
     authChecked: false, // Add this to track if auth has been checked
 
     signup: async (data) => {
-        set({isSigningUp: true})
+        set({isSigningUp: true});
         try {
-            const res = await axiosInstance.post("/user/complete-signup", data)
-            set({authUser: res.data})
-            toast.success("Account created Successfully")
-            // Only connect socket once after successful signup
-            await get().getToken()
-            get().connectSocket()
+            const res = await axiosInstance.post("/user/signup", data);
+            set({authUser: res.data});
+            
+            // Get redirect path from URL or use saved path
+            const params = new URLSearchParams(window.location.search);
+            const redirectPath = params.get('redirect') || sessionStorage.getItem('lastPath') || '/home';
+            
+            window.location.href = redirectPath;
+            
+            toast.success("Signed Up Successfully");
+            await get().getToken();
+            get().connectSocket();
         } catch (error) {
             if (error instanceof AxiosError && error.response?.data?.msg) {
                 toast.error(error.response.data.msg as string);
@@ -37,19 +43,25 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
                 toast.error("An unexpected error occurred.");
             }
         } finally {
-            set({isSigningUp: false})
+            set({isSigningUp: false});
         }
     },
     
     signin: async (data) => {
-        set({isSigningIn: true})
+        set({isSigningIn: true});
         try {
-            const res = await axiosInstance.post("/user/signin", data)
-            set({authUser: res.data})
-            toast.success("Signed In Successfully")
-            // Only connect socket once after successful signin
-            await get().getToken()
-            get().connectSocket()
+            const res = await axiosInstance.post("/user/signin", data);
+            set({authUser: res.data});
+            
+            // Get redirect path from URL or use saved path
+            const params = new URLSearchParams(window.location.search);
+            const redirectPath = params.get('redirect') || sessionStorage.getItem('lastPath') || '/home';
+            
+            window.location.href = redirectPath;
+            
+            toast.success("Signed In Successfully");
+            await get().getToken();
+            get().connectSocket();
         } catch (error) {
             if (error instanceof AxiosError && error.response?.data?.msg) {
                 toast.error(error.response.data.msg as string);
@@ -57,7 +69,7 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
                 toast.error("An unexpected error occurred.");
             }
         } finally {
-            set({isSigningIn: false})
+            set({isSigningIn: false});
         }
     },
 

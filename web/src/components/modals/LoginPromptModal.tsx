@@ -1,7 +1,7 @@
 import { X } from "lucide-react";
 import { useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 interface LoginPromptModalProps {
   isOpen: boolean;
@@ -12,6 +12,8 @@ interface LoginPromptModalProps {
 
 export const LoginPromptModal = ({ isOpen, onClose, title, content }: LoginPromptModalProps) => {
   const modalRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -57,13 +59,13 @@ export const LoginPromptModal = ({ isOpen, onClose, title, content }: LoginPromp
             </p>
             <div className="flex gap-4 justify-center">
               <Link
-                to="/signin"
-                className="px-6 py-2 border border-blue-600 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:border-blue-700 transition-colors"
+                to={`/signin?redirect=${encodeURIComponent(currentPath)}`}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
-                Sign In
+                Login
               </Link>
               <Link
-                to="/verify-email"
+                to={`/signup?redirect=${encodeURIComponent(currentPath)}`}
                 className="px-6 py-2 border border-gray-300 dark:border-neutral-600 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors dark:text-white"
               >
                 Sign Up
