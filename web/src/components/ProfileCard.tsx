@@ -198,7 +198,7 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
                   </div>
                   {!isOwnProfile && mutualFriendsCount > 0 && (
                     <p className="text-xs text-gray-500 mt-1">
-                      {mutualFriendsCount} mutual
+                      {mutualFriendsCount} {mutualFriendsCount === 1 ? 'mutual' : 'mutuals'}
                     </p>
                   )}
                 </div>
