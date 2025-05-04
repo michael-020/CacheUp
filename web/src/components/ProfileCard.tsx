@@ -17,6 +17,7 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
   const location = useLocation();
   const { setSelectedUser } = useChatStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [mutualFriendsCount, setMutualFriendsCount] = useState(0);
   const { authAdmin } = useAdminStore()
   const { 
     friends, 
@@ -25,16 +26,35 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
     cancelRequest, 
     removeFriend, 
     fetchFriends, 
-    fetchSentRequests 
+    fetchSentRequests,
+    fetchMutualFriends
   } = useFriendsStore();
   
   useEffect(() => {
     if (!isOwnProfile) {
       fetchFriends();
       fetchSentRequests();
+      
+      if (userInfo?._id) {
+        fetchMutualFriendsData(userInfo._id);
+      }
     }
-    
-  }, [isOwnProfile, fetchFriends, fetchSentRequests]);
+  }, [isOwnProfile, fetchFriends, fetchSentRequests, userInfo?._id]);
+
+  const fetchMutualFriendsData = async (userId: string) => {
+    try {
+      await fetchMutualFriends(userId);
+      
+      const { mutualFriends } = useFriendsStore.getState();
+      const count = mutualFriends && mutualFriends[userId] ? mutualFriends[userId] : 0;
+      
+      setMutualFriendsCount(count);
+      console.log("Mutual friends count:", count);
+    } catch (error) {
+      console.error('Error fetching mutual friends:', error);
+      setMutualFriendsCount(0);
+    }
+  };
   
   if (!userInfo) {
     return (
@@ -160,21 +180,31 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
             </div>
             
             <div className="flex gap-2 mb-3">
-                  <div className="flex items-center justify-center gap-2 flex-1 p-2 rounded-md bg-blue-50 border border-blue-100 dark:bg-neutral-700 dark:border-neutral-800">
-                    <Briefcase className="text-blue-500" size={16} />
-                    <p className="text-sm text-gray-700 dark:text-gray-300">{department}</p>
-                  </div>
+              <div className="flex items-center justify-center gap-2 flex-1 p-2 rounded-md bg-blue-50 border border-blue-100 dark:bg-neutral-700 dark:border-neutral-800">
+                <Briefcase className="text-blue-500" size={16} />
+                <p className="text-sm text-gray-700 dark:text-gray-300">{department}</p>
+              </div>
 
-                  <Link
-                    to={isOwnProfile ? "/friends" : `/friends/${userId}`}
-                    className="flex items-center justify-center gap-2 flex-1 p-2 rounded-md bg-indigo-50 border border-indigo-100 dark:bg-neutral-700 dark:border-neutral-800 hover:bg-indigo-100 dark:hover:bg-neutral-600 transition-colors cursor-pointer"
-                  >
+              <Link
+                to={isOwnProfile ? "/friends" : `/friends/${userId}`}
+                className="flex-1 rounded-md bg-indigo-50 border border-indigo-100 dark:bg-neutral-700 dark:border-neutral-800 hover:bg-indigo-100 dark:hover:bg-neutral-600 transition-colors cursor-pointer"
+              >
+                <div className="flex flex-col p-2">
+                  <div className="flex items-center justify-center gap-2">
                     <Users className="text-indigo-500" size={16} />
                     <p className="text-sm text-gray-700 dark:text-gray-300">
                       {userFriends?.length || 0}
                     </p>
-                  </Link>
+                  </div>
+                  {!isOwnProfile && mutualFriendsCount > 0 && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      {mutualFriendsCount} mutual
+                    </p>
+                  )}
                 </div>
+              </Link>
+            </div>
+                
             {shouldRender && <div className="mb-3 p-2 rounded-md bg-gray-50 dark:bg-neutral-600 dark:border-gray-500  border border-gray-100">
               <div className="flex items-center justify-center gap-1 text-xs text-gray-600 dark:text-gray-300">
                 <span>{email}</span>
