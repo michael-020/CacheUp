@@ -1,4 +1,4 @@
-import { Briefcase, Users, Mail, UserPlus, UserCheck, UserX } from 'lucide-react';
+import {  Users, Mail, UserPlus, UserCheck, UserX } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { IUser } from '@/lib/utils';
 import { useChatStore } from '@/stores/chatStore/useChatStore';
@@ -84,7 +84,7 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
     );
   }
 
-  const { profilePicture, name, username, email, bio, department, friends: userFriends, _id: userId } = userInfo;
+  const { profilePicture, name, username, email, bio, friends: userFriends, _id: userId } = userInfo;
   const shouldRender = (location.pathname.endsWith("/profile") || isOwnProfile || isAdmin) && location.pathname !== "/" ;
   const isFriend = friends?.some(friend => friend._id === userId);
   const isPendingRequest = sentRequests?.some(request => request._id === userId);
@@ -180,10 +180,10 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
             </div>
             
             <div className="flex gap-2 mb-3">
-              <div className="flex items-center justify-center gap-2 flex-1 p-2 rounded-md bg-blue-50 border border-blue-100 dark:bg-neutral-700 dark:border-neutral-800">
+              {/* <div className="flex items-center justify-center gap-2 flex-1 p-2 rounded-md bg-blue-50 border border-blue-100 dark:bg-neutral-700 dark:border-neutral-800">
                 <Briefcase className="text-blue-500" size={16} />
                 <p className="text-sm text-gray-700 dark:text-gray-300">{department}</p>
-              </div>
+              </div> */}
 
               <Link
                 to={isOwnProfile ? "/friends" : `/friends/${userId}`}
