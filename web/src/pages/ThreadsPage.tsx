@@ -102,7 +102,7 @@ const ForumPage: React.FC = () => {
             <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
           </button>
           <h1 className="text-2xl font-bold">{currentForum.title}'s Forum</h1>
-          {authUser && <button
+          {!authAdmin && <button
             onClick={() => setShowModal(true)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
