@@ -2,12 +2,14 @@ import { useCallback, useEffect, useState } from "react";
 import { useFriendsStore } from "@/stores/FriendsStore/useFriendsStore";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserPlus, RefreshCw, X, Check } from "lucide-react";
+import { UserPlus, RefreshCw, X, Check, Search, Users } from "lucide-react";
 import { axiosInstance } from "@/lib/axios";
 import { Skeleton } from "./ui/skeleton";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
-import { cn, IUser} from "@/lib/utils";
+import { IUser} from "@/lib/utils";
+import { Input } from "./ui/input";
+import useDebounce from "@/hooks/useDebounce"; // Add this import
 
 interface UserData {
   _id: string;
@@ -19,17 +21,17 @@ interface UserData {
 }
 
 interface UsersListProps {
-  searchTerm?: string;
+  searchTerm: string;
 }
 
-const UsersList = ({ searchTerm = "" }: UsersListProps) => {
+const UsersList = ({ searchTerm }: UsersListProps) => {
   const { sendRequest, cancelRequest, friends, sentRequests } = useFriendsStore();
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [processingUsers, setProcessingUsers] = useState<string[]>([]);
   const { authUser: currentUser } = useAuthStore();
-  const [activeTab, setActiveTab] = useState("all");
+  const debouncedSearchTerm = useDebounce(searchTerm);
 
   const getInitials = (name: string) => {
     return name
@@ -40,51 +42,44 @@ const UsersList = ({ searchTerm = "" }: UsersListProps) => {
       .substring(0, 2);
   };
 
-  const allUsers = users.filter(user => {
-    const searchLower = searchTerm.toLowerCase();
-    const nameMatch = user.name.toLowerCase().includes(searchLower);
-    const usernameMatch = user.username.toLowerCase().includes(searchLower);
-    return (nameMatch || usernameMatch) && !user.isFriend && !user.hasPendingRequest;
-  });
+  const fetchUsers = useCallback(async (query: string) => {
+    if (!query.trim()) {
+      setUsers([]);
+      return;
+    }
 
-  const requestedUsers = users.filter(user => {
-    const searchLower = searchTerm.toLowerCase();
-    const nameMatch = user.name.toLowerCase().includes(searchLower);
-    const usernameMatch = user.username.toLowerCase().includes(searchLower);
-    return (nameMatch || usernameMatch) && user.hasPendingRequest && !user.isFriend;
-  });
+    setLoading(true);
+    setError("");
+    
+    try {
+      const res = await axiosInstance.get(`user/friends/search?query=${encodeURIComponent(query)}`);
+      
+      if (res.data && res.data.users) {
+        const users = res.data.users as IUser[];
+        const formattedUsers = users
+          .filter(user => user._id !== currentUser?._id)
+          .map(user => ({
+            ...user,
+            name: user.name || user.username || "User",
+            isFriend: friends.some(f => f._id === user._id),
+            hasPendingRequest: sentRequests.some(r => r._id === user._id)
+          }));
+        setUsers(formattedUsers);
+      } else {
+        setUsers([]);
+      }
+    } catch (err) {
+      setError("Failed to search users. Please try again.");
+      console.error("Error searching users:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [currentUser?._id, friends, sentRequests]);
 
-  const fetchAllUsers = useCallback(async () => {
-   setLoading(true);
-   setError("");
-   try {
-     const res = await axiosInstance.get("user/friends/all-users");
-     
-     if (res.data && res.data.users) {
-       const users = res.data.users as IUser[]
-       const formattedUsers = users
-         .filter(user => user._id !== currentUser?._id)
-         .map(user => ({
-           ...user,
-           name: user.name || user.username || "User",
-           isFriend: friends.some(f => f._id === user._id),
-           hasPendingRequest: sentRequests.some(r => r._id === user._id)
-         }));
-       setUsers(formattedUsers);
-     } else {
-       setUsers([]);
-     }
-   } catch (err) {
-     setError("Failed to load users. Please try again.");
-     console.error("Error fetching users:", err);
-   } finally {
-     setLoading(false);
-   }
- }, [currentUser?._id, friends, sentRequests]) 
-
+  // Update effect to use debounced value
   useEffect(() => {
-    fetchAllUsers();
-  }, []);
+    fetchUsers(debouncedSearchTerm);
+  }, [debouncedSearchTerm, fetchUsers]);
 
   useEffect(() => {
     setUsers(prevUsers => 
@@ -130,45 +125,21 @@ const UsersList = ({ searchTerm = "" }: UsersListProps) => {
 
   if (loading) {
     return (
-      <div>
-        <div className="flex mb-8 border-b border-gray-200 dark:border-neutral-800">
-          {[
-            { id: 'all', label: 'All Users' },
-            { id: 'sent', label: 'Sent Requests' }
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              className={cn(
-                "pb-4 px-6 flex items-center gap-2 border-b-2 border-transparent transition-colors",
-                activeTab === tab.id ? "border-blue-500 text-blue-600 font-medium" : "text-gray-500 hover:text-gray-700"
-              )}
-              disabled={true}
-            >
-              <span>{tab.label}</span>
-            </button>
-          ))}
+      <div className="space-y-6">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input
+            disabled
+            className="pl-10 w-full md:w-96"
+            placeholder="Search users..."
+          />
         </div>
-        
-        <div className="min-h-[400px] max-h-[600px] overflow-y-auto pr-2">
-          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {[...Array(8)].map((_, i) => (
-              <div 
-                key={i} 
-                className="flex flex-col p-4 bg-white dark:bg-neutral-800 rounded-lg shadow border border-gray-200 dark:border-neutral-700"
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <Skeleton className="h-12 w-12 rounded-full bg-gray-200 dark:bg-neutral-700" />
-                  <div className="flex-1">
-                    <Skeleton className="h-5 w-24 mb-2 bg-gray-200 dark:bg-neutral-700" />
-                    <Skeleton className="h-4 w-16 bg-gray-200 dark:bg-neutral-700" />
-                  </div>
-                </div>
-                <div className="mt-auto pt-2">
-                  <Skeleton className="h-10 w-full rounded-md bg-gray-200 dark:bg-neutral-700" />
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="flex flex-col p-4 bg-white dark:bg-neutral-800 rounded-lg shadow border border-gray-200 dark:border-neutral-700">
+              <Skeleton className="h-12 w-full" />
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -179,7 +150,7 @@ const UsersList = ({ searchTerm = "" }: UsersListProps) => {
       <div className="flex flex-col items-center justify-center py-16">
         <p className="text-red-500 mb-6 text-center">{error}</p>
         <Button 
-          onClick={fetchAllUsers} 
+          onClick={() => fetchUsers(searchTerm)} 
           variant="outline" 
           className="flex items-center gap-2"
         >
@@ -262,48 +233,24 @@ const UsersList = ({ searchTerm = "" }: UsersListProps) => {
   };
 
   return (
-    <div>
-      <div className="flex mb-8 border-b border-gray-200 dark:border-neutral-800">
-        {[
-          { id: 'all', label: 'All Users' },
-          { id: 'sent', label: 'Sent Requests' }
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={cn(
-              "pb-4 px-6 flex items-center gap-2 border-b-2 border-transparent transition-colors",
-              activeTab === tab.id ? "border-blue-500 text-blue-600 font-medium" : "text-gray-500 hover:text-gray-700"
-            )}
-          >
-            <span>{tab.label}</span>
-          </button>
-        ))}
-      </div>
-
-      {activeTab === 'all' && (
-        <div className="min-h-[400px] max-h-[600px] overflow-y-auto pr-2">
-          {allUsers.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              No users available to add
-            </div>
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {allUsers.map(renderUserCard)}
-            </div>
-          )}
+    <div className="space-y-6 py-12">
+      {!searchTerm ? (
+        <div className="text-center py-16 bg-gray-50 dark:bg-neutral-900 rounded-lg">
+          <Users className="mx-auto h-12 w-12 text-gray-400 mb-3" />
+          <h3 className="text-xl font-medium text-gray-700 dark:text-gray-300">
+            Search for users
+          </h3>
+          <p className="text-gray-500 mt-1">
+            Enter a name or username to find people
+          </p>
         </div>
-      )}
-
-      {activeTab === 'sent' && (
-        <div className="min-h-[400px] max-h-[600px] overflow-y-auto pr-2">
-          {requestedUsers.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              You haven't sent any friend requests
-            </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {users.length > 0 ? (
+            users.map(renderUserCard)
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {requestedUsers.map(renderUserCard)}
+            <div className="col-span-full text-center py-16">
+              <p className="text-gray-500">No users found matching "{searchTerm}"</p>
             </div>
           )}
         </div>

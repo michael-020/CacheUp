@@ -272,48 +272,38 @@ friendHandler.delete("/remove/:friendId", async (req: Request, res: Response) =>
 
 // Friend search endpoint
 friendHandler.get("/search", async (req: Request, res: Response) => {
-    try {
-      const { query } = req.query;
-      const userId = req.user._id;
-  
-      if (!query || typeof query !== "string") {
-        res.status(400).json({ message: "Search query required" });
-        return;
-      }
-  
-      const searchRegex = new RegExp(query, "i");
-  
-      const users = await userModel.find({
-        $and: [
-          {
-            $or: [
-              { name: { $regex: searchRegex } },
-              { username: { $regex: searchRegex } },
-              { department: { $regex: searchRegex } }
-            ]
-          },
-          { _id: { $ne: userId } }, 
-          { friendRequests: { $ne: userId } } 
-        ]
-      }).select("name username profilePicture department graduationYear")
-        .lean();
-  
-      const currentUser = await userModel.findById(userId).select("friends");
-      const friendsSet = new Set(currentUser?.friends.map(id => id.toString()));
-  
-      const resultsWithStatus = users.map(user => ({
-        ...user,
-        isFriend: friendsSet.has(user._id.toString())
-      }));
-  
-      res.status(200).json({ users: resultsWithStatus });
-      return;
-    } catch (error) {
-      console.error("Error searching users:", error);
-      res.status(500).json({ message: "Internal server error" });
+  try {
+    const { query } = req.query;
+    const userId = req.user._id;
+
+    if (!query || typeof query !== "string") {
+      res.status(400).json({ message: "Search query required" });
       return;
     }
-  });
+
+    const searchRegex = new RegExp(query, "i");
+
+    const users = await userModel.find({
+      $and: [
+        {
+          $or: [
+            { name: { $regex: searchRegex } },
+            { username: { $regex: searchRegex } }
+          ]
+        },
+        { _id: { $ne: userId } }
+      ]
+    })
+    .select("name username profilePicture")
+    .limit(20)
+    .lean();
+
+    res.status(200).json({ users });
+  } catch (error) {
+    console.error("Error searching users:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
   friendHandler.get("/all-users", async (req: Request, res: Response) => {
     try {

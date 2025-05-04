@@ -21,12 +21,12 @@ export const Home = () => {
         <title>Home | CacheUp</title>
       </Helmet>
 
-      <div className="sticky left-40 top-5 hidden lg:block">
+      <div className="sticky left-40 top-5 hidden lg:block z-20">
         <ProfileCard userInfo={authUser} isOwnProfile={true} />
       </div>
       
 
-      <div className="ml-0 lg:ml-[1rem] pb-36 md:pb-36 lg:pb-20">
+      <div className="ml-0 lg:ml-[1rem] pb-36 md:pb-36 lg:pb-20 -z-10">
         <Feed />
       </div>
       {authUser &&
