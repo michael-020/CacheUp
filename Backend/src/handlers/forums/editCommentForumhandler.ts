@@ -33,7 +33,6 @@ export const editCommentForumHandler = async (req: Request, res: Response)=> {
             })
             return
         }
-
         const vector = await embedtext(content)
         
         commentMongo.content = content;
