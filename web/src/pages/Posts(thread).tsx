@@ -15,6 +15,7 @@ import { DeleteModal } from "@/components/modals/DeleteModal";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { SearchBar } from "@/components/forums/search-bar";
 import { Helmet } from "react-helmet-async";
+import { LoginPromptModal } from "@/components/modals/LoginPromptModal";
 
 export const Thread = () => {
   const { id } = useParams();
@@ -36,6 +37,8 @@ export const Thread = () => {
   const [editingPostId, setEditingPostId] = useState<{[key: string]: boolean}>({});
   const [deleteModalOpen, setDeleteModalOpen] = useState<{[key: string]: boolean}>({});
   const [paginationInput, setPaginationInput] = useState(page?.toString());
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [loginPromptAction, setLoginPromptAction] = useState<'post' | 'subscribe'>('post');
 
   const highlightTimeoutRef = useRef<number | null> (null)
 
@@ -254,6 +257,24 @@ export const Thread = () => {
     }
   }
 
+  const handleNewPostClick = () => {
+    if (!authUser) {
+      setLoginPromptAction('post');
+      setShowLoginPrompt(true);
+    } else {
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleSubscribeClick = () => {
+    if (!authUser) {
+      setLoginPromptAction('subscribe');
+      setShowLoginPrompt(true);
+    } else {
+      watchThread(id as string);
+    }
+  };
+
   if (loading) {
     return <ThreadSkeleton />;
   }
@@ -280,7 +301,7 @@ export const Thread = () => {
         <div className="mt-4 text-sm text-gray-400">Be the first to post in this discussion</div>
         <div className="flex gap-4 flex-wrap justify-center">
         <Button
-                onClick={() => watchThread(id as string)}
+                onClick={handleSubscribeClick}
                 className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border border-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 dark:border-blue-800 mt-3"
               >
                 {isWatched ? (
@@ -299,7 +320,7 @@ export const Thread = () => {
                   </>
                 )}
               </Button>
-        {!hasNextPage && <Button onClick={() => setIsModalOpen(true)} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 mt-3">
+        {!hasNextPage && <Button onClick={handleNewPostClick} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 mt-3">
           + New Post
         </Button>}
 
@@ -397,7 +418,7 @@ export const Thread = () => {
             </p>
             <div className="flex gap-4 flex-wrap justify-center">
               <Button
-                onClick={() => watchThread(id as string)}
+                onClick={handleSubscribeClick}
                 className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border border-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 dark:border-blue-800"
               >
                 {isWatched ? (
@@ -418,7 +439,7 @@ export const Thread = () => {
               </Button>
 
               {!hasNextPage && <Button
-                onClick={() => setIsModalOpen(true)}
+                onClick={handleNewPostClick}
                 className="bg-green-600 hover:bg-green-700 text-white"
               >
                 + New Post
@@ -855,6 +876,16 @@ export const Thread = () => {
           </div>
         )}
       </div>
+      <LoginPromptModal
+        isOpen={showLoginPrompt}
+        onClose={() => setShowLoginPrompt(false)}
+        title="Sign In Required"
+        content={
+          loginPromptAction === 'post' 
+            ? "Please sign in to create a new post in this thread."
+            : "Please sign in to subscribe to this thread."
+        }
+      />
     </motion.div>
   );
 };

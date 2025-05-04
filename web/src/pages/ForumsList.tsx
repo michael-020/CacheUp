@@ -15,6 +15,8 @@ import toast from "react-hot-toast";
 import { createPortal } from "react-dom";
 import GuidelinesModal from '@/components/forums/GuidelinesModal';
 import { Helmet } from "react-helmet-async";
+import { LoginPromptModal } from "@/components/modals/LoginPromptModal";
+import SignInNavigation from "@/components/SignInNavigation";
 
 interface ErrorResponse {
   msg: string;
@@ -36,6 +38,7 @@ const ForumList: React.FC = () => {
   const [showRequestModal, setShowRequestModal] = useState(false)
   const editModalRef = useRef<HTMLDivElement | null>(null)
   const [showGuidelines, setShowGuidelines] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   function requestSubmitHandler(data: {title: string, description: string}){
     createForumRequest(data.title, data.description)
@@ -185,6 +188,14 @@ const ForumList: React.FC = () => {
     );
   };
 
+  const handleForumRequest = () => {
+    if (!authUser) {
+      setShowLoginPrompt(true);
+    } else {
+      setShowRequestModal(true);
+    }
+  };
+
   if (error) {
     return (
       <div className="max-w-6xl mx-auto p-6">
@@ -227,10 +238,7 @@ const ForumList: React.FC = () => {
             {!isAdminRoute &&   
               <button
                 className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded transition-colors duration-200"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowRequestModal(true);
-                }}
+                onClick={handleForumRequest}
               >
                 Request Forum
               </button>
@@ -389,7 +397,7 @@ const ForumList: React.FC = () => {
         )}
 
         {activeTab === 'notifications' && (
-          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md p-6">
+          (authUser ? <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md p-6">
             <h2 className="text-xl font-bold mb-4">Your Notifications</h2>
             
             {!notifications || notifications.length === 0 ? (
@@ -425,7 +433,12 @@ const ForumList: React.FC = () => {
                 ))}
               </div>
             )}
+          </div> : 
+          <div className="translate-y-20">
+            <SignInNavigation />
           </div>
+          )
+          
         )}
 
         {editingForum && createPortal(
@@ -492,6 +505,14 @@ const ForumList: React.FC = () => {
         <GuidelinesModal 
           isOpen={showGuidelines}
           onClose={() => setShowGuidelines(false)}
+        />
+
+        {/* Add LoginPromptModal */}
+        <LoginPromptModal
+          isOpen={showLoginPrompt}
+          onClose={() => setShowLoginPrompt(false)}
+          title="Sign In Required"
+          content="Please sign in to request a new forum and join the discussion."
         />
       </div>
     </motion.div>

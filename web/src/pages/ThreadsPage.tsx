@@ -10,6 +10,7 @@ import { useAdminStore } from '@/stores/AdminStore/useAdminStore';
 import { DeleteModal } from '@/components/modals/DeleteModal';
 import { SearchBar } from '@/components/forums/search-bar';
 import { Helmet } from 'react-helmet-async';
+import { LoginPromptModal } from "@/components/modals/LoginPromptModal";
 
 const ForumPage: React.FC = () => {
   const { forumMongoId, forumWeaviateId } = useParams<{
@@ -37,6 +38,7 @@ const ForumPage: React.FC = () => {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [threadToDelete, setThreadToDelete] = useState<{id: string, weaviateId: string} | null>(null);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -68,6 +70,14 @@ const ForumPage: React.FC = () => {
       deleteThread(threadToDelete.id, threadToDelete.weaviateId);
       setShowDeleteModal(false);
       setThreadToDelete(null);
+    }
+  };
+
+  const handleCreateThreadClick = () => {
+    if (!authUser) {
+      setShowLoginPrompt(true);
+    } else {
+      setShowModal(true);
     }
   };
 
@@ -103,7 +113,7 @@ const ForumPage: React.FC = () => {
           </button>
           <h1 className="text-2xl font-bold">{currentForum.title}'s Forum</h1>
           {!authAdmin && <button
-            onClick={() => setShowModal(true)}
+            onClick={handleCreateThreadClick}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
             Create Thread
@@ -216,6 +226,13 @@ const ForumPage: React.FC = () => {
           isModalOpen={showDeleteModal} 
           content='Confirm you want to delete this thread?' 
           setIsModalOpen={setShowDeleteModal} 
+        />
+
+        <LoginPromptModal
+          isOpen={showLoginPrompt}
+          onClose={() => setShowLoginPrompt(false)}
+          title="Sign In Required"
+          content="Please sign in to create threads and join the discussion."
         />
       </div>
     </div>
