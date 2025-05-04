@@ -6,16 +6,28 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { cn, IUser } from "@/lib/utils";
 
-const FriendRequests = () => {
+interface FriendRequestsProps {
+  searchTerm: string;
+}
+
+const FriendRequests = ({ searchTerm }: FriendRequestsProps) => {
   const { requests, sentRequests, acceptRequest, rejectRequest, cancelRequest, loading } = useFriendsStore();
   const [activeSection, setActiveSection] = useState<'received' | 'sent'>('received');
+
+  const filteredRequests = requests.filter(request => {
+    const search = searchTerm.toLowerCase();
+    return (
+      request.name.toLowerCase().includes(search) ||
+      request.username.toLowerCase().includes(search)
+    );
+  });
 
   if (loading) {
     return <RequestsSkeleton />;
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-6">
       {/* Section Toggle */}
       <div className="flex gap-4 border-b border-gray-200 dark:border-neutral-800 mb-6">
         <button
@@ -67,7 +79,7 @@ const FriendRequests = () => {
       <AnimatePresence mode="wait">
         {activeSection === 'received' ? (
           <ReceivedRequests 
-            requests={requests} 
+            requests={filteredRequests} 
             onAccept={acceptRequest} 
             onReject={rejectRequest} 
           />

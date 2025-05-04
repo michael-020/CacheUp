@@ -12,7 +12,7 @@ export const getAllPostsFromAThreadHandler = async (req: Request, res: Response)
 
     const postQuery = postForumModel
       .find({thread: validThreadId, visibility: true})
-      .sort({createdAt: -1})
+      .sort({createdAt: 1})
       .skip(skip)
       .limit(limit)
       .populate({

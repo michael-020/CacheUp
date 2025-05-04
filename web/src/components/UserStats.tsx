@@ -12,6 +12,7 @@ export const UserStats = () => {
 
   useEffect(() => {
     fetchStats(selectedDate);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading) {

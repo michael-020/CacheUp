@@ -15,10 +15,10 @@ import { IUser } from "@/lib/utils";
 import { useChatStore } from "@/stores/chatStore/useChatStore";
 
 interface FriendsListProps {
-  searchTerm?: string;
+  searchTerm: string;
 }
 
-const FriendsList = ({ searchTerm = "" }: FriendsListProps) => {
+const FriendsList = ({ searchTerm }: FriendsListProps) => {
   const { 
     friends, 
     loading, 
@@ -42,10 +42,13 @@ const FriendsList = ({ searchTerm = "" }: FriendsListProps) => {
     await removeFriend(userId);
   };
 
-  const filteredFriends = friends.filter((friend: IUser) => 
-    friend.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (friend.username && friend.username.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredFriends = friends.filter(friend => {
+    const search = searchTerm.toLowerCase();
+    return (
+      friend.name.toLowerCase().includes(search) ||
+      friend.username.toLowerCase().includes(search)
+    );
+  });
 
   const sortedFriends = [...filteredFriends].sort((a: IUser, b: IUser) => {
     if (!a.name) return 1;
@@ -86,7 +89,7 @@ const FriendsList = ({ searchTerm = "" }: FriendsListProps) => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold flex items-center gap-2">
           <Users className="h-6 w-6" />
