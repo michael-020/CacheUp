@@ -11,7 +11,7 @@ import ForumComment from "@/components/forums/ForumComment";
 import { motion } from "framer-motion"
 import { routeVariants } from "@/lib/routeAnimation";
 import {ThreadSkeleton} from "@/components/skeletons/ThreadSkeleton"
-import { DeleteModal } from "@/components/DeleteModal";
+import { DeleteModal } from "@/components/modals/DeleteModal";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { SearchBar } from "@/components/forums/search-bar";
 import { Helmet } from "react-helmet-async";

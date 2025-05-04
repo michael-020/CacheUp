@@ -15,7 +15,6 @@ export const Feed = () => {
     hasMore 
   } = usePostStore();
   
-  
   const observerRef = useRef<IntersectionObserver | null>(null);
   const lastPostElementRef = useCallback((node: HTMLDivElement | null) => {
     if (isFetchingPosts) return;
@@ -33,15 +32,12 @@ export const Feed = () => {
   
   useEffect(() => {
     fetchPosts();
-    
-   
     return () => {
       if (observerRef.current) {
         observerRef.current.disconnect();
       }
     };
   }, [fetchPosts]);
-  
   
   const renderPosts = () => {
     const chunks = [];
@@ -77,9 +73,11 @@ export const Feed = () => {
   
   return (
     <div className="container mx-auto p-4 lg:translate-y-20 translate-y-12">
-      {<div className="hidden lg:block">
+      {/* Only show Share component for authenticated users */}
+
+      <div className="hidden lg:block">
         <Share />
-      </div>}
+      </div>
       
       <div className="mt-4 -z-10">
         {isFetchingPosts && posts.length === 0 ? (

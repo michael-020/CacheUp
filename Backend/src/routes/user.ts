@@ -41,6 +41,9 @@ userRouter.post("/complete-signup", signupHandler)
 // signin
 userRouter.post("/signin", loginHandler)
 
+// get endpoints for non-authenticated users: 
+userRouter.use("/profile", viewProfileHanler)
+
 userRouter.use(authMiddleware)
 
 // check auth of user

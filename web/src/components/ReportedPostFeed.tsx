@@ -10,7 +10,7 @@ import { Loader, Pencil, SendHorizonal, Trash } from "lucide-react";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { useNavigate } from "react-router-dom";
 import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
-import { DeleteModal } from "./DeleteModal";
+import { DeleteModal } from "./modals/DeleteModal";
 
 interface PostCardProps {
   post: Post;

@@ -8,7 +8,7 @@ import ForumListSkeleton from "@/components/skeletons/ForumListSkeleton";
 import type { Forum } from "@/stores/ForumStore/types";
 import { motion } from "framer-motion";
 import { routeVariants } from "@/lib/routeAnimation";
-import { DeleteModal } from "@/components/DeleteModal"; 
+import { DeleteModal } from "@/components/modals/DeleteModal"; 
 import ThreadModal from "@/components/forums/ThreadModal";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import toast from "react-hot-toast";

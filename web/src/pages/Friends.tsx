@@ -9,11 +9,13 @@ import UsersList from "@/components/UsersList";
 import { motion } from "framer-motion"
 import { routeVariants } from "@/lib/routeAnimation";
 import { Helmet } from "react-helmet-async";
+import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
+import SignInNavigation from "@/components/SignInNavigation";
 
 const FriendsPage = () => {
   const [activeTab, setActiveTab] = useState("friends");
   const [searchTerm, setSearchTerm] = useState("");
-
+  const { authUser } = useAuthStore()
   const { 
     fetchFriends, 
     fetchRequests,
@@ -61,7 +63,7 @@ const FriendsPage = () => {
       <Helmet>
         <title>Friends | CahceUp</title>
       </Helmet>
-      <div className="max-w-5xl mx-auto p-6 translate-y-20">
+      {authUser ? <div className="max-w-5xl mx-auto p-6 translate-y-20">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           {/* Search Bar - Now takes the full width since title is removed */}
@@ -108,7 +110,12 @@ const FriendsPage = () => {
         <div className="min-h-[400px]">
           {renderActiveTab()}
         </div>
+      </div> : 
+      <div className="translate-y-[50vh]">
+        <SignInNavigation />
       </div>
+      }
+      
     </motion.div>
   );
 };

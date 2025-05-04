@@ -29,6 +29,17 @@ import { markNotificationAsReadHandler } from "../handlers/forums/markNotificati
 
 const forumsRouter = Router()
 
+// get handler for non-auth users
+forumsRouter.get("/view-forums", getAllForumsHandler)
+
+forumsRouter.get("/view-threads/:forumId", getAllThreadsFromAForumHandler)
+
+forumsRouter.get("/search-forums-na/:query", searchForumHandler)
+
+forumsRouter.get("/view-posts/:threadId/:page", getAllPostsFromAThreadHandler)
+
+forumsRouter.get("/view-comments/:postId", getAllCommentsFromAPostHandler)
+
 forumsRouter.use(authMiddleware)
 // get all forums
 forumsRouter.get("/get-forums", getAllForumsHandler)

@@ -32,10 +32,15 @@ export const usePostStore = create<PostState & PostActions>((set,get) => ({
     });
     
     try {
-      const url = isAdmin 
-        ? `/admin/view-posts?page=1&limit=5` 
-        : `/post/viewPosts?page=1&limit=5`;
-        
+      let url = "" 
+      if(isAdmin){
+        url = `/admin/view-posts?page=1&limit=5` 
+      } else if(useAuthStore.getState().authUser){
+        url = `/post/viewPosts?page=1&limit=5`
+      } else {
+        url = "/post/get-posts"
+      }
+
       const res = await axiosInstance.get(url);
       const { posts, hasMore } = res.data;
       
