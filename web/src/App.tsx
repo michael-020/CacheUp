@@ -131,6 +131,7 @@ function App() {
         sessionStorage.setItem('lastPath', previousPath);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
   // Initialize auth check only once
@@ -162,7 +163,7 @@ function App() {
 
       return () => clearInterval(interval);
     }
-     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authUser, isAdminRoute]);
 
   useEffect(() => {
