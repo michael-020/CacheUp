@@ -20,27 +20,20 @@ export const Home = () => {
       <Helmet>
         <title>Home | CacheUp</title>
       </Helmet>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Left sidebar - Profile Card */}
-        <div className="lg:col-span-3 sticky top-5">
-          <div className="hidden lg:block">
-            <ProfileCard userInfo={authUser} isOwnProfile={true} />
-          </div>
-        </div>
-        
-        {/* Middle - Feed */}
-        <div className="lg:col-span-6 pb-36 md:pb-36 lg:pb-20">
-          <Feed />
-        </div>
-        
-        {/* Right sidebar - Friend Suggestions */}
-        <div className="lg:col-span-3 sticky top-5 mt-20">
-          <div className="hidden lg:block">
-            <FriendSuggestions />
-          </div>
-        </div>
+
+      <div className="sticky left-40 top-5 hidden lg:block">
+        <ProfileCard userInfo={authUser} isOwnProfile={true} />
       </div>
+      
+
+      <div className="ml-0 lg:ml-[1rem] pb-36 md:pb-36 lg:pb-20">
+        <Feed />
+      </div>
+      {authUser &&
+        <div className="absolute right-2 top-24 hidden lg:block">
+          <FriendSuggestions />
+        </div>
+      }
     </motion.div>
   );
 };
