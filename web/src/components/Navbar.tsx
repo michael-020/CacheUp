@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import HomeIcont from "../icons/HomeIcon";
 import MessageIcon from "../icons/MessageIcon";
 import SettingsIcon from "../icons/SettingsIcon";
@@ -20,6 +20,7 @@ export const Navbar = () => {
   const { fetchPosts } = usePostStore()
   const { unReadMessages } = useChatStore();
   const location = useLocation();
+  const navigate = useNavigate()
   const currentPath = location.pathname;
   const [dotMenuOpen, setDotMenuOpen] = useState(false);
   const dotMenuRef = useRef<HTMLDivElement | null>(null);
@@ -153,7 +154,10 @@ export const Navbar = () => {
           </button>}
          
           {authUser ?  <button 
-            onClick={logout}
+            onClick={async () => {
+              await logout()
+              navigate("/")
+            }}
             className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-black rounded-lg text-sm font-medium border border-gray-400"
           >
             Logout
@@ -234,10 +238,11 @@ export const Navbar = () => {
               
               {authUser ?
                  <button 
-                 onClick={() => {
-                   setDotMenuOpen(false);
-                   logout();
-                 }}
+                  onClick={async () => {
+                    setDotMenuOpen(false);
+                    await logout();
+                    navigate("/")
+                  }}
                  className="w-full flex items-center px-4 py-2 text-red-600 hover:bg-gray-100 dark:hover:bg-neutral-700"
                >
                  <span>Logout</span>
@@ -245,7 +250,7 @@ export const Navbar = () => {
                 <button 
                 onClick={() => {
                   setDotMenuOpen(false);
-                  logout();
+                  navigate("/signin")
                 }}
                 className="w-full flex items-center px-4 py-2 text-blue-600 hover:bg-gray-100 dark:hover:bg-neutral-700"
               >
