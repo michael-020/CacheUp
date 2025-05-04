@@ -27,13 +27,18 @@ export const editCommentForumHandler = async (req: Request, res: Response)=> {
         }
         const { content } = req.body;
         const commentMongo = await commentForumModel.findById(mongoId)
-        if(commentMongo?.createdBy._id.toString() !== userId.toString()){
+        if(!commentMongo){
+            res.status(404).json({
+                msg: "Comment not found"
+            })
+            return
+        }
+        if(commentMongo.createdBy._id.toString() !== userId.toString()){
             res.status(401).json({
                 msg: "You are not the one who created the comment"
             })
             return
         }
-
         const vector = await embedtext(content)
         
         commentMongo.content = content;
