@@ -64,12 +64,13 @@ function App() {
     const currentPath = location.pathname;
     const authPaths = ['/', '/signin', '/signup', '/verify-email', '/admin/signin'];
     
-    // Only save path if we're not on an auth path AND we haven't authenticated yet
-    if (!authPaths.includes(currentPath) && !authenticated.current) {
+    // Save path for any non-auth path, regardless of auth status
+    if (!authPaths.includes(currentPath)) {
       if (isAdminRoute) {
         setAdminLastPath(currentPath);
       } else {
         setUserLastPath(currentPath);
+        sessionStorage.setItem('lastPath', currentPath);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -88,22 +89,24 @@ function App() {
     if (authUser && !authenticated.current) {
       const params = new URLSearchParams(location.search);
       const redirect = params.get('redirect');
+      const storedPath = sessionStorage.getItem('lastPath');
+      const authPaths = ['/', '/signin', '/signup', '/verify-email'];
 
       if (redirect) {
         navigate(redirect);
         setUserLastPath(null);
         authenticated.current = true;
-      } else if (userLastPath) {
-        navigate(userLastPath);
+      } else if (storedPath && !authPaths.includes(storedPath)) {
+        navigate(storedPath);
         setUserLastPath(null);
         authenticated.current = true;
-      } else if (['/signin', '/signup', '/'].includes(location.pathname)) {
+      } else if (authPaths.includes(location.pathname)) {
         navigate('/home');
         authenticated.current = true;
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authUser, userLastPath, location.search, navigate, setUserLastPath]);
+  }, [authUser, location.search, navigate, setUserLastPath]);
 
   // Handle admin auth redirects
   useEffect(() => {
@@ -122,12 +125,12 @@ function App() {
     const authPaths = ['/', '/signin', '/signup', '/verify-email', '/admin/signin'];
     
     if (authPaths.includes(currentPath) && !authenticated.current) {
-      const previousPath = location.state?.from || '/home';
+      const existingLastPath = sessionStorage.getItem('lastPath');
+      const previousPath = location.state?.from || existingLastPath || '/home';
       if (!authPaths.includes(previousPath)) {
         sessionStorage.setItem('lastPath', previousPath);
       }
     }
-     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
   // Initialize auth check only once
