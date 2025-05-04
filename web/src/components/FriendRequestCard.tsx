@@ -42,10 +42,10 @@ const FriendRequestCard = ({ user, onAccept, onReject }: FriendRequestCardProps)
   };
 
   return (
-    <div className="flex items-center justify-between p-4 bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all">
+    <div className="flex items-center justify-between p-4 bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-100 dark:border-neutral-700 hover:shadow-md transition-all">
       <div className="flex items-center gap-3">
         <Link to={`/profile/${user._id}`}>
-          <Avatar className="h-14 w-14 border-2 border-purple-100 dark:border-purple-900">
+          <Avatar className="size-12 border-2">
             <AvatarImage src={user.profilePicture || "avatar.jpeg"} alt={user.name} />
             <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
           </Avatar>

@@ -22,6 +22,7 @@ const FriendsPage = () => {
     fetchSentRequests,
     friends,
     requests,
+    sentRequests
   } = useFriendsStore();
 
   useEffect(() => {
@@ -42,7 +43,7 @@ const FriendsPage = () => {
   const renderActiveTab = () => {
     switch(activeTab) {
       case 'users':
-        return <UsersList searchTerm={searchTerm} />;
+        return <UsersList searchTerm={searchTerm} />;        
       case 'friends':
         return <FriendsList searchTerm={searchTerm} />;
       case 'requests':
@@ -84,7 +85,12 @@ const FriendsPage = () => {
         <div className="grid grid-cols-3 gap-2 mb-8 border-b border-gray-200 dark:border-neutral-800 sm:flex sm:gap-0">
         {[
             { id: 'friends', label: 'My Friends', icon: <Users className="h-5 w-5" />, count: friends.length || 0},
-            { id: 'requests', label: 'Friend Requests', icon: <Bell className="h-5 w-5" />, count: requests.length || 0},
+            { 
+              id: 'requests', 
+              label: 'Requests', 
+              icon: <Bell className="h-5 w-5" />, 
+              count: requests.length + sentRequests.length || 0
+            },
             { id: 'users', label: 'Find Users', icon: <UserPlus className="h-5 w-5" />, count: 0 }
           ].map((tab) => (
             <button
