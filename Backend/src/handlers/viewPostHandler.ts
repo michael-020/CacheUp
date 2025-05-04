@@ -70,7 +70,7 @@ viewPostHandler.get("/", async (req: Request, res: Response) => {
 // get a specific post
 viewPostHandler.get("/get-post/:postId", async (req: Request, res: Response) => {
     try {
-        const userId = req.user._id;
+        const userId = req.user?._id;
         const postId = req.params.postId;
         const post = await postModel
             .findById(postId)
@@ -165,7 +165,8 @@ viewPostHandler.get("/:id", async (req: Request, res: Response) => {
         }
 
         if(!currentUserId){
-            res.status(200).json(posts);
+            const processedPosts = posts
+            res.status(200).json(processedPosts);
             return
         }
 

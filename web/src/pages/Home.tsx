@@ -5,9 +5,12 @@ import { motion } from "framer-motion"
 import { routeVariants } from '@/lib/routeAnimation';
 import { Helmet } from 'react-helmet-async';
 import FriendSuggestions from '@/components/FriendsSuggestions';
+import SignInNavigation from '@/components/SignInNavigation';
 
 export const Home = () => {
   const { authUser } = useAuthStore();
+
+
   
   return (
     <motion.div  
@@ -21,7 +24,8 @@ export const Home = () => {
         <title>Home | CacheUp</title>
       </Helmet>
 
-      <div className="sticky left-40 top-5 hidden lg:block z-20">
+      {authUser ? <div>
+        <div className="sticky left-40 top-5 hidden lg:block z-20">
         <ProfileCard userInfo={authUser} isOwnProfile={true} />
       </div>
       
@@ -34,6 +38,11 @@ export const Home = () => {
           <FriendSuggestions />
         </div>
       }
+      </div>: <div className='translate-y-[50vh]'>
+        <SignInNavigation />  
+      </div>}
+
+      
     </motion.div>
   );
 };

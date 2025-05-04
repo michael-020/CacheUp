@@ -67,8 +67,10 @@ export const Profile = () => {
         let url;
         if (isAdminView) {
           url = id ? `/admin/view-posts/${id}` : "/admin/view-posts/myPosts";
-        } else {
+        } else if(authUser) {
           url = id ? `/post/viewPosts/${id}` : "/post/viewPosts/myPosts";
+        } else {
+          url = `/post/get-posts/${id}`
         }
     
         const postResponse = await axiosInstance(url);
