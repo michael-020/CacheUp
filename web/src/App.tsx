@@ -7,7 +7,7 @@ import { Messages } from './pages/Messages'
 import { Signin } from './pages/Signin'
 import { Landing } from './pages/Landing'
 import { useAuthStore } from './stores/AuthStore/useAuthStore'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { EmailVerify } from './pages/EmailVerify'
 import { BottomNavigationBar, Navbar } from './components/Navbar'
@@ -39,19 +39,17 @@ import Statistics from './pages/admin/Statistics'
 import { TimeTracker } from './components/TimeTracker'
 import PageViews from "@/pages/admin/PageViews";
 import ReportedContentPage from './pages/ReportedContentForums'
-
+import { usePathStore } from '@/stores/PathStore/usePathStore';
 
 function App() {
-  const { authUser, checkAuth, isCheckingAuth } = useAuthStore()
+  const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
+  const location = useLocation();
+  const navigate = useNavigate();
   const { authAdmin, checkAdminAuth, isAdminCheckingAuth } = useAdminStore()
   const { getAllMessages, getUsers } = useChatStore()
-  const { fetchRequests, setLoading } = useFriendsStore();
-  const location = useLocation()
-  const navigate = useNavigate()
-  const [returnPath, setReturnPath] = useState<string | null>(null)
-  const [adminReturnPath, setAdminReturnPath] = useState<string | null>(null)
+  const { fetchRequests } = useFriendsStore();
+  const { userLastPath, adminLastPath, setUserLastPath, setAdminLastPath } = usePathStore();
   const { fetchSavedPosts } = usePostStore();
-  
   const isAdminRoute = location.pathname.startsWith('/admin')
   const initialized = useRef(false)
   const authenticated = useRef(false)
@@ -59,82 +57,122 @@ function App() {
   const adminAuthenticated = useRef(false)
   const noNavbarPaths = ['/', '/signin', '/signup', '/verify-email'];
   const shouldShowNavbar = !noNavbarPaths.includes(location.pathname);
-
+  
+  // Save current path before navigating to auth pages
   useEffect(() => {
     const currentPath = location.pathname;
-
-    const nonReturnPaths = ['/', '/signin', '/signup', '/verify-email'];
+    const authPaths = ['/', '/signin', '/signup', '/verify-email', '/admin/signin'];
     
-    if (!nonReturnPaths.includes(currentPath)) {
-      if (currentPath.startsWith('/admin')) {
-        sessionStorage.setItem('adminLastPath', currentPath);
+    // Save path for any non-auth path, regardless of auth status
+    if (!authPaths.includes(currentPath)) {
+      if (isAdminRoute) {
+        setAdminLastPath(currentPath);
       } else {
+        setUserLastPath(currentPath);
         sessionStorage.setItem('lastPath', currentPath);
       }
     }
-  }, [location.pathname]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname, setUserLastPath, setAdminLastPath]);
 
+  // Load saved paths on initial load
   useEffect(() => {
-    if(!isAdminRoute && !initialized.current){
-      const lastPath = sessionStorage.getItem('lastPath')
-      if (lastPath) {
-        setReturnPath(lastPath)
-      }
-      
-      checkAuth()
-      initialized.current = true
+    if (!initialized.current) {
+      checkAuth();
+      initialized.current = true;
     }
-  }, [checkAuth, isAdminRoute])
+  }, [checkAuth]);
 
+  // Handle user auth redirects
   useEffect(() => {
-    if (isAdminRoute && !adminInitialized.current) {
-      const adminLastPath = sessionStorage.getItem('adminLastPath')
-      if (adminLastPath) {
-        setAdminReturnPath(adminLastPath)
-      }
-      
-      checkAdminAuth()
-      adminInitialized.current = true
-    }
-  }, [checkAdminAuth, isAdminRoute])
+    if (authUser && !authenticated.current) {
+      const params = new URLSearchParams(location.search);
+      const redirect = params.get('redirect');
+      const storedPath = sessionStorage.getItem('lastPath');
+      const authPaths = ['/', '/signin', '/signup', '/verify-email'];
 
-  useEffect(() => {
-    if (authUser && !isAdminRoute) {
-      getUsers()
-      getAllMessages()
-      
-      // Initial fetch without loading state
-      const quietFetch = async () => {
-        setLoading(false); // Prevent loading state during background updates
-        await fetchRequests();
-        setLoading(false);
-      };
-
-      // First load
-      fetchRequests();
-      
-      // Set up interval for background updates
-      const interval = setInterval(quietFetch, 1000 * 12);
-      
-      if (returnPath && !authenticated.current) {
-        navigate(returnPath);
+      if (redirect) {
+        navigate(redirect);
+        setUserLastPath(null);
+        authenticated.current = true;
+      } else if (storedPath && !authPaths.includes(storedPath)) {
+        navigate(storedPath);
+        setUserLastPath(null);
+        authenticated.current = true;
+      } else if (authPaths.includes(location.pathname)) {
+        navigate('/home');
         authenticated.current = true;
       }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authUser, location.search, navigate, setUserLastPath]);
+
+  // Handle admin auth redirects
+  useEffect(() => {
+    if (authAdmin && isAdminRoute && !adminAuthenticated.current) {
+      if (adminLastPath) {
+        navigate(adminLastPath);
+        setAdminLastPath(null);
+        adminAuthenticated.current = true;
+      }
+    }
+  }, [authAdmin, isAdminRoute, adminLastPath, navigate, setAdminLastPath]);
+
+  // Save path only when navigating to auth pages
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const authPaths = ['/', '/signin', '/signup', '/verify-email', '/admin/signin'];
+    
+    if (authPaths.includes(currentPath) && !authenticated.current) {
+      const existingLastPath = sessionStorage.getItem('lastPath');
+      const previousPath = location.state?.from || existingLastPath || '/home';
+      if (!authPaths.includes(previousPath)) {
+        sessionStorage.setItem('lastPath', previousPath);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
+
+  // Initialize auth check only once
+  useEffect(() => {
+    if (!initialized.current) {
+      checkAuth();
+      initialized.current = true;
+    }
+  }, [checkAuth]);
+
+  // Handle admin routes initialization
+  useEffect(() => {
+    if (isAdminRoute && !adminInitialized.current) {
+      checkAdminAuth();
+      adminInitialized.current = true;
+    }
+  }, [isAdminRoute, checkAdminAuth]);
+
+  // Initialize user data after authentication
+  useEffect(() => {
+    if (authUser && !isAdminRoute) {
+      getUsers();
+      getAllMessages();
+      fetchRequests();
+      
+      const interval = setInterval(() => {
+        fetchRequests();
+      }, 12000);
 
       return () => clearInterval(interval);
     }
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authUser, isAdminRoute, returnPath, navigate, fetchRequests, setLoading])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authUser, isAdminRoute]);
 
   useEffect(() => {
     if (authAdmin && isAdminRoute) {
-      if (adminReturnPath && !adminAuthenticated.current) {
-        navigate(adminReturnPath)
+      if (adminLastPath && !adminAuthenticated.current) {
+        navigate(adminLastPath)
         adminAuthenticated.current = true
       }
     }
-  }, [authAdmin, isAdminRoute, adminReturnPath, navigate])
+  }, [authAdmin, isAdminRoute, adminLastPath, navigate, setAdminLastPath])
 
   useEffect(() => {
     if (authUser) {
@@ -158,7 +196,6 @@ function App() {
       document.documentElement.classList.remove('dark')
     }
   }, [])
-  
 
   if ((isAdminRoute && isAdminCheckingAuth) || (!isAdminRoute && isCheckingAuth)) {
     return (
@@ -209,10 +246,10 @@ function App() {
       
         <Routes>
           {/* User Routes */}
-          <Route path="/signup" element={<Navigate to="/verify-email"/>} />
-          <Route path="/signin" element={!authUser ? <Signin /> : <Navigate to={returnPath && returnPath !== "/" ? returnPath : "/home"} />} />
-          <Route path='/' element={!authUser ? <Landing /> : <Navigate to={returnPath && returnPath !== "/" ? returnPath : "/home"} />} />
-          <Route path='/verify-email' element={!authUser ? <EmailVerify /> : <Navigate to={returnPath && returnPath !== "/" ? returnPath : "/home"} />} />
+          <Route path="/signup" element={!authUser ? <Signup /> : <Navigate to={userLastPath || "/home"} />} />
+          <Route path="/signin" element={!authUser ? <Signin /> : <Navigate to={userLastPath || "/home"} />} />
+          <Route path='/' element={!authUser ? <Landing /> : <Navigate to={userLastPath || "/home"} />} />
+          <Route path='/verify-email' element={!authUser ? <EmailVerify /> : <Navigate to={userLastPath && userLastPath !== "/" ? userLastPath : "/home"} />} />
           <Route path="/home" element={<Home />} />
           <Route path='/profile' element={authUser ? <Profile /> : <Navigate to={`/`} />} />
           <Route path="/profile/:id" element={<Profile /> } />
@@ -229,7 +266,7 @@ function App() {
           <Route path="/friends/:id" element={<ViewFriends /> }/>
 
           {/* Admin Routes */}
-          <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to={adminReturnPath || "/admin/home"} /> } />
+          <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to={adminLastPath || "/admin/home"} /> } />
           <Route path="/admin/home" element={authAdmin ? <AdminHome /> : <Navigate to="/admin/signin" />} />
           <Route path="/admin/reported-posts" element={authAdmin ? <ReportedPosts /> : <Navigate to="/admin/signin" /> } />
           <Route path="/admin/user-list" element={authAdmin ? <UserList /> : <Navigate to="/admin/signin" />} />

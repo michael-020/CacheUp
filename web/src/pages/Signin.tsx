@@ -18,11 +18,9 @@ export const Signin = () => {
         const searchParams = new URLSearchParams(location.search);
         const error = searchParams.get('error');
         
-        if (error === 'oauth_failed') {
+        if (error) {
             toast.error('Failed to sign in with Google');
-        } else if (error === 'invalid_domain') {
-            toast.error('Only @pvppcoe.ac.in email addresses are allowed');
-        }
+        } 
     }, [location]);
 
     async function onClickHandler(e: MouseEvent<HTMLButtonElement>) {

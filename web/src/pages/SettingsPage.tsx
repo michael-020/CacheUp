@@ -367,8 +367,9 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <button
-                  onClick={() => {
-                    logout()
+                  onClick={async () => {
+                    await logout()
+                    navigate("/")
                   }}
                   className="px-3.5 py-2 border border-gray-500 dark:border-gray-200 text-gray-800 dark:text-white rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-600 transition"
                 >

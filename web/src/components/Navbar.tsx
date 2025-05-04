@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import HomeIcont from "../icons/HomeIcon";
 import MessageIcon from "../icons/MessageIcon";
 import SettingsIcon from "../icons/SettingsIcon";
@@ -20,6 +20,7 @@ export const Navbar = () => {
   const { fetchPosts } = usePostStore()
   const { unReadMessages } = useChatStore();
   const location = useLocation();
+  const navigate = useNavigate()
   const currentPath = location.pathname;
   const [dotMenuOpen, setDotMenuOpen] = useState(false);
   const dotMenuRef = useRef<HTMLDivElement | null>(null);
@@ -75,9 +76,9 @@ export const Navbar = () => {
         {/* Logo/Title - Always visible */}
         <div className="flex-shrink-0">
           <Link to={"/"} onClick={() => fetchPosts()}>
-            <div className="flex items-center justify-center select-none">
+            <div className="flex items-center justify-center select-none translate-x-20">
               <img src="/favicon.svg" className="size-10" />
-              <h1 className="font-extrabold text-xl md:text-3xl text-blue-600">
+              <h1 className="font-extrabold text-2xl text-blue-600">
                 CacheUp
               </h1>
             </div>
@@ -87,7 +88,7 @@ export const Navbar = () => {
         {/* Desktop Navigation Icons */}
         <div className="hidden lg:flex items-center justify-center space-x-4">
           <Link to={"/home"}>
-            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
+            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 ">
               <HomeIcont
                 className={`w-6 h-6 ${currentPath === "/home" ? "text-blue-500 fill-current" : "text-gray-600 dark:fill-none"}`}
               />
@@ -95,7 +96,7 @@ export const Navbar = () => {
           </Link>
 
           <Link to={"/message"}>
-            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
+            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative">
               <MessageIcon
                 className={`w-6 h-6 ${currentPath === "/message" ? "text-blue-500 fill-current" : "text-gray-600"}`}
               />
@@ -106,7 +107,7 @@ export const Navbar = () => {
           </Link>
 
           <Link to={"/friends"}>
-            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
+            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative">
               <FriendsIcon
                 className={`w-6 h-6 ${currentPath === "/friends" ? "text-blue-500 fill-current" : "text-gray-600"}`}
               />
@@ -119,7 +120,7 @@ export const Navbar = () => {
           </Link>
 
           <Link to={"/forums/get-forums"}>
-            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
+            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative">
               <MdOutlineForum className={`size-6 ${
                 isForumPath ? "text-blue-500 fill-current" : "text-gray-600"
               }`} />
@@ -127,7 +128,7 @@ export const Navbar = () => {
           </Link>
 
           <Link to={"/settings"}>
-            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
+            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">
               <SettingsIcon
                 className={`w-6 h-6 ${currentPath === "/settings" ? "text-blue-500 fill-current" : "text-gray-600"}`}
               />
@@ -153,7 +154,10 @@ export const Navbar = () => {
           </button>}
          
           {authUser ?  <button 
-            onClick={logout}
+            onClick={async () => {
+              await logout()
+              navigate("/")
+            }}
             className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-black rounded-lg text-sm font-medium border border-gray-400"
           >
             Logout
@@ -234,10 +238,11 @@ export const Navbar = () => {
               
               {authUser ?
                  <button 
-                 onClick={() => {
-                   setDotMenuOpen(false);
-                   logout();
-                 }}
+                  onClick={async () => {
+                    setDotMenuOpen(false);
+                    await logout();
+                    navigate("/")
+                  }}
                  className="w-full flex items-center px-4 py-2 text-red-600 hover:bg-gray-100 dark:hover:bg-neutral-700"
                >
                  <span>Logout</span>
@@ -245,7 +250,7 @@ export const Navbar = () => {
                 <button 
                 onClick={() => {
                   setDotMenuOpen(false);
-                  logout();
+                  navigate("/signin")
                 }}
                 className="w-full flex items-center px-4 py-2 text-blue-600 hover:bg-gray-100 dark:hover:bg-neutral-700"
               >
@@ -303,14 +308,14 @@ export const BottomNavigationBar = () => {
       <div className="fixed lg:hidden bottom-0 z-10 left-0 right-0 bg-white dark:bg-neutral-800 border-t border-gray-200 dark:border-neutral-700">
         <nav className="flex items-center justify-around h-16">
           <Link to={"/home"}>
-            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 hover:-translate-y-0.5 hover:scale-105">
+            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">
               <HomeIcont
                 className={`w-6 h-6 ${currentPath === "/home" ? "text-blue-500 fill-current" : "text-gray-600 dark:fill-none"}`}
               />
             </button>
           </Link>
           
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
+          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative">
             <Link to={"/message"}>
               <MessageIcon
                 className={`w-6 h-6 ${currentPath === "/message" ? "text-blue-500 fill-current" : "text-gray-600"}`}
@@ -329,7 +334,7 @@ export const BottomNavigationBar = () => {
           >
             <PlusSquare className="w-6 h-6" />
           </button>
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
+          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative">
             <Link to={"/friends"}>
               <FriendsIcon
                 className={`w-6 h-6 ${currentPath === "/friends" ? "text-blue-500 fill-current" : "text-gray-600"}`}
@@ -342,7 +347,7 @@ export const BottomNavigationBar = () => {
             </Link>
           </button>
 
-          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative hover:-translate-y-0.5 hover:scale-105">
+          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative">
             <Link to={"/forums/get-forums"}>
                 <MdOutlineForum className={`size-6 ${
                   isForumPath ? "text-blue-500 fill-current" : "text-gray-600"

@@ -46,7 +46,14 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     set((state) => ({ ...state, loadingForums: true, errorForums: '' }));
   
     try {
-      const endpoint = isAdminRoute ? '/admin/get-forums' : '/forums/get-forums';
+      let endpoint;
+      if(isAdminRoute){
+        endpoint = '/admin/get-forums'
+      } else if(useAuthStore.getState().authUser){
+        endpoint = '/forums/get-forums'
+      } else {
+        endpoint = "/forums/view-forums"
+      }
       const { data } = await axiosInstance.get(endpoint);
   
       set((state) => ({
@@ -104,9 +111,14 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   fetchThreads: async (forumId, isAdminRoute) => {
     set({ currentForum: { ...get().currentForum, loading: true } });
     try {
-      const endpoint = isAdminRoute 
-        ? `/admin/get-threads/`
-        : `/forums/get-threads/`;
+      let endpoint;
+      if(isAdminRoute){
+        endpoint = `/admin/get-threads/`
+      } else if(useAuthStore.getState().authUser){
+        endpoint = `/forums/get-threads/`
+      } else {
+        endpoint = "/forums/view-threads/"
+      }
       const response = await axiosInstance.get(`${endpoint + forumId}`);
       set({ currentForum: { ...get().currentForum, title: response.data.forum.title,  threads: response.data.allThreads, loading: false } });
     } catch (err) {
@@ -132,7 +144,13 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   searchForums: async (query) => {
     set({ loading: true, error: '' });
     try {
-      const response = await axiosInstance.get(`/forums/search-forums/${query}`);
+      let endpoint;
+      if(useAuthStore.getState().authUser){
+        endpoint = "/forums/search-forums/"
+      } else {
+        endpoint = "/forums/search-forums-na/"
+      }
+      const response = await axiosInstance.get(endpoint + query);
       set({ 
         searchResult: response.data, 
         loading: false 
@@ -154,7 +172,14 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     set((state) => ({ ...state, loading: true }));
   
     try {
-      const endpoint = isAdmin ? "/admin/get-thread-posts/" : "/forums/get-posts/";
+      let endpoint;
+      if(isAdmin){
+        endpoint = "/admin/get-thread-posts/"
+      } else if(useAuthStore.getState().authUser){
+        endpoint = "/forums/get-posts/"
+      } else {
+        endpoint = "/forums/view-posts/"
+      }
       const { data } = await axiosInstance.get(`${endpoint}${threadId}/${page}`);
   
       const {
@@ -208,7 +233,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
         threadDescription: state.threadDescription,
         threadMongo: state.threadMongo,
         threadWeaviate: state.threadWeaviate,
-        posts: [...state.posts, populatedPost],
+        posts: [populatedPost, ...state.posts],
         loading: false
       }));
   
@@ -292,7 +317,14 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     }));
     
     try {
-      const url = isAdmin ? `/admin/get-comments/${postId}` : `/forums/get-comments/${postId}`
+      let url; 
+      if(isAdmin){
+        url = `/admin/get-comments/${postId}`
+      } else if(useAuthStore.getState().authUser){
+        url = `/forums/get-comments/${postId}`
+      } else {
+        url = `/forums/view-comments/${postId}`
+      }
       const response = await axiosInstance.get(url);
       const fetchedComments = response.data.comments || [];
       
@@ -537,12 +569,12 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   watchThread : async (threadId: string) => {
     try{
       const response = await axiosInstance.put(`/forums/watch-thread/${threadId}`)
-      const toastMessage = response.data.msg === "Watched" ? set({ isWatched : true}) : set({  isWatched: false })
+      const toastMessage = response.data.msg === "Subscribed" ? set({ isWatched : true}) : set({  isWatched: false })
       if(typeof(toastMessage) !== "string")
         return
       toast.success(toastMessage)
     }catch(error){
-      toast.error("Error in watching/unwatching thread")
+      toast.error("Error in subscribing/unsubscribing thread")
       console.error(error)
     }
   },
@@ -559,6 +591,9 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   fetchNotifications : async () => {
     set({ loading: true })
     try {
+      if(!useAuthStore.getState().authUser){
+        return
+      }
       const response = await axiosInstance.get(`/forums/notification`)
       set({ notifications: response.data.notifications})
     }catch(error){
