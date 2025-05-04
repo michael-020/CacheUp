@@ -1,6 +1,16 @@
-import { Link } from "react-router-dom"
+import { usePathStore } from "@/stores/PathStore/usePathStore";
+import { Link, useLocation } from "react-router-dom"
 
 const SignInNavigation = () => {
+  const { setUserLastPath } = usePathStore();
+  const location = useLocation();
+
+  const handleSignIn = () => {
+    const authPaths = ['/', '/signin', '/signup', '/verify-email'];
+    if (!authPaths.includes(location.pathname)) {
+      setUserLastPath(location.pathname);
+    }
+  };
 
   return (
     <div>
@@ -9,8 +19,9 @@ const SignInNavigation = () => {
           Sign In to view this page  
         </p>
         <Link 
-          to={`/signin`} 
+          to="/signin" 
           className="text-blue-500 underline"
+          onClick={handleSignIn}
         >
           Click here to sign-in
         </Link>
