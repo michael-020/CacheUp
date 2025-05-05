@@ -5,7 +5,7 @@ import CreatePostModal from "@/components/forums/CreatePostModalForums";
 import { Button } from "@/components/ui/button"; 
 import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
 import { axiosInstance } from "@/lib/axios";
-import { ArrowLeft, EllipsisVertical, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { ArrowLeft, EllipsisVertical, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, MessageSquareText } from "lucide-react";
 import { PostSchema } from "@/stores/ForumStore/types";
 import ForumComment from "@/components/forums/ForumComment";
 import { motion } from "framer-motion"
@@ -38,7 +38,7 @@ export const Thread = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState<{[key: string]: boolean}>({});
   const [paginationInput, setPaginationInput] = useState(page?.toString());
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
-  const [loginPromptAction, setLoginPromptAction] = useState<'post' | 'subscribe'>('post');
+  const [loginPromptAction, setLoginPromptAction] = useState<'post' | 'subscribe' | 'like' | 'dislike' | 'report'>('post');
 
   const highlightTimeoutRef = useRef<number | null> (null)
 
@@ -132,11 +132,15 @@ export const Thread = () => {
   };
 
   const handleLikePost = useCallback(async (postId: string) => {
+    if (!authUser) {
+      setLoginPromptAction('like');
+      setShowLoginPrompt(true);
+      return;
+    }
+  
     try {
       setLikeLoading(prev => ({ ...prev, [postId]: true }));
-      
       const response = await axiosInstance.put(`/forums/like-post/${postId}`);
-      
       if (response.status === 200) {
         const userId = authUser?._id;
         if (!userId) return;
@@ -164,8 +168,14 @@ export const Thread = () => {
       setLikeLoading(prev => ({ ...prev, [postId]: false }));
     }
   }, [posts, authUser, setLikeLoading]);
-
+  
   const handleDislikePost = useCallback(async (postId: string) => {
+    if (!authUser) {
+      setLoginPromptAction('dislike');
+      setShowLoginPrompt(true);
+      return;
+    }
+  
     try {
       setLikeLoading(prev => ({ ...prev, [postId]: true }));
       await useForumStore.getState().toggleDislike(postId);
@@ -174,7 +184,18 @@ export const Thread = () => {
     } finally {
       setLikeLoading(prev => ({ ...prev, [postId]: false }));
     }
-  }, []);
+  }, [authUser]);
+  
+  const handleReportPost = (postId: string) => {
+    if (!authUser) {
+      setLoginPromptAction('report');
+      setShowLoginPrompt(true);
+      return;
+    }
+  
+    useForumStore.getState().reportPost(postId);
+    setMenuOpen({});
+  };
 
   const toggleExpandPost = (postId: string) => {
     setExpandedPosts(prev => ({
@@ -656,10 +677,7 @@ export const Thread = () => {
                         {/* Report/Unreport for others - Only show if user is NOT the post owner and NOT an admin */}
                         {(post.createdBy._id !== currentUserId) && !authAdmin && (
                           <button
-                            onClick={() => {
-                              useForumStore.getState().reportPost(post._id);
-                              setMenuOpen({});
-                            }}
+                            onClick={() => handleReportPost(post._id)}
                             className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700"
                           >
                             {post.reportedBy?.includes(currentUserId as string) ? 'Unreport Post' : 'Report Post'}
@@ -747,15 +765,13 @@ export const Thread = () => {
                     }`}
                     onClick={() => toggleComments(post._id)}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
-                    </svg>
+                    <MessageSquareText size="20" />
                     <span>{post.commentsCount || 0}</span>
                   </button>
                 </div>
 
                 {expandedComments[post._id] && (
-                  <div className="border-t border-gray-100 bg-gray-50">
+                  <div className="border-t border-gray-100 dark:border-neutral-700 dark:bg-neutral-800 rounded-b-2xl bg-gray-50">
                     <ForumComment 
                       postId={post._id} 
                       postWeaviateId={post.weaviateId} 
@@ -883,7 +899,13 @@ export const Thread = () => {
         content={
           loginPromptAction === 'post' 
             ? "Please sign in to create a new post in this thread."
-            : "Please sign in to subscribe to this thread."
+            : loginPromptAction === 'subscribe'
+            ? "Please sign in to subscribe to this thread."
+            : loginPromptAction === 'like'
+            ? "Please sign in to like posts."
+            : loginPromptAction === 'dislike'
+            ? "Please sign in to dislike posts."
+            : "Please sign in to report posts."
         }
       />
     </motion.div>

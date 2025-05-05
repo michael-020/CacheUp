@@ -23,12 +23,12 @@ export const createCommentForumHandler = async (req: Request, res: Response) => 
             content,
             weaviateId: "temp",
             post: postMongo,
-            createdBy: req.user.id
+            createdBy: req.user._id
         })
 
         // Populate the created comment with user data
-        const populatedComment = await commentForumModel.findById(commentMongo._id)
-            .populate('createdBy', '_id username profilePicture');
+        
+        
 
         const vector = await embedtext(content)
 
@@ -46,6 +46,8 @@ export const createCommentForumHandler = async (req: Request, res: Response) => 
 
         commentMongo.weaviateId = commentWeaviate.id as string
         await commentMongo.save()
+
+        commentMongo.populate('createdBy', '_id username profilePicture');
         
         const post = await postForumModel.findById(postMongo)
         const thread = await threadForumModel.findById(post?.thread)
@@ -72,7 +74,7 @@ export const createCommentForumHandler = async (req: Request, res: Response) => 
         
         res.json({
             msg: "Comment Uploaded Successfully",
-            commentMongo: populatedComment,
+            commentMongo,
             commentWeaviate,
             commentCount: post?.commentsCount || 0
         })

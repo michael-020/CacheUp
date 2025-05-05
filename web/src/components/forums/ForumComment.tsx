@@ -16,6 +16,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
+import { Loader } from "lucide-react";
+import { LoginPromptModal } from "@/components/modals/LoginPromptModal";
 
 interface CommentSectionProps {
   postId: string;
@@ -48,6 +50,7 @@ const ForumComment: React.FC<CommentSectionProps> = memo(({ postId, postWeaviate
   
   const currentUserId = authUser?._id || null;
   const commentInputRef = useRef<HTMLTextAreaElement>(null);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   useEffect(() => {
     fetchComments(postId, isAdmin);
@@ -61,6 +64,12 @@ const ForumComment: React.FC<CommentSectionProps> = memo(({ postId, postWeaviate
 
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!authUser) {
+      setShowLoginPrompt(true);
+      return;
+    }
+
     if (!commentText.trim()) return;
 
     try {
@@ -183,29 +192,28 @@ const ForumComment: React.FC<CommentSectionProps> = memo(({ postId, postWeaviate
   );
 
   return (
-    <div className="px-5 py-4 dark:bg-neutral-950 rounded-b-xl">
-      <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
-        </svg>
+    <div className="px-5 py-4 dark:bg-neutral-800 rounded-b-2xl">
+      <h3 className="text-lg font-semibold mb-4 flex items-center">
         Comments {sortedComments.length > 0 && `(${sortedComments.length})`}
       </h3>
 
       <form onSubmit={handleSubmitComment} className="mb-6">
         <Textarea
           ref={commentInputRef}
-          placeholder="Add a comment..."
+          placeholder={authUser ? "Add a comment..." : "Sign in to comment"}
           value={commentText}
           onChange={(e) => setCommentText(e.target.value)}
-          className="w-full p-3 border rounded-lg resize-none mb-2 focus:ring-blue-500 focus:border-blue-500"
+          className="w-full p-3 border rounded-lg resize-none mb-2"
           rows={3}
         />
         <Button 
           type="submit"
-          disabled={submitting || !commentText.trim()} 
+          disabled={submitting || (!authUser && !commentText.trim())}
           className="bg-blue-600 hover:bg-blue-700 text-white transition-colors translate-y-1"
         >
-          {submitting ? "Posting..." : "Post Comment"}
+          {submitting ? <div className="px-10">
+              <Loader className="animate-spin size-8" />
+          </div> : "Post Comment"}
         </Button>
       </form>
 
@@ -268,8 +276,7 @@ const ForumComment: React.FC<CommentSectionProps> = memo(({ postId, postWeaviate
                     >
                       {editLoading[comment._id] ? (
                         <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          <span>Saving...</span>
+                          <Loader size={12} />
                         </div>
                       ) : (
                         "Save"
@@ -365,6 +372,13 @@ const ForumComment: React.FC<CommentSectionProps> = memo(({ postId, postWeaviate
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <LoginPromptModal
+        isOpen={showLoginPrompt}
+        onClose={() => setShowLoginPrompt(false)}
+        title="Sign In Required"
+        content="Please sign in to comment on forums."
+      />
     </div>
   );
 });

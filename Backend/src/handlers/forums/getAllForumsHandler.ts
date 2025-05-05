@@ -4,7 +4,7 @@ import { forumModel } from "../../models/db";
 
 export const getAllForumsHandler = async (req: Request, res: Response) => {
     try{
-        const allForums = await forumModel.find({visibility:true});
+        const allForums = await forumModel.find({visibility:true}).lean();
         res.json({
             msg: "All the forums",
             allForums

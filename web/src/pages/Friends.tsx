@@ -101,9 +101,9 @@ const FriendsPage = () => {
                   placeholder={`Search ${activeTab}...`}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600"
+                  className="w-full pl-10 pr-4 py-2 rounded-lg placeholder:text-neutral-300 dark:placeholder:text-neutral-500 border border-gray-300 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600"
                 />
-                <div className="absolute left-3 top-2.5 text-gray-400">
+                <div className="absolute left-3 top-2.5 text-neutral-300 dark:text-neutral-500">
                   <Search />
                 </div>
               </div>
