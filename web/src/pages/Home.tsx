@@ -12,7 +12,7 @@ export const Home = () => {
 
   return (
     <motion.div  
-      className="relative px-4 sm:px-8 bg-gray-100 dark:bg-neutral-950 dark:border-neutral-900"
+      className="relative sm:px-8 bg-gray-100 dark:bg-neutral-950 dark:border-neutral-900"
       variants={routeVariants}
       initial="initial"
       animate="final"
@@ -23,7 +23,7 @@ export const Home = () => {
       </Helmet>
 
       {authUser ? (
-        <div className="max-w-[2000px] mx-auto">
+        <div className="max-w-full">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
             {/* Left Sidebar - Profile Card */}
             <div className="hidden lg:block lg:col-span-3">
@@ -39,7 +39,7 @@ export const Home = () => {
 
             {/* Right Sidebar - Friend Suggestions */}
             <div className="hidden lg:block lg:col-span-3">
-              <div className="sticky top-24">
+              <div className="sticky top-24 ">
                 <FriendSuggestions />
               </div>
             </div>

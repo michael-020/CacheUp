@@ -52,7 +52,7 @@ const FriendSuggestions = () => {
 
   if (loading) {
     return (
-      <Card className={`${cardClasses} w-full sm:w-[350px] md:w-[300px] lg:w-[320px] xl:w-[340px]`}>
+      <Card className={`${cardClasses} w-full lg:w-[250px] xl:w-[350px]`}>
         <CardHeader className="pb-3 px-3 sm:px-4">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-sm">
@@ -85,7 +85,7 @@ const FriendSuggestions = () => {
 
   if (suggestions.length === 0) {
     return (
-      <Card className={`${cardClasses} w-full sm:w-[350px] md:w-[300px] lg:w-[320px] xl:w-[340px]`}>
+      <Card className={`${cardClasses} w-full lg:w-[250px] xl:w-[300px]`}>
         <CardHeader className="pb-3 px-3 sm:px-4">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-sm">
@@ -122,7 +122,7 @@ const FriendSuggestions = () => {
   }
 
   return (
-    <Card className={`${cardClasses} w-full sm:w-[350px] md:w-[200px] lg:w-[250px] xl:w-[280px]`}>
+    <Card className={`${cardClasses} w-full lg:w-[250px] xl:w-[300px]`}>
       <CardHeader className="pb-2 px-3 sm:px-4">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-1 text-sm">
@@ -142,7 +142,7 @@ const FriendSuggestions = () => {
         <CardDescription className="text-xs">People you might know</CardDescription>
       </CardHeader>
       <CardContent className="p-2 sm:p-3">
-        <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
+        <div className="space-y-2 max-h-[calc(100vh-220px)] overflow-y-auto pr-1 custom-scrollbar">
           {suggestions.map((suggestion: SuggestionUser) => {
             const isProcessing = processingUsers.includes(suggestion._id);
             const isPending = suggestion.isPending;
