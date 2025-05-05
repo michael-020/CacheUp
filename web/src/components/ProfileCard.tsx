@@ -91,7 +91,9 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
   }
 
   const { profilePicture, name, username, email, bio, friends: userFriends, _id: userId } = userInfo;
-  const shouldRender = (location.pathname.endsWith("/profile") || isOwnProfile || isAdmin) && location.pathname !== "/" ;
+  const shouldRender = (location.pathname.endsWith("/profile") || isOwnProfile || isAdmin) && 
+                    location.pathname !== "/" && 
+                    location.pathname !== "/home";
   const isFriend = friends?.some(friend => friend._id === userId);
   const isPendingRequest = sentRequests?.some(request => request._id === userId);
 
@@ -227,11 +229,13 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
               </Link>
             </div>
                 
-            {shouldRender && <div className="mb-3 p-2 rounded-md bg-gray-50 dark:bg-neutral-600 dark:border-gray-500  border border-gray-100">
-              <div className="flex items-center justify-center gap-1 text-xs text-gray-600 dark:text-gray-300">
-                <span>{email}</span>
+            {shouldRender && (
+              <div className="mb-3 p-2 rounded-md bg-gray-50 dark:bg-neutral-600 dark:border-gray-500 border border-gray-100">
+                <div className="flex items-center justify-center gap-1 text-xs text-gray-600 dark:text-gray-300">
+                  <span>{email}</span>
+                </div>
               </div>
-            </div>}
+            )}
 
               <div className="flex flex-col gap-2">
                 {isOwnProfile ? (

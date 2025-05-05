@@ -40,7 +40,6 @@ export const usePostStore = create<PostState & PostActions>((set,get) => ({
       } else {
         url = "/post/get-posts"
       }
-      await new Promise(r => setTimeout(r, 1000))
       const res = await axiosInstance.get(url);
       const { posts, hasMore } = res.data;
       
