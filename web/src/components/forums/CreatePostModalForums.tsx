@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useForumStore } from "@/stores/ForumStore/forumStore";
+import { useForumStore } from "@/stores/ForumStore/useforumStore";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader, X } from "lucide-react";

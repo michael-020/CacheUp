@@ -3,7 +3,6 @@ import './App.css'
 import { Home } from './pages/Home'
 import { Profile } from './pages/Profile'
 import { Messages } from './pages/Messages'
-import { Signup } from './pages/Signup'
 import { Signin } from './pages/Signin'
 import { Landing } from './pages/Landing'
 import { useAuthStore } from './stores/AuthStore/useAuthStore'
@@ -40,6 +39,7 @@ import { TimeTracker } from './components/TimeTracker'
 import PageViews from "@/pages/admin/PageViews";
 import ReportedContentPage from './pages/ReportedContentForums'
 import { usePathStore } from '@/stores/PathStore/usePathStore';
+import { Loader } from 'lucide-react'
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -199,8 +199,8 @@ function App() {
 
   if ((isAdminRoute && isAdminCheckingAuth) || (!isAdminRoute && isCheckingAuth)) {
     return (
-      <div className="h-screen w-screen flex items-center justify-center bg-gray-100 dark:bg-neutral-900">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      <div className="h-screen max-w-screen flex items-center justify-center bg-gray-100 dark:bg-neutral-900">
+       <Loader className='animate-spin size-10' />
       </div>
     )
   }
@@ -227,7 +227,7 @@ function App() {
       
         <Routes>
           {/* User Routes */}
-          <Route path="/signup" element={!authUser ? <Signup /> : <Navigate to={userLastPath || "/home"} />} />
+          <Route path="/signup" element={<Navigate to="/verify-email"/>} />
           <Route path="/signin" element={!authUser ? <Signin /> : <Navigate to={userLastPath || "/home"} />} />
           <Route path='/' element={!authUser ? <Landing /> : <Navigate to={userLastPath || "/home"} />} />
           <Route path='/verify-email' element={!authUser ? <EmailVerify /> : <Navigate to={userLastPath && userLastPath !== "/" ? userLastPath : "/home"} />} />

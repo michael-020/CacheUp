@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useForumStore } from "@/stores/ForumStore/forumStore";
+import { useForumStore } from "@/stores/ForumStore/useforumStore";
 
 export const RequestedForums = () => {
   const { requestedForums, loading, error, fetchRequestedForums, approveRequest, denyRequest } = useForumStore();

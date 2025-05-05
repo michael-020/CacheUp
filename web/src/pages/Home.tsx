@@ -4,32 +4,48 @@ import { useAuthStore } from '@/stores/AuthStore/useAuthStore';
 import { motion } from "framer-motion"
 import { routeVariants } from '@/lib/routeAnimation';
 import FriendSuggestions from '@/components/FriendsSuggestions';
+import SignInNavigation from '@/components/SignInNavigation';
 
 export const Home = () => {
   const { authUser } = useAuthStore();
-  
+
   return (
     <motion.div  
-      className="relative px-4 sm:px-8 bg-gray-100 dark:bg-neutral-950 dark:border-neutral-900"
+      className="relative sm:px-8 bg-gray-100 dark:bg-neutral-950 dark:border-neutral-900"
       variants={routeVariants}
       initial="initial"
       animate="final"
       exit="exit"
     >
 
-      <div className="sticky left-40 top-5 hidden lg:block z-20">
-        <ProfileCard userInfo={authUser} isOwnProfile={true} />
-      </div>
-      
+      {authUser ? (
+        <div className="max-w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            {/* Left Sidebar - Profile Card */}
+            <div className="hidden lg:block lg:col-span-3">
+              <div className="sticky top-5">
+                <ProfileCard userInfo={authUser} isOwnProfile={true} />
+              </div>
+            </div>
 
-      <div className="ml-0 lg:ml-[1rem] pb-36 md:pb-36 lg:pb-20 -z-10">
-        <Feed />
-      </div>
-      {authUser &&
-        <div className="absolute right-2 top-24 hidden lg:block">
-          <FriendSuggestions />
+            {/* Main Content - Feed */}
+            <div className="col-span-1 lg:col-span-6">
+              <Feed />
+            </div>
+
+            {/* Right Sidebar - Friend Suggestions */}
+            <div className="hidden lg:block lg:col-span-3">
+              <div className="sticky top-24 ">
+                <FriendSuggestions />
+              </div>
+            </div>
+          </div>
         </div>
-      }
+      ) : (
+        <div className='translate-y-[50vh]'>
+          <SignInNavigation />  
+        </div>
+      )}
     </motion.div>
   );
 };

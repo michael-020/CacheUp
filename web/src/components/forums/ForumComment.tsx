@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
-import { useForumStore} from "@/stores/ForumStore/forumStore";
+import { useForumStore} from "@/stores/ForumStore/useforumStore";
 import { Comment } from "@/stores/ForumStore/types";
 import { Link } from "react-router-dom";
 import {

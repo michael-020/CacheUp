@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { AxiosError } from "axios";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { SearchBar } from "@/components/forums/search-bar";
-import { useForumStore } from "@/stores/ForumStore/forumStore";
+import { useForumStore } from "@/stores/ForumStore/useforumStore";
 import { Notification } from "@/stores/ForumStore/types";
 import ForumListSkeleton from "@/components/skeletons/ForumListSkeleton";
 import type { Forum } from "@/stores/ForumStore/types";

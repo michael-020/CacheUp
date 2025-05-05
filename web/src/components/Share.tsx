@@ -86,7 +86,7 @@ export default function Share({ onPostSuccess }: ShareProps) {
 
   return (
     <>
-      <div className="w-full lg:w-[550px] xl:w-[700px]  mx-auto mb-6">
+      <div className="w-full lg:max-w-[500px] xl:max-w-[675px]  mx-auto mb-6">
         <div className="relative">
           <form onSubmit={handleSubmit} className="bg-white dark:bg-neutral-800 rounded-lg shadow p-4">
             <div className="border-b dark:border-gray-700 pb-1">

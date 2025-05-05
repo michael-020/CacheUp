@@ -1,7 +1,7 @@
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
-import { useForumStore } from "@/stores/ForumStore/forumStore";
+import { useForumStore } from "@/stores/ForumStore/useforumStore";
 import { SearchBar } from "../forums/search-bar";
 
 

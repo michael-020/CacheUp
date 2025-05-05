@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useLocation, Link, useNavigate } from 'react-router-dom';
-import { useForumStore } from '@/stores/ForumStore/forumStore';
+import { useForumStore } from '@/stores/ForumStore/useforumStore';
 import ThreadModal from '../components/forums/ThreadModal';
 import { ArrowLeft } from 'lucide-react';
 import ForumPageSkeleton from '../components/skeletons/ForumPageSkeleton';
