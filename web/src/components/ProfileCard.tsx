@@ -44,6 +44,7 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
         fetchMutualFriendsData(userInfo._id);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOwnProfile, fetchFriends, fetchSentRequests, userInfo?._id]);
 
   const fetchMutualFriendsData = async (userId: string) => {
