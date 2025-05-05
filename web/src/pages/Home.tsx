@@ -3,7 +3,6 @@ import { Feed } from '../components/feeds/Feed';
 import { useAuthStore } from '@/stores/AuthStore/useAuthStore';
 import { motion } from "framer-motion"
 import { routeVariants } from '@/lib/routeAnimation';
-import { Helmet } from 'react-helmet-async';
 import FriendSuggestions from '@/components/FriendsSuggestions';
 import SignInNavigation from '@/components/SignInNavigation';
 
@@ -18,10 +17,6 @@ export const Home = () => {
       animate="final"
       exit="exit"
     >
-      <Helmet>
-        <title>Home | CacheUp</title>
-      </Helmet>
-
       {authUser ? (
         <div className="max-w-full">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">

@@ -14,7 +14,6 @@ import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import toast from "react-hot-toast";
 import { createPortal } from "react-dom";
 import GuidelinesModal from '@/components/forums/GuidelinesModal';
-import { Helmet } from "react-helmet-async";
 import { LoginPromptModal } from "@/components/modals/LoginPromptModal";
 import SignInNavigation from "@/components/SignInNavigation";
 
@@ -226,9 +225,6 @@ const ForumList: React.FC = () => {
       animate="final"
       exit="exit"
     >
-      <Helmet>
-        <title>Forums | CacheUp</title>
-      </Helmet>
       <div className="max-w-6xl mx-auto p-6 translate-y-20 min-h-[calc(100vh-5.1rem)]">
         <div className="flex flex-col mb-6">
           <div className="flex justify-between items-center">

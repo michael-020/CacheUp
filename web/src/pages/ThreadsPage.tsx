@@ -9,7 +9,6 @@ import { MoreVertical } from 'lucide-react';
 import { useAdminStore } from '@/stores/AdminStore/useAdminStore';
 import { DeleteModal } from '@/components/modals/DeleteModal';
 import { SearchBar } from '@/components/forums/search-bar';
-import { Helmet } from 'react-helmet-async';
 import { LoginPromptModal } from "@/components/modals/LoginPromptModal";
 
 const ForumPage: React.FC = () => {
@@ -99,9 +98,6 @@ const ForumPage: React.FC = () => {
   
   return (
     <div className='pb-24 dark:bg-neutral-950 min-h-screen'>
-      <Helmet>
-        <title>{`${currentForum.title} | Forum Discussions`}</title>
-      </Helmet>
       <div className="max-w-6xl mx-auto p-6 translate-y-24 h-full" >
       <SearchBar />
         <div className="flex justify-between items-center mb-6">
