@@ -98,7 +98,6 @@ const ForumPage: React.FC = () => {
   
   return (
     <div className='pb-24 dark:bg-neutral-950 min-h-screen'>
-     
       <div className="max-w-6xl mx-auto p-6 translate-y-24 h-full" >
       <SearchBar />
         <div className="flex justify-between items-center mb-6">

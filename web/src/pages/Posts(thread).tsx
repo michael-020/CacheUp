@@ -267,6 +267,15 @@ export const Thread = () => {
     }
   };
 
+  // const generateMetaDescription = () => {
+  //   const description = threadDescription;
+  //   const canonicalUrl = `${window.location.origin}/forums/thread/${id}/${page}`
+  //   if(posts.length > 0){
+  //     return { posts, description, canonicalUrl }
+  //   }else{
+  //     return {description, canonicalUrl}
+  //   }
+  // }
 
   const handleNewPostClick = () => {
     if (!authUser) {
@@ -301,7 +310,6 @@ export const Thread = () => {
 
   if (posts.length === 0) {
     return (<>
-      
       <div className="p-8 mx-auto max-w-3xl bg-gray-50 dark:bg-neutral-800 translate-y-20 dark:border-neutral-600 border border-gray-200 rounded-lg text-center mt-16">
         <SearchBar />
         <div className="text-gray-500 text-lg dark:text-white">No posts found in Thread {threadTitle}</div>
@@ -392,7 +400,6 @@ export const Thread = () => {
       animate="final"
       exit="exit"  
     >
-
       <div className="container mx-auto p-4 max-w-4xl translate-y-20 pb-20 lg:pb-10">
       <SearchBar />
         <div className="mb-4 border-b pb-4">

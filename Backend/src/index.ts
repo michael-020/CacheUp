@@ -15,7 +15,7 @@ import forumsRouter from "./routes/forums";
 import authRouter from "./routes/auth";
 
 app.use(cors({
-    origin: process.env.FRONTEND_URL,
+    origin: [process.env.FRONTEND_URL as string, "http://localhost:3001"],
     credentials: true
 }));
 app.use(express.json({ limit: '50mb' }));

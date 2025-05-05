@@ -17,7 +17,6 @@ export const Home = () => {
       animate="final"
       exit="exit"
     >
-
       {authUser ? (
         <div className="max-w-full">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">

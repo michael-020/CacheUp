@@ -18,4 +18,18 @@ export default defineConfig({
       usePolling: true, // Helpful inside Docker sometimes
     },
   },
+  build: {
+    ssr: true,
+    rollupOptions: {
+      input: './server/index.js',
+    },
+  },
+  ssr: {
+    // Exclude fsevents from SSR bundle
+    external: ['fsevents'],
+    noExternal: ['react-helmet-async']
+  },
+  optimizeDeps: {
+    exclude: ['fsevents']
+  }
 })
