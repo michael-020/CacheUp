@@ -7,7 +7,6 @@ import FriendRequests from "@/components/FriendRequests";
 import UsersList from "@/components/UsersList";
 import { motion } from "framer-motion"
 import { routeVariants } from "@/lib/routeAnimation";
-import { Helmet } from "react-helmet-async";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import SignInNavigation from "@/components/SignInNavigation";
 
@@ -53,9 +52,6 @@ const FriendsPage = () => {
 
   return (
     <div className="h-screen overflow-hidden pb-24 dark:bg-neutral-950">
-      <Helmet>
-        <title>Friends | CacheUp</title>
-      </Helmet>
       {authUser ? (
         <motion.div className="h-full" variants={routeVariants}
         initial="initial"
