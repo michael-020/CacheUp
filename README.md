@@ -1,6 +1,6 @@
-# 📚 CampusConnect
+# 📚 CacheUp
 
-CampusConnect is a college-based social platform with a backend (Node.js), an ML service (Python), and a frontend (React). This guide will help you set up the project locally.
+CacheUp is a social platform with a HTTP + WebSocket backend (Node.js), an ML service (Python), and a frontend (React). This guide will help you set up the project locally.
 
 ---
 
