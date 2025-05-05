@@ -27,7 +27,7 @@ export const FriendSuggestionsSlider = () => {
   if (suggestions.length === 0) return null;
 
   return (
-    <div className="xl:max-w-[700px] md:max-w-[550px] sm:max-w-[500px] mx-auto bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-4 mb-4">
+    <div className="xl:max-w-[700px] md:max-w-[500px] sm:max-w-[500px] mx-auto bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-4 mb-4">
       <div className="flex flex-col justify-between mb-3">
         <h3 className="text-base font-medium">Friend Suggestions</h3>
         <h3 className="text-sm text-black/50 dark:text-white/50 font-medium">People You Might Know</h3>

@@ -122,7 +122,7 @@ const FriendSuggestions = () => {
   }
 
   return (
-    <Card className={`${cardClasses} w-full sm:w-[350px] md:w-[300px] lg:w-[320px] xl:w-[340px]`}>
+    <Card className={`${cardClasses} w-full sm:w-[350px] md:w-[200px] lg:w-[250px] xl:w-[280px]`}>
       <CardHeader className="pb-2 px-3 sm:px-4">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-1 text-sm">
@@ -148,7 +148,7 @@ const FriendSuggestions = () => {
             const isPending = suggestion.isPending;
             
             return (
-              <div key={suggestion._id} className="flex items-center gap-2 p-1 rounded-md hover:bg-gray-50 dark:hover:bg-neutral-900 transition-colors">
+              <div key={suggestion._id} className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-50 dark:hover:bg-neutral-900 transition-colors">
                 <Link to={`/profile/${suggestion._id}`}>
                   <Avatar className="h-10 w-10 cursor-pointer hover:opacity-80 transition-opacity border border-gray-200 dark:border-neutral-800">
                     <AvatarImage src={suggestion.profilePicture || "/avatar.jpeg" } alt={suggestion.name} />
