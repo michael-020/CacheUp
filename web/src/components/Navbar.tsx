@@ -102,13 +102,11 @@ export const Navbar = () => {
         
         {/* Desktop Navigation Icons */}
         <div className="hidden lg:flex items-center justify-center space-x-4">
-          <Link to={"/home"}>
-            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 ">
-              <HomeIcont
-                className={`w-6 h-6 ${currentPath === "/home" ? "text-blue-500 fill-current" : "text-gray-600 dark:fill-none"}`}
-              />
-            </button>
-          </Link>
+          <button onClick={handleLogoClick} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 ">
+            <HomeIcont
+              className={`w-6 h-6 ${currentPath === "/home" ? "text-blue-500 fill-current" : "text-gray-600 dark:fill-none"}`}
+            />
+          </button>
 
           <Link to={"/message"}>
             <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative">
@@ -290,6 +288,8 @@ export const BottomNavigationBar = () => {
     /^\/forums\/[^/]+\/[^/]+$/.test(currentPath) ||
     currentPath.startsWith("/forums/search");
   const [shareOpen, setShareOpen] = useState(false);
+  const navigate = useNavigate()
+  const { fetchPosts } = usePostStore()
 
   useEffect(() => {
     const interval = setInterval(fetchRequests, 1000 * 12);
@@ -313,6 +313,20 @@ export const BottomNavigationBar = () => {
     setShareOpen(false);
   }, [location]);
 
+  const handleLogoClick = () => {
+    usePostStore.setState({ posts: [] });
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+    
+    if (location.pathname !== "home") {
+      navigate("/home");
+    }
+    fetchPosts();
+  };
+
 
   return (
     <>
@@ -322,14 +336,12 @@ export const BottomNavigationBar = () => {
 
       <div className="fixed lg:hidden bottom-0 z-10 left-0 right-0 bg-white dark:bg-neutral-800 border-t border-gray-200 dark:border-neutral-700">
         <nav className="flex items-center justify-around h-16">
-          <Link to={"/home"}>
-            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">
-              <HomeIcont
-                className={`w-6 h-6 ${currentPath === "/home" ? "text-blue-500 fill-current" : "text-gray-600 dark:fill-none"}`}
-              />
-            </button>
-          </Link>
-          
+          <button onClick={handleLogoClick} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700">
+            <HomeIcont
+              className={`w-6 h-6 ${currentPath === "/home" ? "text-blue-500 fill-current" : "text-gray-600 dark:fill-none"}`}
+            />
+          </button>
+
           <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 relative">
             <Link to={"/message"}>
               <MessageIcon
