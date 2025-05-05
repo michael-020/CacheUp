@@ -4,7 +4,6 @@ import './App.css'
 import { Home } from './pages/Home'
 import { Profile } from './pages/Profile'
 import { Messages } from './pages/Messages'
-import { Signup } from './pages/Signup'
 import { Signin } from './pages/Signin'
 import { Landing } from './pages/Landing'
 import { useAuthStore } from './stores/AuthStore/useAuthStore'
@@ -247,7 +246,7 @@ function App() {
       
         <Routes>
           {/* User Routes */}
-          <Route path="/signup" element={!authUser ? <Signup /> : <Navigate to={userLastPath || "/home"} />} />
+          <Route path="/signup" element={<Navigate to="/verify-email"/>} />
           <Route path="/signin" element={!authUser ? <Signin /> : <Navigate to={userLastPath || "/home"} />} />
           <Route path='/' element={!authUser ? <Landing /> : <Navigate to={userLastPath || "/home"} />} />
           <Route path='/verify-email' element={!authUser ? <EmailVerify /> : <Navigate to={userLastPath && userLastPath !== "/" ? userLastPath : "/home"} />} />

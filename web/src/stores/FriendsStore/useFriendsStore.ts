@@ -97,7 +97,7 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
   fetchMutualFriends: async (friendId: string) => {
     try {
       
-      const response = await axiosInstance.get(`friends/mutual/${friendId}`);
+      const response = await axiosInstance.get(`user/friends/mutual/${friendId}`);
       
       set(state => ({
         mutualFriends: {
