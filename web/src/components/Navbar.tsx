@@ -26,6 +26,7 @@ export const Navbar = () => {
   const dotMenuRef = useRef<HTMLDivElement | null>(null);
   const isForumPath = currentPath.startsWith("/forums");
   const { isDark, toggleTheme } = useThemeStore();
+  const topRef = useRef<HTMLDivElement>(null);
 
   const handleToggleTheme = () => {
     toggleTheme();
@@ -70,19 +71,33 @@ export const Navbar = () => {
     };
   }, []);
 
+  const handleLogoClick = () => {
+    usePostStore.setState({ posts: [] });
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+    
+    if (location.pathname !== "home") {
+      navigate("/home");
+    }
+    fetchPosts();
+  };
+
   return (
-    <div className="h-16 border-b-2"> 
+    <div ref={topRef} className="h-16 border-b-2"> 
       <nav className="fixed top-0 left-0 right-0 flex items-center justify-between px-4 md:px-6 py-3 border-gray-100 border-b-2 dark:bg-neutral-900/80 dark:border-b-2 dark:border-b-neutral-800/50 dark:backdrop-blur-xl bg-white/80 backdrop-blur-md">
         {/* Logo/Title - Always visible */}
         <div className="flex-shrink-0">
-          <Link to={"/"} onClick={() => fetchPosts()}>
+          <button onClick={handleLogoClick}>
             <div className="flex items-center justify-center select-none translate-x-20">
               <img src="/favicon.svg" className="size-10" />
               <h1 className="font-extrabold text-2xl text-blue-600">
                 CacheUp
               </h1>
             </div>
-          </Link>
+          </button>
         </div>
         
         {/* Desktop Navigation Icons */}

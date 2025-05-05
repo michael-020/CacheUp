@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom" // or next/router if using Next.js
-import { useForumStore } from "@/stores/ForumStore/forumStore"
+import { useForumStore } from "@/stores/ForumStore/useforumStore"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Loader2, MessageSquare, Folder, FileText, MessageCircle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"

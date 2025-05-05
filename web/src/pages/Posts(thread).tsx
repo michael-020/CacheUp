@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { useForumStore } from "@/stores/ForumStore/forumStore";
+import { useForumStore } from "@/stores/ForumStore/useforumStore";
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import CreatePostModal from "@/components/forums/CreatePostModalForums"; 
 import { Button } from "@/components/ui/button"; 

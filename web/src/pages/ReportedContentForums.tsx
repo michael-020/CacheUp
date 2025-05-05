@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useForumStore } from '@/stores/ForumStore/forumStore';
+import { useForumStore } from '@/stores/ForumStore/useforumStore';
 import { AlertCircle, Check, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { UnreportContentType } from '@/stores/ForumStore/types'
