@@ -33,12 +33,17 @@ async function createServer() {
       );
       
       const { render } = await vite.ssrLoadModule('/src/entry-server.tsx');
-      const { html: appHtml,  } = await render(url);
+      const { html: appHtml, initialState } = await render(url);
       
-      const html = template
+      // Inject the rendered HTML and initial state
+      const finalHtml = template
         .replace(`<div id="root"></div>`, `<div id="root">${appHtml}</div>`)
+        .replace(
+          '</body>',
+          `<script>window.__INITIAL_STATE__ = ${JSON.stringify(initialState)}</script></body>`
+        );
       
-      res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
+      res.status(200).set({ 'Content-Type': 'text/html' }).end(finalHtml);
     } catch (e) {
       vite.ssrFixStacktrace(e as Error);
       next(e);
