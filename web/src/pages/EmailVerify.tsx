@@ -46,12 +46,12 @@ export const EmailVerify = () => {
         <div className="flex flex-col justify-center w-full sm:w-96 min-h-screen py-8 sm:py-0">
             <div className="bg-white border border-gray-400 dark:border-neutral-700 shadow-lg dark:bg-neutral-800 p-4 sm:p-6 rounded-lg">
                 <div className="text-center mb-4 sm:mb-6">
-                    <h2 className="text-xl sm:text-2xl text-blue-600 font-black">
+                    <h2 className="text-xl sm:text-[1.8rem] text-blue-600 font-black">
                         Email Verification
                     </h2> 
-                    <h6 className="text-xs sm:text-sm dark:text-neutral-300 text-black/80 mt-2">
+                    <p className="text-xs sm:text-sm dark:text-neutral-300 text-black/70 mt-2">
                         Verify Your email to proceed
-                    </h6>
+                    </p>
                 </div>
                 <div className="flex flex-col space-y-3 sm:space-y-4">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">

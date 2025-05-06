@@ -21,7 +21,7 @@ import {
   } from "../handlers/changePasswordHandler";
 import { deleteAccountHandler } from "../handlers/deleteAccountHandler";
 import { logPageViewHandler } from '../handlers/timeTrackingHandler';
-import { setupGoogleAccountHandler } from "../handlers/setupGoogleAccountHandler";
+import { setupGoogleAccountHandler, checkSetupSession } from "../handlers/setupGoogleAccountHandler";
 
 const userRouter: Router = Router();
 
@@ -42,7 +42,8 @@ userRouter.post("/complete-signup", signupHandler)
 // signin
 userRouter.post("/signin", loginHandler)
 
-// set up account
+// Google account setup routes
+userRouter.get("/check-setup-session", checkSetupSession);
 userRouter.post("/setup-google-account", setupGoogleAccountHandler);
 
 // get endpoints for non-authenticated users: 

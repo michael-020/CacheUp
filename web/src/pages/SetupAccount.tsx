@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
@@ -8,14 +8,33 @@ import { Eye, EyeOff, Upload } from 'lucide-react';
 export const SetupAccount = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
+    name: '',
     username: '',
     password: '',
     confirmPassword: '',
     profilePicture: '',
   });
+  const [email, setEmail] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/v1/user/check-setup-session`,
+          { withCredentials: true }
+        );
+        setEmail(response.data.email);
+      } catch (error) {
+        console.error("Session check error:", error);
+        toast.error('Please sign up first');
+        navigate('/verify-email');
+      }
+    };
+    checkSession();
+  }, [navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -43,17 +62,23 @@ export const SetupAccount = () => {
     setIsLoading(true);
 
     try {
+      if (formData.password !== formData.confirmPassword) {
+        toast.error('Passwords do not match');
+        setIsLoading(false);
+        return;
+      }
+
       await axios.post(
         `${import.meta.env.VITE_API_URL}/api/v1/user/setup-google-account`,
-        formData,
+        { ...formData },
         { withCredentials: true }
       );
 
       toast.success('Account setup complete!');
-      navigate('/feed');
+      navigate('/home');
     } catch (error) {
-      console.error("Error: ", error)
-      toast.error('Something went wrong');
+        console.log("error: ", error)
+      toast.error('Failed to complete setup');
     } finally {
       setIsLoading(false);
     }
@@ -77,6 +102,21 @@ export const SetupAccount = () => {
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
+            {/* Name Input */}
+            <div>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Full Name
+              </label>
+              <input
+                name="name"
+                type="text"
+                required
+                value={formData.name}
+                onChange={handleChange}
+                className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              />
+            </div>
+
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Username

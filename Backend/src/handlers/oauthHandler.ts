@@ -29,11 +29,10 @@ export const initiateGoogleSignup = (req: Request, res: Response) => {
 };
 
 export const handleGoogleCallback = async (req: Request, res: Response) => {
-  const { code, state } = req.query;
-  const authType = state as 'signin' | 'signup';
-
   try {
-    // Exchange code for tokens
+    const { code, state } = req.query;
+    const authType = state as 'signin' | 'signup';
+
     const tokenResponse = await axios.post(GOOGLE_CONFIG.token_uri, {
       code,
       client_id: GOOGLE_CONFIG.client_id,
@@ -43,43 +42,28 @@ export const handleGoogleCallback = async (req: Request, res: Response) => {
     });
 
     const { access_token } = tokenResponse.data;
-
-    // Get user info
     const userInfoResponse = await axios.get("https://www.googleapis.com/oauth2/v2/userinfo", {
       headers: { Authorization: `Bearer ${access_token}` }
     });
 
-    const { email, name } = userInfoResponse.data;
-
-    // Find user
+    const { email } = userInfoResponse.data;
     const existingUser = await userModel.findOne({ email });
 
-    // Handle signup
     if (authType === 'signup') {
       if (existingUser) {
         return res.redirect(`${process.env.FRONTEND_URL}/verify-email?error=email_exists`);
       }
 
-      // Create new user
-      const newUser = await userModel.create({
+      req.session.googleSignup = {
         email,
-        name,
-        isEmailVerified: true,
-        authType: 'google',
-        department: "",
-        graduationYear: "",
-        bio: "",
-        friends: [],
-        friendRequests: [],
-        posts: [],
-        isGoogleSetupComplete: false
-      });
+        authType: 'google'
+      };
+      await req.session.save();
 
-      generateToken(newUser._id, res);
       return res.redirect(`${process.env.FRONTEND_URL}/set-up-account`);
     }
 
-    // Handle signin
+    // Handle signin flow
     if (authType === 'signin') {
       if (!existingUser) {
         return res.redirect(`${process.env.FRONTEND_URL}/signin?error=no_account`);
@@ -91,7 +75,6 @@ export const handleGoogleCallback = async (req: Request, res: Response) => {
 
   } catch (error) {
     console.error("OAuth error:", error);
-    const redirectPath = authType === 'signin' ? 'signin' : 'verify-email';
-    return res.redirect(`${process.env.FRONTEND_URL}/${redirectPath}?error=oauth_failed`);
+    return res.redirect(`${process.env.FRONTEND_URL}/verify-email?error=oauth_failed`);
   }
 };
