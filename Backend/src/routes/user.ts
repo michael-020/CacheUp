@@ -21,6 +21,7 @@ import {
   } from "../handlers/changePasswordHandler";
 import { deleteAccountHandler } from "../handlers/deleteAccountHandler";
 import { logPageViewHandler } from '../handlers/timeTrackingHandler';
+import { setupGoogleAccountHandler } from "../handlers/setupGoogleAccountHandler";
 
 const userRouter: Router = Router();
 
@@ -40,6 +41,9 @@ userRouter.post("/complete-signup", signupHandler)
 
 // signin
 userRouter.post("/signin", loginHandler)
+
+// set up account
+userRouter.post("/setup-google-account", setupGoogleAccountHandler);
 
 // get endpoints for non-authenticated users: 
 userRouter.use("/profile", viewProfileHanler)

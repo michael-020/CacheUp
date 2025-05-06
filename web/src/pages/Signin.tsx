@@ -1,37 +1,26 @@
-import { MouseEvent, useState, useEffect } from "react"
+import { MouseEvent, useState, useEffect } from "react" // Add useEffect
 import { useAuthStore } from "../stores/AuthStore/useAuthStore"
 import { Eye, EyeOff, Loader } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 import { motion } from "framer-motion"
 import { routeVariants } from "@/lib/routeAnimation"
-import toast from "react-hot-toast"
 
 export const Signin = () => {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)
-    const { signin, isSigningIn } = useAuthStore()
-    const location = useLocation();
+    const { signin, isSigningIn, handleGoogleSignin, handleGoogleAuthError } = useAuthStore()
+    const location = useLocation()
     
+    // Check for Google auth errors on page load
     useEffect(() => {
-        // Handle OAuth errors
-        const searchParams = new URLSearchParams(location.search);
-        const error = searchParams.get('error');
-        
-        if (error) {
-            toast.error('Failed to sign in with Google');
-        } 
-    }, [location]);
+        handleGoogleAuthError();
+    }, [location.search, handleGoogleAuthError]);
 
     async function onClickHandler(e: MouseEvent<HTMLButtonElement>) {
         e.preventDefault();
         signin({email, password})
     }
-
-    const handleGoogleSignIn = () => {
-        // Direct navigation to backend OAuth endpoint
-        window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
-    };
     
     return (
         <motion.div 
@@ -44,7 +33,7 @@ export const Signin = () => {
             <div className="w-full max-w-md bg-white dark:bg-neutral-800 rounded-lg shadow-lg p-8">
                 <div className="grid gap-6">
                     <div className="text-center">
-                        <h1 className="text-3xl font-bold text-indigo-600 dark:text-indigo-500">Sign In</h1>
+                        <h1 className="text-3xl font-black text-blue-600">Sign In</h1>
                         <p className="text-gray-500 dark:text-gray-200 mt-2">Welcome back to CatcheUp Network</p>
                     </div>
                     
@@ -87,7 +76,7 @@ export const Signin = () => {
                                 type="submit"
                                 disabled={isSigningIn}
                                 onClick={onClickHandler}
-                                className={`w-full py-3 ${isSigningIn ? "bg-indigo-400": "dark:bg-indigo-500 dark:hover:bg-indigo-600 bg-indigo-600 hover:bg-indigo-700"} dark:text-gray-200  text-white font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all shadow-md`}
+                                className={`w-full py-3 ${isSigningIn ? "bg-blue-800": " bg-blue-600 hover:bg-blue-700"} dark:text-gray-200  text-white font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all shadow-md`}
                             >
                                 {isSigningIn ? <div className="flex items-center justify-center"> <Loader className="animate-spin self-center" /> </div>: 'Sign In'}
                                
@@ -97,7 +86,7 @@ export const Signin = () => {
                         <div className="text-center pt-4">
                             <p className="text-gray-600">
                                 Don't have an account?{" "}
-                                <Link to="/signup" className="text-indigo-600 dark:text-indigo-500 font-medium hover:text-indigo-800">
+                                <Link to="/signup" className="text-blue-500 font-medium hover:text-blue-600">
                                     Sign Up
                                 </Link>
                             </p>
@@ -116,11 +105,11 @@ export const Signin = () => {
                     </div>
 
                     <button
-                        onClick={handleGoogleSignIn}
-                        className="w-full flex items-center justify-center gap-2 p-2 border dark:bg-neutral-950 bg-gray-50 border-gray-100 dark:border-neutral-800 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-900 transition-colors"
+                        onClick={handleGoogleSignin}
+                        className="w-full flex items-center justify-center gap-2 p-2 border bg-gray-50 hover:bg-gray-100 rounded-lg dark:bg-neutral-700 dark:hover:bg-neutral-600 dark:text-white"
                     >
                         <img src="/google.svg" alt="Google" className="w-6 h-6" />
-                        <span className="dark:text-gray-100">Sign in with Google</span>
+                        <span>Sign in with Google</span>
                     </button>
                 </div>
             </div>

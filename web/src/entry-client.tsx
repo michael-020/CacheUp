@@ -18,9 +18,7 @@ if (initialState) {
 
 hydrateRoot(
   document.getElementById('root')!,
-  <React.StrictMode>
     <BrowserRouter>
       <App />
     </BrowserRouter>
-  </React.StrictMode>
 );

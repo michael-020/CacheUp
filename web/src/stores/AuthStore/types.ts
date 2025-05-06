@@ -30,4 +30,7 @@ export type authAction = {
     getSocket: () => WebSocket | null; 
     getToken: () => void;
     deleteAccount: () => void;
+    handleGoogleSignin: () => void;
+    handleGoogleAuthError: () => void;
+    handleGoogleSignup: () => void;
 }

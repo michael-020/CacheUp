@@ -2,9 +2,11 @@ import { Request, Response } from "express";
 import { GOOGLE_CONFIG } from "../config/oauth";
 import axios from "axios";
 import { userModel } from "../models/db";
-import jwt from "jsonwebtoken"
+import jwt from "jsonwebtoken";
+import { generateToken } from "../lib/utils";
 
-export const initiateGoogleAuth = (req: Request, res: Response) => {
+// Common function to initiate Google OAuth
+const initiateGoogleAuth = (req: Request, res: Response, authType: 'signin' | 'signup') => {
   const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
   
   authUrl.searchParams.append('client_id', GOOGLE_CONFIG.client_id);
@@ -13,12 +15,22 @@ export const initiateGoogleAuth = (req: Request, res: Response) => {
   authUrl.searchParams.append('scope', GOOGLE_CONFIG.scope);
   authUrl.searchParams.append('access_type', 'offline');
   authUrl.searchParams.append('prompt', 'select_account');
+  authUrl.searchParams.append('state', authType); // Add state to track signin/signup
   
   res.redirect(authUrl.toString());
 };
 
+export const initiateGoogleSignin = (req: Request, res: Response) => {
+  initiateGoogleAuth(req, res, 'signin');
+};
+
+export const initiateGoogleSignup = (req: Request, res: Response) => {
+  initiateGoogleAuth(req, res, 'signup');
+};
+
 export const handleGoogleCallback = async (req: Request, res: Response) => {
-  const { code } = req.query;
+  const { code, state } = req.query;
+  const authType = state as 'signin' | 'signup';
 
   try {
     // Exchange code for tokens
@@ -39,46 +51,47 @@ export const handleGoogleCallback = async (req: Request, res: Response) => {
 
     const { email, name } = userInfoResponse.data;
 
-    // Find or create user
-    let user = await userModel.findOne({ email });
+    // Find user
+    const existingUser = await userModel.findOne({ email });
 
-    if (!user) {
-      const username = email.split("@")[0];
-      
-      user = await userModel.create({
+    // Handle signup
+    if (authType === 'signup') {
+      if (existingUser) {
+        return res.redirect(`${process.env.FRONTEND_URL}/verify-email?error=email_exists`);
+      }
+
+      // Create new user
+      const newUser = await userModel.create({
         email,
         name,
-        username,
-        isEmailVerified: true, // Google accounts are pre-verified
-        authType: 'google', // Set auth type to google
+        isEmailVerified: true,
+        authType: 'google',
         department: "",
         graduationYear: "",
         bio: "",
         friends: [],
         friendRequests: [],
-        posts: []
+        posts: [],
+        isGoogleSetupComplete: false
       });
+
+      generateToken(newUser._id, res);
+      return res.redirect(`${process.env.FRONTEND_URL}/set-up-account`);
     }
 
-    // Set JWT cookie with proper options
-    const token = jwt.sign(
-      { userId: user._id },
-      process.env.JWT_SECRET as string,
-      { expiresIn: '30d' }
-    );
+    // Handle signin
+    if (authType === 'signin') {
+      if (!existingUser) {
+        return res.redirect(`${process.env.FRONTEND_URL}/signin?error=no_account`);
+      }
 
-    res.cookie('jwt', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
-    });
-
-    // Redirect to frontend with success
-    res.redirect(`${process.env.FRONTEND_URL}/home`);
+      generateToken(existingUser._id, res);
+      return res.redirect(`${process.env.FRONTEND_URL}/home`);
+    }
 
   } catch (error) {
     console.error("OAuth error:", error);
-    res.redirect(`${process.env.FRONTEND_URL}/signin?error=oauth_failed`);
+    const redirectPath = authType === 'signin' ? 'signin' : 'verify-email';
+    return res.redirect(`${process.env.FRONTEND_URL}/${redirectPath}?error=oauth_failed`);
   }
 };
