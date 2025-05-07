@@ -212,7 +212,7 @@ function App() {
     <div className='bg-gray-100 dark:bg-neutral-950 min-h-screen custom-scrollbar'>
       {authUser && <TimeTracker />}
       <ScrollToTop />
-      {shouldShowNavbar && !isAdminRoute && authUser && (
+      {shouldShowNavbar && !isAdminRoute && (
         <div className='fixed top-0 w-screen z-40'>
           <Navbar />
           <BottomNavigationBar />

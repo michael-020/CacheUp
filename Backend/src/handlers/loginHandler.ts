@@ -51,6 +51,7 @@ export const loginHandler: RequestHandler = async (req: Request, res: Response) 
 
         res.status(200).json({
             _id: user._id,
+            name: user.name,
             username: user.username,
             email: user.email,
             profilePicture: user.profilePicture,

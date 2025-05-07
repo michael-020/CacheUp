@@ -76,6 +76,7 @@ export const setupGoogleAccountHandler = async (req: Request, res: Response) => 
     generateToken(newUser._id, res);
     res.status(200).json({
       _id: newUser._id,
+      name: newUser.name,
       username: newUser.username,
       email: newUser.email,
       profilePicture: newUser.profilePicture,
