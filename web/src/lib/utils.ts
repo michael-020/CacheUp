@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { z } from "zod"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -86,3 +87,21 @@ export interface IAdmin {
   name: string;
   adminId: string;
 }
+
+export const setupSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  password: z.string()
+    .min(8, "Password must be at least 8 characters")
+    .regex(/[A-Z]/, "Password must contain at least 1 uppercase letter")
+    .regex(/[a-z]/, "Password must contain at least 1 lowercase letter")
+    .regex(/[0-9]/, "Password must contain at least 1 number")
+    .regex(/[^A-Za-z0-9]/, "Password must contain at least 1 special character"),
+  confirmPassword: z.string(),
+  profilePicture: z.string().optional(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
+export type SetupFormData = z.infer<typeof setupSchema>;

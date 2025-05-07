@@ -72,6 +72,7 @@ export const signupHandler: RequestHandler =  async (req: Request, res: Response
 
         res.status(201).json({
             _id: newUser._id,
+            name: newUser.name,
             username: newUser.username,
             email: newUser.email,
             profilePicture: newUser.profilePicture,

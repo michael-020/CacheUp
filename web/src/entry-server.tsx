@@ -39,7 +39,7 @@ async function fetchInitialData(url: string) {
 
     // Handle forum detail page
     if (path.startsWith('/forums/') && path.split('/').length === 4) {
-      const [, , forumId, weaviateId] = path.split('/');
+      const [, , forumId] = path.split('/');
       const [forumData, threadsData] = await Promise.all([
         axiosInstance.get(`/forums/view-forums/${forumId}`),
         axiosInstance.get(`/forums/view-threads/${forumId}`)

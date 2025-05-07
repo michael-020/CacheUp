@@ -40,9 +40,11 @@ import PageViews from "@/pages/admin/PageViews";
 import ReportedContentPage from './pages/ReportedContentForums'
 import { usePathStore } from '@/stores/PathStore/usePathStore';
 import { Loader } from 'lucide-react'
+import { SetupAccount } from './pages/SetupAccount';
+import { Signup } from './pages/Signup'
 
 function App() {
-  const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
+  const { authUser, checkAuth, isCheckingAuth, inputEmail } = useAuthStore();
   const location = useLocation();
   const navigate = useNavigate();
   const { authAdmin, checkAdminAuth, isAdminCheckingAuth } = useAdminStore()
@@ -55,7 +57,7 @@ function App() {
   const authenticated = useRef(false)
   const adminInitialized = useRef(false)
   const adminAuthenticated = useRef(false)
-  const noNavbarPaths = ['/', '/signin', '/signup', '/verify-email'];
+  const noNavbarPaths = ['/', '/signin', '/signup', '/verify-email', '/set-up-account'];
   const shouldShowNavbar = !noNavbarPaths.includes(location.pathname);
   
   // Save current path before navigating to auth pages
@@ -227,7 +229,8 @@ function App() {
       
         <Routes>
           {/* User Routes */}
-          <Route path="/signup" element={<Navigate to="/verify-email"/>} />
+          <Route path="/signup" element={inputEmail ? <Signup /> : <Navigate to="/verify-email"/>} />
+          <Route path="/set-up-account" element={<SetupAccount />} />
           <Route path="/signin" element={!authUser ? <Signin /> : <Navigate to={userLastPath || "/home"} />} />
           <Route path='/' element={!authUser ? <Landing /> : <Navigate to={userLastPath || "/home"} />} />
           <Route path='/verify-email' element={!authUser ? <EmailVerify /> : <Navigate to={userLastPath && userLastPath !== "/" ? userLastPath : "/home"} />} />

@@ -13,6 +13,7 @@ import messageRouter from "./routes/message";
 import app, { server } from "./websockets";
 import forumsRouter from "./routes/forums";
 import authRouter from "./routes/auth";
+import session from "express-session";
 
 app.use(cors({
     origin: [process.env.FRONTEND_URL as string, "http://localhost:3001"],
@@ -21,6 +22,18 @@ app.use(cors({
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
+
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
 
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/admin", adminRouter);

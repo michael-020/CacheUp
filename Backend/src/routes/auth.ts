@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { handleGoogleCallback, initiateGoogleAuth } from "../handlers/oauthHandler";
+import { initiateGoogleSignin, initiateGoogleSignup, handleGoogleCallback } from "../handlers/oauthHandler";
 
 const authRouter = Router();
 
-authRouter.get("/google", initiateGoogleAuth);
+authRouter.get("/google/signin", initiateGoogleSignin);
+authRouter.get("/google/signup", initiateGoogleSignup);
 authRouter.get("/google/callback", handleGoogleCallback);
 
 export default authRouter;

@@ -1,4 +1,4 @@
-import { IUser } from "../../lib/utils"
+import { IUser, SetupFormData } from "../../lib/utils"
 
 export type authState = {
     authUser: IUser | null,
@@ -14,6 +14,7 @@ export type authState = {
     socket: WebSocket | null
     token: string | ""
     authChecked: boolean
+    isSettingUp: boolean
 }
 
 export type authAction = {
@@ -30,4 +31,9 @@ export type authAction = {
     getSocket: () => WebSocket | null; 
     getToken: () => void;
     deleteAccount: () => void;
+    handleGoogleSignin: () => void;
+    handleGoogleAuthError: () => void;
+    handleGoogleSignup: () => void;
+    setupGoogleAccount: (data: SetupFormData) => Promise<void>;
+    checkSetupSession: () => Promise<string>;
 }
