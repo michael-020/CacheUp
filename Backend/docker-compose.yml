@@ -22,6 +22,13 @@ services:
       DEFAULT_VECTORIZER_MODULE: 'none'
       ENABLE_MODULES: ''
       CLUSTER_HOSTNAME: 'node1'
+    networks:
+      - backend-network
+      
+networks:
+  backend-network:
+    driver: bridge 
+
 volumes:
   weaviate_data:
 ...
