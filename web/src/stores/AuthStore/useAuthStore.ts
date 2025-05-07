@@ -88,6 +88,12 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
             return true;
         }
 
+        if(error === "no_account"){
+            toast.error("An account with this email doesn't exist. Please sign up.")
+            window.history.replaceState({}, '', window.location.pathname);
+            return true;
+        }
+
         return false;
     },
 
