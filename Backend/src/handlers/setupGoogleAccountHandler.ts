@@ -75,7 +75,14 @@ export const setupGoogleAccountHandler = async (req: Request, res: Response) => 
     // Generate token and send success response
     generateToken(newUser._id, res);
     res.status(200).json({
-      message: "Account setup complete",
+      _id: newUser._id,
+      username: newUser.username,
+      email: newUser.email,
+      profilePicture: newUser.profilePicture,
+      bio: newUser.bio,
+      friends: newUser.friends,
+      posts: newUser.posts, 
+      friendRequests: newUser.friendRequests
     });
   } catch (error) {
     console.error("Error in setup:", error);

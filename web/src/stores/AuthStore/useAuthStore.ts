@@ -19,7 +19,8 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
     socket: null,
     onlineUsers: [],
     token: "",
-    authChecked: false, // Add this to track if auth has been checked
+    authChecked: false,
+    isSettingUp: false,
 
     signup: async (data) => {
         set({isSigningUp: true})
@@ -286,5 +287,34 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
         } finally {
             toast.success("Account deleted Successfully!");
         }
-    }
+    },
+
+    setupGoogleAccount: async (data) => {
+        set({ isSettingUp: true });
+        try {
+          const response = await axiosInstance.post('/user/setup-google-account', data, {
+            withCredentials: true
+          });
+          set({ authUser: response.data });
+          toast.success('Account setup complete!');
+          await get().getToken();
+          get().connectSocket();
+        } catch (error) {
+          if (error instanceof AxiosError && error.response?.data?.msg) {
+            toast.error(error.response.data.msg);
+          } else {
+            toast.error('Failed to complete setup');
+          }
+          throw error;
+        } finally {
+          set({ isSettingUp: false });
+        }
+      },
+      
+      checkSetupSession: async () => {
+        const response = await axiosInstance.get('/user/check-setup-session', {
+          withCredentials: true
+        });
+        return response.data.email;
+      },
 }))

@@ -57,7 +57,7 @@ function App() {
   const authenticated = useRef(false)
   const adminInitialized = useRef(false)
   const adminAuthenticated = useRef(false)
-  const noNavbarPaths = ['/', '/signin', '/signup', '/verify-email'];
+  const noNavbarPaths = ['/', '/signin', '/signup', '/verify-email', '/set-up-account'];
   const shouldShowNavbar = !noNavbarPaths.includes(location.pathname);
   
   // Save current path before navigating to auth pages
@@ -212,7 +212,7 @@ function App() {
     <div className='bg-gray-100 dark:bg-neutral-950 min-h-screen custom-scrollbar'>
       {authUser && <TimeTracker />}
       <ScrollToTop />
-      {shouldShowNavbar && !isAdminRoute && (
+      {shouldShowNavbar && !isAdminRoute && authUser && (
         <div className='fixed top-0 w-screen z-40'>
           <Navbar />
           <BottomNavigationBar />

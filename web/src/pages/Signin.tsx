@@ -45,7 +45,7 @@ export const Signin = () => {
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full px-4 py-3 dark:bg-gray-600/60 dark:text-gray-100 dark:placeholder:text-gray-400/40 bg-blue-50/50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                className="w-full px-4 py-3 dark:bg-gray-600/60 dark:text-gray-100 dark:placeholder:text-gray-400/40 bg-blue-50/50 border border-gray-200 dark:border-neutral-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                                 placeholder="xyz@gmail.com"
                             />
                         </div>
@@ -58,7 +58,7 @@ export const Signin = () => {
                                     type={showPassword ? "text" : "password"}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full px-4 py-3 bg-blue-50/50 dark:bg-gray-600/60 dark:text-gray-100 dark:placeholder:text-gray-400/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                    className="w-full px-4 py-3 bg-blue-50/50 dark:bg-gray-600/60 dark:text-gray-100 dark:placeholder:text-gray-400/40 border border-gray-200 dark:border-neutral-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                                     placeholder="••••••••"
                                 />
                                 <button
