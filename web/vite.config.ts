@@ -1,6 +1,6 @@
-import path from "path"
-import react from "@vitejs/plugin-react"
-import { defineConfig } from "vite"
+import path from "path";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -11,23 +11,14 @@ export default defineConfig({
     },
   },
   server: {
-    host: true,         // Allow access from outside the container (e.g., localhost)
-    port: 5173,         // Must match docker-compose port
-    strictPort: true,   // Exit if port is taken instead of trying next
+    host: true,
+    port: 5173,
+    strictPort: true,
     watch: {
-      usePolling: true, // Helpful inside Docker sometimes
+      usePolling: true,
     },
   },
   build: {
-    ssr: false,
-    outDir: 'dist'
+    outDir: "dist",
   },
-  ssr: {
-    // Exclude fsevents from SSR bundle
-    external: ['fsevents'],
-    noExternal: ['react-helmet-async']
-  },
-  optimizeDeps: {
-    exclude: ['fsevents']
-  }
-})
+});
