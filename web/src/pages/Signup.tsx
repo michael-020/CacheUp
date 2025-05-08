@@ -71,107 +71,107 @@ export const Signup = () => {
 
     return (
         <motion.div 
-            className="min-h-screen flex items-center justify-center dark:text-white"
+            className="min-h-screen flex items-center justify-center px-3 py-4 sm:px-0 dark:text-white"
             variants={routeVariants}
             initial="initial"
             animate="final"
             exit="exit"
         >
-            <div className="w-full max-w-xl bg-white dark:bg-neutral-700 backdrop-blur-sm rounded-xl shadow-2xl p-6 border border-white/20">
-            <div className="text-center mb-6">
-                <h1 className="text-3xl font-black text-blue-600">Sign Up</h1>
-                <p className="text-gray-600 dark:text-gray-300 mt-2">Join the CacheUp Network</p>
+            <div className="w-full max-w-xl bg-white dark:bg-neutral-700 backdrop-blur-sm rounded-xl shadow-2xl p-4 sm:p-6 border border-white/20">
+            <div className="text-center mb-4 sm:mb-6">
+                <h1 className="text-2xl sm:text-3xl font-black text-blue-600">Sign Up</h1>
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mt-1 sm:mt-2">Join the CacheUp Network</p>
             </div>
     
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                 {/* Name */}
                 <div>
-                    <label className="text-gray-600 dark:text-gray-200 text-sm font-medium">Full Name</label>
+                    <label className="text-gray-600 dark:text-gray-200 text-xs sm:text-sm font-medium">Full Name</label>
                     <input
                     type="text"
                     {...register("name")}
                     placeholder="Enter your name"
-                    className="w-full px-4 py-2.5 bg-blue-50/50 dark:bg-gray-600/60 dark:placeholder:text-gray-400/40 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 mt-1 text-sm bg-blue-50/50 dark:bg-gray-600/60 dark:placeholder:text-gray-400/40 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
                     {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name.message}</p>}
                 </div>
     
                 {/* Username */}
                 <div>
-                    <label className="text-gray-600 dark:text-gray-200 text-sm font-medium">Username</label>
+                    <label className="text-gray-600 dark:text-gray-200 text-xs sm:text-sm font-medium">Username</label>
                     <input
                     type="text"
                     {...register("username")}
                     placeholder="Choose a username"
-                    className="w-full px-4 py-2.5 bg-blue-50/50 dark:bg-gray-600/60 dark:placeholder:text-gray-400/40 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 mt-1 text-sm bg-blue-50/50 dark:bg-gray-600/60 dark:placeholder:text-gray-400/40 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
                     {errors.username && <p className="text-red-400 text-xs mt-1">{errors.username.message}</p>}
                 </div>
 
-                {/* Password */}
-                <div className="relative">
-                    <label className="text-gray-600 dark:text-gray-200 text-sm font-medium">Password</label>
-                    <div className="relative">
-                    <input
-                        type={showPassword ? "text" : "password"}
-                        {...register("password")}
-                        placeholder="Create password"
-                        className="w-full px-4 py-2.5 bg-blue-50/50 dark:bg-gray-600/60 dark:placeholder:text-gray-400/40 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    />
-                    <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-3.5 text-gray-500 dark:text-gray-400"
-                    >
-                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                    </div>
-                    {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password.message}</p>}
-                </div>
-    
                 {/* Email */}
                 <div>
-                    <label className="text-gray-600 dark:text-gray-200 text-sm font-medium">Email</label>
+                    <label className="text-gray-600 dark:text-gray-200 text-xs sm:text-sm font-medium">Email</label>
                     <input
                     type="email"
                     {...register("email")}
                     readOnly
                     placeholder="xyz@gmail.com"
-                    className="w-full px-4 py-2.5 bg-blue-50/50 dark:bg-gray-600/60 dark:placeholder:text-gray-400/40 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 mt-1 text-sm bg-blue-50/50 dark:bg-gray-600/60 dark:placeholder:text-gray-400/40 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
                     {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
                 </div>
                 
+                {/* Password */}
+                <div className="relative">
+                    <label className="text-gray-600 dark:text-gray-200 text-xs sm:text-sm font-medium">Password</label>
+                    <div className="relative mt-1">
+                    <input
+                        type={showPassword ? "text" : "password"}
+                        {...register("password")}
+                        placeholder="Create password"
+                        className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-blue-50/50 dark:bg-gray-600/60 dark:placeholder:text-gray-400/40 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                    <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400"
+                    >
+                        {showPassword ? <EyeOff size={16} className="sm:w-[18px] sm:h-[18px]" /> : <Eye size={16} className="sm:w-[18px] sm:h-[18px]" />}
+                    </button>
+                    </div>
+                    {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password.message}</p>}
+                </div>
+    
                 {/* Confirm Password */}
                 <div className="relative">
-                    <label className="text-gray-600 dark:text-gray-200 text-sm font-medium">Confirm Password</label>
-                    <div className="relative">
+                    <label className="text-gray-600 dark:text-gray-200 text-xs sm:text-sm font-medium">Confirm Password</label>
+                    <div className="relative mt-1">
                     <input
                         type={showConfirmPassword ? "text" : "password"}
                         {...register("confirmPassword")}
                         placeholder="Confirm password"
-                        className="w-full px-4 py-2.5 bg-blue-50/50 dark:bg-gray-600/60 dark:placeholder:text-gray-400/40 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-blue-50/50 dark:bg-gray-600/60 dark:placeholder:text-gray-400/40 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
                     <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-3.5 text-gray-500 dark:text-gray-400"
+                        className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400"
                     >
-                        {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        {showConfirmPassword ? <EyeOff size={16} className="sm:w-[18px] sm:h-[18px]" /> : <Eye size={16} className="sm:w-[18px] sm:h-[18px]" />}
                     </button>
                     </div>
                     {errors.confirmPassword && <p className="text-red-400 text-xs mt-1">{errors.confirmPassword.message}</p>}
                 </div>
                 </div>
     
-                <div className="pt-3">
+                <div className="pt-2 sm:pt-3">
                 <button
                     type="submit"
                     disabled={isSigningUp}
-                    className={`w-full py-3 ${isSigningUp ? "bg-blue-800": " bg-blue-600 hover:bg-blue-700"} dark:text-gray-200  text-white font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all shadow-md`}
+                    className={`w-full py-2 sm:py-3 ${isSigningUp ? "bg-blue-800": " bg-blue-600 hover:bg-blue-700"} dark:text-gray-200 text-white text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all shadow-md`}
                 >
-                    {isSigningUp ? <div className="flex items-center justify-center"> <Loader className="animate-spin self-center" /> </div>: 'Submit'}
+                    {isSigningUp ? <div className="flex items-center justify-center"> <Loader className="animate-spin self-center w-4 h-4 sm:w-5 sm:h-5" /> </div>: 'Submit'}
                 </button>
                 </div>
             </form>
