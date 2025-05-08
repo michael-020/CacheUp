@@ -229,7 +229,7 @@ function App() {
       
         <Routes>
           {/* User Routes */}
-          <Route path="/signup" element={ <Signup /> } />
+          <Route path="/signup" element={inputEmail ? <Signup /> : <Navigate to="/verify-email"/>} />
           <Route path="/set-up-account" element={<SetupAccount />} />
           <Route path="/signin" element={!authUser ? <Signin /> : <Navigate to={userLastPath || "/home"} />} />
           <Route path='/' element={!authUser ? <Landing /> : <Navigate to={userLastPath || "/home"} />} />
