@@ -463,6 +463,30 @@ friendHandler.get("/suggestions", async (req: Request, res: Response) => {
       }));
     }
 
+    if (suggestions.length === 0) {
+      const randomUsers = await userModel.aggregate([
+        { $match: { _id: { $nin: excludeUserIds } } },
+        { $sample: { size: 5 } },
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            username: 1,
+            profilePicture: 1,
+            department: 1,
+            graduationYear: 1,
+          }
+        }
+      ]);
+  
+      suggestions = randomUsers.map(user => ({
+        ...user,
+        mutualFriends: 0
+      }));
+    }
+  
+ 
+
     if (suggestions.length < limit) {
       const suggestionIds = new Set(suggestions.map(s => s._id.toString()));
 
