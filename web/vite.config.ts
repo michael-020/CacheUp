@@ -19,10 +19,8 @@ export default defineConfig({
     },
   },
   build: {
-    ssr: true,
-    rollupOptions: {
-      input: './server/index.js',
-    },
+    ssr: false,
+    outDir: 'dist'
   },
   ssr: {
     // Exclude fsevents from SSR bundle
