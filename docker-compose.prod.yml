@@ -2,9 +2,9 @@
 services:
   backend:
     build:
-      context: ./backend
+      context: ./Backend
       dockerfile: Dockerfile.backend.prod
-    env_file: ./backend/.env
+    env_file: ./Backend/.env
     ports:
       - "3000:3000"
     restart: unless-stopped

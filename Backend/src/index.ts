@@ -14,6 +14,15 @@ import app, { server } from "./websockets";
 import forumsRouter from "./routes/forums";
 import authRouter from "./routes/auth";
 import session from "express-session";
+import { RedisStore } from "connect-redis";
+import connectRedis from 'connect-redis';
+import Redis from 'ioredis';
+
+const RedisStore = connectRedis(session);
+const redisClient = new Redis({
+  host: 'localhost', // or your Docker container name if using Docker Compose
+  port: 6379,
+});
 
 app.use(cors({
     origin: [process.env.FRONTEND_URL as string, "http://localhost:3001"],
@@ -23,17 +32,19 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
 
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    httpOnly: true,
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
-  }
-}));
+app.use(
+    session({
+        store: new RedisStore({ client: redisClient }),
+        secret: process.env.SESSION_SECRET as string,
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+          secure: false, // set to true if using HTTPS
+          httpOnly: true,
+          maxAge: 1000 * 60 * 60 * 24, // 1 day
+        },
+    })
+);
 
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/admin", adminRouter);
