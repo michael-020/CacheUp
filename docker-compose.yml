@@ -22,7 +22,7 @@ services:
       ENABLE_MODULES: ''
       CLUSTER_HOSTNAME: 'node1'
 
-  transformer_api:
+  python-service:
     build:
       context: ./python_server
       dockerfile: Dockerfile

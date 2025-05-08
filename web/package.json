@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "build:server": "tsc -p tsconfig.server.json",
-    "start:server": "NODE_ENV=development tsx --tsconfig tsconfig.server.json server/index.ts",
+    "start:server": "cross-env NODE_ENV=development tsx --tsconfig tsconfig.server.json server/index.ts",
     "serve": "cross-env NODE_ENV=production node dist/server/index.js"
   },
   "dependencies": {

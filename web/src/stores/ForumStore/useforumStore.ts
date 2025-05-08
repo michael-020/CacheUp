@@ -569,7 +569,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   watchThread : async (threadId: string) => {
     try{
       const response = await axiosInstance.put(`/forums/watch-thread/${threadId}`)
-      const toastMessage = response.data.msg === "Subscribed" ? set({ isWatched : true}) : set({  isWatched: false })
+      const toastMessage = response.data.msg === "Subscirbed" ? set({ isWatched : true}) : set({  isWatched: false })
       if(typeof(toastMessage) !== "string")
         return
       toast.success(toastMessage)
