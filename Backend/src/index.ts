@@ -32,7 +32,7 @@ app.use(session({
 }));
 
 app.use(cors({
-    origin: [process.env.FRONTEND_URL as string, "http://localhost:3001"],
+    origin: [process.env.FRONTEND_URL as string, "http://localhost:5173", process.env.WEB_URL as string],
     credentials: true
 }));
 app.use(express.json({ limit: '50mb' }));
