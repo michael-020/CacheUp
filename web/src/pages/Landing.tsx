@@ -14,7 +14,7 @@ export const Landing = () => {
             <div className="flex justify-center items-center">
               <img src="/favicon.svg" className="size-10" />
               <h1 className="font-extrabold text-2xl text-blue-600">
-                CacheUp
+                CacheUpp
               </h1>
             </div>
             <div className="flex items-center gap-4">
@@ -299,7 +299,7 @@ export const Landing = () => {
               <div className="flex items-center gap-2 mb-4">
                 <img src="/favicon.svg" className="size-10" />
                 <h1 className="font-extrabold text-2xl text-blue-600">
-                  CacheUp
+                  CacheUpp
                 </h1>
               </div>
               <p className="text-gray-600 dark:text-gray-400 mb-4">
@@ -451,7 +451,7 @@ export const Landing = () => {
           </div>
 
           <div className="border-t border-gray-200 dark:border-gray-800 mt-12 pt-8 text-center text-gray-500 dark:text-gray-400">
-            <p>© {new Date().getFullYear()} CacheUp. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} CacheUpp. All rights reserved.</p>
           </div>
         </div>
       </footer>

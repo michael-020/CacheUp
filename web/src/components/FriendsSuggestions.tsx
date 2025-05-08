@@ -18,6 +18,7 @@ const FriendSuggestions = () => {
     refreshSuggestions 
   } = useFriendsStore();
   const [processingUsers, setProcessingUsers] = useState<string[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     fetchSuggestions();
@@ -48,33 +49,47 @@ const FriendSuggestions = () => {
     ignoreSuggestion(userId);
   };
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await refreshSuggestions();
+    } finally {
+      setTimeout(() => {
+        setIsRefreshing(false);
+      }, 500); // Small delay to ensure UI consistency
+    }
+  };
+
   const cardClasses = "shadow-sm border border-gray-200 dark:border-neutral-800";
 
-  if (loading) {
+  if (loading || isRefreshing) {
     return (
-      <Card className={`${cardClasses} w-full lg:w-[250px] xl:w-[350px]`}>
-        <CardHeader className="pb-3 px-3 sm:px-4">
+      <Card className={`${cardClasses} w-full lg:w-[250px] xl:w-[300px]`}>
+        <CardHeader className="pb-2 px-3 sm:px-4">
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-sm">
+            <CardTitle className="flex items-center gap-1 text-sm">
               <Users className="h-4 w-4" />
               Friend Suggestions
             </CardTitle>
             <Button variant="ghost" size="icon" className="h-7 w-7 opacity-50" disabled>
-              <RefreshCw className="h-3 w-3" />
+              <RefreshCw className="h-3 w-3 animate-spin" />
             </Button>
           </div>
           <CardDescription className="text-xs">People you might know</CardDescription>
         </CardHeader>
-        <CardContent className="px-3 sm:px-4 py-2">
-          <div className="space-y-3">
+        <CardContent className="p-2 sm:p-3">
+          <div className="space-y-2 max-h-[calc(100vh-220px)] overflow-y-auto pr-1 custom-scrollbar">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="flex items-center gap-2">
+              <div key={i} className="flex items-center gap-2 p-2 rounded-md">
                 <Skeleton className="h-10 w-10 rounded-full bg-gray-200 dark:bg-neutral-700" />
-                <div className="flex-1">
+                <div className="flex-1 min-w-0 pr-1">
                   <Skeleton className="h-4 w-24 mb-1 bg-gray-200 dark:bg-neutral-700" />
                   <Skeleton className="h-3 w-16 bg-gray-200 dark:bg-neutral-700" />
                 </div>
-                <Skeleton className="h-8 w-10 rounded-md bg-gray-200 dark:bg-neutral-700" />
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <Skeleton className="h-7 w-9 rounded-md bg-gray-200 dark:bg-neutral-700" />
+                  <Skeleton className="h-7 w-7 rounded-md bg-gray-200 dark:bg-neutral-700" />
+                </div>
               </div>
             ))}
           </div>
@@ -86,19 +101,20 @@ const FriendSuggestions = () => {
   if (suggestions.length === 0) {
     return (
       <Card className={`${cardClasses} w-full lg:w-[250px] xl:w-[300px]`}>
-        <CardHeader className="pb-3 px-3 sm:px-4">
+        <CardHeader className="pb-2 px-3 sm:px-4">
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-sm">
+            <CardTitle className="flex items-center gap-1 text-sm">
               <Users className="h-4 w-4" />
               Friend Suggestions
             </CardTitle>
             <Button 
-              onClick={refreshSuggestions}
+              onClick={handleRefresh}
               variant="ghost" 
               size="icon" 
               className="h-7 w-7"
+              disabled={isRefreshing}
             >
-              <RefreshCw className="h-3 w-3" />
+              <RefreshCw className={`h-3 w-3 ${isRefreshing ? 'animate-spin' : ''}`} />
             </Button>
           </div>
           <CardDescription className="text-xs">People you might know</CardDescription>
@@ -107,12 +123,13 @@ const FriendSuggestions = () => {
           <div className="text-center py-4">
             <p className="text-gray-500 text-xs mb-3">No more suggestions available at the moment</p>
             <Button 
-              onClick={refreshSuggestions} 
+              onClick={handleRefresh} 
               variant="outline" 
               size="sm" 
               className="flex items-center gap-1 text-xs h-8"
+              disabled={isRefreshing}
             >
-              <RefreshCw className="h-3 w-3" />
+              <RefreshCw className={`h-3 w-3 ${isRefreshing ? 'animate-spin' : ''}`} />
               Refresh Suggestions
             </Button>
           </div>
@@ -130,13 +147,14 @@ const FriendSuggestions = () => {
             Friend Suggestions
           </CardTitle>
           <Button 
-            onClick={refreshSuggestions} 
+            onClick={handleRefresh} 
             variant="ghost" 
             size="icon" 
             className="h-7 w-7 transition-all hover:bg-gray-100 dark:hover:bg-neutral-800"
             title="Refresh suggestions"
+            disabled={isRefreshing}
           >
-            <RefreshCw className="h-3 w-3" />
+            <RefreshCw className={`h-3 w-3 ${isRefreshing ? 'animate-spin' : ''}`} />
           </Button>
         </div>
         <CardDescription className="text-xs">People you might know</CardDescription>

@@ -94,7 +94,7 @@ export const Navbar = () => {
             <div className="flex items-center justify-center select-none translate-x-20">
               <img src="/favicon.svg" className="size-10" />
               <h1 className="font-extrabold text-2xl text-blue-600">
-                CacheUp
+                CacheUpp
               </h1>
             </div>
           </button>

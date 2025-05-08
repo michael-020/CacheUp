@@ -11,15 +11,7 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  server: {
-    host: true,
-    port: 5173,
-    strictPort: true,
-    watch: {
-      usePolling: true,
-    },
-  },
   build: {
-    outDir: "dist",
+    outDir: 'dist', 
   },
-});
+})
