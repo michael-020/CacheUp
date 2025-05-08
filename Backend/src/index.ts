@@ -16,6 +16,9 @@ import authRouter from "./routes/auth";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 
+// Add before session middleware
+app.set('trust proxy', 1);
+
 // Initialize session middleware before other middleware
 app.use(session({
     secret: process.env.SESSION_SECRET || 'your-secret-key',
