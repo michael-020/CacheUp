@@ -8,8 +8,6 @@ export function cn(...inputs: ClassValue[]) {
 
 export const HTTP_URL=`${import.meta.env.VITE_API_URL}/api/v1`
 
-export const WS_URL = "ws://localhost:4000" 
-
 export function formatMessageTime(date: Date) {
   return new Date(date).toLocaleTimeString("en-US", {
     hour: "2-digit",
