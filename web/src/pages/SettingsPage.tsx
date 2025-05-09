@@ -396,7 +396,7 @@ export default function SettingsPage() {
 
         {/* Footer */}
         <div className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
-          <p>Campus Connect &copy; {new Date().getFullYear()}</p>
+          <p>CacheUpp &copy; {new Date().getFullYear()}</p>
           <DeleteModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} deleteHandler={handleDeleteAccount} content="Delete Account?" />
           {/* <div className="mt-2 flex justify-center space-x-4">
             <a href="#" className="hover:text-blue-500 transition">

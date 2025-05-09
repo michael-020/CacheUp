@@ -74,7 +74,7 @@ const GuidelinesModal: FC<GuidelinesModalProps> = ({ isOpen, onClose }) => {
       rules: [
         {
           title: "No Selling or Crowdfunding",
-          desc: "Campus Connect isn't a marketplace. No selling, fundraising, or asking for money. Break this = permaban.",
+          desc: "CacheUpp isn't a marketplace. No selling, fundraising, or asking for money. Break this = permaban.",
           priority: "medium"
         },
         {
@@ -175,7 +175,7 @@ const GuidelinesModal: FC<GuidelinesModalProps> = ({ isOpen, onClose }) => {
         <div className="flex items-center justify-between p-5 border-b dark:border-neutral-700 sticky top-0 bg-white dark:bg-neutral-800 z-10">
           <h2 className="text-2xl font-bold dark:text-white flex items-center">
             <Shield className="w-6 h-6 mr-2 text-blue-600 dark:text-blue-400" />
-            Campus Connect Community Guidelines
+            CacheUpp Community Guidelines
           </h2>
           <button
             onClick={onClose}
