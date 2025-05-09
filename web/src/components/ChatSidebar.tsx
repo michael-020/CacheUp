@@ -92,7 +92,7 @@ const ChatSidebar = () => {
                       <div className="font-medium truncate flex items-center justify-between">
                         <span>{user.username}</span>
                         {unreadCount > 0 && (
-                          <span className="ml-2 md:relative absolute bg-blue-600 text-white text-xs font-semibold rounded-full px-2 py-0.5 min-w-5 text-center">
+                          <span className="ml-2 hidden md:block md:relative absolute bg-blue-600 text-white text-xs font-semibold rounded-full px-2 py-0.5 min-w-5 text-center">
                             {"+" + unreadCount}
                           </span>
                         )}
@@ -104,9 +104,9 @@ const ChatSidebar = () => {
                     
                     {/* Show unread count badge in mobile view */}
                     {unreadCount > 0 && (
-                      <div className="absolute top-1 right-1 lg:hidden">
+                      <div className="absolute top-1 right-1 md:hidden">
                         <span className="bg-blue-600 text-white text-xs font-semibold rounded-full px-1.5 py-0.5 min-w-4 text-center">
-                          {unreadCount}
+                          {"+" + unreadCount}
                         </span>
                       </div>
                     )}
