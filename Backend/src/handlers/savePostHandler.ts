@@ -36,7 +36,7 @@ savePostHandler.get("/", async (req: Request, res: Response) => {
       const savedPosts = await postModel.find({ savedBy: userId }).sort({ createdAt: -1 }).lean()
   
       const postsWithFlags = savedPosts.map((post: any) => ({
-        ...post._doc,
+        ...post,
         isLiked: post.likes.includes(userId),
         isSaved: true, // Force true since these are saved posts
       }));
