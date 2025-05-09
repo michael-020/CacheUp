@@ -248,7 +248,6 @@ function App() {
           <Route path="/change-password" element={<ChangePassword /> } />
           <Route path="/saved-posts" element={<SavedPostsPage />} />
           <Route path="/friends/:id" element={<ViewFriends /> }/>
-
           {/* Admin Routes */}
           <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to={adminLastPath || "/admin/home"} /> } />
           <Route path="/admin/home" element={authAdmin ? <AdminHome /> : <Navigate to="/admin/signin" />} />
