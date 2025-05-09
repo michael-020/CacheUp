@@ -34,17 +34,31 @@ app.use(session({
         httpOnly: true,
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         domain: process.env.NODE_ENV === 'production' ? '.cacheupp.com' : undefined,
-        maxAge: 24 * 60 * 60 * 1000 // 1 day in milliseconds
+        maxAge: 24 * 60 * 60 * 1000, // 1 day in milliseconds
+        path: '/'
     },
     proxy: process.env.NODE_ENV === 'production' // Trust the reverse proxy
 }));
 
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Set-Cookie');
+    next();
+});
+
 // CORS configuration must come after session middleware
 app.use(cors({
-    origin: [process.env.FRONTEND_URL as string, "http://localhost:5173", process.env.WEB_URL as string],
+    origin: [
+        'https://cacheupp.com',
+        'https://cache-up-ten.vercel.app', 
+        'http://localhost:5173'
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Set-Cookie']
+    allowedHeaders: ['Content-Type', 'Authorization', 'Set-Cookie', 'Origin'],
+    exposedHeaders: ['Set-Cookie'],
+    preflightContinue: true,
+    maxAge: 86400, // 24 hours in seconds
 }));
 
 app.use(express.json({ limit: '100mb' }));
