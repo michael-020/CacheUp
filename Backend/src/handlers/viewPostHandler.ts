@@ -31,11 +31,11 @@ viewPostHandler.get("/", async (req: Request, res: Response) => {
             return;
         }
 
-        const processedPosts = userId ? 
+        const processedPosts =
             allPosts.map(post => {
-                const isReported = post.reportedBy.map(id => id).includes(userId);
-                const isLiked = post.likes.map(id => id).includes(userId);
-                const isSaved = post.savedBy.map(id => id).includes(userId);
+                const isReported = post.reportedBy.some(id => String(id) === String(userId));
+                const isLiked = post.likes.some(id => String(id) === String(userId));
+                const isSaved = post.savedBy.some(id => String(id) === String(userId));
                 return {
                     ...post,
                     isReported,
@@ -44,13 +44,7 @@ viewPostHandler.get("/", async (req: Request, res: Response) => {
                     isLiked,
                     isSaved
                 };
-            }) : 
-            allPosts.map(post => ({
-                ...post,
-                isReported: false,
-                isLiked: false,
-                isSaved: false
-            }));
+            }) 
 
         const hasMore = totalPosts > skip + allPosts.length;
 

@@ -53,8 +53,8 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Set-Cookie', 'Origin'],
     exposedHeaders: ['Set-Cookie'],
-    preflightContinue: true,
-    maxAge: 86400, // 24 hours in seconds
+    preflightContinue: false,
+    optionsSuccessStatus: 200
 }));
 
 app.use(express.json({ limit: '100mb' }));
