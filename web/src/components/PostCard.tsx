@@ -36,6 +36,8 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
   const navigate = useNavigate();
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [loginPromptAction, setLoginPromptAction] = useState<'like' | 'save' | 'comment'>('like');
+  const likesRef = useRef<HTMLDivElement>(null);
+  const commentsRef = useRef<HTMLDivElement>(null);
   
   // Local state for tracking post properties
   const [localPost, setLocalPost] = useState<Post>(post);
@@ -46,6 +48,26 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
   }, [post]);
 
   const comments = post.comments
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (showLikes && likesRef.current && !likesRef.current.contains(e.target as Node)) {
+        setShowLikes(false);
+      }
+      
+      if (showCommentInput && commentsRef.current && !commentsRef.current.contains(e.target as Node)) {
+        setShowCommentInput(false);
+      }
+    };
+
+    if (showLikes || showCommentInput) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showLikes, showCommentInput]);
 
   const fetchLikedUsers = async (postId: string) => {
     if (showLikes) {
@@ -398,6 +420,7 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
 
         {/* Likes Modal */}
         <div 
+            ref={likesRef}
           className={`transition-all duration-300 ease-in-out overflow-hidden ${
             showLikes ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
           }`}
@@ -448,7 +471,8 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
         </div>
 
         {/* Comment Section */}
-        <div 
+        <div
+            ref={commentsRef} 
           className={`transition-all duration-300 ease-in-out overflow-hidden border border-gray-200 dark:border-neutral-700 rounded-lg mt-4 pb-2 ${
             showCommentInput ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
           }`}
