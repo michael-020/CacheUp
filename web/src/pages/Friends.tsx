@@ -11,7 +11,7 @@ import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import SignInNavigation from "@/components/SignInNavigation";
 
 const FriendsPage = () => {
-  const [activeTab, setActiveTab] = useState("users");
+  const [activeTab, setActiveTab] = useState("friends");
   const [searchTerm, setSearchTerm] = useState("");
   const { authUser } = useAuthStore();
   const { 
