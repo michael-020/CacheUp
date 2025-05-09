@@ -160,7 +160,7 @@ function App() {
       
       const interval = setInterval(() => {
         fetchRequests();
-      }, 12000);
+      }, 1000*180);
 
       return () => clearInterval(interval);
     }
