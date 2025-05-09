@@ -409,7 +409,7 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
                 fetchLikedUsers(localPost._id);
               }}
             >
-              {localPost.likes.length}
+              {localPost?.likes?.length || 0}
             </span>
           </button>
 
