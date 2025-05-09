@@ -27,11 +27,12 @@ export const uploadPostsHandler = async (req: Request, res: Response) => {
       const sizeInMB = base64Size / (1024 * 1024);
       
       if (sizeInMB > 10) { // 10MB limit
-        return res.status(413).json({
+        res.status(413).json({
           msg: "Image size should not exceed 10MB"
         });
+        return
       }
-      
+
       const uploadResponse = await cloudinary.uploader.upload(image, {
         folder: "Post_Images", 
         transformation: [
