@@ -159,16 +159,33 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
     }
   };
   
-  const handleCommentSubmit = () => {
+  const handleCommentSubmit = async () => {
     if (!authUser) {
       setLoginPromptAction('comment');
       setShowLoginPrompt(true);
       return;
     }
-    addComment(post._id, commentText);
-    setCommentText("");
+    
+    try {
+      await addComment(post._id, commentText);
+      
+      const updatedPosts = usePostStore.getState().posts;
+      const updatedPost = updatedPosts.find(p => p._id === post._id);
+      
+      if (updatedPost) {
+        setLocalPost(updatedPost);
+        
+        if (onPostUpdate) {
+          onPostUpdate(updatedPost);
+        }
+      }
+      
+      setCommentText("");
+    } catch (error) {
+      console.error("Error adding comment:", error);
+    }
   };
-  
+
   const prepareCommentDelete = (postId: string, commentId: string) => {
     setCommentToDelete({ postId, commentId });
     setIsCommentModalOpen(true);
