@@ -91,7 +91,7 @@ export const Navbar = () => {
         {/* Logo/Title - Always visible */}
         <div className="flex-shrink-0">
           <button onClick={handleLogoClick}>
-            <div className="flex items-center justify-center select-none translate-x-20">
+            <div className="flex items-center justify-center select-none sm:translate-x-20">
               <img src="/favicon.svg" className="size-10" />
               <h1 className="font-extrabold text-2xl text-blue-600">
                 CacheUpp
