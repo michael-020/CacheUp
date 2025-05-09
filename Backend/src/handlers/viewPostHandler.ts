@@ -33,9 +33,9 @@ viewPostHandler.get("/", async (req: Request, res: Response) => {
 
         const processedPosts = userId ? 
             allPosts.map(post => {
-                const isReported = post.reportedBy.map(id => id.toString()).includes(userId.toString());
-                const isLiked = post.likes.map(id => id.toString()).includes(userId.toString());
-                const isSaved = post.savedBy.map(id => id.toString()).includes(userId.toString());
+                const isReported = post.reportedBy.map(id => id).includes(userId);
+                const isLiked = post.likes.map(id => id).includes(userId);
+                const isSaved = post.savedBy.map(id => id).includes(userId);
                 return {
                     ...post,
                     isReported,
@@ -85,9 +85,9 @@ viewPostHandler.get("/get-post/:postId", async (req: Request, res: Response) => 
             return;
         }
 
-        const isReported = post.reportedBy.map(id => id.toString()).includes(userId.toString());
-        const isLiked = post.likes.map(id => id.toString()).includes(userId.toString());
-        const isSaved = post.savedBy.map(id => id.toString()).includes(userId.toString());
+        const isReported = post.reportedBy.map(id => id).includes(userId);
+        const isLiked = post.likes.map(id => id).includes(userId);
+        const isSaved = post.savedBy.map(id => id).includes(userId);
 
         const processedPost = {
             ...post,
@@ -127,7 +127,7 @@ viewPostHandler.get("/myPosts", async (req: Request, res: Response) => {
         }
 
         const processedPosts = posts.map(post => {
-            const isLiked = post.likes.map(id => id.toString()).includes(userId.toString());
+            const isLiked = post.likes.map(id => id).includes(userId);
             
             return {
                 ...post,
@@ -171,7 +171,7 @@ viewPostHandler.get("/:id", async (req: Request, res: Response) => {
         }
 
         const processedPosts = posts.map(post => {
-            const isLiked = post.likes.map(id => id.toString()).includes(currentUserId.toString());
+            const isLiked = post.likes.map(id => id).includes(currentUserId);
             
             return {
                 ...post,
