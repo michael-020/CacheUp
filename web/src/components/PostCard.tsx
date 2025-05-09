@@ -201,11 +201,21 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
   const handleReportToggle = async (postId: string) => {
     try {
       if (localPost.isReported) {
-        unReportPost(postId);
+        await unReportPost(postId);
       } else {
-        reportPost(postId);
+        await reportPost(postId);
       }
       
+      const updatedPost = { 
+        ...localPost, 
+        isReported: !localPost.isReported
+      };
+      
+      setLocalPost(updatedPost);
+      
+      if (onPostUpdate) {
+        onPostUpdate(updatedPost);
+      }
     } catch (error) {
       console.error("Report action failed:", error);
     }
@@ -296,32 +306,32 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
             </button>
 
             {showReport && (
-            <div className="bg-white border border-gray-200 dark:bg-neutral-600 dark:border-0 rounded-lg shadow-xl z-[5] overflow-hidden w-48 absolute">
-              {(localPost.postedBy === authUser?._id || isAdmin) && (
-                <button
-                  onClick={() => setIsModalOpen(!isModalOpen)}
-                  className="w-full px-4 py-2.5 text-sm text-left flex items-center justify-between text-red-600 hover:bg-red-50 transition-colors duration-150"
-                >
-                  <span>Delete Post</span>
-                  <Trash className="size-4" />
-                </button>
+                <div className="bg-white border border-gray-200 dark:bg-neutral-600 dark:border-0 rounded-lg shadow-xl z-[5] overflow-hidden w-48 absolute right-0 sm:right-0 md:right-0 top-full mt-1">
+                  {(localPost.postedBy === authUser?._id || isAdmin) && (
+                    <button
+                      onClick={() => setIsModalOpen(!isModalOpen)}
+                      className="w-full px-4 py-2.5 text-sm text-left flex items-center justify-between text-red-600 hover:bg-red-50 transition-colors duration-150"
+                    >
+                      <span>Delete Post</span>
+                      <Trash className="size-4" />
+                    </button>
+                  )}
+                  
+                  {localPost.postedBy !== authUser?._id && !isAdmin && (
+                    <button
+                      onClick={() => handleReportToggle(localPost._id)}
+                      className={`w-full px-4 py-2.5 text-sm text-left flex items-center justify-between
+                        ${localPost.isReported ? "text-red-600 hover:bg-red-50" : "text-gray-700 hover:bg-gray-50"}
+                        transition-colors duration-150`}
+                    >
+                      <span>{localPost.isReported ? "Unreport Post" : "Report Post"}</span>
+                      <span className="text-xs font-medium text-gray-400">
+                        {/* {localPost.reportCount || 0} */}
+                      </span>
+                    </button>
+                  )}
+                </div>
               )}
-              
-              {localPost.postedBy !== authUser?._id && !isAdmin && (
-                <button
-                  onClick={() => handleReportToggle(localPost._id)}
-                  className={`w-full px-4 py-2.5 text-sm text-left flex items-center justify-between
-                    ${localPost.isReported ? "text-red-600 hover:bg-red-50" : "text-gray-700 hover:bg-gray-50"}
-                    transition-colors duration-150`}
-                >
-                  <span>{localPost.isReported ? "Unreport Post" : "Report Post"}</span>
-                  <span className="text-xs font-medium text-gray-400">
-                    {localPost.reportCount || 0}
-                  </span>
-                </button>
-              )}
-            </div>
-          )}
                 </div>
               </div>
 
