@@ -329,6 +329,13 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
             toast.dismiss(toastId);
         });
         set({ activeToasts: new Map() });
-    }
+    },
 
+    addUserToContacts: (user: IUser) => {
+        const { users } = get();
+        // Check if user already exists in contacts
+        if (!users.some(u => u._id === user._id)) {
+            set({ users: [...users, user] });
+        }
+    }
 }))

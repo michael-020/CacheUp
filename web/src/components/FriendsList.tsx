@@ -24,7 +24,7 @@ const FriendsList = ({ searchTerm }: FriendsListProps) => {
     loading, 
     removeFriend, 
   } = useFriendsStore();
-  const { setSelectedUser } = useChatStore()
+  const { setSelectedUser, addUserToContacts } = useChatStore()
   
   const getInitials = (name: string) => {
     if (!name) return "??";
@@ -148,6 +148,7 @@ const FriendsList = ({ searchTerm }: FriendsListProps) => {
                   asChild
                   onClick={() => {
                     setSelectedUser(friend)
+                    addUserToContacts(friend)
                   }}
                 >
                   <Link to={`/message`}>

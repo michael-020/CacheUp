@@ -32,4 +32,6 @@ export type chatAction = {
     sendNotification: (data: IMessages) => void;
 
     dismissAllToasts: () => void;
+
+    addUserToContacts: (user: IUser) => void;
 }

@@ -17,7 +17,7 @@ interface ProfileCardProps {
 
 export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: ProfileCardProps) => {
   const location = useLocation();
-  const { setSelectedUser } = useChatStore();
+  const { setSelectedUser, addUserToContacts } = useChatStore();
   const [isLoading, setIsLoading] = useState(false);
   const [mutualFriendsCount, setMutualFriendsCount] = useState(0);
   const { authAdmin } = useAdminStore()
@@ -128,7 +128,10 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
       setShowLoginPrompt(true);
       return;
     }
-    setSelectedUser(userInfo);
+    if (userInfo) {
+      setSelectedUser(userInfo);
+      addUserToContacts(userInfo);
+    }
   };
 
   const renderFriendButton = () => {
