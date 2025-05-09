@@ -409,7 +409,7 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
                 fetchLikedUsers(localPost._id);
               }}
             >
-              {localPost.likes.length}
+              {localPost?.likes?.length || 0}
             </span>
           </button>
 
@@ -418,7 +418,7 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
             onClick={() => handleCommentToggle()}
           >
             <MessageSquareText />
-            <span className="ml-2 font-medium">{localPost.comments.length}</span>
+            <span className="ml-2 font-medium">{localPost?.comments?.length || 0}</span>
           </button>
 
           {/* Show save button only if the post is not by the current user */}

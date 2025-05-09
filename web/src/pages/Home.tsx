@@ -11,14 +11,14 @@ export const Home = () => {
 
   return (
     <motion.div  
-      className="relative sm:px-8 bg-gray-100 dark:bg-neutral-950 dark:border-neutral-900"
+      className="relative sm:px-8  bg-gray-100 dark:bg-neutral-950 dark:border-neutral-900"
       variants={routeVariants}
       initial="initial"
       animate="final"
       exit="exit"
     >
       {authUser ? (
-        <div className="max-w-full">
+        <div className="max-w-full pb-28">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
             {/* Left Sidebar - Profile Card */}
             <div className="hidden lg:block lg:col-span-3">
