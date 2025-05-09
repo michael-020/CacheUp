@@ -240,21 +240,11 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
   const handleReportToggle = async (postId: string) => {
     try {
       if (localPost.isReported) {
-        await unReportPost(postId);
+        unReportPost(postId);
       } else {
-        await reportPost(postId);
+        reportPost(postId);
       }
       
-      const updatedPost = { 
-        ...localPost, 
-        isReported: !localPost.isReported
-      };
-      
-      setLocalPost(updatedPost);
-      
-      if (onPostUpdate) {
-        onPostUpdate(updatedPost);
-      }
     } catch (error) {
       console.error("Report action failed:", error);
     }
