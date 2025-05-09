@@ -3,7 +3,7 @@ import HomeIcont from "../icons/HomeIcon";
 import MessageIcon from "../icons/MessageIcon";
 import SettingsIcon from "../icons/SettingsIcon";
 import { useAuthStore } from "../stores/AuthStore/useAuthStore";
-import { Moon, MoreVertical, PlusSquare, Sun} from "lucide-react";
+import { Moon, Menu, PlusSquare, Sun} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useChatStore } from "@/stores/chatStore/useChatStore";
 import { MdOutlineForum } from "react-icons/md";
@@ -192,7 +192,7 @@ export const Navbar = () => {
             className=" p-1.5"
             onClick={() => setDotMenuOpen(!dotMenuOpen)}
           >
-            <MoreVertical className="size-6 text-gray-700 dark:text-gray-300" />
+            <Menu className="size-6 text-gray-700 dark:text-gray-300" />
           </button>
           
           {/* Dot Menu Dropdown */}
