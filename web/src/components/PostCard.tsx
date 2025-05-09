@@ -36,6 +36,8 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
   const navigate = useNavigate();
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [loginPromptAction, setLoginPromptAction] = useState<'like' | 'save' | 'comment'>('like');
+  const likesRef = useRef<HTMLDivElement>(null);
+  const commentsRef = useRef<HTMLDivElement>(null);
   
   // Local state for tracking post properties
   const [localPost, setLocalPost] = useState<Post>(post);
@@ -46,6 +48,26 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
   }, [post]);
 
   const comments = post.comments
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (showLikes && likesRef.current && !likesRef.current.contains(e.target as Node)) {
+        setShowLikes(false);
+      }
+      
+      if (showCommentInput && commentsRef.current && !commentsRef.current.contains(e.target as Node)) {
+        setShowCommentInput(false);
+      }
+    };
+
+    if (showLikes || showCommentInput) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showLikes, showCommentInput]);
 
   const fetchLikedUsers = async (postId: string) => {
     if (showLikes) {
@@ -137,16 +159,33 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
     }
   };
   
-  const handleCommentSubmit = () => {
+  const handleCommentSubmit = async () => {
     if (!authUser) {
       setLoginPromptAction('comment');
       setShowLoginPrompt(true);
       return;
     }
-    addComment(post._id, commentText);
-    setCommentText("");
+    
+    try {
+      await addComment(post._id, commentText);
+      
+      const updatedPosts = usePostStore.getState().posts;
+      const updatedPost = updatedPosts.find(p => p._id === post._id);
+      
+      if (updatedPost) {
+        setLocalPost(updatedPost);
+        
+        if (onPostUpdate) {
+          onPostUpdate(updatedPost);
+        }
+      }
+      
+      setCommentText("");
+    } catch (error) {
+      console.error("Error adding comment:", error);
+    }
   };
-  
+
   const prepareCommentDelete = (postId: string, commentId: string) => {
     setCommentToDelete({ postId, commentId });
     setIsCommentModalOpen(true);
@@ -201,11 +240,21 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
   const handleReportToggle = async (postId: string) => {
     try {
       if (localPost.isReported) {
-        unReportPost(postId);
+        await unReportPost(postId);
       } else {
-        reportPost(postId);
+        await reportPost(postId);
       }
       
+      const updatedPost = { 
+        ...localPost, 
+        isReported: !localPost.isReported
+      };
+      
+      setLocalPost(updatedPost);
+      
+      if (onPostUpdate) {
+        onPostUpdate(updatedPost);
+      }
     } catch (error) {
       console.error("Report action failed:", error);
     }
@@ -296,32 +345,32 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
             </button>
 
             {showReport && (
-            <div className="bg-white border border-gray-200 dark:bg-neutral-600 dark:border-0 rounded-lg shadow-xl z-[5] overflow-hidden w-48 absolute">
-              {(localPost.postedBy === authUser?._id || isAdmin) && (
-                <button
-                  onClick={() => setIsModalOpen(!isModalOpen)}
-                  className="w-full px-4 py-2.5 text-sm text-left flex items-center justify-between text-red-600 hover:bg-red-50 transition-colors duration-150"
-                >
-                  <span>Delete Post</span>
-                  <Trash className="size-4" />
-                </button>
+                <div className="bg-white border border-gray-200 dark:bg-neutral-600 dark:border-0 rounded-lg shadow-xl z-[5] overflow-hidden w-48 absolute right-0 sm:right-0 md:right-0 top-full mt-1">
+                  {(localPost.postedBy === authUser?._id || isAdmin) && (
+                    <button
+                      onClick={() => setIsModalOpen(!isModalOpen)}
+                      className="w-full px-4 py-2.5 text-sm text-left flex items-center justify-between text-red-600 hover:bg-red-50 transition-colors duration-150"
+                    >
+                      <span>Delete Post</span>
+                      <Trash className="size-4" />
+                    </button>
+                  )}
+                  
+                  {localPost.postedBy !== authUser?._id && !isAdmin && (
+                    <button
+                      onClick={() => handleReportToggle(localPost._id)}
+                      className={`w-full px-4 py-2.5 text-sm text-left flex items-center justify-between
+                        ${localPost.isReported ? "text-red-600 hover:bg-red-50" : "text-gray-700 hover:bg-gray-50"}
+                        transition-colors duration-150`}
+                    >
+                      <span>{localPost.isReported ? "Unreport Post" : "Report Post"}</span>
+                      <span className="text-xs font-medium text-gray-400">
+                        {/* {localPost.reportCount || 0} */}
+                      </span>
+                    </button>
+                  )}
+                </div>
               )}
-              
-              {localPost.postedBy !== authUser?._id && !isAdmin && (
-                <button
-                  onClick={() => handleReportToggle(localPost._id)}
-                  className={`w-full px-4 py-2.5 text-sm text-left flex items-center justify-between
-                    ${localPost.isReported ? "text-red-600 hover:bg-red-50" : "text-gray-700 hover:bg-gray-50"}
-                    transition-colors duration-150`}
-                >
-                  <span>{localPost.isReported ? "Unreport Post" : "Report Post"}</span>
-                  <span className="text-xs font-medium text-gray-400">
-                    {localPost.reportCount || 0}
-                  </span>
-                </button>
-              )}
-            </div>
-          )}
                 </div>
               </div>
 
@@ -388,6 +437,7 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
 
         {/* Likes Modal */}
         <div 
+            ref={likesRef}
           className={`transition-all duration-300 ease-in-out overflow-hidden ${
             showLikes ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
           }`}
@@ -438,7 +488,8 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
         </div>
 
         {/* Comment Section */}
-        <div 
+        <div
+            ref={commentsRef} 
           className={`transition-all duration-300 ease-in-out overflow-hidden border border-gray-200 dark:border-neutral-700 rounded-lg mt-4 pb-2 ${
             showCommentInput ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
           }`}
