@@ -2,110 +2,125 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight, MessageSquare, Moon, Search, Share2, Sun, Users,Menu } from "lucide-react";
 import { useThemeStore } from "@/stores/ThemeStore/useThemeStore";
-import { useState } from "react";
+import { useState,useRef,useEffect } from "react";
 
 export const Landing = () => {
   const { isDark, toggleTheme } = useThemeStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const mobileMenuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+  const handleClickOutside = (event: MouseEvent) => {
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
+        setMobileMenuOpen(false);
+      }
+    };
+  if (mobileMenuOpen) {
+    document.addEventListener('mousedown', handleClickOutside);
+  }
+  return () => {
+    document.removeEventListener('mousedown', handleClickOutside);
+  };
+}, [mobileMenuOpen]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-neutral-950 dark:to-neutral-900">
       <nav className="fixed top-0 w-full bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-b border-gray-200 dark:border-neutral-800 z-50">
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div className="flex items-center justify-between h-16">
-      <div className="flex justify-center items-center">
-        <img src="/favicon.svg" className="size-8 sm:size-10" />
-        <h1 className="font-extrabold text-xl sm:text-2xl text-blue-600 ml-2">
-          CacheUpp
-        </h1>
-      </div>
-      
-      {/* Mobile menu button */}
-      <div className="flex md:hidden">
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
-          aria-label="Open menu"
-        >
-          <Menu className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-        </motion.button>
-      </div>
-      
-      {/* Desktop navigation */}
-      <div className="hidden md:flex items-center gap-4">
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={toggleTheme}
-          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
-          aria-label="Toggle theme"
-        >
-          {isDark ? (
-            <Sun className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-          ) : (
-            <Moon className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-          )}
-        </motion.button>
-        <Link 
-          to="/signin"
-          className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
-        >
-          Sign In
-        </Link>
-        <Link 
-          to="/verify-email"
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          Get Started
-        </Link>
-      </div>
-    </div>
-  </div>
-  
-  {/* Mobile menu, show/hide based on menu state */}
-  {mobileMenuOpen && (
-    <motion.div 
-      initial={{ opacity: 0, height: 0 }}
-      animate={{ opacity: 1, height: "auto" }}
-      exit={{ opacity: 0, height: 0 }}
-      className="md:hidden border-t border-gray-200 dark:border-neutral-800"
-    >
-      <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-        <div className="flex justify-center py-3">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={toggleTheme}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
-            aria-label="Toggle theme"
-          >
-            {isDark ? (
-              <Sun className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-            ) : (
-              <Moon className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex justify-center items-center">
+            <img src="/favicon.svg" className="size-8 sm:size-10" />
+            <h1 className="font-extrabold text-xl sm:text-2xl text-blue-600 ml-2">
+              CacheUpp
+            </h1>
+          </div>
+          
+          {/* Mobile menu button - wrapped in ref container */}
+          <div className="flex md:hidden" ref={mobileMenuRef}>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
+              aria-label="Open menu"
+            >
+              <Menu className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+            </motion.button>
+            
+            {/* Mobile menu dropdown - included inside the ref container */}
+            {mobileMenuOpen && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="absolute top-16 left-0 right-0 md:hidden border-t border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900"
+              >
+                <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                  <div className="flex justify-center py-3">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={toggleTheme}
+                      className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
+                      aria-label="Toggle theme"
+                    >
+                      {isDark ? (
+                        <Sun className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                      ) : (
+                        <Moon className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                      )}
+                    </motion.button>
+                  </div>
+                  <div className="flex flex-col gap-3 px-3 py-2">
+                    <Link 
+                      to="/signin"
+                      className="block px-4 py-2 text-center text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                    >
+                      Sign In
+                    </Link>
+                    <Link 
+                      to="/verify-email"
+                      className="block px-4 py-3 text-center bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      Get Started
+                    </Link>
+                  </div>
+                </div>
+              </motion.div>
             )}
-          </motion.button>
-        </div>
-        <div className="flex flex-col gap-3 px-3 py-2">
-          <Link 
-            to="/signin"
-            className="block px-4 py-2 text-center text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
-          >
-            Sign In
-          </Link>
-          <Link 
-            to="/verify-email"
-            className="block px-4 py-3 text-center bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Get Started
-          </Link>
+          </div>
+          
+          {/* Desktop navigation */}
+          <div className="hidden md:flex items-center gap-4">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={toggleTheme}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
+              aria-label="Toggle theme"
+            >
+              {isDark ? (
+                <Sun className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+              ) : (
+                <Moon className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+              )}
+            </motion.button>
+            <Link 
+              to="/signin"
+              className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+            >
+              Sign In
+            </Link>
+            <Link 
+              to="/verify-email"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Get Started
+            </Link>
+          </div>
         </div>
       </div>
-    </motion.div>
-  )}
-</nav>
+    </nav>
       
       <main>
         {/* Hero Section */}
@@ -161,39 +176,39 @@ export const Landing = () => {
   transition={{ delay: 0.3, duration: 0.7 }}
   className="w-full md:w-1/2 relative"
 >
-  <div className="relative h-[300px] sm:h-[350px] md:h-[400px] w-full">
-    <motion.div
-      initial={{ y: 0 }}
-      animate={{ y: [0, -15, 0] }}
-      transition={{ repeat: Number.POSITIVE_INFINITY, duration: 3, ease: "easeInOut" }}
-      className="absolute top-0 left-0 sm:left-[5%] md:left-[10%] bg-white dark:bg-neutral-800 p-4 sm:p-5 md:p-6 rounded-xl shadow-xl max-w-[85%] sm:max-w-[70%] md:max-w-none"
-    >
-      <div className="w-full sm:w-56 md:w-64 h-36 sm:h-40 md:h-48 bg-gray-100 dark:bg-gray-700 rounded-lg mb-3 md:mb-4"></div>
-      <div className="h-3 md:h-4 w-3/4 bg-gray-200 dark:bg-gray-600 rounded mb-2"></div>
-      <div className="h-3 md:h-4 w-1/2 bg-gray-200 dark:bg-gray-600 rounded"></div>
-    </motion.div>
+<div className="hidden sm:block relative h-[350px] md:h-[400px] w-full">
+  <motion.div
+    initial={{ y: 0 }}
+    animate={{ y: [0, -15, 0] }}
+    transition={{ repeat: Number.POSITIVE_INFINITY, duration: 3, ease: "easeInOut" }}
+    className="absolute top-0 left-[5%] md:left-[10%] bg-white dark:bg-neutral-800 p-5 md:p-6 rounded-xl shadow-xl max-w-[70%] md:max-w-none"
+  >
+    <div className="w-56 md:w-64 h-40 md:h-48 bg-gray-100 dark:bg-gray-700 rounded-lg mb-3 md:mb-4"></div>
+    <div className="h-3 md:h-4 w-3/4 bg-gray-200 dark:bg-gray-600 rounded mb-2"></div>
+    <div className="h-3 md:h-4 w-1/2 bg-gray-200 dark:bg-gray-600 rounded"></div>
+  </motion.div>
 
-    <motion.div
-      initial={{ y: 0 }}
-      animate={{ y: [0, 15, 0] }}
-      transition={{ repeat: Number.POSITIVE_INFINITY, duration: 4, ease: "easeInOut" }}
-      className="absolute bottom-0 right-0 sm:right-[5%] md:right-[10%] bg-white dark:bg-neutral-800 p-4 sm:p-5 md:p-6 rounded-xl shadow-xl max-w-[85%] sm:max-w-[70%] md:max-w-none"
-    >
-      <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
-        <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full bg-blue-200 dark:bg-blue-400"></div>
-        <div>
-          <div className="h-2 md:h-3 w-16 sm:w-18 md:w-20 bg-gray-200 dark:bg-gray-600 rounded mb-1"></div>
-          <div className="h-2 md:h-3 w-12 sm:w-14 md:w-16 bg-gray-200 dark:bg-gray-600 rounded"></div>
-        </div>
+  <motion.div
+    initial={{ y: 0 }}
+    animate={{ y: [0, 15, 0] }}
+    transition={{ repeat: Number.POSITIVE_INFINITY, duration: 4, ease: "easeInOut" }}
+    className="absolute bottom-0 right-[5%] md:right-[10%] bg-white dark:bg-neutral-800 p-5 md:p-6 rounded-xl shadow-xl max-w-[70%] md:max-w-none"
+  >
+    <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+      <div className="w-9 sm:h-9 md:w-10 md:h-10 rounded-full bg-blue-200 dark:bg-blue-400"></div>
+      <div>
+        <div className="h-3 w-18 md:w-20 bg-gray-200 dark:bg-gray-600 rounded mb-1"></div>
+        <div className="h-3 w-14 md:w-16 bg-gray-200 dark:bg-gray-600 rounded"></div>
       </div>
-      <div className="h-20 sm:h-22 md:h-24 w-full sm:w-40 md:w-48 bg-gray-100 dark:bg-gray-700 rounded-lg mb-3"></div>
-      <div className="flex justify-between max-w-[120px] sm:max-w-[140px] md:max-w-none">
-        <div className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 rounded-full bg-gray-200 dark:bg-gray-600"></div>
-        <div className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 rounded-full bg-gray-200 dark:bg-gray-600"></div>
-        <div className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 rounded-full bg-gray-200 dark:bg-gray-600"></div>
-      </div>
-    </motion.div>
-  </div>
+    </div>
+    <div className="h-22 md:h-24 w-40 md:w-48 bg-gray-100 dark:bg-gray-700 rounded-lg mb-3"></div>
+    <div className="flex justify-between max-w-[140px] md:max-w-none">
+      <div className="h-7 w-7 md:h-8 md:w-8 rounded-full bg-gray-200 dark:bg-gray-600"></div>
+      <div className="h-7 w-7 md:h-8 md:w-8 rounded-full bg-gray-200 dark:bg-gray-600"></div>
+      <div className="h-7 w-7 md:h-8 md:w-8 rounded-full bg-gray-200 dark:bg-gray-600"></div>
+    </div>
+  </motion.div>
+</div>
 </motion.div>
         </section>
 
