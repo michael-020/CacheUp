@@ -11,6 +11,12 @@ export const Messages = () => {
   const { selectedUser } = useChatStore()
   const { authUser } = useAuthStore()
 
+  if(!authUser){
+    return <div>
+      <SignInNavigation />
+    </div>
+  }
+
   return (
     <div className="fixed inset-0 lg:relative top-[60px] bottom-[60px] lg:top-0 lg:bottom-0">
       <motion.div 
@@ -20,7 +26,6 @@ export const Messages = () => {
         animate="final"
         exit="exit"
       >
-        {authUser ? (
           <div className="h-full md:h-[calc(100vh-8rem)] w-full max-w-6xl mx-auto">
             {/* Desktop view */}
             <div className="hidden md:flex h-full rounded-lg overflow-hidden border shadow-xl dark:border-neutral-800 dark:shadow-neutral-700 dark:shadow-md">
@@ -33,9 +38,7 @@ export const Messages = () => {
               {!selectedUser ? <ChatSidebar /> : <ChatContainer />}
             </div>
           </div>
-        ) : (
-          <SignInNavigation />
-        )}   
+         
       </motion.div>
     </div>
   )

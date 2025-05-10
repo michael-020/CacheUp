@@ -41,7 +41,7 @@ export const Home = () => {
           </div>
         </div>
       ) : (
-        <div className='translate-y-[50vh]'>
+        <div className=''>
           <SignInNavigation />  
         </div>
       )}

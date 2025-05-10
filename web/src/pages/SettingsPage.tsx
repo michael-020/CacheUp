@@ -55,7 +55,7 @@ export default function SettingsPage() {
   }
 
   if(!authUser){
-    return <div className="translate-y-[50vh]">
+    return <div className="">
       <SignInNavigation />
     </div>
   }
