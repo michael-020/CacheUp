@@ -13,6 +13,7 @@ import { Briefcase, Users, Mail, UserPlus, UserCheck, UserX } from 'lucide-react
 import { Link } from 'react-router-dom';
 import { useChatStore } from '@/stores/chatStore/useChatStore';
 import { useFriendsStore } from '@/stores/FriendsStore/useFriendsStore';
+import PostCardSkeleton from "@/components/skeletons/PostCardSkeleton";
 
 export const Profile = () => {
   const { id } = useParams();
@@ -51,7 +52,6 @@ export const Profile = () => {
         } else {
           url = `/user/profile/${id}`
         }
-        await new Promise(r => setTimeout(r, 3000))
         const response = await axiosInstance(url);
         const profileData = response.data.userInfo;
         setUserInfo(profileData);
@@ -273,7 +273,7 @@ export const Profile = () => {
           </h1>
           
           {isLoading ? (
-            <p className="text-gray-500 text-center py-8">Loading posts...</p>
+            <PostCardSkeleton />
           ) : userPosts.length > 0 ? (
             <div className="space-y-6 z-50">
               {userPosts.map((post) => (
