@@ -91,7 +91,7 @@ export const Thread = () => {
     if(postQuery){
       setTimeout(() => {
         scrollToPost(postQuery)
-      }, 300)
+      }, 1000)
     }    
     return () => {
       if(highlightTimeoutRef.current){
@@ -659,12 +659,34 @@ export const Thread = () => {
                         )}
                         {/* Report/Unreport for others - Only show if user is NOT the post owner and NOT an admin */}
                         {(post.createdBy._id !== currentUserId) && !authAdmin && (
+                          <>
+                          <button
+                          onClick={() => {
+                            const url = `${window.location.origin}${window.location.pathname}?post=${post._id}`;
+                            navigator.clipboard.writeText(url);
+                            setMenuOpen(prev => ({ ...prev, [post._id]: false }));
+                            
+                            setHighlightedPostId(post._id);
+                            
+                            if (highlightTimeoutRef.current) {
+                              clearTimeout(highlightTimeoutRef.current);
+                            }
+                            
+                            highlightTimeoutRef.current = window.setTimeout(() => {
+                              setHighlightedPostId(null);
+                            }, 3000);
+                          }}
+                          className="block w-full text-left border-b dark:border-neutral-700 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700"
+                        >
+                          Copy link to post
+                        </button>
                           <button
                             onClick={() => handleReportPost(post._id)}
                             className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700"
                           >
                             {post.reportedBy?.includes(currentUserId as string) ? 'Unreport Post' : 'Report Post'}
                           </button>
+                          </>
                         )}
                       </div>
                     </div>
