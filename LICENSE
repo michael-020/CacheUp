@@ -1,35 +1,40 @@
-CacheUpp Proprietary License
-Effective Date: December 26, 2024
-Licensed To: Michael-2702, Parth2684, Sharath-Devadiga, ayushranaut (hereafter referred to as "Contributors")
+CacheUpp Proprietary License  
+Effective Date: December 26, 2024  
+Licensed To: Michael-2702, Parth2684, Sharath-Devadiga, and Ayushranaut (collectively referred to as the "Contributors")
 
-1. Grant of License
-The copyright holder ("Licensor") grants the Contributors listed above exclusive non-transferable, revocable rights to use, modify, and distribute the software known as "CacheUpp" (hereafter referred to as "Software") strictly for personal, educational, and development purposes.
+1. Grant of License  
+The copyright holder (the "Licensor") grants the Contributors a non-transferable, non-sublicensable, revocable license to use, develop, and distribute the software known as "CacheUpp" (the "Software") for internal, educational, developmental, and commercial purposes, provided such activities are conducted solely by the Contributors listed above.
 
-2. Restrictions
-Except as explicitly permitted under this License, the following restrictions apply:
+2. Authorized Use  
+The following permissions are granted exclusively to the Contributors:
+- Right to use, modify, and maintain the Software.
+- Right to distribute the Software or its services/products as part of a commercial venture, provided all such activities are performed solely under the control of the Contributors.
+- Right to relicense or offer commercial services related to the Software, subject to unanimous agreement among all Contributors.
 
-Only the Contributors (Michael-2702, Parth2684, Sharath-Devadiga and ayushranaut) are permitted to use, modify, or distribute the Software.
-The Software may not be sublicensed, sold, or distributed to any third party or any other users outside the specified Contributors.
-Use of the Software for commercial purposes is strictly prohibited without prior written approval from the Licensor.
-Modification of the Software for malicious or unethical purposes is strictly forbidden.
+3. Restrictions  
+Unless explicitly approved in writing by the Licensor, the following are strictly prohibited:
+- Use, modification, or distribution of the Software by any party not listed as a Contributor.
+- Public release of the Software source code, unless under a separate open-source license with unanimous Contributor approval.
+- Any form of sublicensing, renting, leasing, or resale of the Software to third parties without written consent.
+- Use of the Software for any malicious, unethical, or illegal purposes.
 
-3. Ownership
-The Licensor retains all rights, title, and interest in and to the Software, including all intellectual property rights. This License does not constitute a transfer of ownership.
+4. Ownership  
+The Software and all associated intellectual property are the joint property of the Contributors. No single Contributor may claim sole ownership or make independent legal or financial decisions involving the Software without the consent of all other Contributors.
 
-4. Termination
-This License is automatically terminated if:
+5. Termination  
+This License will be automatically terminated if:
+- A Contributor materially breaches any term of this License.
+- A Contributor permanently withdraws from the CacheUpp project without transferring rights back to the group.
+- An unauthorized party attempts to use, copy, or distribute the Software.
 
-The Contributors breach any terms of this License.
-A Contributor is no longer affiliated with the project, meaning they lose their permission to use the Software.
-Any unauthorized third-party tries to use or distribute the Software.
-Upon termination, all rights of the Contributors are revoked, and they must cease all use of the Software, delete all copies, and stop any modifications.
+Upon termination, the affected party must immediately cease all use of the Software and destroy or return all related copies.
 
-5. No Warranty
-The Software is provided "AS IS," without warranty of any kind, express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, or non-infringement. The Licensor is not liable for any damages arising from the use of the Software.
+6. No Warranty  
+The Software is provided “AS IS” without any warranties, express or implied, including warranties of merchantability, fitness for a particular purpose, or non-infringement. The Contributors are not liable for any damages or losses resulting from the use or misuse of the Software.
 
-6. Governing Law
-This License shall be governed by and construed in accordance with the laws of [Insert Jurisdiction].
+7. Governing Law  
+This License shall be governed by and interpreted in accordance with the laws of India. Any disputes shall be subject to the exclusive jurisdiction of the courts located in Mumbai, Maharashtra, India.
 
-By using this Software, the Contributors agree to abide by the terms of this Proprietary License.
+By using or continuing development on the Software, all Contributors affirm that they have read, understood, and agreed to the terms of this Proprietary License.
 
-Copyright © 2025 CacheUpp Contributors. All Rights Reserved.
+© 2025 CacheUpp. All rights reserved.
