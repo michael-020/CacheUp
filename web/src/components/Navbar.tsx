@@ -104,7 +104,7 @@ export const Navbar = () => {
         <div className="hidden lg:flex items-center justify-center space-x-4">
           <button onClick={handleLogoClick} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 ">
             <HomeIcont
-              className={`w-6 h-6 ${currentPath === "/home" ? "text-blue-500 fill-current" : "text-gray-600 dark:fill-none"}`}
+              className={`w-6 h-6 ${currentPath === "/home" ? "text-blue-500 fill-current" : "text-gray-600 fill-none"}`}
             />
           </button>
 
