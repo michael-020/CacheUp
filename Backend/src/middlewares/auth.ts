@@ -1,7 +1,7 @@
 import { NextFunction, Response, Request } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken"
 import { adminModel, IAdmin, IUser, userModel } from "../models/db";
-import JWT_SECRET from "../config";
+import { JWT_SECRET } from "../config";
 
 interface customDecodedInterface {
     userId?: string,

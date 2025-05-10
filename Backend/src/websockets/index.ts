@@ -1,6 +1,6 @@
 import { WebSocket, WebSocketServer } from 'ws';
 import jwt from "jsonwebtoken"
-import JWT_SECRET from '../config';
+import { JWT_SECRET } from '../config';
 import express from "express"
 import http from "http"
 
