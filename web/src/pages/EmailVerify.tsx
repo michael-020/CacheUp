@@ -43,7 +43,7 @@ export const EmailVerify = () => {
         animate="final"
         exit="exit"
     >
-        <div className="flex flex-col justify-center w-full sm:w-96 min-h-screen py-8 sm:py-0">
+        <div className="flex flex-col justify-center w-full sm:w-[27rem] min-h-[99vh] py-8 sm:py-0">
             <div className="bg-white border border-gray-400 dark:border-neutral-700 shadow-lg dark:bg-neutral-800 p-4 sm:p-6 rounded-lg">
                 <div className="text-center mb-4 sm:mb-6">
                     <h2 className="text-xl sm:text-[1.8rem] text-blue-600 font-black">
@@ -73,7 +73,7 @@ export const EmailVerify = () => {
                             <button 
                                 onClick={onClickHandler}
                                 disabled={sendingEmail}
-                                className="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md 
+                                className="w-full px-4 py-[0.7rem] text-sm font-medium text-white bg-blue-600 rounded-md 
                                 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
                                 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
@@ -106,7 +106,7 @@ export const EmailVerify = () => {
                                 <button
                                     onClick={otpHandler}
                                     disabled={isVerifying}
-                                    className="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md 
+                                    className="w-full px-4 py-[0.7rem] text-sm font-medium text-white bg-blue-600 rounded-md 
                                     hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
                                     disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                 >
