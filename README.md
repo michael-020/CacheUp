@@ -100,13 +100,6 @@ cd backend
 npm run dev
 ```
 
-For production:
-
-```bash
-npm run build
-npm run start
-```
-
 ---
 
 ### 🔹 Python Server
@@ -127,13 +120,6 @@ To run the frontend in development mode:
 ```bash
 cd web
 npm run dev
-```
-
-For production:
-
-```bash
-npm run build
-npm run start
 ```
 
 ---
