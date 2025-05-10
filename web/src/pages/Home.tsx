@@ -9,6 +9,12 @@ import SignInNavigation from '@/components/SignInNavigation';
 export const Home = () => {
   const { authUser } = useAuthStore();
 
+  if(!authUser){
+    return <div className='h-screen overflow-hidden'>
+      <SignInNavigation />
+    </div>
+  }
+
   return (
     <motion.div  
       className="relative sm:px-8  bg-gray-100 dark:bg-neutral-950 dark:border-neutral-900"
@@ -17,7 +23,6 @@ export const Home = () => {
       animate="final"
       exit="exit"
     >
-      {authUser ? (
         <div className="max-w-full pb-28">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
             {/* Left Sidebar - Profile Card */}
@@ -40,11 +45,7 @@ export const Home = () => {
             </div>
           </div>
         </div>
-      ) : (
-        <div className=''>
-          <SignInNavigation />  
-        </div>
-      )}
+      ) 
     </motion.div>
   );
 };
