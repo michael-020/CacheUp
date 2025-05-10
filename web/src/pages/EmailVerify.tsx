@@ -1,4 +1,4 @@
-import { MouseEvent, useState, useEffect } from "react";
+import { FormEvent, useState, useEffect } from "react";
 import { useAuthStore } from "../stores/AuthStore/useAuthStore"
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { motion } from "framer-motion"
@@ -13,7 +13,8 @@ export const EmailVerify = () => {
         isVerifying, 
         handleGoogleSignup,
         handleGoogleAuthError,
-        inputEmail 
+        otpSent, 
+        resetOtpSent 
     } = useAuthStore();
     const [email, setEmail] = useState("")
     const [otp, setOtp] = useState("")
@@ -24,15 +25,21 @@ export const EmailVerify = () => {
         handleGoogleAuthError();
     }, [location.search, handleGoogleAuthError]);
 
-    async function onClickHandler(e: MouseEvent<HTMLButtonElement>) {
+    useEffect(() => {
+        return () => {
+            resetOtpSent();
+        };
+    }, [resetOtpSent]);
+
+    async function handleSendOtp(e: FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        await sentEmail({email})
+        await sentEmail({email});
     }
 
-    async function otpHandler(e: MouseEvent<HTMLButtonElement>) {
+    async function handleSubmitOtp(e: FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        await verifyEmail({email, otp})
-        navigate("/signup")
+        await verifyEmail({email, otp});
+        navigate("/signup");
     }
 
     return (
@@ -54,7 +61,7 @@ export const EmailVerify = () => {
                     </p>
                 </div>
                 <div className="flex flex-col space-y-3 sm:space-y-4">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
+                    <form onSubmit={handleSendOtp} className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
                         <div className="w-full sm:w-2/3">
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Email
@@ -64,6 +71,7 @@ export const EmailVerify = () => {
                                 placeholder="Enter Your Email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
+                                required
                                 className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md shadow-sm placeholder-gray-400 
                                 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
                                 dark:bg-neutral-700 dark:text-white dark:placeholder-gray-400"
@@ -71,7 +79,7 @@ export const EmailVerify = () => {
                         </div>
                         <div className="w-full sm:w-1/3 mt-0 sm:mt-6">
                             <button 
-                                onClick={onClickHandler}
+                                type="submit"
                                 disabled={sendingEmail}
                                 className="w-full px-4 py-[0.7rem] text-sm font-medium text-white bg-blue-600 rounded-md 
                                 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
@@ -84,10 +92,10 @@ export const EmailVerify = () => {
                                 )}
                             </button>
                         </div>
-                    </div>
+                    </form>
                     
-                    {inputEmail === email && inputEmail !== "" && (
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
+                    {otpSent && (
+                        <form onSubmit={handleSubmitOtp} className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
                             <div className="w-full sm:w-2/3">
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     OTP
@@ -97,6 +105,7 @@ export const EmailVerify = () => {
                                     placeholder="Enter the OTP"
                                     value={otp}
                                     onChange={(e) => setOtp(e.target.value)}
+                                    required
                                     className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md shadow-sm placeholder-gray-400 
                                     focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
                                     dark:bg-neutral-700 dark:text-white dark:placeholder-gray-400"
@@ -104,7 +113,7 @@ export const EmailVerify = () => {
                             </div>
                             <div className="w-full sm:w-1/3 mt-0 sm:mt-6">
                                 <button
-                                    onClick={otpHandler}
+                                    type="submit"
                                     disabled={isVerifying}
                                     className="w-full px-4 py-[0.7rem] text-sm font-medium text-white bg-blue-600 rounded-md 
                                     hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
@@ -117,7 +126,7 @@ export const EmailVerify = () => {
                                     )}
                                 </button>
                             </div>
-                        </div>
+                        </form>
                     )}
 
                     <div className="text-center pt-2">
