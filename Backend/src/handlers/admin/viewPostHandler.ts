@@ -11,7 +11,7 @@ const viewPostHandler: Router = Router();
 viewPostHandler.get("/", async (req: Request, res: Response) => {
     try{
         // const userId = req.user._id
-        const allPosts = await postModel.find({}).sort({ createdAt: -1}).lean();
+        const allPosts = await postModel.find({visibility: true}).sort({ createdAt: -1}).lean();
 
         if(!allPosts){
             res.status(401).json({
