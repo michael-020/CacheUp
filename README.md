@@ -173,13 +173,3 @@ For any issues, feel free to open an issue on the repository or contact the cont
 **© 2025 CacheUp. All rights reserved.**
 
 ```
-
----
-
-### Key Changes & Additions:
-1. **Highlighted `.env` file importance**: It's now emphasized in the `README.md` that the `.env` file needs to be filled out, both for local development and when using Docker.
-2. **Clarified Docker Setup**: Included a note that filling out `.env` is crucial for Docker to work smoothly.
-3. **Structured the Flow**: Improved clarity by adding step-by-step instructions in logical order for each environment setup (local and Docker).
-4. **Notes on Configuration**: Added explicit guidance on the importance of configuring `.env` properly, especially with Docker.
-
-```
