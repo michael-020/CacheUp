@@ -2,15 +2,16 @@ import { useNavigate } from "react-router-dom"
 import { ArrowLeft, Moon, Sun, LogOut, Trash2 } from "lucide-react"
 import { useAuthStore } from "../stores/AuthStore/useAuthStore"
 import { useThemeStore } from "@/stores/ThemeStore/useThemeStore"
-import { DeleteModal } from "@/components/DeleteModal"
+import { DeleteModal } from "@/components/modals/DeleteModal"
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { routeVariants } from "@/lib/routeAnimation"
 import { BookMarked } from "lucide-react";
+import SignInNavigation from "@/components/SignInNavigation"
 
 export default function SettingsPage() {
   const navigate = useNavigate()
-  const { logout, deleteAccount } = useAuthStore()
+  const { logout, deleteAccount, authUser } = useAuthStore()
   const { isDark, toggleTheme } = useThemeStore();
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -53,9 +54,15 @@ export default function SettingsPage() {
     deleteAccount()
   }
 
+  if(!authUser){
+    return <div className="">
+      <SignInNavigation />
+    </div>
+  }
+
   return (
     <motion.div 
-      className="pt-16 min-h-screen bg-gray-100 dark:bg-neutral-950"
+      className="pt-16 min-h-screen bg-gray-100 pb-20 lg:pb-0 dark:bg-neutral-950"
       variants={routeVariants}
       initial="initial"
       animate="final"
@@ -356,8 +363,9 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <button
-                  onClick={() => {
-                    logout()
+                  onClick={async () => {
+                    await logout()
+                    navigate("/")
                   }}
                   className="px-3.5 py-2 border border-gray-500 dark:border-gray-200 text-gray-800 dark:text-white rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-600 transition"
                 >
@@ -388,7 +396,7 @@ export default function SettingsPage() {
 
         {/* Footer */}
         <div className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
-          <p>Campus Connect &copy; {new Date().getFullYear()}</p>
+          <p>CacheUpp &copy; {new Date().getFullYear()}</p>
           <DeleteModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} deleteHandler={handleDeleteAccount} content="Delete Account?" />
           {/* <div className="mt-2 flex justify-center space-x-4">
             <a href="#" className="hover:text-blue-500 transition">

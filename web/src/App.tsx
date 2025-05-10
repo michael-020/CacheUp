@@ -1,12 +1,12 @@
-import { Navigate, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import './App.css'
 import { Home } from './pages/Home'
 import { Profile } from './pages/Profile'
 import { Messages } from './pages/Messages'
-import { Signup } from './pages/Signup'
 import { Signin } from './pages/Signin'
+import { Landing } from './pages/Landing'
 import { useAuthStore } from './stores/AuthStore/useAuthStore'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { EmailVerify } from './pages/EmailVerify'
 import { BottomNavigationBar, Navbar } from './components/Navbar'
@@ -32,77 +32,149 @@ import SavedPostsPage from "./pages/SavedPostsPage";
 import { usePostStore } from './stores/PostStore/usePostStore'
 import { ScrollToTop } from './components/ScrollToTop'
 import { useFriendsStore } from './stores/FriendsStore/useFriendsStore'
+import { RequestedForums } from './pages/admin/RequestedForums'
+import { ViewFriends } from './components/ViewFriends'
+import Statistics from './pages/admin/Statistics'
+import { TimeTracker } from './components/TimeTracker'
+import PageViews from "@/pages/admin/PageViews";
+import ReportedContentPage from './pages/ReportedContentForums'
+import { usePathStore } from '@/stores/PathStore/usePathStore';
+import { Loader } from 'lucide-react'
+import { SetupAccount } from './pages/SetupAccount';
+import { Signup } from './pages/Signup'
 
 function App() {
-  const { authUser, checkAuth, isCheckingAuth } = useAuthStore()
+  const { authUser, checkAuth, isCheckingAuth, inputEmail } = useAuthStore();
+  const location = useLocation();
+  const navigate = useNavigate();
   const { authAdmin, checkAdminAuth, isAdminCheckingAuth } = useAdminStore()
   const { getAllMessages, getUsers } = useChatStore()
-  const { fetchRequests, setLoading } = useFriendsStore();
-  const location = useLocation()
-  const navigate = useNavigate()
-  const [returnPath, setReturnPath] = useState<string | null>(null)
+  const { fetchRequests } = useFriendsStore();
+  const { userLastPath, adminLastPath, setUserLastPath, setAdminLastPath } = usePathStore();
   const { fetchSavedPosts } = usePostStore();
-
-  
   const isAdminRoute = location.pathname.startsWith('/admin')
   const initialized = useRef(false)
   const authenticated = useRef(false)
-
+  const adminInitialized = useRef(false)
+  const adminAuthenticated = useRef(false)
+  const noNavbarPaths = ['/', '/signin', '/signup', '/verify-email', '/set-up-account'];
+  const shouldShowNavbar = !noNavbarPaths.includes(location.pathname);
+  
+  // Save current path before navigating to auth pages
   useEffect(() => {
-    const currentPath = location.pathname
-    if (!currentPath.includes('/signin') && 
-        !currentPath.includes('/signup') && 
-        !currentPath.includes('/admin/signin')) {
-      sessionStorage.setItem('lastPath', currentPath)
-    }
-  }, [location.pathname])
-
-  useEffect(() => {
-    if(!isAdminRoute && !initialized.current){
-      const lastPath = sessionStorage.getItem('lastPath')
-      if (lastPath) {
-        setReturnPath(lastPath)
+    const currentPath = location.pathname;
+    const authPaths = ['/', '/signin', '/signup', '/verify-email', '/admin/signin'];
+    
+    // Save path for any non-auth path, regardless of auth status
+    if (!authPaths.includes(currentPath)) {
+      if (isAdminRoute) {
+        setAdminLastPath(currentPath);
+      } else {
+        setUserLastPath(currentPath);
+        sessionStorage.setItem('lastPath', currentPath);
       }
-      
-      checkAuth()
-      initialized.current = true
     }
-  }, [checkAuth, isAdminRoute])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname, setUserLastPath, setAdminLastPath]);
 
+  // Load saved paths on initial load
   useEffect(() => {
-    if(isAdminRoute) {
-      checkAdminAuth()
+    if (!initialized.current) {
+      checkAuth();
+      initialized.current = true;
     }
-  }, [checkAdminAuth, isAdminRoute])
+  }, [checkAuth]);
 
+  // Handle user auth redirects
   useEffect(() => {
-    if (authUser && !isAdminRoute) {
-      getUsers()
-      getAllMessages()
-      
-      // Initial fetch without loading state
-      const quietFetch = async () => {
-        setLoading(false); // Prevent loading state during background updates
-        await fetchRequests();
-        setLoading(false);
-      };
+    if (authUser && !authenticated.current) {
+      const params = new URLSearchParams(location.search);
+      const redirect = params.get('redirect');
+      const storedPath = sessionStorage.getItem('lastPath');
+      const authPaths = ['/', '/signin', '/signup', '/verify-email'];
 
-      // First load
-      fetchRequests();
-      
-      // Set up interval for background updates
-      const interval = setInterval(quietFetch, 1000 * 12);
-      
-      if (returnPath && !authenticated.current) {
-        navigate(returnPath);
+      if (redirect) {
+        navigate(redirect);
+        setUserLastPath(null);
+        authenticated.current = true;
+      } else if (storedPath && !authPaths.includes(storedPath)) {
+        navigate(storedPath);
+        setUserLastPath(null);
+        authenticated.current = true;
+      } else if (authPaths.includes(location.pathname)) {
+        navigate('/home');
         authenticated.current = true;
       }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authUser, location.search, navigate, setUserLastPath]);
+
+  // Handle admin auth redirects
+  useEffect(() => {
+    if (authAdmin && isAdminRoute && !adminAuthenticated.current) {
+      if (adminLastPath) {
+        navigate(adminLastPath);
+        setAdminLastPath(null);
+        adminAuthenticated.current = true;
+      }
+    }
+  }, [authAdmin, isAdminRoute, adminLastPath, navigate, setAdminLastPath]);
+
+  // Save path only when navigating to auth pages
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const authPaths = ['/', '/signin', '/signup', '/verify-email', '/admin/signin'];
+    
+    if (authPaths.includes(currentPath) && !authenticated.current) {
+      const existingLastPath = sessionStorage.getItem('lastPath');
+      const previousPath = location.state?.from || existingLastPath || '/home';
+      if (!authPaths.includes(previousPath)) {
+        sessionStorage.setItem('lastPath', previousPath);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
+
+  // Initialize auth check only once
+  useEffect(() => {
+    if (!initialized.current) {
+      checkAuth();
+      initialized.current = true;
+    }
+  }, [checkAuth]);
+
+  // Handle admin routes initialization
+  useEffect(() => {
+    if (isAdminRoute && !adminInitialized.current) {
+      checkAdminAuth();
+      adminInitialized.current = true;
+    }
+  }, [isAdminRoute, checkAdminAuth]);
+
+  // Initialize user data after authentication
+  useEffect(() => {
+    if (authUser && !isAdminRoute) {
+      getUsers();
+      getAllMessages();
+      fetchRequests();
+      
+      const interval = setInterval(() => {
+        fetchRequests();
+      }, 1000*180);
 
       return () => clearInterval(interval);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authUser, isAdminRoute]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authUser, isAdminRoute, returnPath, navigate, fetchRequests, setLoading])
+  useEffect(() => {
+    if (authAdmin && isAdminRoute) {
+      if (adminLastPath && !adminAuthenticated.current) {
+        navigate(adminLastPath)
+        adminAuthenticated.current = true
+      }
+    }
+  }, [authAdmin, isAdminRoute, adminLastPath, navigate, setAdminLastPath])
 
   useEffect(() => {
     if (authUser) {
@@ -126,58 +198,58 @@ function App() {
       document.documentElement.classList.remove('dark')
     }
   }, [])
-  
 
   if ((isAdminRoute && isAdminCheckingAuth) || (!isAdminRoute && isCheckingAuth)) {
     return (
-      <div className="h-screen w-screen flex items-center justify-center bg-gray-100 dark:bg-neutral-900">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      <div className="h-screen max-w-screen flex items-center justify-center bg-gray-100 dark:bg-neutral-900">
+       <Loader className='animate-spin size-10' />
       </div>
     )
   }
 
   return (
-    <div className='bg-gray-100 dark:bg-neutral-900 min-h-screen custom-scrollbar'>
+    
+    <div className='bg-gray-100 dark:bg-neutral-950 min-h-screen custom-scrollbar'>
+      {authUser && <TimeTracker />}
       <ScrollToTop />
-      {authUser && !isAdminRoute && (
+      {shouldShowNavbar && !isAdminRoute && (
         <div className='fixed top-0 w-screen z-40'>
           <Navbar />
-          <main className=""> 
-            <Outlet />
-          </main>
           <BottomNavigationBar />
         </div>
       )}
       
+      {/* Admin navbar remains the same */}
       {authAdmin && isAdminRoute && (
         <div className='fixed top-0 w-screen z-40'>
           <AdminNavbar />
         </div>
       )}
       <AnimatePresence mode="wait" >
+      
         <Routes>
           {/* User Routes */}
-          <Route path="/signup" element={!authUser ? <Signup /> : <Navigate to={returnPath || "/"} /> } />
-          <Route path="/signin" element={!authUser ? <Signin /> : <Navigate to={returnPath || "/"} /> } />
-          <Route path='/verify-email' element={!authUser ? <EmailVerify /> : <Navigate to={returnPath || "/"} />} />
-          <Route path="/" element={authUser ? <Home /> : <Navigate to="/signin" />} />
-          <Route path='/profile' element={authUser ? <Profile /> : <Navigate to="/signin"/>} />
-          <Route path="/profile/:id" element={authUser ? <Profile /> : <Navigate to="/signin"/>} />
-          <Route path='/message' element={authUser ? <Messages /> : <Navigate to="/signin" />} />
-          <Route path='/edit-profile' element={authUser ? <EditProfile /> : <Navigate to="/signin" />} />
-          <Route path='/friends' element={authUser ? <FriendsPage /> : <Navigate to="/signin" />} />
-          <Route path='/settings' element={authUser ? <SettingsPage /> : <Navigate to="/signin" />} />
-          <Route path="/forums/get-forums" element={authUser ? <ForumList /> : <Navigate to='/signin'/>} />
-          <Route path="/forums/:forumMongoId/:forumWeaviateId" element={authUser ? <ForumPage /> : <Navigate to='/signin' />} />
-          <Route path="/forums/search" element={authUser ? <SearchResults /> : <Navigate to='/signin' />} />
-          <Route path='/forums/thread/:id' element={authUser ? <Thread /> : <Navigate to='/signin' />} />
-          <Route path="/change-password" element={authUser ? <ChangePassword /> : <Navigate to="/signin" />} />
+          <Route path="/signup" element={inputEmail ? <Signup /> : <Navigate to="/verify-email"/>} />
+          <Route path="/set-up-account" element={<SetupAccount />} />
+          <Route path="/signin" element={!authUser ? <Signin /> : <Navigate to={userLastPath || "/home"} />} />
+          <Route path='/' element={!authUser ? <Landing /> : <Navigate to={userLastPath || "/home"} />} />
+          <Route path='/verify-email' element={!authUser ? <EmailVerify /> : <Navigate to={userLastPath && userLastPath !== "/" ? userLastPath : "/home"} />} />
+          <Route path="/home" element={<Home />} />
+          <Route path='/profile' element={authUser ? <Profile /> : <Navigate to={`/`} />} />
+          <Route path="/profile/:id" element={<Profile /> } />
+          <Route path='/message' element={<Messages /> } />
+          <Route path='/edit-profile' element={<EditProfile /> } />
+          <Route path='/friends' element={<FriendsPage /> } />
+          <Route path='/settings' element={<SettingsPage /> } />
+          <Route path="/forums/get-forums" element={  <ForumList /> } />
+          <Route path="/forums/:forumMongoId/:forumWeaviateId" element={ <ForumPage /> } />
+          <Route path="/forums/search" element={<SearchResults /> } />
+          <Route path='/forums/thread/:id/:page' element={<Thread /> } />
+          <Route path="/change-password" element={<ChangePassword /> } />
           <Route path="/saved-posts" element={<SavedPostsPage />} />
-
-
-
+          <Route path="/friends/:id" element={<ViewFriends /> }/>
           {/* Admin Routes */}
-          <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to="/admin/home" /> } />
+          <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to={adminLastPath || "/admin/home"} /> } />
           <Route path="/admin/home" element={authAdmin ? <AdminHome /> : <Navigate to="/admin/signin" />} />
           <Route path="/admin/reported-posts" element={authAdmin ? <ReportedPosts /> : <Navigate to="/admin/signin" /> } />
           <Route path="/admin/user-list" element={authAdmin ? <UserList /> : <Navigate to="/admin/signin" />} />
@@ -185,12 +257,29 @@ function App() {
           <Route path="/admin/forums" element={authAdmin ? <CreateForum/> : <Navigate to="/admin/signin" />} />
           <Route path="/admin/forums/get-forums" element={authAdmin ? <ForumList /> : <Navigate to="/admin/signin" />} />
           <Route path="/admin/forums/:forumMongoId/:forumWeaviateId" element={authAdmin ? <ForumPage /> : <Navigate to="/admin/signin" />} />
-          <Route path='/admin/forums/thread/:id' element={authAdmin ? <Thread /> : <Navigate to='/admin/signin' />} />
+          <Route path='/admin/forums/thread/:id/:page' element={authAdmin ? <Thread /> : <Navigate to='/admin/signin' />} />
           <Route path='/admin/settings' element={authAdmin ? <SettingsPage /> : <Navigate to='/admin/signin' />} />
+          <Route path='/admin/requested-forums' element={authAdmin ? <RequestedForums /> : <Navigate to="/admin/signin" />} />
+          <Route path='/admin/stats' element={authAdmin ? <Statistics /> : <Navigate to="/admin/signin" />} />
+          <Route path='/admin/page-views' element={authAdmin ? <PageViews /> : <Navigate to="/admin/signin" />} />
+          <Route path='/admin/reported-content' element={authAdmin ? <ReportedContentPage /> : <Navigate to="/admin/signin" />} />
+
+          {/* Add OAuth route */}
+          <Route 
+            path="/auth/google" 
+            element={
+              <Navigate 
+                to={`${import.meta.env.VITE_API_URL}/auth/google`} 
+                replace 
+              />
+            } 
+          />
         </Routes>
+       
       </AnimatePresence>
       <Toaster />  
     </div>
+    
   )
 }
 

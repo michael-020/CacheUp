@@ -1,10 +1,12 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
+import { SearchBar } from '../forums/search-bar';
 
 const ForumPageSkeleton: React.FC = () => {
   return (
     <div>
       <div className="max-w-6xl mx-auto p-6 translate-y-24 h-full">
+        <SearchBar />
         <div className="flex justify-between items-center mb-6">
           <button
             className="mr-4 p-3 rounded-full hover:bg-gray-400 dark:hover:bg-neutral-700"
@@ -13,7 +15,11 @@ const ForumPageSkeleton: React.FC = () => {
           </button>
           
           {/* Create thread button skeleton */}
-          <div className="h-10 bg-gray-200 dark:bg-neutral-700 rounded w-32 animate-pulse"></div>
+          <button
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Create Thread
+          </button>
         </div>
 
         {/* Thread list skeletons */}

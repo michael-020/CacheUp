@@ -18,26 +18,82 @@ export const usePostStore = create<PostState & PostActions>((set,get) => ({
   isPostDeleting: false,
   savedPosts: [],
   isFetchingSavedPosts: false,
+  currentPage: 1,
+  hasMore: true,
+  isLoadingMore: false,
 
   setError: (error) => set({ error }),
   clearError: () => set({ error: null }),
-
-  fetchPosts: async () => {
-    set({ isFetchingPosts: true });
+  
+  fetchPosts: async (isAdmin = false) => {
+    set({ 
+      isFetchingPosts: true,
+      currentPage: 1 
+    });
+    
     try {
-      const res = await axiosInstance.get("/post/viewPosts/");
-      const posts = res.data as Post[]
-      const postsWithLikeStatus = posts.map(post  => {
+      let url = "" 
+      if(isAdmin){
+        url = `/admin/view-posts?page=1&limit=5` 
+      } else if(useAuthStore.getState().authUser){
+        url = `/post/viewPosts?page=1&limit=5`
+      } else {
+        url = "/post/get-posts"
+      }
+      const res = await axiosInstance.get(url);
+      const { posts, hasMore } = res.data;
+      
+      const postsWithLikeStatus = posts.map((post: { isLiked?: boolean }) => {
         return {
           ...post,
           isLiked: post.isLiked !== undefined ? post.isLiked : false
         };
       });
       
-      set({ posts: postsWithLikeStatus, isFetchingPosts: false });
+      set({ 
+        posts: postsWithLikeStatus,
+        hasMore,
+        isFetchingPosts: false,
+        currentPage: 1
+      });
     } catch (error) {
       console.error("Error fetching posts:", error);
-      set({ isFetchingPosts: false })
+      set({ isFetchingPosts: false });
+    }
+  },
+  
+  loadMorePosts: async (isAdmin = false) => {
+    const { hasMore, currentPage, isLoadingMore } = get();
+    
+    if (!hasMore || isLoadingMore) return;
+    
+    set({ isLoadingMore: true });
+    
+    try {
+      const nextPage = currentPage + 1;
+      const url = isAdmin 
+        ? `/admin/view-posts?page=${nextPage}&limit=5` 
+        : `/post/viewPosts?page=${nextPage}&limit=5`;
+        
+      const res = await axiosInstance.get(url);
+      const { posts, hasMore: morePostsAvailable } = res.data;
+      
+      const postsWithLikeStatus = posts.map((post: { isLiked?: boolean }) => {
+        return {
+          ...post,
+          isLiked: post.isLiked !== undefined ? post.isLiked : false
+        };
+      });
+      
+      set(state => ({ 
+        posts: [...state.posts, ...postsWithLikeStatus],
+        hasMore: morePostsAvailable,
+        currentPage: nextPage,
+        isLoadingMore: false
+      }));
+    } catch (error) {
+      console.error("Error loading more posts:", error);
+      set({ isLoadingMore: false });
     }
   },
   
@@ -198,14 +254,14 @@ export const usePostStore = create<PostState & PostActions>((set,get) => ({
     } 
   },
 
-  addComment: async (postId, content): Promise<Comment | null> => {
-    set({isUplaodingComment: true})
+  addComment: async (postId, content) => {
+    set({ isUplaodingComment: true });
+  
     try {
       const res = await axiosInstance.put(`/post/comment/${postId}`, { content });
-      
-      const newComment = res.data;
+      const newComment: Comment = res.data;
+      console.log("comments before: ", get().posts[0].comments)
       set((state) => ({
-        isLoading: false,
         posts: state.posts.map(post => 
           post._id === postId ? {
             ...post,
@@ -213,21 +269,25 @@ export const usePostStore = create<PostState & PostActions>((set,get) => ({
           } : post
         )
       }));
-      toast.success("Comment uploaded successfully")
-      
-      return newComment;
-    } catch (error) { 
+     
+      console.log("comments after: ", get().posts[0].comments)
+      toast.success("Comment uploaded successfully");  
+    } catch (error) {
       console.error("Error uploading comment:", error);
+  
       if (error instanceof AxiosError && error.response?.data?.msg) {
-          toast.error(error.response.data.msg as string);
+        toast.error(error.response.data.msg as string);
       } else {
-          toast.error("An unexpected error occurred.");
+        toast.error("An unexpected error occurred.");
       }
-      return null
+  
+      return null;
+  
     } finally {
-      set({isUplaodingComment: false})
+      set({ isUplaodingComment: false });  // ✅ Correct key
     }
-  },
+  }
+  ,
 
   deleteComment: async (postId: string, commentId: string) => {
     set({isDeletingComment: true})

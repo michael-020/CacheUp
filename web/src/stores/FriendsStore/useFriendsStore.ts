@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { axiosInstance } from "@/lib/axios";
 import { toast } from "sonner";
-import { FriendsState, FriendsActions } from "./types";
+import { FriendsState, FriendsActions,SuggestionUser } from "./types";
 import { AxiosError } from "axios";
 import { IUser } from "@/lib/utils";
 
@@ -9,8 +9,10 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
   friends: [],
   requests: [],
   sentRequests: [],
+  suggestions: [],
+  viewedSuggestions: [],
   loading: false,
-  // mutualFriends: {},
+  mutualFriends: {},
 
   setLoading: (loading: boolean) => set({ loading }),
 
@@ -28,17 +30,29 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
     }
   },
 
+  fetchUserFriends: async (userId: string) => {
+    set({ loading: true });
+    try {
+      const { data } = await axiosInstance.get<{ friends: IUser[] }>(`/user/friends/${userId}`);
+      return data.friends || [];
+    } catch (error) {
+      const err = error as AxiosError<{ message?: string }>;
+      console.error("Error fetching user's friends:", err);
+      toast.error(err.response?.data?.message || "Failed to load user's friends");
+      return [];
+    } finally {
+      set({ loading: false });
+    }
+  },
+
   fetchRequests: async () => {
     try {
       const { data } = await axiosInstance.get<{ friendRequests: IUser[] }>("/user/friends/requests");
       
-      // Get current requests
       const currentRequests = get().requests;
       const newRequests = data.friendRequests || [];
       
-      // Only update if there's an actual change in the requests
       if (JSON.stringify(currentRequests) !== JSON.stringify(newRequests)) {
-        // Instead of directly setting, merge the new requests
         set(state => ({
           requests: mergeRequests(state.requests, newRequests)
         }));
@@ -64,58 +78,96 @@ export const useFriendsStore = create<FriendsState & FriendsActions>((set, get) 
     }
   },
 
-  // fetchSuggestions: async () => {
-  //   set({ loading: true });
-  //   try {
-  //     const { data } = await axiosInstance.get<{ suggestions: IUser[] }>("user/friends/suggestions");
-  //     set({ friends: data.suggestions || [] });
-  //   } catch (error) {
-  //     const err = error as AxiosError<{ message?: string }>;
-  //     console.error("Error fetching suggestions:", err);
-  //     toast.error(err.response?.data?.message || "Failed to load suggestions");
-  //   } finally {
-  //     set({ loading: false });
-  //   }
-  // },
-
-  // fetchMutualFriends: async (friendId: string) => {
-  //   try {
-  //     const { data } = await axiosInstance.get<{ count: number }>(`user/friends/mutual/${friendId}`);
-  //     set(state => ({
-  //       mutualFriends: {
-  //         ...state.mutualFriends,
-  //         [friendId]: data.count || 0
-  //       }
-  //     }));
-  //   } catch (error) {
-  //     const err = error as AxiosError;
-  //     console.error("Error fetching mutual friends:", err);
-  //     set(state => ({
-  //       mutualFriends: {
-  //         ...state.mutualFriends,
-  //         [friendId]: 0
-  //       }
-  //     }));
-  //   }
-  // },
-
-  sendRequest: async (userId: string) => {
+  fetchSuggestions: async () => {
+    set({ loading: true });
     try {
-      set(state => ({
-        sentRequests: [...state.sentRequests, { _id: userId } as IUser]
-      }));
-      
-      await axiosInstance.post("/user/friends/send-request", { receiverId: userId });
-      toast.success("Friend request sent");
+      const { data } = await axiosInstance.get<{ suggestions: SuggestionUser[] }>("user/friends/suggestions");
+
+      set({ suggestions: data.suggestions || [] });
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
-      set(state => ({
-        sentRequests: state.sentRequests.filter(req => req._id !== userId)
-      }));
-      console.error("Error sending request:", err);
-      toast.error(err.response?.data?.message || "Failed to send request");
+      console.error("Error fetching suggestions:", err);
+      toast.error(err.response?.data?.message || "Failed to load suggestions");
+    } finally {
+      set({ loading: false });
     }
   },
+  
+
+  fetchMutualFriends: async (friendId: string) => {
+    try {
+      
+      const response = await axiosInstance.get(`user/friends/mutual/${friendId}`);
+      
+      set(state => ({
+        mutualFriends: {
+          ...state.mutualFriends,
+          [friendId]: response.data.count
+        }
+      }));
+      
+      return response.data.count;
+    } catch (error) {
+      const err = error as AxiosError;
+      console.error("Error fetching mutual friends:", err);
+      
+      set(state => ({
+        mutualFriends: {
+          ...state.mutualFriends,
+          [friendId]: 0
+        }
+      }));
+      
+      return 0;
+    }
+  },
+
+  ignoreSuggestion: (userId: string) => {
+    set((state) => ({
+      suggestions: state.suggestions.filter(suggestion => suggestion._id !== userId),
+      viewedSuggestions: [...state.viewedSuggestions, userId]
+    }));
+  },
+
+  refreshSuggestions: async () => {
+    set({ loading: true });
+    try {
+      await get().fetchSuggestions();
+      toast.success("Suggestions refreshed");
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  sendRequest: async (userId: string) => {
+  try {
+    set(state => ({
+      suggestions: state.suggestions.map(suggestion => 
+        suggestion._id === userId 
+          ? { ...suggestion, isPending: true } 
+          : suggestion
+      ),
+      sentRequests: [...state.sentRequests, { _id: userId } as IUser]
+    }));
+    
+    await axiosInstance.post("/user/friends/send-request", { receiverId: userId });
+    toast.success("Friend request sent");
+  } catch (error) {
+    const err = error as AxiosError<{ message?: string }>;
+    
+    set(state => ({
+      suggestions: state.suggestions.map(suggestion => 
+        suggestion._id === userId 
+          ? { ...suggestion, isPending: false } 
+          : suggestion
+      ),
+      sentRequests: state.sentRequests.filter(req => req._id !== userId)
+    }));
+    
+    console.error("Error sending request:", err);
+    toast.error(err.response?.data?.message || "Failed to send request");
+  }
+},
 
   acceptRequest: async (userId: string) => {
     try {

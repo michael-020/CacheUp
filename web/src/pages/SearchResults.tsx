@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom" // or next/router if using Next.js
-import { useForumStore } from "@/stores/ForumStore/forumStore"
+import { useForumStore } from "@/stores/ForumStore/useforumStore"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Loader2, MessageSquare, Folder, FileText, MessageCircle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
@@ -39,18 +39,18 @@ export function SearchResults() {
   const handleItemClick = (item: SearchResultItem) => {
     switch (item.type) {
       case 'Forum':
-        navigate(`/forums/${item.data._id}`);
+        navigate(`/forums/${item.data._id}/${item.data.weaviateId}`);
         break;
       case 'Thread':
-        navigate(`/forums/thread/${item.data._id}`);
+        navigate(`/forums/thread/${item.data._id}/1`);
         break;
       case 'Post':
         // Use correct format for post URL to ensure scrolling works
-        navigate(`/forums/thread/${item.data.thread}?post/${item.data._id}`);
+        navigate(`/forums/thread/${item.data.thread}/${item.page}?post=${item.data._id}`);
         break;
       case 'Comment':
         // Use correct format for comment's parent post URL
-        navigate(`/forums/thread/${item.data.thread}?post/${item.data.post}`);
+        navigate(`/forums/thread/${item.data.thread}/${item.page}?post=${item.data._id}`);
         break;
     }
   };
@@ -162,7 +162,7 @@ export function SearchResults() {
 
   return (
     <motion.div 
-      className="dark:bg-neutral-950 mx-auto p-10"
+      className="dark:bg-neutral-950 mx-auto p-10 min-h-screen"
       variants={routeVariants}
       initial="initial"
       animate="final"

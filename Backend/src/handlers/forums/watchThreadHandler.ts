@@ -30,7 +30,7 @@ export const watchThreadHandler = async(req: Request, res: Response) => {
         await thread.save()
 
         res.json({
-            msg: isWatched ? "Unwatched" : "Watched"
+            msg: isWatched ? "Unsubscribed" : "Subscirbed"
         })
     }catch(e){
         console.error(e)

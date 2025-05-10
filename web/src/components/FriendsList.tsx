@@ -15,16 +15,16 @@ import { IUser } from "@/lib/utils";
 import { useChatStore } from "@/stores/chatStore/useChatStore";
 
 interface FriendsListProps {
-  searchTerm?: string;
+  searchTerm: string;
 }
 
-const FriendsList = ({ searchTerm = "" }: FriendsListProps) => {
+const FriendsList = ({ searchTerm }: FriendsListProps) => {
   const { 
     friends, 
     loading, 
     removeFriend, 
   } = useFriendsStore();
-  const { setSelectedUser } = useChatStore()
+  const { setSelectedUser, addUserToContacts } = useChatStore()
   
   const getInitials = (name: string) => {
     if (!name) return "??";
@@ -42,10 +42,13 @@ const FriendsList = ({ searchTerm = "" }: FriendsListProps) => {
     await removeFriend(userId);
   };
 
-  const filteredFriends = friends.filter((friend: IUser) => 
-    friend.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (friend.username && friend.username.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredFriends = friends.filter(friend => {
+    const search = searchTerm.toLowerCase();
+    return (
+      friend.name.toLowerCase().includes(search) ||
+      friend.username.toLowerCase().includes(search)
+    );
+  });
 
   const sortedFriends = [...filteredFriends].sort((a: IUser, b: IUser) => {
     if (!a.name) return 1;
@@ -56,13 +59,29 @@ const FriendsList = ({ searchTerm = "" }: FriendsListProps) => {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-8 w-40" />
-          <Skeleton className="h-8 w-24" />
+        <div className="flex items-center justify-between mb-4">
+          <Skeleton className="h-8 w-40 bg-gray-200 dark:bg-neutral-700" />
+          <Skeleton className="h-6 w-32 bg-gray-200 dark:bg-neutral-700 rounded-full" />
         </div>
+
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
           {[...Array(6)].map((_, i) => (
-            <Skeleton key={i} className="h-24 w-full rounded-lg" />
+            <div 
+              key={i} 
+              className="flex items-center justify-between p-4 bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-100 dark:border-neutral-600"
+            >
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-12 w-12 rounded-full bg-gray-200 dark:bg-neutral-700" />
+                <div>
+                  <Skeleton className="h-5 w-28 mb-2 bg-gray-200 dark:bg-neutral-700" />
+                  <Skeleton className="h-4 w-20 bg-gray-200 dark:bg-neutral-700" />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Skeleton className="h-8 w-8 rounded-full bg-gray-200 dark:bg-neutral-700" />
+                <Skeleton className="h-8 w-8 rounded-full bg-gray-200 dark:bg-neutral-700" />
+              </div>
+            </div>
           ))}
         </div>
       </div>
@@ -70,7 +89,7 @@ const FriendsList = ({ searchTerm = "" }: FriendsListProps) => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold flex items-center gap-2">
           <Users className="h-6 w-6" />
@@ -104,7 +123,7 @@ const FriendsList = ({ searchTerm = "" }: FriendsListProps) => {
               <div className="flex items-center gap-3">
                 <Link to={`/profile/${friend._id}`}>
                   <Avatar className="h-12 w-12 border border-gray-200 dark:border-gray-600">
-                    <AvatarImage src={friend.profilePicture || ""} alt={friend.name} />
+                    <AvatarImage src={friend.profilePicture || "avatar.jpeg" } alt={friend.name} />
                     <AvatarFallback>{getInitials(friend.name)}</AvatarFallback>
                   </Avatar>
                 </Link>
@@ -129,6 +148,7 @@ const FriendsList = ({ searchTerm = "" }: FriendsListProps) => {
                   asChild
                   onClick={() => {
                     setSelectedUser(friend)
+                    addUserToContacts(friend)
                   }}
                 >
                   <Link to={`/message`}>

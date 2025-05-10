@@ -2,13 +2,11 @@ import { Router } from "express";
 import reportPostHandler from "../handlers/reportPostHandler";
 import viewPostHandler from "../handlers/admin/viewPostHandler";
 import postRouter from "./posts";
-import viewProfileHanler from "../handlers/viewPostHandler";
 import { createAdminHandler } from "../handlers/createAdminHandler";
 import { adminLoginHandler } from "../handlers/adminLoginHandler";
 import { adminMiddleware } from "../middlewares/auth";
 import { adminDeletePostHandler } from "../handlers/deletePostHandler";
 import { viewUsersHandler } from "../handlers/viewUsersHanlder";
-import { getCommentHandler } from "../handlers/getCommentHandler";
 import { adminDeleteCommentHandler } from "../handlers/deleteCommentHandler";
 import { adminInfoHandler } from "../handlers/adminInfoHandlert";
 import { checkAdminAuth } from "../handlers/checkAdminHandler";
@@ -22,12 +20,19 @@ import { adminDeleteThreadHandler } from "../handlers/forums/adminDeleteThreadHa
 import { adminDeleteForumHandler } from "../handlers/forums/adminDeleteForumHandler";
 import { editForumAdminHandler } from "../handlers/forums/editForumAdminHandler";
 import { getAllThreadsFromAForumHandler } from "../handlers/forums/getAllThreadsFromAForumHandler";
-import { viewAllThreadsHandler } from "../handlers/admin/viewThreadsHandler";
-import { viewPostsInThreadHandler } from "../handlers/admin/viewPostsInThreadHandler";
 import { adminGetForumRequestHandler } from "../handlers/forums/adminGetForumRequestHandler";
 import { adminApproveForumHandler } from "../handlers/forums/adminApproveForumRequestHandler";
 import { adminRejectForumRequestHandler } from "../handlers/forums/adminRejectForumRequestHandler";
 import { adminGetRejectedForumRequestHandler } from "../handlers/forums/adminGetRejectedForumRequestHandler";
+import { getAllCommentsFromAPostHandler } from "../handlers/forums/getAllCommentsFromAPostHandler";
+import { getAllUsersStatsHandler, getUserStatsHandler } from "../handlers/userStatsHandler";
+import { getDailyTimeSpentHandler } from '../handlers/timeTrackingHandler';
+import { timeTrackingService } from "../services/timeTrackingService";
+import viewProfileHanler from "../handlers/viewProfileHandler";
+import { adminGetReportedPostsCommentsThreadsHandler } from "../handlers/forums/adminGetReportedPostsCommentsThreadsHandler";
+import { getAllPostsFromAThreadHandler } from "../handlers/forums/getAllPostsFromAThreadHandler";
+import { pageViewHandler } from "../handlers/admin/pageViewsHandler";
+import { adminUnreportContentHandler } from "../handlers/forums/adminUnreportContentHandler";
 
 const adminRouter: Router = Router();
 
@@ -66,7 +71,7 @@ adminRouter.use("/view-profile", viewProfileHanler)
 adminRouter.get("/view-users", viewUsersHandler)
 
 // comment get handler
-adminRouter.get("/comment/:id", getCommentHandler)
+// adminRouter.get("/comment/:id", getCommentHandler)
 
 // delete comment
 adminRouter.delete("/comment/:postId/:commentId", adminDeleteCommentHandler)
@@ -78,10 +83,13 @@ adminRouter.post("/create-forum", createForumhandler)
 adminRouter.get("/get-forums", getAllForumsHandler)
 
 // get all threads in a forum
-adminRouter.get("/get-threads/:forumId", viewAllThreadsHandler)
+adminRouter.get("/get-threads/:forumId", getAllThreadsFromAForumHandler)
 
 // get all posts in a thread
-adminRouter.get("/get-thread-posts/:threadId", viewPostsInThreadHandler)
+adminRouter.get("/get-thread-posts/:threadId/:page", getAllPostsFromAThreadHandler)
+
+// get forums comments 
+adminRouter.get("/get-comments/:postId", getAllCommentsFromAPostHandler)
 
 // delete post
 adminRouter.delete("/delete-post/:mongoId/:weaviateId", adminDeletePostForumHandler)
@@ -112,5 +120,22 @@ adminRouter.post("/reject-forum/:requestId", adminRejectForumRequestHandler)
 
 // get rejected forums
 adminRouter.get("/rejected-forums", adminGetRejectedForumRequestHandler)
+
+// get all users stats (admin only)
+adminRouter.get("/stats", getAllUsersStatsHandler);
+
+// get specific user stats (admin only)
+adminRouter.get("/stats/:userId", getUserStatsHandler);
+
+// Change the route to be more specific and avoid conflict with user ID routes
+adminRouter.get('/stats/daily-time/:date', getDailyTimeSpentHandler);
+
+adminRouter.get('/stats/page-views/:date', pageViewHandler);
+
+// get reported forums content
+adminRouter.get("/reported-content", adminGetReportedPostsCommentsThreadsHandler)
+
+// unreport forum content
+adminRouter.put("/unreport-content/:id", adminUnreportContentHandler)
 
 export default adminRouter;

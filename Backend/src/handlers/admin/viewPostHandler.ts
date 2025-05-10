@@ -11,7 +11,7 @@ const viewPostHandler: Router = Router();
 viewPostHandler.get("/", async (req: Request, res: Response) => {
     try{
         // const userId = req.user._id
-        const allPosts = await postModel.find({}).sort({ createdAt: -1});
+        const allPosts = await postModel.find({}).sort({ createdAt: -1}).lean();
 
         if(!allPosts){
             res.status(401).json({
@@ -23,7 +23,7 @@ viewPostHandler.get("/", async (req: Request, res: Response) => {
             // const isReported = post.reportedBy.includes(new mongo.ObjectId(userId?.toString())); // to check if the logged in user has reported a certain post or not
             
             return {
-                ...post._doc,
+                ...post,
                 // isReported,
                 // reportButtonText: isReported ? 'Unreport' : 'Report',
                 reportCount: post.reportedBy.length
@@ -46,7 +46,7 @@ viewPostHandler.get("/myPosts", async (req: Request, res: Response) => {
     try{
         const userId = req.user._id;
 
-        const posts = await postModel.find({ postedBy: userId }).sort({ createdAt: -1});
+        const posts = await postModel.find({ postedBy: userId }).sort({ createdAt: -1}).lean();
 
         if(!posts){
             res.status(401).json({
@@ -71,7 +71,7 @@ viewPostHandler.get("/:id", async (req: Request, res: Response) => {
     try{
         const userId = req.params.id;
 
-        const posts = await postModel.find({ postedBy: userId }).sort({ createdAt: -1});
+        const posts = await postModel.find({ postedBy: userId }).sort({ createdAt: -1}).lean();
 
         if(!posts){
             res.status(401).json({

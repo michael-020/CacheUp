@@ -1,5 +1,12 @@
-body {
+html {
   overflow-y: scroll;
+  /* Prevent layout shift by always reserving scrollbar width */
+  margin-right: calc(100vw - 100%);
+  margin-right: 0; /* This prevents a double scrollbar in Firefox */
+}
+
+body {
+  /* Remove duplicate overflow-y declaration */
   padding-right: constant(safe-area-inset-right); /* For iOS */
   padding-right: env(safe-area-inset-right);
 }
@@ -93,4 +100,39 @@ Custom scrollbar styling
 /* Apply custom scrollbar to all main content areas */
 html, body, #root, main, .overflow-y-auto, .overflow-auto {
   @apply custom-scrollbar;
+}
+
+.react-datepicker {
+  @apply dark:bg-neutral-800 dark:border-neutral-700;
+}
+
+.react-datepicker__header {
+  @apply dark:bg-neutral-700 dark:border-neutral-600;
+}
+
+.react-datepicker__current-month, 
+.react-datepicker__day-name {
+  @apply dark:text-gray-200;
+}
+
+.react-datepicker__day {
+  @apply dark:text-gray-300 dark:hover:bg-neutral-600;
+}
+
+.react-datepicker__day--selected {
+  @apply dark:bg-blue-600 dark:text-white;
+}
+
+.react-datepicker__day--disabled {
+  @apply dark:text-gray-600;
+}
+
+/* Add to your global CSS file */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
 }

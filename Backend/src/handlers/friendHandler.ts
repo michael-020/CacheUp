@@ -3,6 +3,7 @@ import { Request } from "express";
 import { userModel } from "../models/db";
 import { authMiddleware } from "../middlewares/auth";
 import mongoose, { Types } from "mongoose";
+import { Suggestion } from "../types/friend";
 
 const friendHandler: Router = Router();
 
@@ -214,7 +215,8 @@ friendHandler.get("/", async (req: Request, res: Response) => {
         path: "friends",
         select: "name username profilePicture department graduationYear",
         options: { lean: true }
-      });
+      })
+      .lean();
 
     if (!user) {
        res.status(404).json({ message: "User not found" });
@@ -270,48 +272,38 @@ friendHandler.delete("/remove/:friendId", async (req: Request, res: Response) =>
 
 // Friend search endpoint
 friendHandler.get("/search", async (req: Request, res: Response) => {
-    try {
-      const { query } = req.query;
-      const userId = req.user._id;
-  
-      if (!query || typeof query !== "string") {
-        res.status(400).json({ message: "Search query required" });
-        return;
-      }
-  
-      const searchRegex = new RegExp(query, "i");
-  
-      const users = await userModel.find({
-        $and: [
-          {
-            $or: [
-              { name: { $regex: searchRegex } },
-              { username: { $regex: searchRegex } },
-              { department: { $regex: searchRegex } }
-            ]
-          },
-          { _id: { $ne: userId } }, 
-          { friendRequests: { $ne: userId } } 
-        ]
-      }).select("name username profilePicture department graduationYear")
-        .lean();
-  
-      const currentUser = await userModel.findById(userId).select("friends");
-      const friendsSet = new Set(currentUser?.friends.map(id => id.toString()));
-  
-      const resultsWithStatus = users.map(user => ({
-        ...user,
-        isFriend: friendsSet.has(user._id.toString())
-      }));
-  
-      res.status(200).json({ users: resultsWithStatus });
-      return;
-    } catch (error) {
-      console.error("Error searching users:", error);
-      res.status(500).json({ message: "Internal server error" });
+  try {
+    const { query } = req.query;
+    const userId = req.user._id;
+
+    if (!query || typeof query !== "string") {
+      res.status(400).json({ message: "Search query required" });
       return;
     }
-  });
+
+    const searchRegex = new RegExp(query, "i");
+
+    const users = await userModel.find({
+      $and: [
+        {
+          $or: [
+            { name: { $regex: searchRegex } },
+            { username: { $regex: searchRegex } }
+          ]
+        },
+        { _id: { $ne: userId } }
+      ]
+    })
+    .select("name username profilePicture")
+    .limit(20)
+    .lean();
+
+    res.status(200).json({ users });
+  } catch (error) {
+    console.error("Error searching users:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
   friendHandler.get("/all-users", async (req: Request, res: Response) => {
     try {
@@ -357,5 +349,198 @@ friendHandler.delete("/cancel-request", async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
+// Get mutual friends count endpoint
+friendHandler.get("/mutual/:friendId", async (req: Request, res: Response) => {
+  try {
+    const userId = req.user._id;
+    const { friendId } = req.params;
+
+    if (!isValidObjectId(friendId)) {
+      res.status(400).json({ message: "Invalid friend ID" });
+      return;
+    }
+
+    const friendObjectId = new Types.ObjectId(friendId);
+
+    const currentUser = await userModel.findById(userId).select("friends").lean();
+    if (!currentUser) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    const friend = await userModel.findById(friendObjectId).select("friends").lean();
+    if (!friend) {
+      res.status(404).json({ message: "Friend not found" });
+      return;
+    }
+
+    const userFriendIds = currentUser.friends.map(id => id.toString());
+    const friendFriendIds = friend.friends.map(id => id.toString());
+
+    const mutualFriends = userFriendIds.filter(id => friendFriendIds.includes(id)).length;
+
+    res.status(200).json({ count: mutualFriends });
+    return;
+  } catch (error) {
+    console.error("Error getting mutual friends:", error);
+    res.status(500).json({ message: "Internal server error" });
+    return;
+  }
+});
+
+// Friends suggestions endpoint
+friendHandler.get("/suggestions", async (req: Request, res: Response) => {
+  try {
+    const userId = req.user._id;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    const currentUser = await userModel.findById(userId).select("friends department graduationYear").lean();
+    if (!currentUser) {
+       res.status(404).json({ message: "User not found" });
+       return
+    }
+
+    const pendingSentRequestsUsers = await userModel.find({
+      friendRequests: userId
+    }).select("_id").lean();
+    
+    const pendingRequestUserIds = pendingSentRequestsUsers.map(user => user._id);
+
+    const excludeUserIds = [...currentUser.friends, userId, ...pendingRequestUserIds];
+
+    const friendsOfFriends = await userModel.aggregate([
+      { $match: { _id: { $in: currentUser.friends } } },
+      {
+        $lookup: {
+          from: "users",
+          localField: "friends",
+          foreignField: "_id",
+          as: "friendsOfFriends"
+        }
+      },
+      { $unwind: "$friendsOfFriends" },
+      {
+        $match: {
+          "friendsOfFriends._id": {
+            $nin: excludeUserIds
+          }
+        }
+      },
+      {
+        $group: {
+          _id: "$friendsOfFriends._id",
+          user: { $first: "$friendsOfFriends" },
+          mutualFriends: { $sum: 1 }
+        }
+      },
+      { $sort: { mutualFriends: -1 } },
+      { $limit: limit }
+    ]);
+
+    // const departmentMatches = await userModel.find({
+    //   _id: { $nin: excludeUserIds },
+    //   $or: [
+    //     { department: currentUser.department },
+    //     { graduationYear: currentUser.graduationYear }
+    //   ]
+    // })
+    //   .select("name username profilePicture department graduationYear")
+    //   .limit(limit)
+    //   .lean();
+
+    let suggestions: Suggestion[] = [];
+
+    if (friendsOfFriends.length > 0) {
+      suggestions = friendsOfFriends.map(item => ({
+        _id: item._id,
+        name: item.user.name,
+        username: item.user.username,
+        profilePicture: item.user.profilePicture,
+        department: item.user.department,
+        graduationYear: item.user.graduationYear,
+        mutualFriends: item.mutualFriends
+      }));
+    }
+
+    if (suggestions.length === 0) {
+      const randomUsers = await userModel.aggregate([
+        { $match: { _id: { $nin: excludeUserIds } } },
+        { $sample: { size: 5 } },
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            username: 1,
+            profilePicture: 1,
+            department: 1,
+            graduationYear: 1,
+          }
+        }
+      ]);
+  
+      suggestions = randomUsers.map(user => ({
+        ...user,
+        mutualFriends: 0
+      }));
+    }
+  
+ 
+
+    if (suggestions.length < limit) {
+      const suggestionIds = new Set(suggestions.map(s => s._id.toString()));
+
+      // const additionalSuggestions = departmentMatches
+      //   .filter(user => !suggestionIds.has(user._id.toString()))
+      //   .map(user => ({
+      //     ...user,
+      //     mutualFriends: 0
+      //   }))
+      //   .slice(0, limit - suggestions.length);
+
+      // suggestions = [...suggestions, ...additionalSuggestions];
+    }
+
+    res.status(200).json({ suggestions });
+    return
+
+  } catch (error) {
+    console.error("Error fetching suggestions:", error);
+    res.status(500).json({ message: "Internal server error" });
+    return
+  }
+});
+
+friendHandler.get("/:userId", async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    
+    if (!isValidObjectId(userId)) {
+      res.status(400).json({ message: "Invalid user ID" });
+      return;
+    }
+    
+    const user = await userModel.findById(userId)
+      .populate({
+        path: "friends",
+        select: "name username profilePicture department graduationYear",
+        options: { lean: true }
+      })
+      .lean();
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    res.status(200).json({ friends: user.friends });
+    return;
+  } catch (error) {
+    console.error("Error fetching user's friends:", error);
+    res.status(500).json({ message: "Internal server error" });
+    return;
+  }
+});
+
 
 export default friendHandler;

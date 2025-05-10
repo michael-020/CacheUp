@@ -1,5 +1,4 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
-import { boolean, string } from 'zod';
 
 // User Interface
 export interface IUser extends Document {
@@ -9,8 +8,6 @@ export interface IUser extends Document {
   email: string;
   password: string;
   profilePicture?: string;
-  department: string;
-  graduationYear: string;
   bio?: string;
   posts: mongoose.Types.ObjectId[];
   friends: mongoose.Types.ObjectId[];
@@ -18,6 +15,9 @@ export interface IUser extends Document {
   _doc?: Omit<IUser, '_doc'>;
   createdAt: Date;
   updatedAt: Date;
+  visibility?: Boolean;
+  authType: 'local' | 'google';
+  isEmailVerified: boolean;
 }
 
 // Admin Interface
@@ -29,6 +29,7 @@ export interface IAdmin extends Document {
   _doc?: Omit<IAdmin, '_doc'>;
   createdAt: Date;
   updatedAt: Date;
+  visibility?: Boolean
 }
 
 export interface Comment {
@@ -37,6 +38,7 @@ export interface Comment {
     content: string;
     user: mongoose.Types.ObjectId;
     date: Date;
+    visibility?: Boolean
   }
 
 // Post Interface
@@ -53,6 +55,7 @@ export interface IPost extends Document {
   _doc?: Omit<IPost, '_doc'>;
   createdAt: Date;
   updatedAt: Date;
+  visibility?: Boolean
 }
 
 // OTP Interface
@@ -91,6 +94,7 @@ export interface IForum extends Document {
   createdBy: mongoose.Types.ObjectId;
   createdAt: Date;
   weaviateId: string;
+  visibility?: Boolean
 }
 
 
@@ -104,6 +108,7 @@ export interface IThreadForum extends Document {
   watchedBy?: mongoose.Types.ObjectId[];
   reportedBy?: mongoose.Types.ObjectId[];
   weaviateId?: string
+  visibility?: Boolean
 }
 
 // Forums Post Interface
@@ -115,7 +120,9 @@ export interface IPostForum extends Document {
   likedBy?: mongoose.Types.ObjectId[];
   disLikedBy?: mongoose.Types.ObjectId[];
   reportedBy?: mongoose.Types.ObjectId[];
-  weaviateId: string
+  weaviateId: string;
+  commentsCount: number;
+  visibility?: Boolean
 }
 
 // Forums Comment Interface
@@ -128,6 +135,7 @@ export interface ICommentForum extends Document {
   disLikedBy?: mongoose.Types.ObjectId[];
   reportedBy?: mongoose.Types.ObjectId[];
   weaviateId: string;
+  visibility?: Boolean
 }
 
 // Notification Interface
@@ -137,7 +145,7 @@ interface INotification extends Document {
   threadId: Schema.Types.ObjectId;
   seenBy: Schema.Types.ObjectId[];
   createdAt: Date; 
-  postId?: Schema.Types.ObjectId
+  postId: Schema.Types.ObjectId
   commentId?: Schema.Types.ObjectId
   createdBy: Schema.Types.ObjectId
 }
@@ -148,7 +156,7 @@ interface IRequestForum extends Document {
   description: string;
   requestedBy: Schema.Types.ObjectId;
   status: 'pending' | 'approved' | 'rejected';
-  createdAt: Date
+  createdAt: Date;
 }
 
 // SCHEMAS FROM HERE
@@ -173,24 +181,36 @@ const userSchema = new Schema<IUser>({
     lowercase: true,
     match: [/^\S+@\S+\.\S+$/, 'Please use a valid email address']
   },
+  authType: {
+    type: String,
+    enum: ['local', 'google'],
+    required: true,
+    default: 'local'
+  },
   password: { 
     type: String, 
-    required: [true, 'Password is required'] 
+    required: function(this: { authType: string }) {
+      return this.authType === 'local'; // Only required for local auth
+    }
+  },
+  isEmailVerified: {
+    type: Boolean,
+    default: false
   },
   profilePicture: { 
     type: String, 
     default: '' 
   },
-  department: { 
-    type: String, 
-    required: [true, 'Department is required'] 
-  },
-  graduationYear: { 
-    type: String, 
-    required: [true, 'Graduation year is required'],
-    min: [2000, 'Graduation year must be after 2000'],
-    max: [2100, 'Graduation year must be before 2100']
-  },
+  // department: { 
+  //   type: String, 
+  //   required: [false, 'Department is required'] 
+  // },
+  // graduationYear: { 
+  //   type: String, 
+  //   required: [false, 'Graduation year is required'],
+  //   min: [2000, 'Graduation year must be after 2000'],
+  //   max: [2100, 'Graduation year must be before 2100']
+  // },
   bio: { 
     type: String, 
     maxlength: [200, 'Bio cannot exceed 200 characters'] 
@@ -206,7 +226,8 @@ const userSchema = new Schema<IUser>({
   friendRequests: [{ 
     type: Schema.Types.ObjectId, 
     ref: 'users' 
-  }]
+  }],
+  visibility: {type: Boolean, default: true} 
 }, { 
   timestamps: true,
   toJSON: { virtuals: true },
@@ -231,7 +252,8 @@ const adminSchema = new Schema<IAdmin>({
   role: { 
     type: String, 
     default: 'admin' 
-  }
+  },
+  visibility: {type: Boolean, default: true}
 }, { 
   timestamps: true 
 });
@@ -275,8 +297,10 @@ const postSchema = new Schema<IPost>({
     date: { 
       type: Date, 
       default: Date.now 
-    }
-  }]
+    },
+    visibility: {type: Boolean, default: true}
+  }],
+  visibility: {type: Boolean, default: true} 
 }, { 
   timestamps: true 
 });
@@ -327,7 +351,7 @@ const chatSchema = new Schema<IChat>({
   isRead: {
     type: Boolean,
     default: false,
-  }
+  },
 }, { 
   timestamps: true 
 });
@@ -341,7 +365,7 @@ const chatRoomSchema = new Schema<IChatRoom>({
   messages: [{ 
       type: Schema.Types.ObjectId, 
       ref: 'messages' 
-  }]
+  }],
 }, {
   timestamps: true
 })
@@ -368,7 +392,8 @@ const forumSchema = new Schema<IForum>({
   weaviateId: {
     type: String,
     required: true
-  }
+  },
+  visibility: {type: Boolean, default: true} 
 })
 
 // Thread Forum Schema
@@ -404,7 +429,8 @@ const threadForumSchema = new Schema<IThreadForum>({
   }],
   weaviateId: {
     type: String
-  }
+  },
+  visibility: {type: Boolean, default: true} 
 })
 
 // Post Forum Schema
@@ -438,9 +464,17 @@ const postForumSchema = new Schema<IPostForum>({
   weaviateId: {
     type: String,
     required: true
-  }
+  },
+  visibility: {type: Boolean, default: true} 
+,
+  commentsCount: Number
 })
 
+// indexing
+postForumSchema.index(
+  { thread: 1, createdAt: 1 },
+  { partialFilterExpression: {visibility: true} }
+);
 // Comment Forum Schema
 const commentForumSchema = new Schema<ICommentForum>({
   content: {
@@ -474,8 +508,14 @@ const commentForumSchema = new Schema<ICommentForum>({
   weaviateId: {
     type: String,
     required: true
-  }
+  },
+  visibility: {type: Boolean, default: true} 
 })
+// indexing
+commentForumSchema.index(
+  { post: 1, createdAt: 1},
+  {partialFilterExpression: {visibility: true}}
+)
 
 // Watch Thread Notification Forum Schema
 const watchNotificationSchema = new Schema<INotification>({
@@ -539,7 +579,44 @@ const requestForumSchema = new Schema<IRequestForum>({
   }
 })
 
+const userLogSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  action: {
+    type: String,
+    required: true,
+    enum: ['LOGIN', 'LOGOUT', 'SIGNUP', 'PAGE_VIEW']
+  },
+  timestamp: {
+    type: Date,
+    default: Date.now
+  },
+  sessionDuration: {
+    type: Number,
+    default: 0 // Duration in minutes
+  },
+  page: {
+    type: String,
+    // Fix: Change the validation to use a validate function
+    validate: {
+      validator: function(this: any) {
+        return this.action !== 'PAGE_VIEW' || (this.action === 'PAGE_VIEW' && this.page);
+      },
+      message: 'Page is required for PAGE_VIEW actions'
+    }
+  },
+  timeSpent: {
+    type: Number,
+    default: 0 // Time spent in minutes
+  },
+  device: String,
+  ipAddress: String
+});
 
+export const UserLog = mongoose.model('UserLog', userLogSchema);
 export const userModel = mongoose.model<IUser, Model<IUser>>('users', userSchema);
 export const postModel = mongoose.model<IPost, Model<IPost>>('posts', postSchema);
 export const adminModel = mongoose.model<IAdmin, Model<IAdmin>>('Admin', adminSchema);

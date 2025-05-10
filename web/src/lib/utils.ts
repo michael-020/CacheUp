@@ -1,13 +1,12 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { z } from "zod"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const HTTP_URL="http://localhost:3000/api/v1"
-
-export const WS_URL = "ws://localhost:4000" 
+export const HTTP_URL=`${import.meta.env.VITE_API_URL}/api/v1`
 
 export function formatMessageTime(date: Date) {
   return new Date(date).toLocaleTimeString("en-US", {
@@ -27,7 +26,7 @@ export function formatDate(date: Date): string {
 }
 
 export interface IUser {
-    _id: string
+    _id: string;
     name: string;
     username: string;
     email: string;
@@ -35,11 +34,11 @@ export interface IUser {
     profilePicture: string;
     department: string;
     graduationYear: number;
-    bio?: string;
-    posts?: IPost[];
-    friends?: IUser[];
-    friendRequests?: IUser[];
-    lastUsernameChangeDate?: string
+    bio: string; 
+    posts: IPost[]; 
+    friends: IUser[]; 
+    friendRequests: IUser[]; 
+    lastUsernameChangeDate?: string;
     mutualFriends?: number;
     isFriend?: boolean;
     hasPendingRequest?: boolean;
@@ -77,11 +76,7 @@ export interface Post {
 export interface Comment {
   _id: string;
   content: string;       
-  user: {               
-    _id: string;
-    username: string;   
-    profileImagePath?: string;
-  };
+  user: Partial<IUser>
   date: Date;          
 }
 
@@ -90,3 +85,21 @@ export interface IAdmin {
   name: string;
   adminId: string;
 }
+
+export const setupSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  password: z.string()
+    .min(8, "Password must be at least 8 characters")
+    .regex(/[A-Z]/, "Password must contain at least 1 uppercase letter")
+    .regex(/[a-z]/, "Password must contain at least 1 lowercase letter")
+    .regex(/[0-9]/, "Password must contain at least 1 number")
+    .regex(/[^A-Za-z0-9]/, "Password must contain at least 1 special character"),
+  confirmPassword: z.string(),
+  profilePicture: z.string().optional(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
+export type SetupFormData = z.infer<typeof setupSchema>;

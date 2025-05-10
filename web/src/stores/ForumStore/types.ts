@@ -1,5 +1,14 @@
 import { IUser } from "@/lib/utils";
 
+export interface ForumRequest {
+  _id: string;
+  title: string;
+  description: string;
+  status: string;
+  createdAt: string;
+  requestedBy: IUser;
+}
+
 export interface SearchResultItem {
   type: 'Forum' | 'Thread' | 'Post' | 'Comment';
   data: {
@@ -11,8 +20,16 @@ export interface SearchResultItem {
     thread?: string;
     post?: string;
     createdAt: Date;
+    weaviateId?: string
   };
   certainty: number;
+  page: number
+}
+
+export type UnreportContentType = 'thread' | 'post' | 'comment'
+
+export interface ReportStatus {
+  [key: string]:boolean
 }
 
 export interface CreatedBy {
@@ -36,6 +53,8 @@ export interface PostSchema {
   disLikedBy?: string[];
   reportedBy?: string[];
   weaviateId: string;
+  commentsCount: number;
+  pageNumber? :number
 }
 
 export interface Thread {
@@ -45,6 +64,7 @@ export interface Thread {
   createdAt: string;
   weaviateId: string;
   createdBy: IUser;
+  reportedBy: string[]
 }
 
 export interface Comment {
@@ -58,8 +78,9 @@ export interface Comment {
   };
   likedBy: string[];
   disLikedBy: string[];
-  reportedBy: string[];
+  reportedBy?: string[];
   weaviateId: string;
+  pageNumber: number
 }
 
 export interface Notification {
@@ -79,6 +100,7 @@ export interface Notification {
   } | null;
   createdAt: string;
   __v?: number;
+  pageNumber: number
 }
 export interface Forum {
         _id: string;
@@ -112,7 +134,16 @@ export interface ForumState {
   commentsLoading: {[postId: string]: boolean};
   commentsError: {[postId: string]: string};
   isWatched: boolean;
-  notifications: Notification[]
+  notifications: Notification[];
+  reportLoading: ReportStatus
+  requestedForums: ForumRequest[];
+  isCreatingPost:boolean;
+  totalPosts: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  reportedComments: Comment[];
+  reportedPosts: PostSchema[];
+  reportedThreads: Thread[]
 }
 
 
@@ -124,7 +155,6 @@ export interface ForumActions {
     weaviateId: string, 
     data: { title: string; description: string }
   ) => Promise<void>;
-  fetchForumDetails: (forumId: string) => Promise<void>;
   fetchThreads: (forumId: string, isAdminRoute: boolean) => Promise<void>;
   createThread: (
     forumId: string,
@@ -133,21 +163,36 @@ export interface ForumActions {
     isAdminRoute: boolean
   ) => Promise<void>;
   searchForums: (query: string) => Promise<void>;
-  fetchPosts: (threadId: string, isAdmin?: boolean) => Promise<void>
+  fetchPosts: (threadId: string, page: string, isAdmin?: boolean) => Promise<void>
   createPost: (threadMongo: string, threadWeaviate: string, content:string) => Promise<void>
   toggleLike: (mongoId: string) => Promise<number | undefined>
+  toggleDislike: (mongoId: string) => Promise<number | undefined>
   isLiked: (postId: string) => boolean;
-  fetchComments: (postId: string) => Promise<Comment[]>;
+  fetchComments: (postId: string, isAdmin?: boolean) => Promise<Comment[]>;
   createComment: (postId: string, postWeaviateId: string, content: string) => Promise<Comment>;
   likeComment: (commentId: string, userId: string) => Promise<void>;
   dislikeComment: (commentId: string, userId: string) => Promise<void>;
   editComment: (commentId: string, weaviateId: string, content: string) => Promise<void>;
-  deleteComment: (commentId: string, weaviateId: string) => Promise<void>;
-  deleteThread: (threadId: string) => void;
+  deleteComment: (commentId: string, weaviateId: string, isAdmin?: boolean) => Promise<void>;
+  deleteThread: (threadId: string, weaviateId: string) => void;
   watchThread: (threadId: string) => Promise<void>;
   checkWatchStatus: (threadId: string) => Promise<void>
   fetchNotifications: () => Promise<void>
   markNotificationRead: (notificationId: string) => Promise<void>
+  createForumRequest: (title: string, description: string) => Promise<void>
+  reportPost: (postId: string) => Promise<void>
+  reportComment: (commentId: string) => Promise<void>
+  checkIfPostReported: (post: PostSchema, userId: string) => boolean
+  checkIfCommentReported: (comment: Comment, userId: string) => boolean
+  fetchRequestedForums: () => Promise<void>;
+  deletePost: (postId: string, weaviateId: string, isAdmin?:boolean) => Promise<void>;
+  editPost: (mongoId: string, weaviateId: string, content: string) => Promise<void>
+  setPosts: (posts: PostSchema[]) => void;
+  approveRequest: (id: string) => void;
+  denyRequest: (id: string) => void;
+  fetchReportedContent: () => void;
+  unreportContent: (type: UnreportContentType, id: string) => void;
+  reportThread: (id: string, userId: string) => Promise<void>
 }
 
 export type ForumStore = ForumState & ForumActions;

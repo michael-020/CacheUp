@@ -4,14 +4,13 @@ import { Request, RequestHandler, Response } from "express";
 import { userModel } from "../models/db";
 import { generateToken } from "../lib/utils";
 import mongoose, { Mongoose, ObjectId } from "mongoose";
+import { loggingService } from '../services/loggingService';
 
 export const signupHandler: RequestHandler =  async (req: Request, res: Response) => {
     const mySchema = z.object({
         name: z.string().min(1, "Name is required"),
         username: z.string().min(1, "Username is required"),
-        email: z.string().email().refine((val) => val.endsWith('@pvppcoe.ac.in'), {
-          message: "Only Emails ending with @pvppcoe.ac.in can register"
-        }),
+        email: z.string().email(),
         password: z.string()
           .min(8, "Password should be at least 8 characters")
           .max(100, "Password should not exceed 100 characters")
@@ -19,8 +18,7 @@ export const signupHandler: RequestHandler =  async (req: Request, res: Response
           .regex(/[A-Z]/, "Password must contain at least 1 uppercase letter")
           .regex(/[0-9]/, "Password must contain at least 1 number")
           .regex(/[^A-Za-z0-9]/, "Password must contain at least 1 special character"),
-        department: z.string().min(1, "Department is required"),
-        graduationYear: z.string(),
+        
       }).strict({
         message: "Extra fields are not allowed"
     });
@@ -35,7 +33,7 @@ export const signupHandler: RequestHandler =  async (req: Request, res: Response
         return;
     }
 
-    const { name, username, email, password, department, graduationYear} = response.data
+    const { name, username, email, password} = response.data
 
     try{
         const existingUser = await userModel.findOne({ $or: [{email}, {username}] })
@@ -61,8 +59,6 @@ export const signupHandler: RequestHandler =  async (req: Request, res: Response
             username,
             email,
             password: hashedPassword,
-            department,
-            graduationYear,
             bio: "",
             posts: [],
             friends: [],
@@ -71,18 +67,25 @@ export const signupHandler: RequestHandler =  async (req: Request, res: Response
 
         generateToken(new mongoose.Types.ObjectId(newUser._id), res);
 
+        // Create signup log
+        await loggingService.createSignupLog(newUser._id.toString(), req);
+
         res.status(201).json({
             _id: newUser._id,
+            name: newUser.name,
             username: newUser.username,
             email: newUser.email,
-            department: newUser.department,
-            graduationYear: newUser.graduationYear,
+            profilePicture: newUser.profilePicture,
+            bio: newUser.bio,
+            friends: newUser.friends,
+            posts: newUser.posts, 
+            friendRequests: newUser.friendRequests
         })
     }
     catch (e) {
-        console.error("error while siging up", e)
+        console.error("error while signing up", e)
         res.status(400).json({
-            msg: "error occured while signing up",
+            msg: "error occurred while signing up",
             error: e
         })
         return;

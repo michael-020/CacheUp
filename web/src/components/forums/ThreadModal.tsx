@@ -1,14 +1,18 @@
-import { useEffect, useState, FC } from 'react';
+import { useEffect, useState, FC, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { Textarea } from '../ui/textarea';
 
 interface ThreadModalProps {
   onClose: () => void;
   onSubmit: (data: { title: string; description: string }) => void;
+  forum?: boolean
 }
 
-const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit }) => {
+const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit, forum }) => {
   const [threadData, setThreadData] = useState({ title: '', description: '' });
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<{title?: string; description?: string}>({});
+  const modalRef = useRef<HTMLDivElement | null>(null)
 
   const validate = (): boolean => {
     const newErrors: {title?: string; description?: string} = {};
@@ -18,7 +22,7 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit }) => {
     }
     
     if (!threadData.description.trim()) {
-      newErrors.description = 'Content is required';
+      newErrors.description = 'Description is required';
     }
     
     setErrors(newErrors);
@@ -33,37 +37,31 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit }) => {
     }
     
     setSubmitting(true);
-    await onSubmit(threadData);
+    onSubmit(threadData);
     setSubmitting(false);
   };
 
-  // Close modal when Escape key is pressed
   useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
+    const handleClickOutside = (e: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+        onClose()
       }
     };
     
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
+    window.addEventListener('mousedown', handleClickOutside);
+    return () => window.removeEventListener('mousedown', handleClickOutside);
   }, [onClose]);
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-neutral-800  rounded-lg p-6 w-full max-w-md">
+  return createPortal(
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-[1.5px] dark:bg-neutral-900/80  flex items-center justify-center z-50">
+      <div ref={modalRef} className="bg-white dark:bg-neutral-800  rounded-lg p-6 w-full max-w-md">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold dark:text-gray-200">Create New Thread</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <h2 className="text-xl font-bold dark:text-gray-200">{forum ? "Request New Forum" : "Create New thread"}</h2>
         </div>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 flex flex-col">
           <div>
-            <label className="block mb-2">Title</label>
+            <label className="block mb-2">{forum ? "Forum Title" : "Title"}</label>
             <input
               type="text"
               value={threadData.title}
@@ -75,36 +73,42 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit }) => {
           </div>
           
           <div>
-            <label className="block mb-2">Content</label>
-            <textarea
+            <label className="block mb-2">{forum ? "Forum Description" : "Description"}</label>
+            <Textarea
               value={threadData.description}
               onChange={(e) => setThreadData({...threadData, description: e.target.value})}
               placeholder='Content'
-              className={`w-full p-2 border rounded h-32 dark:placeholder:text-gray-700 dark:bg-neutral-600 ${errors.description ? 'border-red-500' : ''}`}
+              rows={5}
+              className={`w-full p-2 border resize-none rounded dark:placeholder:text-gray-700 dark:bg-neutral-600 ${errors.description ? 'border-red-500' : ''}`}
             />
             {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex gap-4 self-end">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
+            >
+              Cancel
+            </button>
+            
             <button
               type="submit"
               disabled={submitting}
               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:bg-gray-400"
             >
-              {submitting ? 'Creating...' : 'Create Thread'}
-            </button>
-            
-            <button
-              type="button"
-              onClick={onClose}
-              className="bg-gray-200 dark:bg-neutral-700 dark:hover:bg-neutral-500 px-4 py-2 rounded hover:bg-gray-300"
-            >
-              Cancel
+             {forum 
+                ? (submitting ? 'Requesting...' : 'Request Forum') 
+                : (submitting ? 'Creating...' : 'Create Thread')
+              }
+
             </button>
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

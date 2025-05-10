@@ -21,13 +21,24 @@ import { editThreadForumHandler } from "../handlers/forums/editThreadForumHandle
 import { watchThreadHandler } from "../handlers/forums/watchThreadHandler";
 import { reportPostForumHandler } from "../handlers/forums/reportPostForumHandler";
 import { reportThreadHandler } from "../handlers/forums/reportThreadHandler";
-import { getNotification } from "../handlers/forums/getNotificationHandler";
+import { getNotificationHandler } from "../handlers/forums/getNotificationHandler";
 import { createForumRequestHandler } from "../handlers/forums/createForumRequestHandler";
 import { getWatchStatusThreadHandler } from "../handlers/forums/getWatchStatusThreadHandler";
 import { markNotificationAsReadHandler } from "../handlers/forums/markNotificationAsReadHandler";
 
 
 const forumsRouter = Router()
+
+// get handler for non-auth users
+forumsRouter.get("/view-forums", getAllForumsHandler)
+
+forumsRouter.get("/view-threads/:forumId", getAllThreadsFromAForumHandler)
+
+forumsRouter.get("/search-forums-na/:query", searchForumHandler)
+
+forumsRouter.get("/view-posts/:threadId/:page", getAllPostsFromAThreadHandler)
+
+forumsRouter.get("/view-comments/:postId", getAllCommentsFromAPostHandler)
 
 forumsRouter.use(authMiddleware)
 // get all forums
@@ -49,7 +60,7 @@ forumsRouter.post("/create-comment/:postMongo/:postWeaviate", createCommentForum
 forumsRouter.get("/search-forums/:query", searchForumHandler)
 
 // get posts from a thread
-forumsRouter.get("/get-posts/:threadId", getAllPostsFromAThreadHandler)
+forumsRouter.get("/get-posts/:threadId/:page", getAllPostsFromAThreadHandler)
 
 // get comments of a post 
 forumsRouter.get("/get-comments/:postId", getAllCommentsFromAPostHandler)
@@ -94,7 +105,7 @@ forumsRouter.put("/report-post/:mongoId", reportPostForumHandler)
 forumsRouter.put("/report-thread/:mongoId", reportThreadHandler)
 
 // notification route
-forumsRouter.get("/notification", getNotification)
+forumsRouter.get("/notification", getNotificationHandler)
 
 // request forum route
 forumsRouter.post("/request-forum", createForumRequestHandler)

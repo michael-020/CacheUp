@@ -1,7 +1,6 @@
 import type React from "react"
 import { useState } from "react"
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
 import { Search } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 
@@ -28,7 +27,12 @@ export function SearchBar() {
           className="pl-10 dark:bg-neutral-900"
         />
       </div>
-      <Button type="submit">Search</Button>
+      <button
+        type="submit"
+        className="bg-blue-500 hover:bg-blue-600 text-white py-1.5 px-4 rounded transition-colors duration-200"
+      >
+        Search
+      </button>
     </form>
   )
 }

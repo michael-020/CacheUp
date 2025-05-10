@@ -40,9 +40,11 @@ export const updateCommentHandler = async (req: Request, res: Response) => {
         }
 
         const processedComment = {
+            _id: comment._id,
             content,
             username: user.username,
-            profilePicture: user.profilePicture
+            profilePicture: user.profilePicture,
+            date: new Date()
         }
 
         res.status(200).json({ 

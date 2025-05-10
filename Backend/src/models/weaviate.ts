@@ -1,8 +1,14 @@
-import weaviate from "weaviate-ts-client";
+import dotenv from "dotenv";
+dotenv.config();
+import weaviate, {ApiKey} from "weaviate-ts-client";
+
+const weaviateURL = process.env.WEAVIATE_HOST as string;
+const apiKey = process.env.WEAVIATE_API_KEY;
 
 export const weaviateClient = weaviate.client({
-  scheme: "http",
-  host: "localhost:8080", // Change if using a remote server
+  scheme: weaviateURL.startsWith('https') ? 'https' : 'http',
+  host: weaviateURL.replace(/^https?:\/\//, ''),
+  apiKey: apiKey ? new ApiKey(apiKey) : undefined,
 });
 
 async function setupWeaviateSchema() {

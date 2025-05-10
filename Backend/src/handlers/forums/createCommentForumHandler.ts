@@ -23,8 +23,12 @@ export const createCommentForumHandler = async (req: Request, res: Response) => 
             content,
             weaviateId: "temp",
             post: postMongo,
-            createdBy: req.user.id
+            createdBy: req.user._id
         })
+
+        // Populate the created comment with user data
+        
+        
 
         const vector = await embedtext(content)
 
@@ -42,6 +46,8 @@ export const createCommentForumHandler = async (req: Request, res: Response) => 
 
         commentMongo.weaviateId = commentWeaviate.id as string
         await commentMongo.save()
+
+        commentMongo.populate('createdBy', '_id username profilePicture');
         
         const post = await postForumModel.findById(postMongo)
         const thread = await threadForumModel.findById(post?.thread)
@@ -51,19 +57,26 @@ export const createCommentForumHandler = async (req: Request, res: Response) => 
         if(watchers && watchers.length > 0){
             await watchNotificationModel.create({
                 userIds: watchers,
-                message: `${req.user.name} created a comment in ${thread?.title}`,
+                message: `${req.user.username} created a comment in ${thread?.title}`,
                 threadId: thread?._id,
                 seenBy: [],
                 postId: post?._id,
                 createdBy: req.user._id
             })
         }
-        
+
+        // Update post's comment count
+        if (post) {
+            const commentCount = await commentForumModel.countDocuments({ post: postMongo });
+            post.commentsCount = commentCount;
+            await post.save();
+        }
         
         res.json({
             msg: "Comment Uploaded Successfully",
             commentMongo,
-            commentWeaviate
+            commentWeaviate,
+            commentCount: post?.commentsCount || 0
         })
     }catch(e){
         console.error(e)

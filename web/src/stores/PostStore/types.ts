@@ -12,12 +12,16 @@ export interface PostState {
   isPostDeleting: boolean;
   savedPosts: Post[];
   isFetchingSavedPosts: boolean;
+  currentPage: number;
+  hasMore: boolean;
+  isLoadingMore: boolean;
 }
 
 
 export interface PostActions {
   createPost: (data: {text: string, image: string}) => Promise<void>;
-  fetchPosts: () => Promise<void>;
+  fetchPosts: (isAdmin? : boolean) => Promise<void>;
+  loadMorePosts: (isAdmin?: boolean) => Promise<void>;
   toggleLike: (postId: string) => void;
   toggleSave: (postId: string) => void;
   addComment: (postId: string, content: string) => void;
@@ -30,8 +34,6 @@ export interface PostActions {
   deletePost: (data: {postId: string}) => Promise<void>;
   fetchSavedPosts: () => Promise<void>;
   clearSavedPosts: () => void;
-
-
   
   updateComment: (
     postId: string,

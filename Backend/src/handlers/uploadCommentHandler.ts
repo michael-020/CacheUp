@@ -25,26 +25,16 @@ export const uploadCommentHandler = async (req: Request, res: Response) => {
 
         await post.save()
 
-        const user = await userModel.findById(userId)
-        if(!user){
-            res.status(401).json({
-                msg: "User not found"
-            })
-            return
-        }
+        const user = await userModel.findById(userId).select("_id profilePicture username");
 
-        const processedComment = {
+        const responseComment = {
             _id: post.comments[post.comments.length - 1]._id,
             content,
-            date: new Date(),
-            user: {
-              _id: user._id,
-              username: user.username,
-              profileImagePath: user.profilePicture, 
-            },
-          };
+            user,
+            date: new Date()
+        };
 
-        res.status(200).json(processedComment)
+        res.status(200).json(responseComment)
     }
     catch (e) {
         console.error("Error while uploading a comment", e)

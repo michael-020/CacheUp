@@ -9,7 +9,7 @@ viewBioHandler.get("/", async (req: Request, res: Response) => {
     try{
         const userId = req.user._id
         
-        const user = await userModel.findById(userId)
+        const user = await userModel.findById(userId).lean()
 
         if(!user) {
             res.status(403).json({
@@ -32,9 +32,9 @@ viewBioHandler.get("/:id", async (req: Request, res: Response) => {
     try{
         const userId = req.params.id
 
-        const user = await userModel.findById(userId)
+        const user = await userModel.findById(userId).lean()
 
-        if(!user) {
+        if(!user || (user.visibility === false)) {
             res.status(403).json({
                 msg: "user not found"
             })

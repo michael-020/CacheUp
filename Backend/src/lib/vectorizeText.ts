@@ -2,6 +2,7 @@ import axios from "axios";
 axios.defaults.family = 4
 
 export const embedtext = async (text: string) => {
-    const res = await axios.get(`http://localhost:8081/vectorize?text=${text}`)
+    const url = process.env.TRANSFORMER_API
+    const res = await axios.get(`${url}/vectorize?text=${text}`)
     return res.data.vector
 }

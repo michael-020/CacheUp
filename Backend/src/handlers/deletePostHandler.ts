@@ -32,7 +32,7 @@ export const deletePostHandler = async (req: Request, res: Response) => {
             }
         }
 
-        await postModel.findByIdAndDelete(postId);
+        await postModel.findByIdAndUpdate(postId, {visibility: false});
         
         await userModel.findByIdAndUpdate(userId, { $pull: { posts: postId } });
 

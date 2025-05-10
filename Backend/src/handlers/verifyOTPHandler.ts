@@ -5,9 +5,7 @@ import { otpModel } from "../models/db";
 
 export const verifyOtpHandler = async (req: Request, res: Response) => {
     const mySchema = z.object({
-      email: z.string().email().refine((val) => val.endsWith('@pvppcoe.ac.in'), {
-        message: "Only Emails ending with @pvppcoe.ac.in can login"
-      }),
+      email: z.string().email(),
       otp: z.string().length(6, "OTP must be 6 digits")
     }).strict();
   

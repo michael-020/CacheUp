@@ -1,6 +1,6 @@
-# 📚 CampusConnect
+# 📚 CacheUp
 
-CampusConnect is a college-based social platform with a backend (Node.js), an ML service (Python), and a frontend (React). This guide will help you set up the project locally.
+CacheUp is a social platform with a HTTP + WebSocket backend (Node.js), an ML service (Python), and a frontend (React). This guide will help you set up the project locally.
 
 ---
 
@@ -38,18 +38,15 @@ cp .env.example .env
 
 ```env
 MONGO_URL=
-
 JWT_SECRET=
-
 EMAIL_USER=
 EMAIL_PASS=
-
 CLOUDINARY_CLOUD_NAME=
 CLOUDINARY_API_KEY=
 CLOUDINARY_API_SECRET=
 ```
 
-Then, spin up the weaviate database container:
+Then, spin up the Weaviate database container:
 
 ```bash
 docker compose up -d
@@ -126,8 +123,38 @@ npm run start
 
 ---
 
+## 🐳 Running with Docker
+
+If you prefer to run the entire app using Docker, follow these steps:
+
+### 🔸 1. Build the Containers
+
+```bash
+docker compose up --build
+```
+
+This builds all services (backend, frontend, ML server, Weaviate, etc.) defined in the `docker-compose.yml` file.
+
+### 🔸 2. Run the Containers
+
+```bash
+docker compose up -d
+```
+
+This starts all the services in detached mode.
+
+> If you want to see logs in the terminal, use:
+
+```bash
+docker compose up
+```
+
+Make sure to set up the `.env` files before running Docker to ensure proper configuration.
+
+---
+
 ## 📝 Notes
 
-- Make sure all three servers are running for full functionality.
-- Ensure ports don’t conflict; update `.env` or config files if needed.
-- The Python server is required for smart ML-based features like vector search.
+- Ensure all services are up and ports don’t conflict.
+- The Python server must be running for ML features like vector search.
+- Docker simplifies running the project in a consistent environment.

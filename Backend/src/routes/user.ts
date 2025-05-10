@@ -14,14 +14,14 @@ import { logOutHandler } from "../handlers/logOutHandler";
 import { editProfileHandler } from "../handlers/editProfileHandler";
 import { getTokenHandler } from "../handlers/getTokenHandler";
 import { getUsernameHandler } from "../handlers/getUsernameHandler";
-import { createThreadHandler } from "../handlers/forums/createThreadHandler";
-import { getAllForumsHandler } from "../handlers/forums/getAllForumsHandler";
 import { 
     sendPasswordResetOTP, 
     verifyPasswordResetOTP, 
     resetPassword 
   } from "../handlers/changePasswordHandler";
 import { deleteAccountHandler } from "../handlers/deleteAccountHandler";
+import { logPageViewHandler } from '../handlers/timeTrackingHandler';
+import { setupGoogleAccountHandler, checkSetupSession } from "../handlers/setupGoogleAccountHandler";
 
 const userRouter: Router = Router();
 
@@ -41,6 +41,13 @@ userRouter.post("/complete-signup", signupHandler)
 
 // signin
 userRouter.post("/signin", loginHandler)
+
+// Google account setup routes
+userRouter.get("/check-setup-session", checkSetupSession);
+userRouter.post("/setup-google-account", setupGoogleAccountHandler);
+
+// get endpoints for non-authenticated users: 
+userRouter.use("/profile", viewProfileHanler)
 
 userRouter.use(authMiddleware)
 
@@ -75,5 +82,7 @@ userRouter.get("/get-token", getTokenHandler)
 
 // delete account
 userRouter.delete("/delete-account", deleteAccountHandler)
+
+userRouter.post('/log-page-view', logPageViewHandler);
 
 export default userRouter;

@@ -12,13 +12,53 @@ import cookieParser from "cookie-parser";
 import messageRouter from "./routes/message";
 import app, { server } from "./websockets";
 import forumsRouter from "./routes/forums";
+import authRouter from "./routes/auth";
+import session from "express-session";
+import MongoStore from "connect-mongo";
 
-app.use(cors({
-    origin: "http://localhost:5173", 
-    credentials: true
+// Add before session middleware
+app.set('trust proxy', 1);
+
+// Initialize session middleware before other middleware
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGO_URL,
+        collectionName: 'sessions',
+        ttl: 24 * 60 * 60, // 1 day in seconds
+    }),
+    cookie: {
+        secure: process.env.NODE_ENV === 'production', // Must be true in production
+        httpOnly: true,
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        domain: process.env.NODE_ENV === 'production' ? '.cacheupp.com' : undefined,
+        maxAge: 24 * 60 * 60 * 1000, // 1 day in milliseconds
+        path: '/'
+    },
+    proxy: process.env.NODE_ENV === 'production' // Trust the reverse proxy
 }));
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Set-Cookie');
+    next();
+});
+
+// CORS configuration must come after session middleware
+app.use(cors({
+    origin: [process.env.FRONTEND_URL as string, "http://localhost:5173", process.env.WEB_URL as string],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Set-Cookie', 'Origin'],
+    exposedHeaders: ['Set-Cookie'],
+    preflightContinue: false,
+    optionsSuccessStatus: 200
+}));
+
+app.use(express.json({ limit: '100mb' }));
+app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 app.use(cookieParser());
 
 app.use("/api/v1/user", userRouter);
@@ -26,6 +66,10 @@ app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/post", postRouter);
 app.use("/api/v1/messages", messageRouter);
 app.use("/api/v1/forums", forumsRouter)
+app.use("/api/v1/auth", authRouter);
+
+// // Remove duplicate mounting of routes
+app.use("/auth", authRouter);
 
 async function main() {
     try {

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { postForumModel } from "../../models/db";
-import { deletePost } from "./deleteFunctions/deletePost";
+import { deletePost } from "./utils/deletePost";
 
 
 export const userPostForumdeleteHandler = async(req: Request, res: Response) => {

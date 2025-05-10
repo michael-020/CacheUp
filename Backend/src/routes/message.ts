@@ -4,7 +4,6 @@ import { userSocketMap } from "../websockets/index";
 import cloudinary from "../lib/cloudinary";
 import { authMiddleware } from "../middlewares/auth";
 import { WebSocket } from 'ws';
-import { mongo } from "mongoose";
 
 const messageRouter = Router()
 

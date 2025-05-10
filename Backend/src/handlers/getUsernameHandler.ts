@@ -3,7 +3,7 @@ import { userModel } from "../models/db";
 
 export const getUsernameHandler =  async (req: Request, res: Response) => {
     try {
-        const users = await userModel.find({ _id: { $ne: req.user._id } });
+        const users = await userModel.find({ _id: { $ne: req.user._id } }).lean();
 
         if (!users || users.length === 0) {
             res.status(404).json({

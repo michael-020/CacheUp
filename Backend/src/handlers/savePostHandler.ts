@@ -33,12 +33,28 @@ savePostHandler.get("/", async (req: Request, res: Response) => {
     try {
       const userId = req.user.id;
       
-      const savedPosts = await postModel.find({ savedBy: userId }).sort({ createdAt: -1 })
+      const savedPosts = await postModel.find({ savedBy: userId, visibility: true })
+        .populate({
+          path: "postedBy",
+          select: "username name profilePicture"
+        })
+        .populate({
+          path: "comments.user",
+          select: "username profilePicture"
+        })
+        .sort({ createdAt: -1 })
+        .lean();
   
       const postsWithFlags = savedPosts.map((post: any) => ({
-        ...post._doc,
+        ...post,
+        username: post.postedBy?.username,
+        name: post.postedBy?.name,
+        userImagePath: post.postedBy?.profilePicture,
         isLiked: post.likes.includes(userId),
-        isSaved: true, // Force true since these are saved posts
+        isSaved: true,
+        comments: post.comments || [],
+        likes: post.likes || [],
+        reportedBy: post.reportedBy || [],
       }));
   
       res.json(postsWithFlags);

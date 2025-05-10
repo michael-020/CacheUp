@@ -6,11 +6,13 @@ import viewPostHandler from "../handlers/viewPostHandler";
 import { authMiddleware } from "../middlewares/auth";
 import { uploadPostsHandler } from "../handlers/uploadPostsHandler";
 import { deletePostHandler } from "../handlers/deletePostHandler";
-import { upload } from "../middlewares/upload";
 import unReportPostHandler from "../handlers/unReportPostHandler";
 import savePostHandler from "../handlers/savePostHandler"
 
 const postRouter: Router = Router();
+
+// get endpoints for non-authenticated users: 
+postRouter.use("/get-posts", viewPostHandler)
 
 postRouter.use(authMiddleware)
 
@@ -31,7 +33,6 @@ postRouter.use("/reportPost", reportPostHandler)
 
 // un-report posts
 postRouter.use("/unReportPost", unReportPostHandler)
-
 
 // Like handler
 postRouter.use("/like", likeHandler)

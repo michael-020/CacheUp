@@ -19,7 +19,9 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
     socket: null,
     onlineUsers: [],
     token: "",
-    authChecked: false, // Add this to track if auth has been checked
+    authChecked: false,
+    isSettingUp: false,
+    otpSent: false,
 
     signup: async (data) => {
         set({isSigningUp: true})
@@ -59,6 +61,41 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
         } finally {
             set({isSigningIn: false})
         }
+    },
+
+    handleGoogleSignin: () => {
+        // Remove error checking from here and just handle the redirect
+        window.location.href = `${import.meta.env.VITE_API_URL}/auth/google/signin`;
+    },
+
+    handleGoogleSignup: () => {
+        window.location.href = `${import.meta.env.VITE_API_URL}/auth/google/signup`;
+    },
+
+    // Add new function to handle Google auth errors
+    handleGoogleAuthError: () => {
+        const searchParams = new URLSearchParams(window.location.search);
+        const error = searchParams.get('error');
+        
+        if (error === 'email_exists') {
+            toast.error("An account with this email already exists. Please sign in.");
+            window.history.replaceState({}, '', window.location.pathname);
+            return true;
+        }
+        
+        if (error === 'oauth_failed') {
+            toast.error("Failed to authenticate with Google. Please try again.");
+            window.history.replaceState({}, '', window.location.pathname);
+            return true;
+        }
+
+        if(error === "no_account"){
+            toast.error("An account with this email doesn't exist. Please sign up.")
+            window.history.replaceState({}, '', window.location.pathname);
+            return true;
+        }
+
+        return false;
     },
 
     logout: async () => {
@@ -103,8 +140,8 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
         set({sendingEmail: true})
         try {
             await axiosInstance.post("/user/initiate-signup", data)
-            set({inputEmail: data.email})
-            toast.success("Email is sent to your account")
+            set({ otpSent: true })
+            toast.success("OTP is sent to your account")
         } catch(error) {
             if (error instanceof AxiosError && error.response?.data?.msg) {
                 toast.error(error.response.data.msg as string);
@@ -120,16 +157,26 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
         set({isVerifying: true})
         try {
             await axiosInstance.post("/user/verify-otp", data)
-            toast.success("Please enter your details")
+            set({ 
+                inputEmail: data.email,  // Set inputEmail only after successful verification
+                otpSent: false  // Reset OTP sent status only on success
+            })
+            toast.success("Email verification is Successful")
+            return true; // Indicate success
         } catch (error) {
             if (error instanceof AxiosError && error.response?.data?.msg) {
                 toast.error(error.response.data.msg as string);
             } else {
                 toast.error("An unexpected error occurred.");
             }
+            throw error; // Re-throw to handle in component
         } finally {
             set({isVerifying: false})
         }
+    },
+
+    resetOtpSent: () => {
+        set({ otpSent: false })
     },
 
     editProfile: async(data) => {
@@ -257,5 +304,34 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
         } finally {
             toast.success("Account deleted Successfully!");
         }
-    }
+    },
+
+    setupGoogleAccount: async (data) => {
+        set({ isSettingUp: true });
+        try {
+          const response = await axiosInstance.post('/user/setup-google-account', data, {
+            withCredentials: true
+          });
+          set({ authUser: response.data });
+          toast.success('Account setup complete!');
+          await get().getToken();
+          get().connectSocket();
+        } catch (error) {
+          if (error instanceof AxiosError && error.response?.data?.msg) {
+            toast.error(error.response.data.msg);
+          } else {
+            toast.error('Failed to complete setup');
+          }
+          throw error;
+        } finally {
+          set({ isSettingUp: false });
+        }
+      },
+      
+      checkSetupSession: async () => {
+        const response = await axiosInstance.get('/user/check-setup-session', {
+          withCredentials: true
+        });
+        return response.data.email;
+      },
 }))
