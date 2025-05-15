@@ -21,6 +21,7 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
     token: "",
     authChecked: false,
     isSettingUp: false,
+    otpSent: false,
 
     signup: async (data) => {
         set({isSigningUp: true})
@@ -139,7 +140,7 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
         set({sendingEmail: true})
         try {
             await axiosInstance.post("/user/initiate-signup", data)
-            set({inputEmail: data.email})
+            set({ otpSent: true })
             toast.success("OTP is sent to your account")
         } catch(error) {
             if (error instanceof AxiosError && error.response?.data?.msg) {
@@ -156,16 +157,26 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
         set({isVerifying: true})
         try {
             await axiosInstance.post("/user/verify-otp", data)
+            set({ 
+                inputEmail: data.email,  // Set inputEmail only after successful verification
+                otpSent: false  // Reset OTP sent status only on success
+            })
             toast.success("Email verification is Successful")
+            return true; // Indicate success
         } catch (error) {
             if (error instanceof AxiosError && error.response?.data?.msg) {
                 toast.error(error.response.data.msg as string);
             } else {
                 toast.error("An unexpected error occurred.");
             }
+            throw error; // Re-throw to handle in component
         } finally {
             set({isVerifying: false})
         }
+    },
+
+    resetOtpSent: () => {
+        set({ otpSent: false })
     },
 
     editProfile: async(data) => {

@@ -15,7 +15,7 @@ const SignInNavigation = () => {
   };
 
   return (
-    <div>
+    <div className="fixed inset-0 lg:relative top-[40vh] bottom-[40vh] lg:top-0 lg:bottom-0">
       <div className="flex flex-col items-center gap-4">
         <p>
           Sign In to view this page  

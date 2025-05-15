@@ -7,9 +7,9 @@ export const logOutHandler = async (req: Request, res: Response) => {
         await loggingService.createLogoutLog(req.user._id.toString(), req);
         
         res.clearCookie("jwt", {
+            secure: process.env.NODE_ENV === 'production',
             httpOnly: true,
             sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-            secure: process.env.NODE_ENV === 'production',
             domain: process.env.NODE_ENV === 'production' ? '.cacheupp.com' : undefined,
             path: '/',
         });        

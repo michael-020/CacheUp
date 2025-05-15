@@ -70,7 +70,6 @@ export const usePostStore = create<PostState & PostActions>((set,get) => ({
     set({ isLoadingMore: true });
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
       const nextPage = currentPage + 1;
       const url = isAdmin 
         ? `/admin/view-posts?page=${nextPage}&limit=5` 

@@ -55,14 +55,14 @@ export default function SettingsPage() {
   }
 
   if(!authUser){
-    return <div className="translate-y-[50vh]">
+    return <div className="">
       <SignInNavigation />
     </div>
   }
 
   return (
     <motion.div 
-      className="pt-16 min-h-screen bg-gray-100 dark:bg-neutral-950"
+      className="pt-16 min-h-screen bg-gray-100 pb-20 lg:pb-0 dark:bg-neutral-950"
       variants={routeVariants}
       initial="initial"
       animate="final"

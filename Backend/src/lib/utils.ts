@@ -1,7 +1,7 @@
 import { Response } from "express"
 import jwt, { JwtPayload } from "jsonwebtoken"
 import mongoose from "mongoose"
-import JWT_SECRET from "../config"
+import { JWT_SECRET } from "../config"
 
 export const generateToken = (userId: mongoose.Types.ObjectId, res: Response) => {
     const token = jwt.sign({

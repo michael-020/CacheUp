@@ -86,12 +86,12 @@ export const Navbar = () => {
   };
 
   return (
-    <div ref={topRef} className="h-16 border-b-2"> 
-      <nav className="fixed top-0 left-0 right-0 flex items-center justify-between px-4 md:px-6 py-3 border-gray-100 border-b-2 dark:bg-neutral-900/80 dark:border-b-2 dark:border-b-neutral-800/50 dark:backdrop-blur-xl bg-white/80 backdrop-blur-md">
+    <div ref={topRef} className="h-14 sm:h-16 border-b-2"> 
+      <nav className="fixed top-0 left-0 right-0 flex items-center justify-between px-4 md:px-6 py-1.5 sm:py-3 border-gray-100 border-b-2 dark:bg-neutral-900/80 dark:border-b-2 dark:border-b-neutral-800/50 dark:backdrop-blur-xl bg-white/80 backdrop-blur-md">
         {/* Logo/Title - Always visible */}
         <div className="flex-shrink-0">
           <button onClick={handleLogoClick}>
-            <div className="flex items-center justify-center select-none translate-x-20">
+            <div className="flex items-center justify-center select-none sm:translate-x-20">
               <img src="/favicon.svg" className="size-10" />
               <h1 className="font-extrabold text-2xl text-blue-600">
                 CacheUpp
@@ -104,7 +104,7 @@ export const Navbar = () => {
         <div className="hidden lg:flex items-center justify-center space-x-4">
           <button onClick={handleLogoClick} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 ">
             <HomeIcont
-              className={`w-6 h-6 ${currentPath === "/home" ? "text-blue-500 fill-current" : "text-gray-600 dark:fill-none"}`}
+              className={`w-6 h-6 ${currentPath === "/home" ? "text-blue-500 fill-current" : "text-gray-600 fill-none"}`}
             />
           </button>
 

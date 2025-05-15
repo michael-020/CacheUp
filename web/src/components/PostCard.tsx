@@ -136,9 +136,7 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
       setShowLoginPrompt(true);
       return;
     }
-    
-    await toggleLike(postId);
-    
+
     // Update local state with new liked status and count
     const newLikedStatus = !localPost.isLiked;
     
@@ -147,8 +145,8 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
       ...localPost,
       isLiked: newLikedStatus,
       likes: newLikedStatus 
-        ? [...localPost.likes, authUser?._id || "temp-id"] 
-        : localPost.likes.filter(id => id !== authUser?._id)
+      ? [...localPost.likes, authUser?._id || "temp-id"] 
+      : localPost.likes.filter(id => id !== authUser?._id)
     };
     
     setLocalPost(updatedPost);
@@ -157,6 +155,7 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
     if (onPostUpdate) {
       onPostUpdate(updatedPost);
     }
+    toggleLike(postId);
   };
   
   const handleCommentSubmit = async () => {
@@ -240,21 +239,11 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
   const handleReportToggle = async (postId: string) => {
     try {
       if (localPost.isReported) {
-        await unReportPost(postId);
+        unReportPost(postId);
       } else {
-        await reportPost(postId);
+        reportPost(postId);
       }
       
-      const updatedPost = { 
-        ...localPost, 
-        isReported: !localPost.isReported
-      };
-      
-      setLocalPost(updatedPost);
-      
-      if (onPostUpdate) {
-        onPostUpdate(updatedPost);
-      }
     } catch (error) {
       console.error("Report action failed:", error);
     }

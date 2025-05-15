@@ -48,7 +48,7 @@ export const FriendSuggestionsSlider = () => {
                   <img 
                     src={suggestion.profilePicture || "/avatar.jpeg"} 
                     alt={suggestion.name}
-                    className="w-full h-full object-cover rounded-lg z-20"
+                    className="w-full h-full object-cover rounded-md z-20"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.style.display = 'none';

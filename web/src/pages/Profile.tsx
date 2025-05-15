@@ -1,5 +1,7 @@
 import PostCard from "@/components/PostCard";
 import { ProfileCard } from "@/components/ProfileCard";
+import { ProfileCardSkeleton } from "@/components/skeletons/ProfileCardSkeleton";
+import { MobileProfileCardSkeleton } from "@/components/skeletons/MobileProfileCardSkeleton";
 import { axiosInstance } from "@/lib/axios";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { useEffect, useState } from "react";
@@ -11,6 +13,7 @@ import { Briefcase, Users, Mail, UserPlus, UserCheck, UserX } from 'lucide-react
 import { Link } from 'react-router-dom';
 import { useChatStore } from '@/stores/chatStore/useChatStore';
 import { useFriendsStore } from '@/stores/FriendsStore/useFriendsStore';
+import PostCardSkeleton from "@/components/skeletons/PostCardSkeleton";
 
 export const Profile = () => {
   const { id } = useParams();
@@ -23,6 +26,7 @@ export const Profile = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { setSelectedUser } = useChatStore();
   const [friendLoading, setFriendLoading] = useState(false);
+  const [isProfileLoading, setIsProfileLoading] = useState(true);
 
   const { 
     friends, 
@@ -38,6 +42,7 @@ export const Profile = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
+      setIsProfileLoading(true);
       try {
         let url;
         if (isAdminView) {
@@ -47,7 +52,6 @@ export const Profile = () => {
         } else {
           url = `/user/profile/${id}`
         }
-
         const response = await axiosInstance(url);
         const profileData = response.data.userInfo;
         setUserInfo(profileData);
@@ -58,6 +62,8 @@ export const Profile = () => {
         setIsOwnProfile(isOwn);
       } catch (e) {
         console.error("Error fetching profile", e);
+      } finally {
+        setIsProfileLoading(false);
       }
     };
 
@@ -167,7 +173,9 @@ export const Profile = () => {
       
       <div className="hidden lg:block w-1/4 max-w-xs">
         <div className="sticky top-20">
-          {userInfo && (
+          {isProfileLoading ? (
+            <ProfileCardSkeleton />
+          ) : userInfo && (
             <ProfileCard
               userInfo={userInfo}
               isOwnProfile={isOwnProfile}
@@ -178,7 +186,9 @@ export const Profile = () => {
       </div>
       
       <div className="flex-1 max-w-5xl mx-auto translate-y-28 lg:translate-y-16 pb-24 lg:pb-8">
-        {userInfo && (
+        {isProfileLoading ? (
+          <MobileProfileCardSkeleton />
+        ) : userInfo && (
           <div className="lg:hidden bg-white dark:bg-neutral-800 rounded-lg shadow-lg mb-4 overflow-hidden -translate-y-4">
             <div className="flex flex-col items-center pt-6 px-4">
               <div className="rounded-full bg-white p-1 dark:bg-neutral-800 mb-3">
@@ -263,7 +273,7 @@ export const Profile = () => {
           </h1>
           
           {isLoading ? (
-            <p className="text-gray-500 text-center py-8">Loading posts...</p>
+            <PostCardSkeleton />
           ) : userPosts.length > 0 ? (
             <div className="space-y-6 z-50">
               {userPosts.map((post) => (

@@ -2,13 +2,12 @@ import { useCallback, useEffect, useState } from "react";
 import { useFriendsStore } from "@/stores/FriendsStore/useFriendsStore";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserPlus, RefreshCw, X, Check, Search, Users } from "lucide-react";
+import { UserPlus, RefreshCw, X, Check, Users } from "lucide-react";
 import { axiosInstance } from "@/lib/axios";
 import { Skeleton } from "./ui/skeleton";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { IUser} from "@/lib/utils";
-import { Input } from "./ui/input";
 import useDebounce from "@/hooks/useDebounce"; // Add this import
 
 interface UserData {
@@ -127,12 +126,7 @@ const UsersList = ({ searchTerm }: UsersListProps) => {
     return (
       <div className="space-y-6">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <Input
-            disabled
-            className="pl-10 w-full md:w-96"
-            placeholder="Search users..."
-          />
+          <div className="pl-10 pt-5 w-full md:w-96"></div>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {[...Array(8)].map((_, i) => (

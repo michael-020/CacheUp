@@ -15,6 +15,7 @@ export type authState = {
     token: string | ""
     authChecked: boolean
     isSettingUp: boolean
+    otpSent: boolean
 }
 
 export type authAction = {
@@ -36,4 +37,5 @@ export type authAction = {
     handleGoogleSignup: () => void;
     setupGoogleAccount: (data: SetupFormData) => Promise<void>;
     checkSetupSession: () => Promise<string>;
+    resetOtpSent: () => void
 }

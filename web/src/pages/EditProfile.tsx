@@ -106,14 +106,14 @@ export const EditProfile = () => {
 
     return (
         <motion.div 
-            className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8" 
+            className="max-w-2xl mx-auto px-4 pb-40 md:pb-36 lg:pb-0 sm:px-6 lg:px-8" 
             style={containerStyle}
             variants={routeVariants}
             initial="initial"
             animate="final"
             exit="exit"
         >
-            <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md overflow-hidden translate-y-28">
+            <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md overflow-hidden translate-y-16 md:translate-y-[4.5rem] lg:translate-y-28">
                 {/* Header */}
                 <div className="bg-blue-600 py-3 px-4">
                     <div className="flex items-center">
@@ -226,10 +226,9 @@ export const EditProfile = () => {
                             className="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all shadow-md inline-flex items-center justify-center space-x-2 min-w-[120px]"
                         >
                             {isEditing ? (
-                                <>
-                                    <Loader2 size={16} className="animate-spin" />
-                                    <span>Saving...</span>
-                                </>
+                                <div className="px-10">
+                                    <Loader2 size={24} className="animate-spin" />
+                                </div>
                             ) : 'Save Changes'}
                         </button>
                     </div>

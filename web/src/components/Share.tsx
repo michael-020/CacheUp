@@ -5,6 +5,7 @@ import { Loader } from "lucide-react";
 import { Textarea } from "./ui/textarea";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { LoginPromptModal } from "./modals/LoginPromptModal";
+import toast from "react-hot-toast";
 
 interface ShareProps {
   onPostSuccess?: () => void; 
@@ -26,8 +27,22 @@ export default function Share({ onPostSuccess }: ShareProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      alert("Please upload an image file");
+    // Define allowed image MIME types
+    const allowedTypes = [
+      'image/jpeg',
+      'image/png',
+      'image/webp',
+      'image/jpg'
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Please upload a valid image file (JPEG, PNG, GIF, WEBP, JPG)");
+      return;
+    }
+
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error("File size should not exceed 10MB");
       return;
     }
 
@@ -128,7 +143,7 @@ export default function Share({ onPostSuccess }: ShareProps) {
                   <GrGallery size={20} className="text-gray-600 hover:scale-105" />
                   <input
                     type="file"
-                    accept="image/png, image/jpeg, image/gif"
+                    accept="image/png, image/jpeg, image/gif, image/jpg, image/webp"
                     onChange={handleImageUpload}
                     className="hidden"
                   />

@@ -48,17 +48,13 @@ app.use((req, res, next) => {
 
 // CORS configuration must come after session middleware
 app.use(cors({
-    origin: [
-        'https://cacheupp.com',
-        'https://cache-up-ten.vercel.app', 
-        'http://localhost:5173'
-    ],
+    origin: [process.env.FRONTEND_URL as string, "http://localhost:5173", process.env.WEB_URL as string],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Set-Cookie', 'Origin'],
     exposedHeaders: ['Set-Cookie'],
-    preflightContinue: true,
-    maxAge: 86400, // 24 hours in seconds
+    preflightContinue: false,
+    optionsSuccessStatus: 200
 }));
 
 app.use(express.json({ limit: '100mb' }));

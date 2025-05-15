@@ -11,26 +11,35 @@ export const Messages = () => {
   const { selectedUser } = useChatStore()
   const { authUser } = useAuthStore()
 
+  if(!authUser){
+    return <div>
+      <SignInNavigation />
+    </div>
+  }
+
   return (
-    <motion.div 
-      className="flex items-center justify-center pt-20 px-4 pb-6 h-[99.9vh] dark:bg-neutral-950"
-      variants={routeVariants}
-      initial="initial"
-      animate="final"
-      exit="exit"
-    >
-      {authUser ? <div className="rounded-lg pb-20 lg:pb-0 shadow-cl w-full max-w-6xl h-[calc(100vh-8rem)]">
-          <div className="hidden md:flex h-full rounded-lg overflow-hidden border shadow-xl dark:border-neutral-800 dark:shadow-neutral-700 dark:shadow-md">
-            <ChatSidebar />
-
-            {!selectedUser ? <NoChatSelected /> : <ChatContainer />}
-          </div>
-          <div className="flex md:hidden h-full rounded-lg overflow-hidden border shadow-xl dark:border-neutral-800 dark:shadow-neutral-700 dark:shadow-md">
+    <div className="fixed inset-0 lg:relative top-[60px] bottom-[60px] lg:top-0 lg:bottom-0">
+      <motion.div 
+        className="h-full lg:pt-24 lg:px-4 lg:pb-6 dark:bg-neutral-950"
+        variants={routeVariants}
+        initial="initial"
+        animate="final"
+        exit="exit"
+      >
+          <div className="h-full md:h-[calc(100vh-8rem)] w-full max-w-6xl mx-auto">
+            {/* Desktop view */}
+            <div className="hidden md:flex h-full rounded-lg overflow-hidden border shadow-xl dark:border-neutral-800 dark:shadow-neutral-700 dark:shadow-md">
+              <ChatSidebar />
+              {!selectedUser ? <NoChatSelected /> : <ChatContainer />}
+            </div>
             
-
-            {!selectedUser ? <ChatSidebar /> : <ChatContainer />}
+            {/* Mobile view */}
+            <div className="flex md:hidden h-full overflow-hidden">
+              {!selectedUser ? <ChatSidebar /> : <ChatContainer />}
+            </div>
           </div>
-        </div> : <SignInNavigation />}   
+         
       </motion.div>
+    </div>
   )
 }
