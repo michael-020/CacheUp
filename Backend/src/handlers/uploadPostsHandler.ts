@@ -25,25 +25,55 @@ export const uploadPostsHandler = async (req: Request, res: Response) => {
 
     if (image) {
       try {
-        // Parse the base64 image
-        const matches = image.match(/^data:image\/([a-zA-Z]+);base64,(.+)$/);
+        // Parse the base64 image - support more formats including DNG
+        const matches = image.match(/^data:image\/([a-zA-Z0-9.-]+);base64,(.+)$/);
         
         if (!matches || matches.length !== 3) {
+          console.log("Invalid image format detected. Image data prefix:", 
+            image.substring(0, Math.min(50, image.length)));
           res.status(400).json({
-            msg: "Invalid image format",
+            msg: "Invalid image format. Please check if the image is properly encoded.",
           });
           return;
         }
         
         const imageType = matches[1];
         const base64Data = matches[2];
+        console.log(`Processing image of type: ${imageType}`);
         const imageBuffer = Buffer.from(base64Data, 'base64');
         
-        // Convert to WebP format
-        const webpBuffer = await sharp(imageBuffer)
-          .rotate()
-          .webp({ quality: 100 })
-          .toBuffer();
+        // Convert to WebP format with more robust error handling
+        let webpBuffer;
+        try {
+          webpBuffer = await sharp(imageBuffer, { failOnError: false })
+            .rotate()
+            .webp({ quality: 80 })
+            .toBuffer();
+        } catch (sharpError) {
+          console.error("Sharp conversion error:", sharpError);
+          
+          // Fallback approach for problematic formats (like DNG)
+          try {
+            console.log("Attempting fallback conversion method for DNG or other RAW formats");
+            webpBuffer = await sharp(imageBuffer, { 
+              failOnError: false, 
+              raw: imageType.toLowerCase() === 'dng' ? {
+                width: 1000,  // provide reasonable defaults
+                height: 1000,
+                channels: 3
+              } : undefined
+            })
+            .rotate()
+            .webp({ quality: 70 })
+            .toBuffer();
+          } catch (fallbackError) {
+            console.error("Fallback conversion failed:", fallbackError);
+            res.status(400).json({
+              msg: "Unable to process this image format. Please convert it to JPEG or PNG before uploading."
+            });
+            return;
+          }
+        }
         
         // Check file size after conversion
         const sizeInMB = webpBuffer.length / (1024 * 1024);
@@ -58,18 +88,27 @@ export const uploadPostsHandler = async (req: Request, res: Response) => {
         const webpBase64 = webpBuffer.toString('base64');
         
         // Upload to Cloudinary with WebP format
-        const uploadResponse = await cloudinary.uploader.upload(
-          `data:image/webp;base64,${webpBase64}`, 
-          {
-            folder: "Post_Images",
-            transformation: [
-              { quality: "auto", fetch_format: "webp" },
-              { width: "auto", crop: "limit", max_width: 2000 },
-              { dpr: "auto" }
-            ],
-            resource_type: "image"
-          }
-        );
+        let uploadResponse;
+        try {
+          uploadResponse = await cloudinary.uploader.upload(
+            `data:image/webp;base64,${webpBase64}`, 
+            {
+              folder: "Post_Images",
+              transformation: [
+                { quality: "auto", fetch_format: "webp" },
+                { width: "auto", crop: "limit", max_width: 2000 },
+                { dpr: "auto" }
+              ],
+              resource_type: "image"
+            }
+          );
+        } catch (cloudinaryError) {
+          console.error("Cloudinary upload error:", cloudinaryError);
+          res.status(500).json({
+            msg: "Error uploading image to cloud storage"
+          });
+          return;
+        }
 
         const user = await userModel.findById(userId);
         if (!user) {
