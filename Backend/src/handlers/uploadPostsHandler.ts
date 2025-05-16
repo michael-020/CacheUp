@@ -54,7 +54,6 @@ export const uploadPostsHandler = async (req: Request, res: Response) => {
           
           // Fallback approach for problematic formats (like DNG)
           try {
-            console.log("Attempting fallback conversion method for DNG or other RAW formats");
             webpBuffer = await sharp(imageBuffer, { 
               failOnError: false, 
               raw: imageType.toLowerCase() === 'dng' ? {
