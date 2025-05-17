@@ -33,12 +33,6 @@ export default function Share({ onPostSuccess }: ShareProps) {
       return;
     }
 
-    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
-    if (file.size > MAX_FILE_SIZE) {
-      toast.error("File size should not exceed 10MB");
-      return;
-    }
-
     setIsProcessingImage(true);
     const reader = new FileReader();
     reader.readAsDataURL(file);
