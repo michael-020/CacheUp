@@ -74,15 +74,6 @@ export const uploadPostsHandler = async (req: Request, res: Response) => {
           }
         }
         
-        // Check file size after conversion
-        const sizeInMB = webpBuffer.length / (1024 * 1024);
-        if (sizeInMB > 10) {
-          res.status(413).json({
-            msg: "Image size should not exceed 10MB"
-          });
-          return;
-        }
-        
         // Convert buffer back to base64 for Cloudinary
         const webpBase64 = webpBuffer.toString('base64');
         
