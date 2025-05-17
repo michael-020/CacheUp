@@ -1,0 +1,177 @@
+import { Request, Response } from "express";
+import { weaviateClient } from "../../models/weaviate";
+import { commentForumModel, forumModel, postForumModel, threadForumModel } from "../../models/db";
+import { z } from "zod";
+import { embedtext } from "../../lib/vectorizeText";
+import { calculatePostPage } from "./utils/pagination"; 
+
+const queryWeaviate = async (query: number[]) => {
+    const limits = {
+        Forum: 3,
+        Thread: 7,
+        Post: 15,
+        Comment: 20
+    };
+
+    const classTypes = ["Forum", "Thread", "Post", "Comment"]
+
+    try {
+        const fetchPromises = classTypes.map((type) => 
+            weaviateClient.graphql.get()
+                .withClassName(type)
+                .withFields("mongoId _additional { certainty }")
+                .withNearVector({vector: query})
+                .withLimit(limits[type as keyof typeof limits])
+                .do()
+        )
+        
+        const fetchIds = await Promise.all(fetchPromises)
+        const results: Array<{type: string; mongoId: string; certainty: number}> = []
+
+        fetchIds.forEach((res, index) => {
+            const type = classTypes[index]
+            const items = res.data.Get?.[type]
+
+            if(items){
+                items.forEach((item: any) => {
+                    if(item.mongoId && item.mongoId !== "null"){
+                        results.push({
+                            type,
+                            mongoId: item.mongoId,
+                            certainty: item._additional.certainty
+                        })
+                    }
+                })
+            }
+        })
+
+        results.sort((a, b) => b.certainty - a.certainty)
+        return results
+    } catch (error) {
+        console.error(error)
+        return []
+    }
+}
+
+const queryMongo = async(searchAlgoResult: Array<{ type: string; mongoId: string, certainty: number }>) => {
+    try {
+        const finalResults = []
+        
+        const forumIds: string[] = []
+        const threadIds: string[] = []
+        const postIds: string[] = []
+        const commentIds: string[] = []
+
+        searchAlgoResult.forEach(({type, mongoId}) => {
+            if (type === "Forum") forumIds.push(mongoId)
+            else if (type === "Thread") threadIds.push(mongoId)
+            else if (type === "Post") postIds.push(mongoId)
+            else commentIds.push(mongoId)
+        })
+
+        const [forums, threads, posts, comments] = await Promise.all([
+            forumIds.length ? forumModel.find({ _id: { $in: forumIds }, visibility: true }).lean() : [],
+            threadIds.length ? threadForumModel.find( { _id: { $in: threadIds }, visibility: true }).lean() : [],
+            postIds.length ? postForumModel.find( { _id: { $in: postIds }, visibility: true } ).lean() : [],
+            commentIds.length ? commentForumModel.find( { _id: { $in: commentIds }, visibility: true } ).select("post").lean() : []
+        ])
+
+        const forumMap = new Map(forums.map(doc => [doc._id.toString(), doc]))
+        const threadMap = new Map(threads.map(doc => [doc._id.toString(), doc]))
+        const postMap = new Map(posts.map(doc => [doc._id.toString(), doc]))
+        const commentMap = new Map(comments.map(doc => [doc._id.toString(), doc]))
+
+        const commentPostIds = comments.map(c => c.post.toString())
+        const uniqueCommentPostIds = [...new Set(commentPostIds)]
+
+        const commentPosts = uniqueCommentPostIds.length
+            ? await postForumModel.find({ _id: {$in: uniqueCommentPostIds} }).lean()
+            : []
+        
+        const commentPostMap = new Map(commentPosts.map(doc => [doc._id.toString(), doc]))
+
+        // Process each search result
+        for (const { type, mongoId, certainty } of searchAlgoResult) {
+            let data = null;
+            let page;
+      
+            if (type === "Forum") {
+              data = forumMap.get(mongoId);
+            } else if (type === "Thread") {
+              data = threadMap.get(mongoId);
+            } else if (type === "Post") {
+              data = postMap.get(mongoId);
+              if (data) {
+                // Calculate page for this post
+                page = await calculatePostPage(data.thread.toString(), mongoId);
+              }
+            } else if (type === "Comment") {
+              const comment = commentMap.get(mongoId);
+              if (comment && comment.post) {
+                const post = commentPostMap.get(comment.post.toString());
+                if (post) {
+                  data = post;
+                  // Calculate page for the post
+                  page = await calculatePostPage(post.thread.toString(), post._id.toString());
+                }
+              }
+            }
+      
+            if (data) {
+              finalResults.push({
+                type,
+                data,
+                certainty,
+                page
+              });
+            }
+        }
+      
+        return finalResults;
+
+    } catch (error) {
+        console.error("Error querying MongoDB:", error);
+        return [];
+    }
+}
+
+export const searchForumHandler = async (req: Request, res: Response) => {
+    const searchSchema = z.object({
+        query: z.string().min(3)
+    })
+
+    try {
+        const response = searchSchema.safeParse(req.params)
+        if(!response.success){
+            res.status(411).json({
+                msg: "Atleast 3 charachters needed for the search"
+            })
+            return
+        }
+        
+        const { query } = req.params
+
+        const queryVector = await embedtext(query)
+
+        const searchAlgoResults = await queryWeaviate(queryVector);
+
+        if(!searchAlgoResults.length){
+            res.status(404).json({
+                msg: "No results found"
+            })
+            return
+        }
+
+        const results = await queryMongo(searchAlgoResults)
+        res.json({
+            msg: "Search Successfull",
+            searchResults: results
+        })
+
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({
+            msg: "Server error"
+        })
+    }
+}
