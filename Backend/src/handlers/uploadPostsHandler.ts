@@ -29,8 +29,6 @@ export const uploadPostsHandler = async (req: Request, res: Response) => {
         const matches = image.match(/^data:image\/([a-zA-Z0-9.-]+);base64,(.+)$/);
         
         if (!matches || matches.length !== 3) {
-          console.log("Invalid image format detected. Image data prefix:", 
-            image.substring(0, Math.min(50, image.length)));
           res.status(400).json({
             msg: "Invalid image format. Please check if the image is properly encoded.",
           });
@@ -39,7 +37,6 @@ export const uploadPostsHandler = async (req: Request, res: Response) => {
         
         const imageType = matches[1];
         const base64Data = matches[2];
-        console.log(`Processing image of type: ${imageType}`);
         const imageBuffer = Buffer.from(base64Data, 'base64');
         
         // Convert to WebP format with more robust error handling
