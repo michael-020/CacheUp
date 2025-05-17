@@ -1,5 +1,7 @@
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { formatMessageTime, IUser } from "../lib/utils";
+import React, { useState } from "react";
+import ImageModal from "./modals/ImageModal";
 
 interface ChatBubbleProps {
   message: {
@@ -14,8 +16,8 @@ interface ChatBubbleProps {
 
 const ChatBubble: React.FC<ChatBubbleProps> = ({ message, selectedUser }) => {
   const { authUser } = useAuthStore();
-
   const isOwnMessage = message.sender === authUser?._id;
+  const [modalOpen, setModalOpen] = useState(false);
 
   return (
     <div 
@@ -43,11 +45,21 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message, selectedUser }) => {
           `}
         >
           {message.image && (
-            <img
-              src={message.image}
-              alt="Message attachment"
-              className="max-w-[200px] rounded-md mb-2"
-            />
+            <>
+              <img
+                src={message.image}
+                alt="Message attachment"
+                className="max-w-[200px] rounded-md mb-2 cursor-pointer transition-transform "
+                onClick={() => setModalOpen(true)}
+              />
+              {modalOpen && (
+                <ImageModal
+                  src={message.image}
+                  alt="Message attachment"
+                  onClose={() => setModalOpen(false)}
+                />
+              )}
+            </>
           )}
           {message.content && <p>{message.content}</p>}
         </div>
