@@ -4,6 +4,7 @@ import { userSocketMap } from "../websockets/index";
 import cloudinary from "../lib/cloudinary";
 import { authMiddleware } from "../middlewares/auth";
 import { WebSocket } from 'ws';
+import { convertImageToWebP } from "../lib/imageReEncode";
 
 const messageRouter = Router()
 
@@ -86,8 +87,15 @@ messageRouter.post("/chat/:id", async (req: Request, res: Response) => {
         // Handle image upload
         let imageUrl;
         if(image){
-            const uploadResponse = await cloudinary.uploader.upload(image)
-            imageUrl = uploadResponse.secure_url
+            let webpBuffer = await convertImageToWebP(image);
+            const webpBase64 = webpBuffer.toString('base64');
+            const dataUri = `data:image/webp;base64,${webpBase64}`;
+            
+            const uploadResponse = await cloudinary.uploader.upload(dataUri, {
+                resource_type: 'image'
+            });
+            
+            imageUrl = uploadResponse.secure_url;
         }
        
         // Create message

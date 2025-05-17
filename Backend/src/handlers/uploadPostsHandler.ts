@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { postModel, userModel } from "../models/db";
 import cloudinary from "../lib/cloudinary";
-import sharp from "sharp";
+import { convertImageToWebP } from "../lib/imageReEncode";
 
 export const uploadPostsHandler = async (req: Request, res: Response) => {
   try {
@@ -34,47 +34,11 @@ export const uploadPostsHandler = async (req: Request, res: Response) => {
           });
           return;
         }
+      
+        let webpBuffer = await convertImageToWebP(image)
         
-        const imageType = matches[1];
-        const base64Data = matches[2];
-        const imageBuffer = Buffer.from(base64Data, 'base64');
-        
-        // Convert to WebP format with more robust error handling
-        let webpBuffer;
-        try {
-          webpBuffer = await sharp(imageBuffer, { failOnError: false })
-            .rotate()
-            .webp({ quality: 80 })
-            .toBuffer();
-        } catch (sharpError) {
-          console.error("Sharp conversion error:", sharpError);
-          
-          // Fallback approach for problematic formats (like DNG)
-          try {
-            webpBuffer = await sharp(imageBuffer, { 
-              failOnError: false, 
-              raw: imageType.toLowerCase() === 'dng' ? {
-                width: 1000,  // provide reasonable defaults
-                height: 1000,
-                channels: 3
-              } : undefined
-            })
-            .rotate()
-            .webp({ quality: 70 })
-            .toBuffer();
-          } catch (fallbackError) {
-            console.error("Fallback conversion failed:", fallbackError);
-            res.status(400).json({
-              msg: "Unable to process this image format. Please convert it to JPEG or PNG before uploading."
-            });
-            return;
-          }
-        }
-        
-        // Convert buffer back to base64 for Cloudinary
         const webpBase64 = webpBuffer.toString('base64');
-        
-        // Upload to Cloudinary with WebP format
+
         let uploadResponse;
         try {
           uploadResponse = await cloudinary.uploader.upload(
