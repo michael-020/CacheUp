@@ -251,14 +251,19 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
   };
 
   const deletePostHandler = async () => {
-    if (isAdmin) {
-      await useAdminStore.getState().deletePost({ postId: localPost._id });
-    } else {
-      await usePostStore.getState().deletePost({ postId: localPost._id });
-    }
-    
-    setShowReport(false);
+  if (isAdmin) {
+    await useAdminStore.getState().deletePost({ postId: localPost._id });
+  } else {
+    await usePostStore.getState().deletePost({ postId: localPost._id });
   }
+  
+  if (onPostUpdate) {
+      onPostUpdate({ ...localPost, _deleted: true } as Post & { _deleted: boolean });
+    }
+  
+  setShowReport(false);
+  setIsModalOpen(false); 
+}
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
