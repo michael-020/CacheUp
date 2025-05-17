@@ -42,6 +42,7 @@ import { usePathStore } from '@/stores/PathStore/usePathStore';
 import { Loader } from 'lucide-react'
 import { SetupAccount } from './pages/SetupAccount';
 import { Signup } from './pages/Signup'
+import { NotFoundPage } from './pages/NotFoundPage'
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth, inputEmail } = useAuthStore();
@@ -274,6 +275,7 @@ function App() {
               />
             } 
           />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
        
       </AnimatePresence>
