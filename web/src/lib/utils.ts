@@ -71,6 +71,7 @@ export interface Post {
   reportedBy?: string[]; 
   isReported: boolean;
   reportCount: number;
+  _deleted:boolean;
 }
 
 export interface Comment {

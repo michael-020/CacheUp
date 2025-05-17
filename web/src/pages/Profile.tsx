@@ -96,14 +96,20 @@ export const Profile = () => {
       fetchSentRequests();
     }
   }, [id, userId, isAdminView, isOwnProfile, fetchFriends, fetchSentRequests]);
-
+  
   const handlePostUpdate = (updatedPost: Post) => {
+  if (updatedPost._deleted) {
+    setUserPosts(prevPosts => 
+      prevPosts.filter(post => post._id !== updatedPost._id)
+    );
+  } else {
     setUserPosts(prevPosts => 
       prevPosts.map(post => 
         post._id === updatedPost._id ? updatedPost : post
       )
     );
-  };
+  }
+};
 
   const isFriend = userInfo ? friends?.some(friend => friend._id === userInfo._id) : false;
   const isPendingRequest = userInfo ? sentRequests?.some(request => request._id === userInfo._id) : false;
