@@ -72,6 +72,24 @@ export const Navbar = () => {
   }, []);
 
   const handleLogoClick = () => {
+    if(!authUser){
+      navigate("/")
+      return
+    }
+    usePostStore.setState({ posts: [] });
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+    
+    if (location.pathname !== "home") {
+      navigate("/home");
+    }
+    fetchPosts();
+  };
+
+  const handleHomeClick = () => {
     usePostStore.setState({ posts: [] });
 
     window.scrollTo({
@@ -91,7 +109,7 @@ export const Navbar = () => {
         {/* Logo/Title - Always visible */}
         <div className="flex-shrink-0">
           <button onClick={handleLogoClick}>
-            <div className="flex items-center justify-center select-none sm:translate-x-20">
+            <div className="flex items-center justify-center select-none sm:translate-x-[5.2rem]">
               <img src="/favicon.svg" className="size-10" />
               <h1 className="font-extrabold text-2xl text-blue-600">
                 CacheUpp
@@ -102,7 +120,7 @@ export const Navbar = () => {
         
         {/* Desktop Navigation Icons */}
         <div className="hidden lg:flex items-center justify-center space-x-4">
-          <button onClick={handleLogoClick} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 ">
+          <button onClick={handleHomeClick} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-700 ">
             <HomeIcont
               className={`w-6 h-6 ${currentPath === "/home" ? "text-blue-500 fill-current" : "text-gray-600 fill-none"}`}
             />
