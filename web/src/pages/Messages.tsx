@@ -20,7 +20,7 @@ export const Messages = () => {
   return (
     <div className="fixed inset-0 lg:relative top-[60px] bottom-[60px] lg:top-0 lg:bottom-0">
       <motion.div 
-        className="h-full lg:pt-24 lg:px-4 lg:pb-6 dark:bg-neutral-950"
+        className="h-full md:pt-2 lg:pt-24 lg:px-4 lg:pb-6 dark:bg-neutral-950"
         variants={routeVariants}
         initial="initial"
         animate="final"

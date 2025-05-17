@@ -73,7 +73,7 @@ const ChatInput = () => {
         <div className="flex-1 flex gap-2 dark:text-gray-400 text-black">
           <input
             type="text"
-            className="w-full px-4 py-2 pl-10 sm:pl-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-neutral-500 dark:border-gray-600"
+            className="w-full px-4 py-2 pl-10 sm:pl-2 border border-gray-300 rounded-lg focus:outline-none  dark:bg-neutral-500 dark:border-gray-600"
             placeholder="Type a message..."
             value={text}
             onChange={(e) => setText(e.target.value)}
