@@ -37,7 +37,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message, selectedUser }) => {
             px-3 py-2 rounded-lg 
             ${
               isOwnMessage 
-                ? "bg-blue-500 text-white self-end" 
+                ? "dark:bg-neutral-600 bg-neutral-400 text-neutral-100 dark:text-gray-200 self-end" 
                 : "bg-gray-200 text-gray-800 self-start"
             }
           `}

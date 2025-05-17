@@ -10,7 +10,8 @@ export type chatState = {
     isMessagesLoading: boolean;
     unReadMessages: IMessages[],
     messagesInitialized: boolean
-    activeToasts: any
+    activeToasts: any,
+    isSendingMessage: boolean
 }
 
 export type chatAction = {

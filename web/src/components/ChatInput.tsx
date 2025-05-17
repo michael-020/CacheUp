@@ -1,5 +1,5 @@
 import { ChangeEvent, FormEvent, useRef, useState } from "react";
-import { Image, SendHorizonal, X } from "lucide-react";
+import { Image, Loader2Icon, SendHorizonal, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { useChatStore } from "@/stores/chatStore/useChatStore";
 
@@ -7,7 +7,7 @@ const ChatInput = () => {
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { sendMessage } = useChatStore();
+  const { sendMessage, isSendingMessage } = useChatStore();
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = (e.target as HTMLInputElement).files?.[0];
@@ -33,7 +33,7 @@ const ChatInput = () => {
     if (!text.trim() && !imagePreview) return;
 
     try {
-      await sendMessage({
+      sendMessage({
         content: text.trim(),
         image: imagePreview as string,
       });
@@ -97,10 +97,10 @@ const ChatInput = () => {
         </div>
         <button
           type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className={`bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isSendingMessage ? "bg-blue-500/50": ""}`}
           disabled={!text.trim() && !imagePreview}
         >
-          <SendHorizonal size={22} />
+          {isSendingMessage ? <Loader2Icon className="animate-spin" /> : <SendHorizonal size={22} />}
         </button>
       </form>
     </div>
