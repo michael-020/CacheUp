@@ -60,8 +60,7 @@ export const NotFoundPage: React.FC = () => {
       <div className="text-center">
         <div className="relative mb-6">
           <div className="animate-float">
-            <h1 className="text-9xl font-extrabold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-transparent bg-clip-text">404</h1>
-            <div className="absolute -bottom-4 left-0 right-0 mx-auto w-3/4 h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full blur-md opacity-70"></div>
+            <h1 className="text-9xl font-extrabold text-blue-600 bg-clip-text">404</h1>
           </div>
         </div>
         
@@ -85,7 +84,7 @@ export const NotFoundPage: React.FC = () => {
           </button>
           <button 
             onClick={() => navigate('/home')}
-            className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-md hover:opacity-90 transition duration-300"
+            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:opacity-90 transition duration-300"
           >
             Go Home
           </button>
