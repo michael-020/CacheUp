@@ -1,5 +1,5 @@
 import { ChangeEvent, FormEvent, useRef, useState } from "react";
-import { Image, SendHorizonal, X } from "lucide-react";
+import { Image, Loader2Icon, SendHorizonal, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { useChatStore } from "@/stores/chatStore/useChatStore";
 
@@ -7,7 +7,7 @@ const ChatInput = () => {
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { sendMessage } = useChatStore();
+  const { sendMessage, isSendingMessage } = useChatStore();
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = (e.target as HTMLInputElement).files?.[0];
@@ -33,7 +33,7 @@ const ChatInput = () => {
     if (!text.trim() && !imagePreview) return;
 
     try {
-      await sendMessage({
+      sendMessage({
         content: text.trim(),
         image: imagePreview as string,
       });
@@ -73,7 +73,7 @@ const ChatInput = () => {
         <div className="flex-1 flex gap-2 dark:text-gray-400 text-black">
           <input
             type="text"
-            className="w-full px-4 py-2 pl-10 sm:pl-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-neutral-500 dark:border-gray-600"
+            className="w-full px-4 py-2 pl-10 sm:pl-2 border border-gray-300 rounded-lg focus:outline-none  dark:bg-neutral-500 dark:border-gray-600"
             placeholder="Type a message..."
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -97,10 +97,10 @@ const ChatInput = () => {
         </div>
         <button
           type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className={`bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isSendingMessage ? "bg-blue-500/50": ""}`}
           disabled={!text.trim() && !imagePreview}
         >
-          <SendHorizonal size={22} />
+          {isSendingMessage ? <Loader2Icon className="animate-spin" /> : <SendHorizonal size={22} />}
         </button>
       </form>
     </div>

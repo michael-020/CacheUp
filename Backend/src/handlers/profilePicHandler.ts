@@ -4,6 +4,7 @@ import { upload } from "../middlewares/upload";
 import path from 'path';
 import fs from 'fs';
 import cloudinary from "../lib/cloudinary";
+import { convertImageToWebP } from "../lib/imageReEncode";
 
 const PfpHanler: Router = Router();
 
@@ -22,14 +23,10 @@ PfpHanler.put("/", async (req: Request, res: Response) => {
             return
         }
 
-        if (profilePic && profilePic.length > 10 * 1024 * 1024) { // 10MB limit for base64
-            res.status(413).json({
-                msg: "Profile picture is too large"
-            });
-            return
-        }
+        let webpBuffer = await convertImageToWebP(profilePic)
+        const webpBase64 = webpBuffer.toString('base64')
 
-        const uploadResponse = await cloudinary.uploader.upload(profilePic, {
+        const uploadResponse = await cloudinary.uploader.upload(webpBase64, {
             folder: "profile_pictures", 
             transformation: [
                 { width: 500, height: 500, crop: "fill" }, 

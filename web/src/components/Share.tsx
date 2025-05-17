@@ -27,22 +27,9 @@ export default function Share({ onPostSuccess }: ShareProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Define allowed image MIME types
-    const allowedTypes = [
-      'image/jpeg',
-      'image/png',
-      'image/webp',
-      'image/jpg'
-    ];
 
-    if (!allowedTypes.includes(file.type)) {
-      toast.error("Please upload a valid image file (JPEG, PNG, GIF, WEBP, JPG)");
-      return;
-    }
-
-    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
-    if (file.size > MAX_FILE_SIZE) {
-      toast.error("File size should not exceed 10MB");
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload a valid image file");
       return;
     }
 
@@ -143,7 +130,7 @@ export default function Share({ onPostSuccess }: ShareProps) {
                   <GrGallery size={20} className="text-gray-600 hover:scale-105" />
                   <input
                     type="file"
-                    accept="image/png, image/jpeg, image/gif, image/jpg, image/webp"
+                    accept="image/*"
                     onChange={handleImageUpload}
                     className="hidden"
                   />
