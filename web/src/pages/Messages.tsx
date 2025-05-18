@@ -6,10 +6,19 @@ import { routeVariants } from "@/lib/routeAnimation"
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore"
 import { useChatStore } from "@/stores/chatStore/useChatStore"
 import { motion } from "framer-motion"
+import { useEffect } from "react"
+import { useLocation } from "react-router-dom"
 
 export const Messages = () => {
-  const { selectedUser } = useChatStore()
+  const { selectedUser, setSelectedUser } = useChatStore()
   const { authUser } = useAuthStore()
+  const location = useLocation()
+
+  useEffect(() => {
+    return () => {
+      setSelectedUser(null)
+    }
+  }, [location.pathname, setSelectedUser])
 
   if(!authUser){
     return <div>
