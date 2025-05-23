@@ -34,6 +34,9 @@ export interface PostActions {
   deletePost: (data: {postId: string}) => Promise<void>;
   fetchSavedPosts: () => Promise<void>;
   clearSavedPosts: () => void;
+  setSavedPosts: (posts: Post[]) => void;
+  unsavePost: (postId: string) => Promise<void>;
+
   
   updateComment: (
     postId: string,
