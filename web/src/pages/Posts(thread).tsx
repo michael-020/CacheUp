@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useForumStore } from "@/stores/ForumStore/useforumStore";
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import CreatePostModal from "@/components/forums/CreatePostModalForums"; 
@@ -38,6 +38,7 @@ export const Thread = () => {
   const [paginationInput, setPaginationInput] = useState(page?.toString());
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [loginPromptAction, setLoginPromptAction] = useState<'post' | 'subscribe' | 'like' | 'dislike' | 'report'>('post');
+  const [descExpanded, setDescExpanded] = useState(false);
 
   const highlightTimeoutRef = useRef<number | null> (null)
 
@@ -224,6 +225,13 @@ export const Thread = () => {
     return content.substring(0, 500);
   };
 
+  // Helper for description truncation
+  const getTruncatedDescription = (desc: string) => {
+    if (!desc) return "";
+    if (descExpanded || desc.length <= 100) return desc;
+    return desc.slice(0, 100);
+  };
+
   // Pagination handlers
   const goToFirstPage = () => {
     isAdmin ? navigate(`/admin/forums/thread/${id}/1`) : navigate(`/forums/thread/${id}/1`);
@@ -310,10 +318,28 @@ export const Thread = () => {
 
   if (posts.length === 0) {
     return (<>
-      <div className="p-8 mx-auto max-w-3xl bg-gray-50 dark:bg-neutral-800 translate-y-20 dark:border-neutral-600 border border-gray-200 rounded-lg text-center mt-16">
+      <div className="p-8 lg:mx-auto max-w-3xl mx-6 bg-gray-50 dark:bg-neutral-800 translate-y-20 dark:border-neutral-600 border border-gray-200 rounded-lg text-center mt-16">
         <SearchBar />
-        <div className="text-gray-500 text-lg dark:text-white">No posts found in Thread {threadTitle}</div>
-        <div className="text-gray-600 dark:text-gray-200 mb-2">{threadDescription}</div>
+        <div className="text-gray-500 text-lg dark:text-white">No posts found in Thread: {threadTitle}</div>
+        <div className={`text-gray-600 dark:text-gray-200 mb-2 ${threadDescription.length < 50 ? "text-center": "text-justify"} `}>
+          {getTruncatedDescription(threadDescription)}
+          {threadDescription && threadDescription.length > 200 && !descExpanded && (
+            <span
+              className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
+              onClick={() => setDescExpanded(true)}
+            >
+              ...See more
+            </span>
+          )}
+          {threadDescription && threadDescription.length > 200 && descExpanded && (
+            <span
+              className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
+              onClick={() => setDescExpanded(false)}
+            >
+              Show less
+            </span>
+          )}
+        </div>
         <div className="mt-4 text-sm text-gray-400">Be the first to post in this discussion</div>
         <div className="flex gap-4 flex-wrap justify-center">
         <Button
@@ -413,7 +439,25 @@ export const Thread = () => {
             <h1 className="text-3xl font-bold mb-2">{threadTitle}</h1>       
           </div>
 
-          <p className="text-gray-600 mb-2">{threadDescription}</p>  
+          <div className={`text-neutral-900 dark:text-gray-200 mb-2 ${threadDescription.length < 50 ? "text-center": "text-justify"} `}>
+          {getTruncatedDescription(threadDescription)}
+          {threadDescription && threadDescription.length > 200 && !descExpanded && (
+            <span
+              className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
+              onClick={() => setDescExpanded(true)}
+            >
+              ...See more
+            </span>
+          )}
+          {threadDescription && threadDescription.length > 200 && descExpanded && (
+            <span
+              className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
+              onClick={() => setDescExpanded(false)}
+            >
+              Show less
+            </span>
+          )}
+        </div>
 
           {/* Post count + Centered Button Row */}
           <div className="flex flex-col items-center gap-3 mt-2">
