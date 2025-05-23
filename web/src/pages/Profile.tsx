@@ -9,7 +9,7 @@ import { useParams, useLocation } from "react-router-dom";
 import { Post, IUser } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { routeVariants } from "@/lib/routeAnimation";
-import { Briefcase, Users, Mail, UserPlus, UserCheck, UserX } from 'lucide-react';
+import { Users, Mail, UserPlus, UserCheck, UserX } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useChatStore } from '@/stores/chatStore/useChatStore';
 import { useFriendsStore } from '@/stores/FriendsStore/useFriendsStore';
@@ -219,12 +219,6 @@ export const Profile = () => {
               )}
               
               <div className="flex items-center justify-center text-sm text-gray-600 dark:text-gray-400 space-x-6 mb-4 w-full">
-                {userInfo.department && (
-                  <div className="flex items-center">
-                    <Briefcase className="size-4 text-blue-500 mr-1" />
-                    <span>{userInfo.department}</span>
-                  </div>
-                )}
                 <div className="flex items-center">
                 <Link
                     to={isOwnProfile ? "/friends" : `/friends/${userInfo._id}`}
