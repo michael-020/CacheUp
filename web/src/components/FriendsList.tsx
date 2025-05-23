@@ -89,7 +89,7 @@ const FriendsList = ({ searchTerm }: FriendsListProps) => {
   }
 
   return (
-    <div className="space-y-6 px-6 pb-16 lg:pb-4">
+    <div className="space-y-6 px-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold flex items-center gap-2">
           <Users className="h-6 w-6" />
@@ -114,7 +114,7 @@ const FriendsList = ({ searchTerm }: FriendsListProps) => {
           <p className="text-gray-500 mt-1">Try a different search term</p>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 pb-16 lg:pb-4">
           {sortedFriends.map((friend: IUser) => (
             <div 
               key={friend._id} 
