@@ -1,5 +1,5 @@
 import { useFriendsStore } from "@/stores/FriendsStore/useFriendsStore";
-import { UserPlus, RefreshCw, Check, X } from "lucide-react";
+import { UserPlus, RefreshCw, Check, X ,Users} from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { SuggestionUser } from "@/stores/FriendsStore/types";
@@ -80,10 +80,16 @@ export const FriendSuggestionsSlider = () => {
                   </h4>
                 </Link>
                 {/* todo: mutual friends */}
-                <p className="text-xs text-gray-500 mt-1">
+           {(suggestion.mutualFriends ?? 0) > 0 ? (
+                <div className="mt-1 flex justify-center items-center text-xs text-gray-500 gap-1">
+                  <Users size={12} className="text-gray-500" />
+                  {suggestion.mutualFriends} mutual
+                </div>
+              ) : (
+                <p className="mt-1 text-xs text-gray-500">
                   {suggestion.username}
                 </p>
-
+              )}
                 <div className="flex items-center justify-center gap-2 mt-2">
                   {hasPendingRequest ? (
                     <button 
