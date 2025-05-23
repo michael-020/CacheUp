@@ -1,5 +1,5 @@
 import { Loader } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 interface DeleteConfirmationModalProps {
@@ -20,6 +20,7 @@ export function DeleteModal({
   title = "Confirm Delete"
 }: DeleteConfirmationModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
+  const [isLoading, setIsLoading] = useState(false)
   
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -37,8 +38,16 @@ export function DeleteModal({
     };
   }, [isModalOpen, setIsModalOpen]);
 
-  const onClickHandler = () => {
-    deleteHandler();
+  const onClickHandler = async () => {
+    setIsLoading(true)
+    try {
+      await deleteHandler();
+    } catch (error) {
+      console.log("error in deleting", error)
+    } finally {
+      setIsLoading(false)
+    }
+
     setIsModalOpen(false);
   };
 
@@ -64,13 +73,10 @@ export function DeleteModal({
           <button
             onClick={onClickHandler}
             className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-            disabled={isDeleting}
+            disabled={isDeleting || isLoading}
           >
-            {isDeleting ? (
-              <div className="px-2 flex items-center">
-                <Loader className="animate-spin size-4 mr-2" />
-                Deleting...
-              </div>
+            {(isDeleting || isLoading) ? (
+                <Loader className="animate-spin size-5 mx-4" />
             ) : (
               "Delete"
             )}
