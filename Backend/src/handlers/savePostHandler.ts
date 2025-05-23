@@ -7,7 +7,7 @@ const savePostHandler: Router = Router();
 // Save a post
 savePostHandler.post("/:postId", async (req: Request, res: Response) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id; 
     const { postId } = req.params;
 
     const post = await postModel.findById(postId);
@@ -31,7 +31,7 @@ savePostHandler.post("/:postId", async (req: Request, res: Response) => {
 // Get all saved posts
 savePostHandler.get("/", async (req: Request, res: Response) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user._id; 
       
       const savedPosts = await postModel.find({ savedBy: userId, visibility: true })
         .populate({
@@ -66,7 +66,7 @@ savePostHandler.get("/", async (req: Request, res: Response) => {
 
 savePostHandler.delete("/:postId", async (req: Request, res: Response) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user._id; 
       const { postId } = req.params;
   
       const post = await postModel.findById(postId);
@@ -75,7 +75,7 @@ savePostHandler.delete("/:postId", async (req: Request, res: Response) => {
          return
       }
   
-      post.savedBy = post.savedBy.filter(id => id.toString() !== userId);
+      post.savedBy = post.savedBy.filter(id => id && id.toString() !== userId.toString());
       await post.save();
   
       res.status(200).json({ message: "Post unsaved successfully" });
