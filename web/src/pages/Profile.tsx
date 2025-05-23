@@ -52,6 +52,7 @@ export const Profile = () => {
         } else {
           url = `/user/profile/${id}`
         }
+        await new Promise(r=> setTimeout(r, 3000))
         const response = await axiosInstance(url);
         const profileData = response.data.userInfo;
         setUserInfo(profileData);
@@ -191,68 +192,146 @@ export const Profile = () => {
         </div>
       </div>
       
-      <div className="flex-1 max-w-5xl mx-auto translate-y-28 lg:translate-y-16 pb-24 lg:pb-8">
+      <div className="flex-1 max-w-5xl mx-auto translate-y-20 lg:translate-y-20 pb-24 lg:pb-8">
         {isProfileLoading ? (
           <MobileProfileCardSkeleton />
         ) : userInfo && (
-          <div className="lg:hidden bg-white dark:bg-neutral-800 rounded-lg shadow-lg mb-4 overflow-hidden -translate-y-4">
-            <div className="flex flex-col items-center pt-6 px-4">
-              <div className="rounded-full bg-white p-1 dark:bg-neutral-800 mb-3">
-                <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-white dark:border-neutral-700">
+          <div className="lg:hidden">
+            {/* Mobile (sm) Layout */}
+            <div className="sm:hidden bg-white dark:bg-neutral-800 rounded-lg shadow-lg mb-4 overflow-hidden">
+              <div className="flex flex-col items-center py-4 px-3">
+                {/* Compact profile picture */}
+                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-gray-200 dark:border-neutral-700 mb-3">
                   <img
                     src={userInfo.profilePicture || '/avatar.jpeg'}
                     alt="Profile"
                     className="w-full h-full object-cover"
                   />
                 </div>
-              </div>
-              
-              <div className="text-center mb-3">
-                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-300">{userInfo.name}</h3>
-                <p className="text-sm text-gray-500">@{userInfo.username}</p>
-              </div>
-              
-              {userInfo.bio && (
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 text-center max-w-md">
-                  {userInfo.bio}
-                </p>
-              )}
-              
-              <div className="flex items-center justify-center text-sm text-gray-600 dark:text-gray-400 space-x-6 mb-4 w-full">
-                <div className="flex items-center">
-                <Link
+                
+                {/* Name and username - compact */}
+                <div className="text-center mb-3">
+                  <h3 className="text-base font-bold text-gray-800 dark:text-gray-300 leading-tight">{userInfo.name}</h3>
+                  <p className="text-xs text-gray-500">@{userInfo.username}</p>
+                </div>
+                
+                {/* Bio - shorter on mobile */}
+                {userInfo.bio && (
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-3 text-center px-2 line-clamp-2">
+                    {userInfo.bio}
+                  </p>
+                )}
+                
+                {/* Friends count - inline */}
+                <div className="mb-3">
+                  <Link
                     to={isOwnProfile ? "/friends" : `/friends/${userInfo._id}`}
                     className="focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
                   >
-                    <div className="flex items-center cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
-                      <Users className="size-4 text-indigo-500 mr-1" />
-                      <span>{userInfo.friends?.length || 0}</span>
+                    <div className="flex items-center cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors text-sm">
+                      <Users className="size-3 text-indigo-500 mr-1" />
+                      <span className="text-gray-600 dark:text-gray-400">{userInfo.friends?.length || 0} friends</span>
                     </div>
                   </Link>
                 </div>
-              </div>
-              
-              <div className="flex w-full px-2 pb-4 gap-3">
-                {isOwnProfile ? (
-                  <Link to="/edit-profile" className="w-full">
-                    <button className="w-full py-2 px-4 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-sm font-medium rounded-md hover:from-blue-600 hover:to-indigo-600 transition-colors">
-                      Edit Profile
-                    </button>
-                  </Link>
-                ) : (
-                  <>
-                    <Link to="/message" className="w-1/2">
-                      <button 
-                        className="w-full flex items-center justify-center space-x-1 py-2 px-4 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-sm font-medium rounded-md hover:from-blue-600 hover:to-indigo-600 transition-colors"
-                        onClick={() => setSelectedUser(userInfo)}
-                      >
-                        <Mail className="size-4" /> <span>Message</span>
+                
+                {/* Action buttons - stacked for very small screens */}
+                <div className="w-full px-2 space-y-2">
+                  {isOwnProfile ? (
+                    <Link to="/edit-profile" className="block">
+                      <button className="w-full py-2 px-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-sm font-medium rounded-md hover:from-blue-600 hover:to-indigo-600 transition-colors">
+                        Edit Profile
                       </button>
                     </Link>
-                    <div className="w-1/2">
-                      {renderFriendButton()}
+                  ) : (
+                    <>
+                      <Link to="/message" className="block">
+                        <button 
+                          className="w-full flex items-center justify-center space-x-1 py-2 px-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-sm font-medium rounded-md hover:from-blue-600 hover:to-indigo-600 transition-colors"
+                          onClick={() => setSelectedUser(userInfo)}
+                        >
+                          <Mail className="size-4" /> <span>Message</span>
+                        </button>
+                      </Link>
+                      <div className="w-full">
+                        {renderFriendButton()}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Small Desktop/Large Tablet Layout */}
+            <div className="hidden sm:block bg-white dark:bg-neutral-800 rounded-lg shadow-lg mb-4 overflow-hidden">
+              <div className="p-6">
+                {/* Header section */}
+                <div className="flex items-start space-x-6 mb-4">
+                  {/* Profile picture - larger */}
+                  <div className="flex-shrink-0">
+                    <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-200 dark:border-neutral-700">
+                      <img
+                        src={userInfo.profilePicture || '/avatar.jpeg'}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
-                  </>
+                  </div>
+                  
+                  {/* Profile info and actions */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-300">{userInfo.name}</h3>
+                        <p className="text-sm text-gray-500 mb-2">@{userInfo.username}</p>
+                        
+                        {/* Friends count */}
+                        <Link
+                          to={isOwnProfile ? "/friends" : `/friends/${userInfo._id}`}
+                          className="inline-block focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
+                        >
+                          <div className="flex items-center cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                            <Users className="size-4 text-indigo-500 mr-2" />
+                            <span className="text-gray-600 dark:text-gray-400 font-medium">{userInfo.friends?.length || 0} friends</span>
+                          </div>
+                        </Link>
+                      </div>
+                      
+                      {/* Action buttons - horizontal */}
+                      <div className="flex space-x-3">
+                        {isOwnProfile ? (
+                          <Link to="/edit-profile">
+                            <button className="py-2 px-6 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-medium rounded-md hover:from-blue-600 hover:to-indigo-600 transition-colors">
+                              Edit Profile
+                            </button>
+                          </Link>
+                        ) : (
+                          <>
+                            <Link to="/message">
+                              <button 
+                                className="flex items-center space-x-2 py-2 px-4 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-medium rounded-md hover:from-blue-600 hover:to-indigo-600 transition-colors"
+                                onClick={() => setSelectedUser(userInfo)}
+                              >
+                                <Mail className="size-4" /> <span>Message</span>
+                              </button>
+                            </Link>
+                            <div>
+                              {renderFriendButton()}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Bio section */}
+                {userInfo.bio && (
+                  <div className="border-t border-gray-200 dark:border-neutral-700 pt-4">
+                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                      {userInfo.bio}
+                    </p>
+                  </div>
                 )}
               </div>
             </div>
