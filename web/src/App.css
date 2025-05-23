@@ -1,0 +1,138 @@
+html {
+  overflow-y: scroll;
+  /* Prevent layout shift by always reserving scrollbar width */
+  margin-right: calc(100vw - 100%);
+  margin-right: 0; /* This prevents a double scrollbar in Firefox */
+}
+
+body {
+  /* Remove duplicate overflow-y declaration */
+  padding-right: constant(safe-area-inset-right); /* For iOS */
+  padding-right: env(safe-area-inset-right);
+}
+
+Custom scrollbar styling
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5); /* Light gray with opacity for light mode */
+  border-radius: 20px;
+  transition: background-color 0.3s ease;
+}
+
+/* Dark mode scrollbar */
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(107, 114, 128, 0.7); /* Darker gray with opacity for dark mode */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(107, 114, 128, 0.8); /* Slightly darker on hover */
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.8); /* Lighter on hover in dark mode */
+}
+
+/* For Firefox */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+.dark .custom-scrollbar {
+  scrollbar-color: rgba(107, 114, 128, 0.7) transparent;
+}
+
+/* Custom scrollbar styling - add this to your App.css file */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5); /* Light gray with opacity for light mode */
+  border-radius: 20px;
+  transition: background-color 0.3s ease;
+}
+
+/* Dark mode scrollbar */
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(107, 114, 128, 0.7); /* Darker gray with opacity for dark mode */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(107, 114, 128, 0.8); /* Slightly darker on hover */
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.8); /* Lighter on hover in dark mode */
+}
+
+/* For Firefox */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+.dark .custom-scrollbar {
+  scrollbar-color: rgba(107, 114, 128, 0.7) transparent;
+}
+
+@media (max-width: 768px) {
+  .custom-scrollbar {
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+}
+
+/* Apply custom scrollbar to all main content areas */
+html, body, #root, main, .overflow-y-auto, .overflow-auto {
+  @apply custom-scrollbar;
+}
+
+.react-datepicker {
+  @apply dark:bg-neutral-800 dark:border-neutral-700;
+}
+
+.react-datepicker__header {
+  @apply dark:bg-neutral-700 dark:border-neutral-600;
+}
+
+.react-datepicker__current-month, 
+.react-datepicker__day-name {
+  @apply dark:text-gray-200;
+}
+
+.react-datepicker__day {
+  @apply dark:text-gray-300 dark:hover:bg-neutral-600;
+}
+
+.react-datepicker__day--selected {
+  @apply dark:bg-blue-600 dark:text-white;
+}
+
+.react-datepicker__day--disabled {
+  @apply dark:text-gray-600;
+}
+
+/* Add to your global CSS file */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
