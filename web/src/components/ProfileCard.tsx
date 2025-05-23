@@ -7,6 +7,7 @@ import { useFriendsStore } from '@/stores/FriendsStore/useFriendsStore';
 import { useAdminStore } from '@/stores/AdminStore/useAdminStore';
 import { LoginPromptModal } from "@/components/modals/LoginPromptModal";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
+import { RemoveFriendModal } from "@/components/modals/RemoveFriendModal";
 
 interface ProfileCardProps {
   isOwnProfile: boolean;
@@ -34,6 +35,7 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [loginPromptAction, setLoginPromptAction] = useState<'message' | 'friend'>('message');
   const { authUser } = useAuthStore();
+  const [showRemoveModal, setShowRemoveModal] = useState(false);
   
   useEffect(() => {
     if (!isOwnProfile) {
@@ -139,9 +141,9 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
     
     if (isFriend) {
       return (
-        <button 
-          className="w-full flex items-center justify-center space-x-2 py-2 px-3 bg-green-500 text-white text-xs font-medium rounded-md cursor-default"
-          disabled
+        <button
+          className="w-full flex items-center justify-center space-x-2 py-2 px-3 bg-green-500 text-white text-xs font-medium rounded-md hover:bg-green-600 transition-colors"
+          onClick={() => setShowRemoveModal(true)}
         >
           <UserCheck className="size-4" /> <span>Friend</span>
         </button>
@@ -280,6 +282,15 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
             ? "Please sign in to send messages."
             : "Please sign in to add friends."
         }
+      />
+      <RemoveFriendModal
+        isOpen={showRemoveModal}
+        onClose={() => setShowRemoveModal(false)}
+        onRemove={async () => {
+          await removeFriend(userId);
+          // No toast here
+        }}
+        friendName={name}
       />
     </div>
   );

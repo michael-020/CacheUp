@@ -1,4 +1,4 @@
-import { Loader } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -76,7 +76,7 @@ export function DeleteModal({
             disabled={isDeleting || isLoading}
           >
             {(isDeleting || isLoading) ? (
-                <Loader className="animate-spin size-5 mx-4" />
+                <Loader2 className="animate-spin size-5 mx-4" />
             ) : (
               "Delete"
             )}

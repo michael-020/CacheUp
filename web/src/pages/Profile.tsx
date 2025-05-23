@@ -14,6 +14,7 @@ import { Link } from 'react-router-dom';
 import { useChatStore } from '@/stores/chatStore/useChatStore';
 import { useFriendsStore } from '@/stores/FriendsStore/useFriendsStore';
 import PostCardSkeleton from "@/components/skeletons/PostCardSkeleton";
+import { RemoveFriendModal } from "@/components/modals/RemoveFriendModal";
 
 export const Profile = () => {
   const { id } = useParams();
@@ -27,6 +28,7 @@ export const Profile = () => {
   const { setSelectedUser } = useChatStore();
   const [friendLoading, setFriendLoading] = useState(false);
   const [isProfileLoading, setIsProfileLoading] = useState(true);
+  const [showRemoveModal, setShowRemoveModal] = useState(false);
 
   const { 
     friends, 
@@ -138,9 +140,9 @@ export const Profile = () => {
     
     if (isFriend) {
       return (
-        <button 
-          className="flex items-center justify-center space-x-1 py-2 px-4 bg-green-500 text-white text-sm font-medium rounded-md cursor-default w-full"
-          disabled
+        <button
+          className="flex items-center justify-center space-x-1 py-2 px-4 bg-green-500 text-white text-sm font-medium rounded-md hover:bg-green-600 transition-colors w-full"
+          onClick={() => setShowRemoveModal(true)}
         >
           <UserCheck className="size-4" /> <span>Friend</span>
         </button>
@@ -370,6 +372,14 @@ export const Profile = () => {
       </div>
       
       <div className="hidden lg:block w-1/4 max-w-xs"></div>
+      <RemoveFriendModal
+        isOpen={showRemoveModal}
+        onClose={() => setShowRemoveModal(false)}
+        onRemove={async () => {
+          if (userInfo) await removeFriend(userInfo._id);
+        }}
+        friendName={userInfo?.name}
+      />
     </motion.div>
   );
 };
