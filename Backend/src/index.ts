@@ -15,6 +15,7 @@ import forumsRouter from "./routes/forums";
 import authRouter from "./routes/auth";
 import session from "express-session";
 import MongoStore from "connect-mongo";
+import './lib/deleteCronJob'
 
 interface ApiError extends Error {
   statusCode?: number;
