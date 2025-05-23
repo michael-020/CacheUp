@@ -52,7 +52,6 @@ export const Profile = () => {
         } else {
           url = `/user/profile/${id}`
         }
-        await new Promise(r=> setTimeout(r, 3000))
         const response = await axiosInstance(url);
         const profileData = response.data.userInfo;
         setUserInfo(profileData);

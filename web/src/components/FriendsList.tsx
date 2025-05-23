@@ -89,7 +89,7 @@ const FriendsList = ({ searchTerm }: FriendsListProps) => {
   }
 
   return (
-    <div className="space-y-6 px-6">
+    <div className="space-y-6 px-6 pb-16 lg:pb-4">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold flex items-center gap-2">
           <Users className="h-6 w-6" />
