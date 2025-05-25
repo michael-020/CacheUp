@@ -184,7 +184,7 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
           
           <div className="text-center">
             <div className="relative w-16 h-16 mx-auto mb-3">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 to-indigo-400 p-0.5  hover:scale-105 cursor-pointer ">
+              <div className="absolute inset-0 rounded-full bg-neutral-200 dark:bg-neutral-600 p-0.5  hover:scale-105 cursor-pointer ">
                 <div className="w-full h-full rounded-full overflow-hidden bg-whitetransition-transform duration-300">
                   <Link to="/profile" >
                     <img
