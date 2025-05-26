@@ -7,6 +7,7 @@ import { useFriendsStore } from '@/stores/FriendsStore/useFriendsStore';
 import { useAdminStore } from '@/stores/AdminStore/useAdminStore';
 import { LoginPromptModal } from "@/components/modals/LoginPromptModal";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
+import { RemoveFriendModal } from "@/components/modals/RemoveFriendModal";
 
 interface ProfileCardProps {
   isOwnProfile: boolean;
@@ -34,6 +35,7 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [loginPromptAction, setLoginPromptAction] = useState<'message' | 'friend'>('message');
   const { authUser } = useAuthStore();
+  const [showRemoveModal, setShowRemoveModal] = useState(false);
   
   useEffect(() => {
     if (!isOwnProfile) {
@@ -139,9 +141,9 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
     
     if (isFriend) {
       return (
-        <button 
-          className="w-full flex items-center justify-center space-x-2 py-2 px-3 bg-green-500 text-white text-xs font-medium rounded-md cursor-default"
-          disabled
+        <button
+          className="w-full flex items-center justify-center space-x-2 py-2 px-3 bg-green-500 text-white text-xs font-medium rounded-md hover:bg-green-600 transition-colors"
+          onClick={() => setShowRemoveModal(true)}
         >
           <UserCheck className="size-4" /> <span>Friend</span>
         </button>
@@ -182,7 +184,7 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
           
           <div className="text-center">
             <div className="relative w-16 h-16 mx-auto mb-3">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 to-indigo-400 p-0.5  hover:scale-105 cursor-pointer ">
+              <div className="absolute inset-0 rounded-full bg-neutral-200 dark:bg-neutral-600 p-0.5  hover:scale-105 cursor-pointer ">
                 <div className="w-full h-full rounded-full overflow-hidden bg-whitetransition-transform duration-300">
                   <Link to="/profile" >
                     <img
@@ -280,6 +282,15 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
             ? "Please sign in to send messages."
             : "Please sign in to add friends."
         }
+      />
+      <RemoveFriendModal
+        isOpen={showRemoveModal}
+        onClose={() => setShowRemoveModal(false)}
+        onRemove={async () => {
+          await removeFriend(userId);
+          // No toast here
+        }}
+        friendName={name}
       />
     </div>
   );

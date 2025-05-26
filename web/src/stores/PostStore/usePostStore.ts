@@ -142,70 +142,105 @@ export const usePostStore = create<PostState & PostActions>((set,get) => ({
     }
   },
 
-  toggleSave: async (postId) => {
-    const state = get(); // ⬅ moved out
-    const originalPost = state.posts.find(p => p._id === postId); // ⬅ moved out
-    const originalIsSaved = originalPost?.isSaved ?? false; // ⬅ moved out
+toggleSave: async (postId) => {
+  const state = get();
+  const originalPost = state.posts.find(p => p._id === postId);
+  const originalSavedPost = state.savedPosts.find(p => p._id === postId);
   
-    try {
-      set({
-        posts: state.posts.map(post => 
-          post._id === postId ? { ...post, isSaved: !originalIsSaved } : post
-        ),
-        savedPosts: originalIsSaved
-          ? state.savedPosts.filter(p => p._id !== postId)
-          : [...state.savedPosts, state.posts.find(p => p._id === postId)!]
-      });
-  
-      await (originalIsSaved 
-        ? axiosInstance.delete(`/post/save/${postId}`)
-        : axiosInstance.post(`/post/save/${postId}`));
-  
-      const { data } = await axiosInstance.get("/post/save");
-      set({
-        savedPosts: data,
-        posts: state.posts.map(post => ({
-          ...post,
-          isSaved: data.some((saved: Post) => saved._id === post._id)
-        }))
-      });
-  
-    } catch (error) {
-      set((state) => ({
-        posts: state.posts.map(post => 
-          post._id === postId ? { ...post, isSaved: originalIsSaved } : post
-        ),
-        savedPosts: originalIsSaved
-          ? [...state.savedPosts, originalPost!]
-          : state.savedPosts.filter(p => p._id !== postId)
-      }));
-      console.error("Save error:", error);
-    }
-  },
-  
-  clearSavedPosts: () => set({ savedPosts: [] }),
+  const originalIsSaved = originalPost?.isSaved ?? (originalSavedPost ? true : false);
 
-  
-  
-  fetchSavedPosts: async () => {
-    try {
-      const { data } = await axiosInstance.get("/post/save");
-      set((state) => ({
-        savedPosts: data,
-        posts: state.posts.map(post => ({
-          ...post,
-          isSaved: data.some((saved: Post) => saved._id === post._id)
-        }))
-      }));
-      usePostStore.getState().posts.forEach((p, index) => {
-        if (data.some((saved: Post) => saved._id === p._id)) {
-          usePostStore.getState().posts[index].isSaved = true;
-        }
-      });
-    } catch (error) {
-      console.error("Fetch saved error:", error);
+  try {
+    set({
+      posts: state.posts.map(post => 
+        post._id === postId ? { ...post, isSaved: !originalIsSaved } : post
+      ),
+      savedPosts: originalIsSaved 
+        ? state.savedPosts.filter(post => post._id !== postId)
+        : originalSavedPost 
+          ? state.savedPosts 
+          : originalPost 
+            ? [...state.savedPosts, { ...originalPost, isSaved: true }] 
+            : state.savedPosts
+    });
+
+    if (originalIsSaved) {
+      await axiosInstance.delete(`/post/save/${postId}`);
+    } else {
+      await axiosInstance.post(`/post/save/${postId}`);
+      if (!originalSavedPost) {
+        await get().fetchSavedPosts();
+      }
     }
-  },
+
+  } catch (error) {
+    set({
+      posts: state.posts.map(post => 
+        post._id === postId ? { ...post, isSaved: originalIsSaved } : post
+      ),
+      savedPosts: originalIsSaved 
+        ? (originalSavedPost ? [...state.savedPosts, originalSavedPost] : state.savedPosts)
+        : state.savedPosts.filter(post => post._id !== postId)
+    });
+    console.error("Save error:", error);
+    throw error;
+  }
+},
+
+
+fetchSavedPosts: async () => {
+  const state = get();
+  
+  if (state.isFetchingSavedPosts) return;
+  
+  set({ isFetchingSavedPosts: true });
+  
+  try {
+    const { data } = await axiosInstance.get("/post/save");
+    
+    set((currentState) => ({
+      savedPosts: data,
+      isFetchingSavedPosts: false,
+      posts: currentState.posts.map(post => ({
+        ...post,
+        isSaved: data.some((saved: Post) => saved._id === post._id)
+      }))
+    }));
+    
+  } catch (error) {
+    console.error("Fetch saved error:", error);
+    set({ isFetchingSavedPosts: false });
+  }
+},
+
+unsavePost: async (postId: string) => {
+  const state = get();
+  const originalSavedPosts = state.savedPosts;
+  
+  try {
+    set({
+      savedPosts: state.savedPosts.filter(post => post._id !== postId),
+      posts: state.posts.map(post => 
+        post._id === postId ? { ...post, isSaved: false } : post
+      )
+    });
+
+    await axiosInstance.delete(`/post/save/${postId}`);
+    
+  } catch (error) {
+    set({
+      savedPosts: originalSavedPosts,
+      posts: state.posts.map(post => 
+        post._id === postId ? { ...post, isSaved: true } : post
+      )
+    });
+    console.error("Unsave error:", error);
+    throw error;
+  }
+},
+
+clearSavedPosts: () => set({ savedPosts: [] }),
+
+setSavedPosts: (posts) => set({ savedPosts: posts }),
 
   fetchReportedPosts: async () => {
 

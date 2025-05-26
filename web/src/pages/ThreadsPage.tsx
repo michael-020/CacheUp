@@ -97,7 +97,7 @@ const ForumPage: React.FC = () => {
   }
   
   return (
-    <div className='pb-24 dark:bg-neutral-950 min-h-screen'>
+    <div className='pb-40 lg:pb-24 dark:bg-neutral-950 min-h-screen'>
       <div className="max-w-6xl mx-auto p-6 translate-y-24 h-full" >
       <SearchBar />
         <div className="flex justify-between items-center mb-6">
@@ -199,7 +199,7 @@ const ForumPage: React.FC = () => {
                         </div>
                       )}
                     </div>
-                    <p className="mt-2 text-gray-600">{thread.description}</p>
+                    <p className="mt-2 text-gray-600 truncate">{thread.description}</p>
                     <div className="mt-3 flex justify-between text-sm text-gray-500">
                       <span>Created: {new Date(thread.createdAt).toLocaleString()}</span>
                     </div>

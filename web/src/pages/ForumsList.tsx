@@ -219,7 +219,7 @@ const ForumList: React.FC = () => {
 
   return (
     <motion.div 
-      className="h-full pb-[26rem] md:pb-48 lg:pb-20 dark:bg-neutral-950"
+      className="h-full pb-40 md:pb-40 lg:pb-20 dark:bg-neutral-950"
       variants={routeVariants}
       initial="initial"
       animate="final"
@@ -327,7 +327,7 @@ const ForumList: React.FC = () => {
                 {forums.map((forum) => (
                   <div
                     key={forum._id}
-                    className="bg-white dark:bg-neutral-800 dark:border dark:shadow-neutral-700 dark:border-neutral-700 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-200 relative"
+                    className="bg-white min-h-[260px] dark:bg-neutral-800 dark:border dark:shadow-neutral-700 dark:border-neutral-700 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-200 relative flex flex-col"
                   >
                     {isAdminRoute && (
                       <div className="absolute top-4 right-4">
@@ -370,17 +370,18 @@ const ForumList: React.FC = () => {
                     <h2 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-300">
                       {forum.title}
                     </h2>
-                    <p className="text-gray-600 mb-4 line-clamp-3">
+                    <p className="text-gray-600 mb-3 line-clamp-3">
                       {forum.description}
                     </p>
-                    <div className="text-sm text-gray-500 mb-4">
-                      Created:{" "}
-                      {formatDate(forum.createdAt)}
+                    <div className="text-sm text-gray-500 mb-2">
+                      Created: {formatDate(forum.createdAt)}
                     </div>
-                    <div className="flex justify-between items-center mt-4">
+                    <div className="flex-grow" />
+                    <div className="flex items-end mt-auto">
                       <button
                         onClick={() => handleViewForum(forum)}
                         className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded transition-colors duration-200"
+                        style={{ alignSelf: "flex-start" }}
                       >
                         View Threads
                       </button>

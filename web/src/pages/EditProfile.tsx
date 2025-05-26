@@ -113,7 +113,7 @@ export const EditProfile = () => {
             animate="final"
             exit="exit"
         >
-            <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md overflow-hidden translate-y-16 md:translate-y-[4.5rem] lg:translate-y-28">
+            <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md overflow-hidden translate-y-20 md:translate-y-20 lg:translate-y-28">
                 {/* Header */}
                 <div className="bg-blue-600 py-3 px-4">
                     <div className="flex items-center">
