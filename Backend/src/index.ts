@@ -17,6 +17,7 @@ import session from "express-session";
 import MongoStore from "connect-mongo";
 import './lib/deleteCronJob'
 import { setupWeaviateSchema } from "./models/weaviate";
+import { setupWeaviateBackup } from './lib/weaviateBackupCron';
 
 interface ApiError extends Error {
   statusCode?: number;
@@ -104,7 +105,8 @@ async function main() {
         const mongoUrl = process.env.MONGO_URL || "";
         await mongoose.connect(mongoUrl);
         console.log("Connected to DB");
-        await setupWeaviateSchema()
+        await setupWeaviateSchema();
+        setupWeaviateBackup(); // Add this line
         // Start server and store reference to close it properly
         const PORT = process.env.PORT || 3000;
         server.listen(PORT, () => {
