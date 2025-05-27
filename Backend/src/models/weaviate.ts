@@ -3,12 +3,10 @@ dotenv.config();
 import weaviate, {ApiKey} from "weaviate-ts-client";
 
 const weaviateURL = process.env.WEAVIATE_HOST as string;
-const apiKey = process.env.WEAVIATE_API_KEY;
 
 export const weaviateClient = weaviate.client({
-  scheme: weaviateURL.startsWith('https') ? 'https' : 'http',
-  host: weaviateURL.replace(/^https?:\/\//, ''),
-  apiKey: apiKey ? new ApiKey(apiKey) : undefined,
+  scheme:'http',
+  host: weaviateURL.replace(/^https?:\/\//, '')
 });
 
 async function setupWeaviateSchema() {
