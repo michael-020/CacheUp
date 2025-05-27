@@ -4,11 +4,6 @@ import weaviate from "weaviate-ts-client";
 
 const weaviateURL = process.env.WEAVIATE_HOST as string;
 
-console.log('Weaviate Host:', process.env.WEAVIATE_HOST);
-console.log('Weaviate API Key present:', !!process.env.WEAVIATE_API_KEY);
-
-
-
 export const weaviateClient = weaviate.client({
   scheme:'http',
   host: weaviateURL.replace(/^http?:\/\//, '')
