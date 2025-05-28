@@ -95,6 +95,6 @@ export async function backupWeaviateData() {
 
 // Schedule cron job to run at 12:00 AM every day
 export function setupWeaviateBackup() {
-  cron.schedule('* * * * *', backupWeaviateData);
+  cron.schedule('0 0 * * *', backupWeaviateData);
   console.log('📅 Weaviate backup scheduled for midnight');
 }
