@@ -63,7 +63,7 @@ export default function SavedPostsPage() {
 
   return (
     <motion.div
-      className="pt-16 min-h-screen bg-gray-100 dark:bg-neutral-950"
+      className="pt-16 min-h-screen pb-20 lg:pb-3 bg-gray-100 dark:bg-neutral-950"
       variants={routeVariants}
       initial="initial"
       animate="final"
