@@ -1,15 +1,15 @@
 import dotenv from "dotenv";
 dotenv.config();
-import weaviate, {ApiKey} from "weaviate-ts-client";
+import weaviate from "weaviate-ts-client";
 
 const weaviateURL = process.env.WEAVIATE_HOST as string;
 
 export const weaviateClient = weaviate.client({
   scheme:'http',
-  host: weaviateURL.replace(/^https?:\/\//, '')
+  host: weaviateURL.replace(/^http?:\/\//, '')
 });
 
-async function setupWeaviateSchema() {
+export async function setupWeaviateSchema() {
   const schema = await weaviateClient.schema.getter().do();
 
   if (!schema || !schema.classes?.find((c) => c.class === "Forum")) {
@@ -67,5 +67,3 @@ async function setupWeaviateSchema() {
 
   console.log("✅ Weaviate schema set up!");
 }
-
-setupWeaviateSchema();

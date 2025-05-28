@@ -27,7 +27,7 @@ services:
       
 networks:
   backend-network:
-    driver: bridge 
+    external: true
 
 volumes:
   weaviate_data:
