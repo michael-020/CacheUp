@@ -67,7 +67,7 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit, forum }) => {
               value={threadData.title}
               onChange={(e) => setThreadData({...threadData, title: e.target.value})}
               placeholder='Title'
-              className={`w-full p-2 border rounded dark:placeholder:text-gray-700 dark:bg-neutral-600 ${errors.title ? 'border-red-500' : ''}`}
+              className={`w-full p-2 border rounded placeholder:text-neutral-300 dark:placeholder:text-gray-700 dark:bg-neutral-600 ${errors.title ? 'border-red-500' : ''}`}
             />
             {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
           </div>
@@ -79,7 +79,7 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit, forum }) => {
               onChange={(e) => setThreadData({...threadData, description: e.target.value})}
               placeholder='Content'
               rows={5}
-              className={`w-full p-2 border resize-none rounded dark:placeholder:text-gray-700 dark:bg-neutral-600 ${errors.description ? 'border-red-500' : ''}`}
+              className={`w-full p-2 border resize-none rounded placeholder:text-neutral-300 dark:placeholder:text-gray-700 dark:bg-neutral-600 ${errors.description ? 'border-red-500' : ''}`}
             />
             {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
           </div>
