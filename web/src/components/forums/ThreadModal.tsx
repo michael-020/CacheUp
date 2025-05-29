@@ -70,6 +70,9 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit, forum }) => {
               className={`w-full p-2 border rounded dark:placeholder:text-gray-700 dark:bg-neutral-600 ${errors.title ? 'border-red-500' : ''}`}
             />
             {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
+            <div className="text-right text-xs pt-1 text-gray-500 ">
+                {threadData.title.length}/50
+              </div>
           </div>
           
           <div>
