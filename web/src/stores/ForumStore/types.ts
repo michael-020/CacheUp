@@ -164,7 +164,7 @@ export interface ForumActions {
   ) => Promise<void>;
   searchForums: (query: string) => Promise<void>;
   fetchPosts: (threadId: string, page: string, isAdmin?: boolean) => Promise<void>
-  createPost: (threadMongo: string, threadWeaviate: string, content:string) => Promise<void>
+  createPost: (threadMongo: string, threadWeaviate: string, content:string) => Promise<PostSchema>
   toggleLike: (mongoId: string) => Promise<number | undefined>
   toggleDislike: (mongoId: string) => Promise<number | undefined>
   isLiked: (postId: string) => boolean;

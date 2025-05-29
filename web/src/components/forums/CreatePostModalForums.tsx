@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader, X } from "lucide-react";
 import { createPortal } from "react-dom";
+import { useNavigate } from "react-router-dom";
+import { PostSchema } from "@/stores/ForumStore/types";
 
 interface PostModalProps {
   threadMongo?: string;
@@ -33,6 +35,7 @@ const PostModal = ({
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
     const modalRef = useRef<HTMLDivElement>(null);
     const isLoading = mode === 'create' ? isCreatingPost : isEditingPost;
+    const navigate = useNavigate()
 
     // Set initial content when editing
     useEffect(() => {
@@ -80,12 +83,16 @@ const PostModal = ({
 
         try {
             if (mode === 'create') {
-                await createPost(threadMongo, threadWeaviate, content);
+                const post: PostSchema = await createPost(threadMongo, threadWeaviate, content);
+                setContent("");
+                onClose();
+                navigate(`/forums/thread/${threadMongo}/${post.pageNumber}?post=${post._id}`)
             } else if (mode === 'edit') {
                 await editPost(postId, weaviateId, content);
+                setContent("");
+                onClose();
             }
-            setContent("");
-            onClose();
+            
         } catch (error) {
             console.error('Error submitting post:', error);
         }

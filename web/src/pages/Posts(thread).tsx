@@ -486,12 +486,12 @@ export const Thread = () => {
                 )}
               </Button>
 
-              {!hasNextPage && <Button
+              <Button
                 onClick={handleNewPostClick}
                 className="bg-green-600 hover:bg-green-700 text-white"
               >
                 + New Post
-              </Button>}
+              </Button>
             </div>
           </div>
         </div>

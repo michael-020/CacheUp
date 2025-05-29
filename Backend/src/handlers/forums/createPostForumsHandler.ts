@@ -3,6 +3,7 @@ import { z } from "zod";
 import { postForumModel, threadForumModel, userModel, watchNotificationModel } from "../../models/db";
 import { weaviateClient } from "../../models/weaviate";
 import { embedtext } from "../../lib/vectorizeText";
+import { calculatePostPage } from "./utils/pagination";
 
 
 export const createPostForumshandler = async (req: Request, res: Response) => {
@@ -59,10 +60,13 @@ export const createPostForumshandler = async (req: Request, res: Response) => {
             })
         }
 
+        const pageNumber = await calculatePostPage(threadMongo, String(postMongo._id))
+
         res.json({
             msg: "Post created successfully",
             postMongo,
-            postWeaviate
+            postWeaviate,
+            pageNumber
         })
 
         }catch(e){

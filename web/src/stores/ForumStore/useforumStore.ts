@@ -216,6 +216,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     try {
       const response = await axiosInstance.post(`/forums/create-post/${threadMongo}/${threadWeaviate}`, {content}, {withCredentials: true});
       const newPost = response.data.postMongo;
+      newPost.pageNumber = response.data.pageNumber;
       
       const currentUser = useAuthStore.getState().authUser;
       
@@ -233,10 +234,9 @@ export const useForumStore = create<ForumStore>((set, get) => ({
         threadDescription: state.threadDescription,
         threadMongo: state.threadMongo,
         threadWeaviate: state.threadWeaviate,
-        posts: [populatedPost, ...state.posts],
+        posts: [...state.posts, populatedPost],
         loading: false
       }));
-  
       toast.success("Post Created Successfully")
       return populatedPost;
     } catch (error) {
