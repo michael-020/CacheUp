@@ -10,6 +10,7 @@ import { useAdminStore } from '@/stores/AdminStore/useAdminStore';
 import { DeleteModal } from '@/components/modals/DeleteModal';
 import { SearchBar } from '@/components/forums/search-bar';
 import { LoginPromptModal } from "@/components/modals/LoginPromptModal";
+import toast from 'react-hot-toast';
 
 const ForumPage: React.FC = () => {
   const { forumMongoId, forumWeaviateId } = useParams<{
@@ -57,6 +58,10 @@ const ForumPage: React.FC = () => {
   const handleCreateThread = async (threadData: { title: string; description: string }) => {
     try {
       if (!forumMongoId || !forumWeaviateId) return;
+      if(threadData.title.length >= 50) {
+        toast.error("Title can be only 50 characters long");
+        return;
+      }
       await createThread(forumMongoId, forumWeaviateId, threadData, isAdminRoute);
       setShowModal(false);
     } catch (err) {

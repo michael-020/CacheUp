@@ -60,7 +60,7 @@ async function backupWeaviateClass(className: string) {
     }));
 
     if (backups.length > 0) {
-      await WeaviateBackup.insertMany(backups);
+      await WeaviateBackup.insertMany(backups, { ordered: false });
       console.log(`✅ Backed up ${backups.length}/${objects.length} ${className} objects`);
     } else {
       console.log(`ℹ️ No valid ${className} objects to backup`);
@@ -76,9 +76,7 @@ export async function backupWeaviateData() {
   const startTime = Date.now();
 
   try {
-    // Delete old backups (keep only last 7 days)
-    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    await WeaviateBackup.deleteMany({ backupDate: { $lt: sevenDaysAgo } });
+    await WeaviateBackup.deleteMany();
 
     // Backup all classes in parallel
     await Promise.all([
