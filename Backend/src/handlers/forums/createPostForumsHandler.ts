@@ -3,7 +3,7 @@ import { z } from "zod";
 import { postForumModel, threadForumModel, watchNotificationModel } from "../../models/db";
 import { weaviateClient } from "../../models/weaviate";
 import { embedtext } from "../../lib/vectorizeText";
-import { validateWeaviateCreate } from './utils/validateWeaviateCreate';
+import { calculatePostPage } from "./utils/pagination";
 
 
 export const createPostForumshandler = async (req: Request, res: Response) => {
@@ -89,13 +89,16 @@ export const createPostForumshandler = async (req: Request, res: Response) => {
             });
         }
 
+        const pageNumber = await calculatePostPage(threadMongo, String(postMongo._id))
+
         res.json({
             msg: "Post created successfully",
             postMongo,
             postWeaviate
-        });
-    } catch (e) {
-        console.error("Error creating post:", e);
+        })
+
+        }catch(e){
+        console.error(e)
         res.status(500).json({
             msg: "Internal server error"
         });
