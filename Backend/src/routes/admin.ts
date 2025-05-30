@@ -33,7 +33,7 @@ import { adminGetReportedPostsCommentsThreadsHandler } from "../handlers/forums/
 import { getAllPostsFromAThreadHandler } from "../handlers/forums/getAllPostsFromAThreadHandler";
 import { pageViewHandler } from "../handlers/admin/pageViewsHandler";
 import { adminUnreportContentHandler } from "../handlers/forums/adminUnreportContentHandler";
-import { backupWeaviateData, resetBackupStatus } from "../lib/weaviateBackupCron";
+import { backupWeaviateData } from "../lib/weaviateBackupCron";
 
 const adminRouter: Router = Router();
 
@@ -146,16 +146,6 @@ adminRouter.post("/trigger-weaviate-backup", async (req, res) => {
     res.json({ message: "Backup completed successfully" });
   } catch (error) {
     res.status(500).json({ error: "Backup failed" });
-  }
-});
-
-// reset weaviate backup status
-adminRouter.post("/reset-weaviate-backup-status", async (req, res) => {
-  try {
-    await resetBackupStatus();
-    res.json({ message: "Backup status reset successful" });
-  } catch (error) {
-    res.status(500).json({ error: "Backup status reset failed" });
   }
 });
 
