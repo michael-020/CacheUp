@@ -1,6 +1,7 @@
 import { useEffect, useState, FC, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Textarea } from '../ui/textarea';
+import { Loader2 } from 'lucide-react';
 
 interface ThreadModalProps {
   onClose: () => void;
@@ -39,6 +40,7 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit, forum }) => {
     setSubmitting(true);
     onSubmit(threadData);
     setSubmitting(false);
+    onClose()
   };
 
   useEffect(() => {
@@ -53,10 +55,18 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit, forum }) => {
   }, [onClose]);
 
   return createPortal(
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-[1.5px] dark:bg-neutral-900/80  flex items-center justify-center z-50">
-      <div ref={modalRef} className="bg-white dark:bg-neutral-800  rounded-lg p-6 w-full max-w-md">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-[1.5px] dark:bg-neutral-900/80 flex items-center justify-center z-50">
+      <div ref={modalRef} className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-full max-w-md relative">
+        {submitting && (
+          <div className="absolute inset-0 bg-white/50 dark:bg-neutral-800/50 backdrop-blur-[1px] flex items-center justify-center rounded-lg z-50">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+          </div>
+        )}
+        
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold dark:text-gray-200">{forum ? "Request New Forum" : "Create New thread"}</h2>
+          <h2 className="text-xl font-bold dark:text-gray-200">
+            {forum ? "Request New Forum" : "Create New thread"}
+          </h2>
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-4 flex flex-col">
@@ -91,7 +101,8 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit, forum }) => {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
+              disabled={submitting}
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50"
             >
               Cancel
             </button>
@@ -99,13 +110,11 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit, forum }) => {
             <button
               type="submit"
               disabled={submitting}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:bg-gray-400"
+              className={`bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:bg-blue-400 flex items-center gap-2 ${submitting ? "bg-blue-700" : ""} `}
             >
-             {forum 
-                ? (submitting ? 'Requesting...' : 'Request Forum') 
-                : (submitting ? 'Creating...' : 'Create Thread')
-              }
-
+              {submitting ? <div className='px-10'>
+                <Loader2 className="size-5 animate-spin" />
+              </div> : "Create Thread" }
             </button>
           </div>
         </form>

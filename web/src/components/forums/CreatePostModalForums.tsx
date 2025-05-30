@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useForumStore } from "@/stores/ForumStore/useforumStore";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader, X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { PostSchema } from "@/stores/ForumStore/types";
@@ -112,6 +112,13 @@ const PostModal = ({
                         ref={modalRef}
                         className="relative bg-white dark:bg-neutral-800 rounded-lg shadow-xl w-full max-w-lg mx-4"
                     >
+                        {/* Loading Overlay */}
+                        {isLoading && (
+                            <div className="absolute inset-0 bg-white/50 dark:bg-neutral-800/50 backdrop-blur-[1px] flex items-center justify-center rounded-lg z-50">
+                                <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                            </div>
+                        )}
+
                         {/* Header */}
                         <div className="flex items-center justify-between p-4 border-b dark:border-neutral-700">
                             <h2 className="text-xl font-semibold dark:text-white">
@@ -126,13 +133,7 @@ const PostModal = ({
                         </div>
 
                         {/* Content */}
-                        <div className="p-6 relative">
-                            {isLoading && (
-                                <div className="absolute inset-0 bg-neutral-800/80 dark:bg-neutral-900/80 flex items-center justify-center rounded-lg">
-                                    <Loader className="animate-spin size-7" />
-                                </div>
-                            )}
-                            
+                        <div className="p-6">
                             <Textarea
                                 ref={textareaRef}
                                 value={content}
@@ -140,17 +141,33 @@ const PostModal = ({
                                 rows={3}
                                 placeholder="Write something..."
                                 className="w-full p-3 border dark:border-neutral-600 dark:bg-neutral-800 rounded-md resize-none overflow-y-auto max-h-[150px] text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                disabled={isLoading}
                             />
                         </div>
 
                         {/* Footer */}
-                        <div className="p-4 flex justify-end border-t dark:border-neutral-700">
+                        <div className="p-4 flex justify-end gap-4 border-t dark:border-neutral-700">
+                            <button
+                                onClick={onClose}
+                                disabled={isLoading}
+                                className="px-3 py-1 rounded-md border dark:border-neutral-400 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
+                            >
+                                Cancel
+                            </button>
+                            
                             <Button 
                                 onClick={handleSubmit} 
-                                disabled={isLoading} 
-                                className="bg-blue-500 hover:bg-blue-600 text-white"
+                                disabled={isLoading}
+                                className="bg-blue-500 hover:bg-blue-600 text-white flex items-center gap-2"
                             >
-                                {isLoading ? (mode === 'create' ? "Posting..." : "Saving...") : (mode === 'create' ? "Post" : "Save Changes")}
+                                {isLoading ? (
+                                    <>
+                                        {mode === 'create' ? "Posting" : "Saving"}
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                    </>
+                                ) : (
+                                    mode === 'create' ? "Post" : "Save Changes"
+                                )}
                             </Button>
                         </div>
                     </div>
