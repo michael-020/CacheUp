@@ -2,18 +2,18 @@ import { Request, Response } from "express";
 import { forumModel, requestForumModel } from "../../models/db";
 import { weaviateClient } from "../../models/weaviate";
 import { embedtext } from "../../lib/vectorizeText";
-
+import { validateWeaviateCreate } from './utils/validateWeaviateCreate';
 
 export const adminApproveForumHandler = async (req: Request, res: Response) => {
-    try{
-        const {requestId} = req.params
-        const requestedForum = await requestForumModel.findById(requestId)
+    try {
+        const { requestId } = req.params;
+        const requestedForum = await requestForumModel.findById(requestId);
 
-        if(!requestedForum){
+        if (!requestedForum) {
             res.status(404).json({
                 msg: "Request not found"
-            })
-            return
+            });
+            return;
         }
         
         const [forumMongo, vector] = await Promise.all([
@@ -24,38 +24,47 @@ export const adminApproveForumHandler = async (req: Request, res: Response) => {
                 weaviateId: "temp"
             }),
             embedtext(requestedForum.title + " " + requestedForum.description)
-        ])
+        ]);
 
         const forumWeaviate = await weaviateClient.data.creator()
             .withClassName("Forum")
             .withProperties({
                 title: requestedForum.title,
                 description: requestedForum.description,
-                mongoId: forumMongo._id
+                mongoId: forumMongo._id as string  // Ensure mongoId is a string
             })
             .withVector(vector)
-            .do()
+            .do();
 
-        forumMongo.weaviateId = forumWeaviate.id as string
+        const isValid = await validateWeaviateCreate(
+            forumMongo,
+            forumWeaviate,
+            res,
+            'forum',
+            async () => { await forumMongo.deleteOne(); }
+        );
+
+        if (!isValid) return;
         
-        requestedForum.status = "approved"
+        forumMongo.weaviateId = forumWeaviate.id as string;
+        requestedForum.status = "approved";
 
         await Promise.all([
             forumMongo.save(),
             requestedForum.save()
-        ])
+        ]);
 
         res.json({
             msg: "Request approved",
             forumMongo,
             forumWeaviate,
             requestedForum
-        })
+        });
 
-    }catch(e){
-        console.error(e)
+    } catch (e) {
+        console.error("Error approving forum request:", e);
         res.status(500).json({
-            msg: "Server error"
-        })
+            msg: "Server error while approving forum request"
+        });
     }
-}
+};

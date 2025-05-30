@@ -3,6 +3,7 @@ import { z } from "zod";
 import { threadForumModel } from "../../models/db";
 import { weaviateClient } from "../../models/weaviate";
 import { embedtext } from "../../lib/vectorizeText";
+import { validateWeaviateCreate } from './utils/validateWeaviateCreate';
 
 export const createThreadHandler = async (req: Request, res: Response) => {
     const createThreadSchema = z.object({
@@ -11,7 +12,6 @@ export const createThreadHandler = async (req: Request, res: Response) => {
     })
     
     try {
-        // Validate input using Zod schema
         const response = createThreadSchema.safeParse(req.body)
         if (!response.success) {
             res.status(411).json({ msg: "Invalid Details" })
@@ -20,20 +20,27 @@ export const createThreadHandler = async (req: Request, res: Response) => {
         
         const { title, description } = response.data;
         const { forumMongoId, forumWeaviateId } = req.params
+
+        // Check for duplicate title
+        const existingThread = await threadForumModel.findOne({ 
+            title,
+            visibility: true // Only check visible threads
+        });
+
+        if (existingThread) {
+            res.status(409).json({ 
+                msg: "A thread with this title already exists" 
+            });
+            return;
+        }
         
         const threadMongo = await threadForumModel.create({
             title,
             description,
             forum: forumMongoId,
-            createdBy: req.user._id
-        });
-
-        if(!threadMongo){
-            res.status(500).json({ 
-                msg: "Failed to create thread in Mongo" 
-            });
-            return
-        }
+            createdBy: req.user._id,
+            weaviateId: "temp"
+        }) as any;
 
         const vector = await embedtext(`${title} ${description}`);
 
@@ -43,18 +50,20 @@ export const createThreadHandler = async (req: Request, res: Response) => {
                 title,
                 description,
                 forum: [{ beacon: `weaviate://localhost/Forum/${forumWeaviateId}` }],
-                mongoId: threadMongo._id
+                mongoId: threadMongo._id.toString()
             })
             .withVector(vector)
             .do();
 
-        if (!threadWeaviate?.id) {
-            await threadMongo.deleteOne();
-            res.status(500).json({ 
-                msg: "Failed to create thread in Weaviate" 
-            });
-            return;
-        }
+        const isValid = await validateWeaviateCreate(
+            threadMongo,
+            threadWeaviate,
+            res,
+            'thread',
+            async () => { await threadMongo.deleteOne(); }
+        );
+
+        if (!isValid) return;
 
         threadMongo.weaviateId = threadWeaviate.id;
         await threadMongo.save();
@@ -65,9 +74,7 @@ export const createThreadHandler = async (req: Request, res: Response) => {
             threadWeaviate
         });
     } catch(e) {
-        console.error(e);
-        res.status(500).json({
-            msg: "Internal server error"
-        })
+        console.error("Error creating thread:", e);
+        res.status(500).json({ msg: "Internal server error" });
     }
-}
+};
