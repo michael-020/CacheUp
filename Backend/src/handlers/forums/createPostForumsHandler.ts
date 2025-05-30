@@ -4,7 +4,7 @@ import { postForumModel, threadForumModel, watchNotificationModel } from "../../
 import { weaviateClient } from "../../models/weaviate";
 import { embedtext } from "../../lib/vectorizeText";
 import { calculatePostPage } from "./utils/pagination";
-
+import { validateWeaviateCreate } from './utils/validateWeaviateCreate';
 
 export const createPostForumshandler = async (req: Request, res: Response) => {
     const createPostSchema = z.object({
@@ -95,10 +95,9 @@ export const createPostForumshandler = async (req: Request, res: Response) => {
             msg: "Post created successfully",
             postMongo,
             postWeaviate
-        })
-
-        }catch(e){
-        console.error(e)
+        });
+    } catch (e) {
+        console.error("Error creating post:", e);
         res.status(500).json({
             msg: "Internal server error"
         });
