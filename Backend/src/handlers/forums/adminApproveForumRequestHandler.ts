@@ -16,6 +16,19 @@ export const adminApproveForumHandler = async (req: Request, res: Response) => {
             return;
         }
         
+        // Check for duplicate title only among visible forums
+        const existingForum = await forumModel.findOne({ 
+            title: requestedForum.title,
+            visibility: true 
+        });
+
+        if (existingForum) {
+            res.status(409).json({ 
+                msg: "A forum with this title already exists" 
+            });
+            return;
+        }
+
         const [forumMongo, vector] = await Promise.all([
             forumModel.create({
                 title: requestedForum.title,

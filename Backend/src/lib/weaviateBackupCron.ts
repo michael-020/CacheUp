@@ -4,7 +4,6 @@ import { WeaviateBackup } from '../models/weaviateBackup';
 
 async function backupWeaviateClass(className: string) {
   try {
-    // Build fields based on class type
     let fields = '';
     switch (className) {
       case 'Forum':
@@ -21,6 +20,7 @@ async function backupWeaviateClass(className: string) {
         break;
     }
 
+    // Only get objects that haven't been backed up
     const result = await weaviateClient.graphql.get()
       .withClassName(className)
       .withFields(`
@@ -29,42 +29,76 @@ async function backupWeaviateClass(className: string) {
           vector
         }
         mongoId
+        isBackedUp
         ${fields}
       `)
+      .withWhere({
+        operator: 'Or',
+        operands: [
+          {
+            path: ['isBackedUp'],
+            operator: 'Equal',
+            valueBoolean: false
+          },
+          {
+            path: ['isBackedUp'],
+            operator: 'IsNull',
+            valueBoolean: true
+          }
+        ]
+      })
       .do();
 
     const objects = result.data.Get[className];
-    if (!objects) return;
+    if (!objects || objects.length === 0) {
+      console.log(`ℹ️ No new ${className} objects to backup`);
+      console.log(`✅ 0 objects skipped`);
+      return;
+    }
 
-    // Add logging for skipped objects
-    const invalidObjects = objects.filter((obj: any) => !obj.mongoId || obj.mongoId === "null");
-    if (invalidObjects.length > 0) {
-      console.log(`⚠️ Skipped ${invalidObjects.length} ${className} objects:`);
-      invalidObjects.forEach((obj: any) => {
+    // Filter out invalid objects
+    const validObjects = objects.filter((obj: any) => obj.mongoId && obj.mongoId !== "null");
+    const skippedObjects = objects.filter((obj: any) => !obj.mongoId || obj.mongoId === "null");
+    
+    if (skippedObjects.length > 0) {
+      console.log(`⚠️ Skipped ${skippedObjects.length} ${className} objects:`);
+      skippedObjects.forEach((obj: any) => {
         console.log(`  - ID: ${obj._additional.id}, mongoId: ${obj.mongoId}`);
       });
-    }
-
-    const validObjects = objects.filter((obj: any) => obj.mongoId && obj.mongoId !== "null");
-
-    const backups = validObjects.map((obj: any) => ({
-      class: className,
-      originalId: obj._additional.id,
-      mongoId: obj.mongoId,
-      vector: obj._additional.vector,
-      properties: {
-        title: className === 'Forum' || className === 'Thread' ? obj.title : undefined,
-        description: className === 'Forum' || className === 'Thread' ? obj.description : undefined,
-        content: className === 'Post' || className === 'Comment' ? obj.content : undefined
-      }
-    }));
-
-    if (backups.length > 0) {
-      await WeaviateBackup.insertMany(backups, { ordered: false });
-      console.log(`✅ Backed up ${backups.length}/${objects.length} ${className} objects`);
     } else {
-      console.log(`ℹ️ No valid ${className} objects to backup`);
+      console.log(`✅ 0 objects skipped`);
     }
+    
+    if (validObjects.length > 0) {
+      // Create backups
+      const backups = validObjects.map((obj: any) => ({
+        class: className,
+        originalId: obj._additional.id,
+        mongoId: obj.mongoId,
+        vector: obj._additional.vector,
+        properties: {
+          title: className === 'Forum' || className === 'Thread' ? obj.title : undefined,
+          description: className === 'Forum' || className === 'Thread' ? obj.description : undefined,
+          content: className === 'Post' || className === 'Comment' ? obj.content : undefined
+        }
+      }));
+
+      await WeaviateBackup.insertMany(backups);
+
+      // Mark objects as backed up
+      await Promise.all(
+        validObjects.map(async (obj: any) => {
+          await weaviateClient.data.updater()
+            .withClassName(className)
+            .withId(obj._additional.id)
+            .withProperties({ isBackedUp: true })
+            .do();
+        })
+      );
+
+      console.log(`✅ Backed up ${validObjects.length}/${objects.length} ${className} objects`);
+    }
+
   } catch (error) {
     console.error(`❌ Error backing up ${className}:`, error);
   }
@@ -97,4 +131,34 @@ export async function backupWeaviateData() {
 export function setupWeaviateBackup() {
   cron.schedule('0 0 * * *', backupWeaviateData);
   console.log('📅 Weaviate backup scheduled for midnight');
+}
+
+export async function resetBackupStatus(className?: string) {
+  try {
+    const classes = className ? [className] : ['Forum', 'Thread', 'Post', 'Comment'];
+    
+    for (const cls of classes) {
+      const result = await weaviateClient.graphql.get()
+        .withClassName(cls)
+        .withFields('_additional { id }')
+        .do();
+
+      const objects = result.data.Get[cls];
+      if (!objects) continue;
+
+      await Promise.all(
+        objects.map(async (obj: any) => {
+          await weaviateClient.data.updater()
+            .withClassName(cls)
+            .withId(obj._additional.id)
+            .withProperties({ isBackedUp: false })
+            .do();
+        })
+      );
+
+      console.log(`✅ Reset backup status for ${objects.length} ${cls} objects`);
+    }
+  } catch (error) {
+    console.error('❌ Error resetting backup status:', error);
+  }
 }

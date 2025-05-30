@@ -15,12 +15,20 @@ export async function setupWeaviateSchema() {
   if (!schema || !schema.classes?.find((c) => c.class === "Forum")) {
     await weaviateClient.schema.classCreator().withClass({
       class: "Forum",
-      vectorizer: "none", // We provide vectors manually
+      vectorizer: "none",
+      invertedIndexConfig: {
+        indexNullState: true
+      },
       properties: [
         { name: "title", dataType: ["string"] },
         { name: "description", dataType: ["string"] },
-        { name: "vector", dataType: ["number[]"] }, // Store embeddings
-        { name: "mongoId", dataType: ["string"]}
+        { name: "vector", dataType: ["number[]"] },
+        { name: "mongoId", dataType: ["string"], required: true },
+        { 
+          name: "isBackedUp", 
+          dataType: ["boolean"], 
+          defaultValue: false
+        }
       ],
     }).do();
   }
@@ -29,12 +37,19 @@ export async function setupWeaviateSchema() {
     await weaviateClient.schema.classCreator().withClass({
       class: "Thread",
       vectorizer: "none",
+      invertedIndexConfig: {
+        indexNullState: true
+      },
       properties: [
         { name: "title", dataType: ["string"] },
-        { name: "description", dataType: ["string"]},
-        { name: "forum", dataType: ["Forum"] }, // Links to a forum
+        { name: "description", dataType: ["string"] },
+        { name: "mongoId", dataType: ["string"], required: true },
         { name: "vector", dataType: ["number[]"] },
-        { name: "mongoId", dataType: ["string"]}
+        { 
+          name: "isBackedUp", 
+          dataType: ["boolean"], 
+          defaultValue: false
+        }
       ],
     }).do();
   }
@@ -43,11 +58,18 @@ export async function setupWeaviateSchema() {
     await weaviateClient.schema.classCreator().withClass({
       class: "Post",
       vectorizer: "none",
+      invertedIndexConfig: {
+        indexNullState: true
+      },
       properties: [
         { name: "content", dataType: ["string"] },
-        { name: "thread", dataType: ["Thread"] },
+        { name: "mongoId", dataType: ["string"], required: true },
         { name: "vector", dataType: ["number[]"] },
-        { name: "mongoId", dataType: ["string"]}
+        { 
+          name: "isBackedUp", 
+          dataType: ["boolean"], 
+          defaultValue: false
+        }
       ],
     }).do();
   }
@@ -56,11 +78,18 @@ export async function setupWeaviateSchema() {
     await weaviateClient.schema.classCreator().withClass({
       class: "Comment",
       vectorizer: "none",
+      invertedIndexConfig: {
+        indexNullState: true
+      },
       properties: [
         { name: "content", dataType: ["string"] },
-        { name: "post", dataType: ["Post"] },
+        { name: "mongoId", dataType: ["string"], required: true },
         { name: "vector", dataType: ["number[]"] },
-        { name: "mongoId", dataType: ["string"]}
+        { 
+          name: "isBackedUp", 
+          dataType: ["boolean"], 
+          defaultValue: false
+        }
       ],
     }).do();
   }

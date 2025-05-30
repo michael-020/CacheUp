@@ -21,10 +21,11 @@ export const createThreadHandler = async (req: Request, res: Response) => {
         const { title, description } = response.data;
         const { forumMongoId, forumWeaviateId } = req.params
 
-        // Check for duplicate title
+        // Check for duplicate title only among visible threads
         const existingThread = await threadForumModel.findOne({ 
             title,
-            visibility: true // Only check visible threads
+            visibility: true,
+            forum: forumMongoId
         });
 
         if (existingThread) {

@@ -9,17 +9,32 @@ export const createForumhandler = async(req: Request, res: Response) => {
     const forumSchema = z.object({
         title: z.string().min(1),
         description: z.string().min(10)
-    })
+    });
+
     const response = forumSchema.safeParse(req.body);
     if(!response.success){
         res.status(411).json({
             msg: "Incorrect Format",
             error: response.error.errors
-        })
+        });
         return;
     }
+
     try {
-        const {title, description} = req.body
+        const {title, description} = req.body;
+
+        // Add visibility check
+        const existingForum = await forumModel.findOne({ 
+            title,
+            visibility: true 
+        });
+
+        if (existingForum) {
+            res.status(409).json({ 
+                msg: "A forum with this title already exists" 
+            });
+            return;
+        }
 
         const forumMongo = await forumModel.create({
             title,
