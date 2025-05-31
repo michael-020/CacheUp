@@ -31,6 +31,7 @@ export const Profile = () => {
   const [isProfileLoading, setIsProfileLoading] = useState(true);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [isValidUser, setIsValidUser] = useState<boolean | null>(null);
+  const [mutualFriendsCount, setMutualFriendsCount] = useState(0);
   
   const { 
     friends, 
@@ -39,106 +40,122 @@ export const Profile = () => {
     cancelRequest, 
     removeFriend, 
     fetchFriends, 
-    fetchSentRequests 
+    fetchSentRequests,
+    fetchMutualFriends 
   } = useFriendsStore();
 
   const isAdminView = location.pathname.includes("/admin");
 
   useEffect(() => {
-  const validateAndFetchProfile = async () => {
-    if (!id) {
-      setIsValidUser(true); 
+    const validateAndFetchProfile = async () => {
+      if (!id) {
+        setIsValidUser(true); 
+        setIsProfileLoading(true);
+        try {
+          let url;
+          if (isAdminView) {
+            url = "/admin/view-profile";
+          } else if(authUser) {
+            url = "/user/viewProfile";
+          }
+          if (url) {
+            const response = await axiosInstance(url);
+            const profileData = response.data.userInfo;
+            setUserInfo(profileData);
+            setIsOwnProfile(true);
+          }
+        } catch (e) {
+          console.error("Error fetching profile", e);
+        } finally {
+          setIsProfileLoading(false);
+        }
+        return;
+      }
+      
+      if (!/^[a-fA-F0-9]{24}$/.test(id)) {
+        setIsValidUser(false);
+        return;
+      }
+      
       setIsProfileLoading(true);
       try {
         let url;
         if (isAdminView) {
-          url = "/admin/view-profile";
+          url = `/admin/view-profile/${id}`;
         } else if(authUser) {
-          url = "/user/viewProfile";
+          url = `/user/viewProfile/${id}`;
+        } else {
+          url = `/user/profile/${id}`;
         }
-        if (url) {
-          const response = await axiosInstance(url);
-          const profileData = response.data.userInfo;
+        
+        const response = await axiosInstance(url);
+        const profileData = response.data.userInfo;
+        
+        if (profileData) {
           setUserInfo(profileData);
-          setIsOwnProfile(true);
+          setIsValidUser(true);
+          const isOwn = response.data.isOwnProfile || 
+            (profileData && userId && profileData._id === userId);
+          setIsOwnProfile(isOwn);
+        } else {
+          setIsValidUser(false);
         }
       } catch (e) {
         console.error("Error fetching profile", e);
+        setIsValidUser(false);
       } finally {
         setIsProfileLoading(false);
       }
-      return;
-    }
-    
-    if (!/^[a-fA-F0-9]{24}$/.test(id)) {
-      setIsValidUser(false);
-      return;
-    }
-    
-    setIsProfileLoading(true);
-    try {
-      let url;
-      if (isAdminView) {
-        url = `/admin/view-profile/${id}`;
-      } else if(authUser) {
-        url = `/user/viewProfile/${id}`;
-      } else {
-        url = `/user/profile/${id}`;
-      }
-      
-      const response = await axiosInstance(url);
-      const profileData = response.data.userInfo;
-      
-      if (profileData) {
-        setUserInfo(profileData);
-        setIsValidUser(true);
-        const isOwn = response.data.isOwnProfile || 
-          (profileData && userId && profileData._id === userId);
-        setIsOwnProfile(isOwn);
-      } else {
-        setIsValidUser(false);
-      }
-    } catch (e) {
-      console.error("Error fetching profile", e);
-      setIsValidUser(false);
-    } finally {
-      setIsProfileLoading(false);
-    }
-  };
+    };
 
-  const fetchUserPosts = async () => {
-    if (isValidUser === false) return;
+    const fetchUserPosts = async () => {
+      if (isValidUser === false) return;
+      
+      setIsLoading(true);
+      try {
+        let url;
+        if (isAdminView) {
+          url = id ? `/admin/view-posts/${id}` : "/admin/view-posts/myPosts";
+        } else if(authUser) {
+          url = id ? `/post/viewPosts/${id}` : "/post/viewPosts/myPosts";
+        } else {
+          url = `/post/get-posts/${id}`;
+        }
     
-    setIsLoading(true);
-    try {
-      let url;
-      if (isAdminView) {
-        url = id ? `/admin/view-posts/${id}` : "/admin/view-posts/myPosts";
-      } else if(authUser) {
-        url = id ? `/post/viewPosts/${id}` : "/post/viewPosts/myPosts";
-      } else {
-        url = `/post/get-posts/${id}`;
+        const postResponse = await axiosInstance(url);
+        setUserPosts(postResponse.data);
+      } catch (e) {
+        console.error("Error fetching user posts", e);
+      } finally {
+        setIsLoading(false);
       }
-  
-      const postResponse = await axiosInstance(url);
-      setUserPosts(postResponse.data);
-    } catch (e) {
-      console.error("Error fetching user posts", e);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
 
-  validateAndFetchProfile();
-  
-  if (isValidUser === true && !isOwnProfile) {
-    fetchFriends();
-    fetchSentRequests();
-    fetchUserPosts();
-  } else if (isValidUser === true && isOwnProfile) {
-    fetchUserPosts();
-  }
-}, [id, userId, isAdminView, authUser, isValidUser]);
+    const fetchMutualFriendsData = async (userId: string) => {
+      try {
+        await fetchMutualFriends(userId);
+        const { mutualFriends } = useFriendsStore.getState();
+        const count = mutualFriends && mutualFriends[userId] ? mutualFriends[userId] : 0;
+        setMutualFriendsCount(count);
+      } catch (error) {
+        console.error('Error fetching mutual friends:', error);
+        setMutualFriendsCount(0);
+      }
+    };
+
+    validateAndFetchProfile();
+    
+    if (isValidUser === true && !isOwnProfile) {
+      fetchFriends();
+      fetchSentRequests();
+      fetchUserPosts();
+      if (userInfo?._id) {
+        fetchMutualFriendsData(userInfo._id);
+      }
+    } else if (isValidUser === true && isOwnProfile) {
+      fetchUserPosts();
+    }
+  }, [id, userId, isAdminView, authUser, isValidUser]);
 
 if (isValidUser === null) {
   return (
@@ -285,9 +302,18 @@ if (isValidUser === false) {
                     to={isOwnProfile ? "/friends" : `/friends/${userInfo._id}`}
                     className="focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
                   >
-                    <div className="flex items-center cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors text-sm">
-                      <Users className="size-3 text-indigo-500 mr-1" />
-                      <span className="text-gray-600 dark:text-gray-400">{userInfo.friends?.length || 0} friends</span>
+                    <div className="flex flex-col items-center cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors text-sm">
+                      <div className="flex items-center">
+                        <Users className="size-3 text-indigo-500 mr-1" />
+                        <span className="text-gray-600 dark:text-gray-400">
+                          {userInfo.friends?.length || 0} friends
+                        </span>
+                      </div>
+                      {!isOwnProfile && mutualFriendsCount > 0 && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {mutualFriendsCount} {mutualFriendsCount === 1 ? 'mutual' : 'mutuals'}
+                        </p>
+                      )}
                     </div>
                   </Link>
                 </div>
@@ -347,9 +373,18 @@ if (isValidUser === false) {
                           to={isOwnProfile ? "/friends" : `/friends/${userInfo._id}`}
                           className="inline-block focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
                         >
-                          <div className="flex items-center cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
-                            <Users className="size-4 text-indigo-500 mr-2" />
-                            <span className="text-gray-600 dark:text-gray-400 font-medium">{userInfo.friends?.length || 0} friends</span>
+                          <div className="flex flex-col">
+                            <div className="flex items-center cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                              <Users className="size-4 text-indigo-500 mr-2" />
+                              <span className="text-gray-600 dark:text-gray-400 font-medium">
+                                {userInfo.friends?.length || 0} friends
+                              </span>
+                            </div>
+                            {!isOwnProfile && mutualFriendsCount > 0 && (
+                              <p className="text-xs text-gray-500 mt-1 ml-6">
+                                {mutualFriendsCount} {mutualFriendsCount === 1 ? 'mutual' : 'mutuals'}
+                              </p>
+                            )}
                           </div>
                         </Link>
                       </div>
