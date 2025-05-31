@@ -415,7 +415,7 @@ friendHandler.get("/suggestions", async (req: Request, res: Response) => {
       ...pendingSentRequestsUsers.map(user => user._id)
     ];
 
-    // Get all users except excluded ones
+    // Get all users except excluded ones with only required fields
     const allUsers = await userModel.find({
       _id: { $nin: excludeUserIds }
     })
@@ -423,21 +423,24 @@ friendHandler.get("/suggestions", async (req: Request, res: Response) => {
     .lean();
 
     // Calculate mutual friends for each user
-    const usersWithMutuals = allUsers.map(user => {
-      const mutualCount = user.friends?.filter(
-        friendId => currentUser.friends.some(
-          userFriendId => userFriendId.toString() === friendId.toString()
-        )
-      ).length || 0;
+    const usersWithMutuals = await Promise.all(allUsers.map(async user => {
+      // Convert ObjectIds to strings for comparison
+      const userFriendIds = user.friends?.map(id => id.toString()) || [];
+      const currentUserFriendIds = currentUser.friends.map(id => id.toString());
 
+      const mutualCount = userFriendIds.filter(id => 
+        currentUserFriendIds.includes(id)
+      ).length;
+
+      // Return only necessary fields
       return {
         _id: user._id,
         name: user.name,
         username: user.username,
-        profilePicture: user.profilePicture,
+        profilePicture: user.profilePicture || "",
         mutualFriends: mutualCount
-      };
-    });
+      } as Suggestion;
+    }));
 
     // Sort by mutual friends count (descending)
     const sortedUsers = usersWithMutuals.sort((a, b) => b.mutualFriends - a.mutualFriends);
@@ -467,7 +470,7 @@ friendHandler.get("/suggestions", async (req: Request, res: Response) => {
             _id: 1,
             name: 1,
             username: 1,
-            profilePicture: 1
+            profilePicture: { $ifNull: ["$profilePicture", ""] }
           }
         }
       ]);
