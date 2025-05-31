@@ -396,10 +396,6 @@ friendHandler.get("/suggestions", async (req: Request, res: Response) => {
     const limitParam = parseInt(req.query.limit as string);
     const limit = Math.min(isNaN(limitParam) ? 5 : limitParam, 5); 
 
-    console.log("=== SUGGESTIONS DEBUG START ===");
-    console.log("User ID:", userId);
-    console.log("Limit:", limit);
-
     // Get current user with friends
     const currentUser = await userModel.findById(userId).select("friends").lean();
     if (!currentUser) {
@@ -407,16 +403,10 @@ friendHandler.get("/suggestions", async (req: Request, res: Response) => {
       return;
     }
 
-    console.log("Current user friends count:", currentUser.friends?.length || 0);
-    console.log("Current user friends:", currentUser.friends?.map(f => f.toString()));
-
     // Get users who have pending requests from current user
     const pendingSentRequestsUsers = await userModel.find({
       friendRequests: userId
     }).select("_id").lean();
-
-    console.log("Pending requests count:", pendingSentRequestsUsers.length);
-    console.log("Pending request user IDs:", pendingSentRequestsUsers.map(u => u._id.toString()));
 
     // Create exclude list
     const excludeUserIds = [
@@ -425,9 +415,6 @@ friendHandler.get("/suggestions", async (req: Request, res: Response) => {
       ...pendingSentRequestsUsers.map(user => user._id)
     ];
 
-    console.log("Exclude user IDs count:", excludeUserIds.length);
-    console.log("Exclude user IDs:", excludeUserIds.map(id => id.toString()));
-
     // Get all users except excluded ones
     const allUsers = await userModel.find({
       _id: { $nin: excludeUserIds }
@@ -435,57 +422,31 @@ friendHandler.get("/suggestions", async (req: Request, res: Response) => {
     .select("_id name username profilePicture friends")
     .lean();
 
-    console.log("All users found count:", allUsers.length);
-    console.log("First user from query:", JSON.stringify(allUsers[0], null, 2));
-    console.log("First user keys:", allUsers[0] ? Object.keys(allUsers[0]) : "No users found");
-
     // Calculate mutual friends for each user
-    const usersWithMutuals = allUsers.map((user, index) => {
+    const usersWithMutuals = allUsers.map(user => {
       const mutualCount = user.friends?.filter(
         friendId => currentUser.friends.some(
           userFriendId => userFriendId.toString() === friendId.toString()
         )
       ).length || 0;
 
-      const processedUser = {
+      return {
         _id: user._id,
         name: user.name,
         username: user.username,
         profilePicture: user.profilePicture,
         mutualFriends: mutualCount
       };
-
-      if (index === 0) {
-        console.log("Processing first user:");
-        console.log("  Original user keys:", Object.keys(user));
-        console.log("  Original user:", JSON.stringify(user, null, 2));
-        console.log("  Processed user keys:", Object.keys(processedUser));
-        console.log("  Processed user:", JSON.stringify(processedUser, null, 2));
-        console.log("  Mutual count:", mutualCount);
-      }
-
-      return processedUser;
     });
-
-    console.log("Users with mutuals count:", usersWithMutuals.length);
-    console.log("First processed user:", JSON.stringify(usersWithMutuals[0], null, 2));
 
     // Sort by mutual friends count (descending)
     const sortedUsers = usersWithMutuals.sort((a, b) => b.mutualFriends - a.mutualFriends);
-
-    console.log("After sorting - first user:", JSON.stringify(sortedUsers[0], null, 2));
 
     // Take users with mutual friends first
     const mutualUsers = sortedUsers.filter(user => user.mutualFriends > 0);
     const remainingSlots = Math.max(0, limit - mutualUsers.length);
 
-    console.log("Mutual users count:", mutualUsers.length);
-    console.log("Remaining slots:", remainingSlots);
-
     let suggestions = [...mutualUsers];
-
-    console.log("Initial suggestions count:", suggestions.length);
-    console.log("First suggestion after copying mutuals:", JSON.stringify(suggestions[0], null, 2));
 
     // Fill remaining slots with random users
     if (remainingSlots > 0) {
@@ -511,51 +472,16 @@ friendHandler.get("/suggestions", async (req: Request, res: Response) => {
         }
       ]);
 
-      console.log("Random users from aggregation:", JSON.stringify(randomUsers, null, 2));
-
-      const randomUsersWithMutuals = randomUsers.map(user => ({
+      suggestions.push(...randomUsers.map(user => ({
         ...user,
         mutualFriends: 0
-      }));
-
-      console.log("Random users after adding mutualFriends:", JSON.stringify(randomUsersWithMutuals, null, 2));
-
-      suggestions.push(...randomUsersWithMutuals);
+      })));
     }
-
-    console.log("Final suggestions count before slice:", suggestions.length);
-    console.log("All suggestions before slice:", JSON.stringify(suggestions, null, 2));
 
     // Ensure we don't exceed the limit
     suggestions = suggestions.slice(0, limit);
 
-    console.log("Final suggestions count after slice:", suggestions.length);
-    console.log("Final suggestions:", JSON.stringify(suggestions, null, 2));
-
-    // Extra safety: create completely new objects
-    const safeSuggestions = suggestions.map((user, index) => {
-      const safeUser = {
-        _id: user._id,
-        name: user.name,
-        username: user.username,
-        profilePicture: user.profilePicture || "",
-        mutualFriends: user.mutualFriends
-      };
-      
-      if (index === 0) {
-        console.log("Creating safe user 0:");
-        console.log("  Input keys:", Object.keys(user));
-        console.log("  Output keys:", Object.keys(safeUser));
-        console.log("  Safe user:", JSON.stringify(safeUser, null, 2));
-      }
-      
-      return safeUser;
-    });
-
-    console.log("Safe suggestions:", JSON.stringify(safeSuggestions, null, 2));
-    console.log("=== SUGGESTIONS DEBUG END ===");
-
-    res.status(200).json({ suggestions: safeSuggestions });
+    res.status(200).json({ suggestions });
     return;
 
   } catch (error) {
