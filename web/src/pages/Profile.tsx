@@ -15,6 +15,7 @@ import { useChatStore } from '@/stores/chatStore/useChatStore';
 import { useFriendsStore } from '@/stores/FriendsStore/useFriendsStore';
 import PostCardSkeleton from "@/components/skeletons/PostCardSkeleton";
 import { RemoveFriendModal } from "@/components/modals/RemoveFriendModal";
+import { NotFoundPage } from "@/pages/NotFoundPage";
 
 export const Profile = () => {
   const { id } = useParams();
@@ -29,7 +30,8 @@ export const Profile = () => {
   const [friendLoading, setFriendLoading] = useState(false);
   const [isProfileLoading, setIsProfileLoading] = useState(true);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
-
+  const [isValidUser, setIsValidUser] = useState<boolean | null>(null);
+  
   const { 
     friends, 
     sentRequests, 
@@ -43,61 +45,115 @@ export const Profile = () => {
   const isAdminView = location.pathname.includes("/admin");
 
   useEffect(() => {
-    const fetchProfile = async () => {
+  const validateAndFetchProfile = async () => {
+    if (!id) {
+      setIsValidUser(true); 
       setIsProfileLoading(true);
       try {
         let url;
         if (isAdminView) {
-          url = id ? `/admin/view-profile/${id}` : "/admin/view-profile";
+          url = "/admin/view-profile";
         } else if(authUser) {
-          url = id ? `/user/viewProfile/${id}` : "/user/viewProfile";
-        } else {
-          url = `/user/profile/${id}`
+          url = "/user/viewProfile";
         }
-        const response = await axiosInstance(url);
-        const profileData = response.data.userInfo;
-        setUserInfo(profileData);
-
-        const isOwn =
-          response.data.isOwnProfile ||
-          (profileData && userId && profileData._id === userId);
-        setIsOwnProfile(isOwn);
+        if (url) {
+          const response = await axiosInstance(url);
+          const profileData = response.data.userInfo;
+          setUserInfo(profileData);
+          setIsOwnProfile(true);
+        }
       } catch (e) {
         console.error("Error fetching profile", e);
       } finally {
         setIsProfileLoading(false);
       }
-    };
-
-    const fetchUserPosts = async () => {
-      setIsLoading(true);
-      try {
-        let url;
-        if (isAdminView) {
-          url = id ? `/admin/view-posts/${id}` : "/admin/view-posts/myPosts";
-        } else if(authUser) {
-          url = id ? `/post/viewPosts/${id}` : "/post/viewPosts/myPosts";
-        } else {
-          url = `/post/get-posts/${id}`
-        }
-    
-        const postResponse = await axiosInstance(url);
-        setUserPosts(postResponse.data);
-      } catch (e) {
-        console.error("Error fetching user posts", e);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchProfile();
-    fetchUserPosts();
-
-    if (!isOwnProfile) {
-      fetchFriends();
-      fetchSentRequests();
+      return;
     }
-  }, [id, userId, isAdminView, isOwnProfile, fetchFriends, fetchSentRequests]);
+    
+    if (!/^[a-fA-F0-9]{24}$/.test(id)) {
+      setIsValidUser(false);
+      return;
+    }
+    
+    setIsProfileLoading(true);
+    try {
+      let url;
+      if (isAdminView) {
+        url = `/admin/view-profile/${id}`;
+      } else if(authUser) {
+        url = `/user/viewProfile/${id}`;
+      } else {
+        url = `/user/profile/${id}`;
+      }
+      
+      const response = await axiosInstance(url);
+      const profileData = response.data.userInfo;
+      
+      if (profileData) {
+        setUserInfo(profileData);
+        setIsValidUser(true);
+        const isOwn = response.data.isOwnProfile || 
+          (profileData && userId && profileData._id === userId);
+        setIsOwnProfile(isOwn);
+      } else {
+        setIsValidUser(false);
+      }
+    } catch (e) {
+      console.error("Error fetching profile", e);
+      setIsValidUser(false);
+    } finally {
+      setIsProfileLoading(false);
+    }
+  };
+
+  const fetchUserPosts = async () => {
+    if (isValidUser === false) return;
+    
+    setIsLoading(true);
+    try {
+      let url;
+      if (isAdminView) {
+        url = id ? `/admin/view-posts/${id}` : "/admin/view-posts/myPosts";
+      } else if(authUser) {
+        url = id ? `/post/viewPosts/${id}` : "/post/viewPosts/myPosts";
+      } else {
+        url = `/post/get-posts/${id}`;
+      }
+  
+      const postResponse = await axiosInstance(url);
+      setUserPosts(postResponse.data);
+    } catch (e) {
+      console.error("Error fetching user posts", e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  validateAndFetchProfile();
+  
+  if (isValidUser === true && !isOwnProfile) {
+    fetchFriends();
+    fetchSentRequests();
+    fetchUserPosts();
+  } else if (isValidUser === true && isOwnProfile) {
+    fetchUserPosts();
+  }
+}, [id, userId, isAdminView, authUser, isValidUser]);
+
+if (isValidUser === null) {
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-neutral-950">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500 mx-auto mb-4"></div>
+        <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+      </div>
+    </div>
+  );
+}
+
+if (isValidUser === false) {
+  return <NotFoundPage />;
+}
   
   const handlePostUpdate = (updatedPost: Post) => {
   if (updatedPost._deleted) {

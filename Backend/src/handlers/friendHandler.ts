@@ -431,31 +431,35 @@ friendHandler.get("/suggestions", async (req: Request, res: Response) => {
           mutualFriends: { $sum: 1 }
         }
       },
-      { $match: { mutualFriends: { $gte: 2 } } },
+      { $match: { mutualFriends: { $gte: 1 } } },
       { $sort: { mutualFriends: -1 } },
-      { $limit: 3 } 
+      { $limit: limit } 
     ]);
 
     const mutualIds = mutualFriends.map(m => m._id);
     const remainingSlots = Math.max(0, limit - mutualFriends.length);
-    const randomUsers = await userModel.aggregate([
-      { 
-        $match: { 
-          _id: { 
-            $nin: [...excludeUserIds, ...mutualIds] 
+    
+    let randomUsers = [];
+    if (remainingSlots > 0) {
+      randomUsers = await userModel.aggregate([
+        { 
+          $match: { 
+            _id: { 
+              $nin: [...excludeUserIds, ...mutualIds] 
+            } 
           } 
-        } 
-      },
-      { $sample: { size: remainingSlots } },
-      {
-        $project: {
-          _id: 1,
-          name: 1,
-          username: 1,
-          profilePicture: 1,
+        },
+        { $sample: { size: remainingSlots } },
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            username: 1,
+            profilePicture: 1,
+          }
         }
-      }
-    ]);
+      ]);
+    }
 
     const suggestions = [
       ...mutualFriends.map(m => ({
@@ -472,7 +476,14 @@ friendHandler.get("/suggestions", async (req: Request, res: Response) => {
       const fallback = await userModel.aggregate([
         { $match: { _id: { $nin: excludeUserIds } } },
         { $sample: { size: limit } },
-        { $project: { /* same fields */ } }
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            username: 1,
+            profilePicture: 1,
+          }
+        }
       ]);
       suggestions.push(...fallback.map(f => ({ ...f, mutualFriends: 0 })));
     }
