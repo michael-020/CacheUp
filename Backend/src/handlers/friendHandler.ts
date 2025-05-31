@@ -396,142 +396,166 @@ friendHandler.get("/suggestions", async (req: Request, res: Response) => {
     const limitParam = parseInt(req.query.limit as string);
     const limit = Math.min(isNaN(limitParam) ? 5 : limitParam, 5); 
 
-    // Use aggregation pipeline for everything to ensure consistency
-    const suggestions = await userModel.aggregate([
-      {
-        // First, get the current user's friends for mutual calculation
-        $facet: {
-          currentUser: [
-            { $match: { _id: userId } },
-            { $project: { friends: 1 } }
-          ],
-          pendingRequests: [
-            { $match: { friendRequests: userId } },
-            { $project: { _id: 1 } }
-          ],
-          allOtherUsers: [
-            {
-              $match: {
-                _id: { $ne: userId },
-                friendRequests: { $ne: userId }
-              }
-            },
-            {
-              $project: {
-                _id: 1,
-                name: 1,
-                username: 1,
-                profilePicture: { $ifNull: ["$profilePicture", ""] },
-                friends: 1
-              }
-            }
-          ]
-        }
-      },
-      {
-        $project: {
-          currentUserFriends: { $arrayElemAt: ["$currentUser.friends", 0] },
-          pendingRequestIds: "$pendingRequests._id",
-          users: "$allOtherUsers"
-        }
-      },
-      {
-        $unwind: "$users"
-      },
-      {
-        // Filter out current user's friends and pending requests
-        $match: {
-          $expr: {
-            $and: [
-              { $not: { $in: ["$users._id", { $ifNull: ["$currentUserFriends", []] }] } },
-              { $not: { $in: ["$users._id", { $ifNull: ["$pendingRequestIds", []] }] } }
-            ]
-          }
-        }
-      },
-      {
-        $addFields: {
-          "users.mutualFriends": {
-            $size: {
-              $setIntersection: [
-                { $ifNull: ["$users.friends", []] },
-                { $ifNull: ["$currentUserFriends", []] }
-              ]
-            }
-          }
-        }
-      },
-      {
-        $replaceRoot: { newRoot: "$users" }
-      },
-      {
-        $project: {
-          _id: 1,
-          name: 1,
-          username: 1,
-          profilePicture: 1,
-          mutualFriends: 1
-        }
-      },
-      {
-        $sort: {
-          mutualFriends: -1,
-          name: 1
-        }
-      },
-      {
-        $limit: limit
+    console.log("=== SUGGESTIONS DEBUG START ===");
+    console.log("User ID:", userId);
+    console.log("Limit:", limit);
+
+    // Get current user with friends
+    const currentUser = await userModel.findById(userId).select("friends").lean();
+    if (!currentUser) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    console.log("Current user friends count:", currentUser.friends?.length || 0);
+    console.log("Current user friends:", currentUser.friends?.map(f => f.toString()));
+
+    // Get users who have pending requests from current user
+    const pendingSentRequestsUsers = await userModel.find({
+      friendRequests: userId
+    }).select("_id").lean();
+
+    console.log("Pending requests count:", pendingSentRequestsUsers.length);
+    console.log("Pending request user IDs:", pendingSentRequestsUsers.map(u => u._id.toString()));
+
+    // Create exclude list
+    const excludeUserIds = [
+      ...currentUser.friends, 
+      userId, 
+      ...pendingSentRequestsUsers.map(user => user._id)
+    ];
+
+    console.log("Exclude user IDs count:", excludeUserIds.length);
+    console.log("Exclude user IDs:", excludeUserIds.map(id => id.toString()));
+
+    // Get all users except excluded ones
+    const allUsers = await userModel.find({
+      _id: { $nin: excludeUserIds }
+    })
+    .select("_id name username profilePicture friends")
+    .lean();
+
+    console.log("All users found count:", allUsers.length);
+    console.log("First user from query:", JSON.stringify(allUsers[0], null, 2));
+    console.log("First user keys:", allUsers[0] ? Object.keys(allUsers[0]) : "No users found");
+
+    // Calculate mutual friends for each user
+    const usersWithMutuals = allUsers.map((user, index) => {
+      const mutualCount = user.friends?.filter(
+        friendId => currentUser.friends.some(
+          userFriendId => userFriendId.toString() === friendId.toString()
+        )
+      ).length || 0;
+
+      const processedUser = {
+        _id: user._id,
+        name: user.name,
+        username: user.username,
+        profilePicture: user.profilePicture,
+        mutualFriends: mutualCount
+      };
+
+      if (index === 0) {
+        console.log("Processing first user:");
+        console.log("  Original user keys:", Object.keys(user));
+        console.log("  Original user:", JSON.stringify(user, null, 2));
+        console.log("  Processed user keys:", Object.keys(processedUser));
+        console.log("  Processed user:", JSON.stringify(processedUser, null, 2));
+        console.log("  Mutual count:", mutualCount);
       }
-    ]);
 
-    // If we don't have enough suggestions, fill with random users
-    if (suggestions.length < limit) {
-      const excludeIds = [
-        userId,
-        ...suggestions.map(s => s._id)
-      ];
+      return processedUser;
+    });
 
-      // Get current user's friends and pending requests for exclusion
-      const currentUser = await userModel.findById(userId, { friends: 1 }).lean();
-      const pendingUsers = await userModel.find({ friendRequests: userId }, { _id: 1 }).lean();
-      
-      excludeIds.push(
-        ...(currentUser?.friends || []),
-        ...pendingUsers.map(u => u._id)
-      );
+    console.log("Users with mutuals count:", usersWithMutuals.length);
+    console.log("First processed user:", JSON.stringify(usersWithMutuals[0], null, 2));
 
-      const remainingCount = limit - suggestions.length;
+    // Sort by mutual friends count (descending)
+    const sortedUsers = usersWithMutuals.sort((a, b) => b.mutualFriends - a.mutualFriends);
+
+    console.log("After sorting - first user:", JSON.stringify(sortedUsers[0], null, 2));
+
+    // Take users with mutual friends first
+    const mutualUsers = sortedUsers.filter(user => user.mutualFriends > 0);
+    const remainingSlots = Math.max(0, limit - mutualUsers.length);
+
+    console.log("Mutual users count:", mutualUsers.length);
+    console.log("Remaining slots:", remainingSlots);
+
+    let suggestions = [...mutualUsers];
+
+    console.log("Initial suggestions count:", suggestions.length);
+    console.log("First suggestion after copying mutuals:", JSON.stringify(suggestions[0], null, 2));
+
+    // Fill remaining slots with random users
+    if (remainingSlots > 0) {
       const randomUsers = await userModel.aggregate([
-        {
-          $match: {
-            _id: { $nin: excludeIds }
-          }
+        { 
+          $match: { 
+            _id: { 
+              $nin: [
+                ...excludeUserIds, 
+                ...mutualUsers.map(u => u._id)
+              ] 
+            } 
+          } 
         },
-        { $sample: { size: remainingCount } },
+        { $sample: { size: remainingSlots } },
         {
           $project: {
             _id: 1,
             name: 1,
             username: 1,
-            profilePicture: { $ifNull: ["$profilePicture", ""] },
-            mutualFriends: { $literal: 0 }
+            profilePicture: 1
           }
         }
       ]);
 
-      suggestions.push(...randomUsers);
+      console.log("Random users from aggregation:", JSON.stringify(randomUsers, null, 2));
+
+      const randomUsersWithMutuals = randomUsers.map(user => ({
+        ...user,
+        mutualFriends: 0
+      }));
+
+      console.log("Random users after adding mutualFriends:", JSON.stringify(randomUsersWithMutuals, null, 2));
+
+      suggestions.push(...randomUsersWithMutuals);
     }
 
-    // Final sanitization - ensure no extra fields leak through
-    const sanitizedSuggestions = suggestions.map(user => ({
-      _id: user._id,
-      name: user.name,
-      username: user.username,
-      profilePicture: user.profilePicture || "",
-      mutualFriends: user.mutualFriends || 0
-    }));
+    console.log("Final suggestions count before slice:", suggestions.length);
+    console.log("All suggestions before slice:", JSON.stringify(suggestions, null, 2));
 
-    res.status(200).json({ suggestions: sanitizedSuggestions });
+    // Ensure we don't exceed the limit
+    suggestions = suggestions.slice(0, limit);
+
+    console.log("Final suggestions count after slice:", suggestions.length);
+    console.log("Final suggestions:", JSON.stringify(suggestions, null, 2));
+
+    // Extra safety: create completely new objects
+    const safeSuggestions = suggestions.map((user, index) => {
+      const safeUser = {
+        _id: user._id,
+        name: user.name,
+        username: user.username,
+        profilePicture: user.profilePicture || "",
+        mutualFriends: user.mutualFriends
+      };
+      
+      if (index === 0) {
+        console.log("Creating safe user 0:");
+        console.log("  Input keys:", Object.keys(user));
+        console.log("  Output keys:", Object.keys(safeUser));
+        console.log("  Safe user:", JSON.stringify(safeUser, null, 2));
+      }
+      
+      return safeUser;
+    });
+
+    console.log("Safe suggestions:", JSON.stringify(safeSuggestions, null, 2));
+    console.log("=== SUGGESTIONS DEBUG END ===");
+
+    res.status(200).json({ suggestions: safeSuggestions });
     return;
 
   } catch (error) {
