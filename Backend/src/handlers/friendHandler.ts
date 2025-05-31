@@ -396,54 +396,68 @@ friendHandler.get("/suggestions", async (req: Request, res: Response) => {
     const limitParam = parseInt(req.query.limit as string);
     const limit = Math.min(isNaN(limitParam) ? 5 : limitParam, 5); 
 
-    // Get current user with friends
+    // Get current user with friends - ensure we convert to string for consistent comparison
     const currentUser = await userModel.findById(userId).select("friends").lean();
     if (!currentUser) {
       res.status(404).json({ message: "User not found" });
       return;
     }
 
+    // Convert current user's friends to strings for consistent comparison
+    const currentUserFriendIds = currentUser.friends.map(id => id.toString());
+
     // Get users who have pending requests from current user
     const pendingSentRequestsUsers = await userModel.find({
       friendRequests: userId
     }).select("_id").lean();
 
-    // Create exclude list
+    // Create exclude list with proper ObjectId conversion
     const excludeUserIds = [
       ...currentUser.friends, 
       userId, 
       ...pendingSentRequestsUsers.map(user => user._id)
     ];
 
-    // Get all users except excluded ones with only required fields
+    // Get all users except excluded ones with ONLY inclusion projection
     const allUsers = await userModel.find({
       _id: { $nin: excludeUserIds }
     })
-    .select("_id name username profilePicture friends")
+    .select({
+      _id: 1,
+      name: 1,
+      username: 1,
+      profilePicture: 1,
+      friends: 1
+    })
     .lean();
 
-    // Calculate mutual friends for each user
-    const usersWithMutuals = await Promise.all(allUsers.map(async user => {
-      // Convert ObjectIds to strings for comparison
-      const userFriendIds = user.friends?.map(id => id.toString()) || [];
-      const currentUserFriendIds = currentUser.friends.map(id => id.toString());
-
-      const mutualCount = userFriendIds.filter(id => 
-        currentUserFriendIds.includes(id)
+    // Calculate mutual friends for each user with proper string conversion
+    const usersWithMutuals = allUsers.map(user => {
+      // Ensure both arrays are strings for proper comparison
+      const userFriendIds = (user.friends || []).map(id => id.toString());
+      
+      // Calculate mutual friends by finding intersection
+      const mutualCount = userFriendIds.filter(friendId => 
+        currentUserFriendIds.includes(friendId)
       ).length;
 
-      // Return only necessary fields
+      // Return only necessary fields with explicit structure
       return {
         _id: user._id,
         name: user.name,
         username: user.username,
         profilePicture: user.profilePicture || "",
         mutualFriends: mutualCount
-      } as Suggestion;
-    }));
+      };
+    });
 
-    // Sort by mutual friends count (descending)
-    const sortedUsers = usersWithMutuals.sort((a, b) => b.mutualFriends - a.mutualFriends);
+    // Sort by mutual friends count (descending), then by name for consistency
+    const sortedUsers = usersWithMutuals.sort((a, b) => {
+      if (b.mutualFriends !== a.mutualFriends) {
+        return b.mutualFriends - a.mutualFriends;
+      }
+      return a.name.localeCompare(b.name);
+    });
 
     // Take users with mutual friends first
     const mutualUsers = sortedUsers.filter(user => user.mutualFriends > 0);
@@ -475,14 +489,24 @@ friendHandler.get("/suggestions", async (req: Request, res: Response) => {
         }
       ]);
 
+      // Add random users with mutualFriends: 0
       suggestions.push(...randomUsers.map(user => ({
-        ...user,
+        _id: user._id,
+        name: user.name,
+        username: user.username,
+        profilePicture: user.profilePicture || "",
         mutualFriends: 0
       })));
     }
 
-    // Ensure we don't exceed the limit
-    suggestions = suggestions.slice(0, limit);
+    // Ensure we don't exceed the limit and create final clean response
+    suggestions = suggestions.slice(0, limit).map(suggestion => ({
+      _id: suggestion._id,
+      name: suggestion.name,
+      username: suggestion.username,
+      profilePicture: suggestion.profilePicture,
+      mutualFriends: suggestion.mutualFriends
+    }));
 
     res.status(200).json({ suggestions });
     return;
