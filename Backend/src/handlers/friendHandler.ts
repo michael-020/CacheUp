@@ -465,39 +465,39 @@ friendHandler.get("/suggestions", async (req: Request, res: Response) => {
 
     let suggestions = [...mutualUsers];
 
-    // Fill remaining slots with random users
-    if (remainingSlots > 0) {
-      const randomUsers = await userModel.aggregate([
-        { 
-          $match: { 
-            _id: { 
-              $nin: [
-                ...excludeUserIds, 
-                ...mutualUsers.map(u => u._id)
-              ] 
-            } 
-          } 
-        },
-        { $sample: { size: remainingSlots } },
-        {
-          $project: {
-            _id: 1,
-            name: 1,
-            username: 1,
-            profilePicture: { $ifNull: ["$profilePicture", ""] }
-          }
-        }
-      ]);
+    // // Fill remaining slots with random users
+    // if (remainingSlots > 0) {
+    //   const randomUsers = await userModel.aggregate([
+    //     { 
+    //       $match: { 
+    //         _id: { 
+    //           $nin: [
+    //             ...excludeUserIds, 
+    //             ...mutualUsers.map(u => u._id)
+    //           ] 
+    //         } 
+    //       } 
+    //     },
+    //     { $sample: { size: remainingSlots } },
+    //     {
+    //       $project: {
+    //         _id: 1,
+    //         name: 1,
+    //         username: 1,
+    //         profilePicture: { $ifNull: ["$profilePicture", ""] }
+    //       }
+    //     }
+    //   ]);
 
-      // Add random users with mutualFriends: 0
-      suggestions.push(...randomUsers.map(user => ({
-        _id: user._id,
-        name: user.name,
-        username: user.username,
-        profilePicture: user.profilePicture || "",
-        mutualFriends: 0
-      })));
-    }
+    //   // Add random users with mutualFriends: 0
+    //   suggestions.push(...randomUsers.map(user => ({
+    //     _id: user._id,
+    //     name: user.name,
+    //     username: user.username,
+    //     profilePicture: user.profilePicture || "",
+    //     mutualFriends: 0
+    //   })));
+    // }
 
     // Ensure we don't exceed the limit and create final clean response
     suggestions = suggestions.slice(0, limit).map(suggestion => ({
