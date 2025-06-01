@@ -31,8 +31,9 @@ export const createPostForumshandler = async (req: Request, res: Response) => {
             weaviateId: "temp"
         })
 
-        const vector = await embedtext(content)
-        const postWeaviate = await weaviateClient.data.creator()
+        try {
+            const vector = await embedtext(content)
+            const postWeaviate = await weaviateClient.data.creator()
             .withClassName("Post")
             .withProperties({
                 content,
@@ -44,31 +45,38 @@ export const createPostForumshandler = async (req: Request, res: Response) => {
             .withVector(vector)
             .do()
         
-        postMongo.weaviateId = postWeaviate.id as string 
-        await postMongo.save()
+            postMongo.weaviateId = postWeaviate.id as string 
+            await postMongo.save()
 
-        const thread = await threadForumModel.findById(threadMongo)
-        const watchers = thread?.watchedBy?.filter((id) => id.toString() !== req.user._id.toString())
-        if(watchers && watchers.length > 0) {
-            await watchNotificationModel.create({
-                userIds: watchers,
-                message: `${req.user.username} created a new post in ${thread?.title}`,
-                threadId: thread?._id,
-                seenBy: [],
-                postId: postMongo._id,
-                createdBy: req.user._id
+            const thread = await threadForumModel.findById(threadMongo)
+            const watchers = thread?.watchedBy?.filter((id) => id.toString() !== req.user._id.toString())
+            if(watchers && watchers.length > 0) {
+                await watchNotificationModel.create({
+                    userIds: watchers,
+                    message: `${req.user.username} created a new post in ${thread?.title}`,
+                    threadId: thread?._id,
+                    seenBy: [],
+                    postId: postMongo._id,
+                    createdBy: req.user._id
+                })
+            }
+
+            const pageNumber = await calculatePostPage(threadMongo, String(postMongo._id))
+
+            res.json({
+                msg: "Post created successfully",
+                postMongo,
+                postWeaviate,
+                pageNumber
+            })
+        } catch (error) {
+            console.error(error)
+            await postForumModel.findByIdAndDelete(postMongo)
+            res.status(500).json({
+                msg: "INternal server error"
             })
         }
-
-        const pageNumber = await calculatePostPage(threadMongo, String(postMongo._id))
-
-        res.json({
-            msg: "Post created successfully",
-            postMongo,
-            postWeaviate,
-            pageNumber
-        })
-
+        
         }catch(e){
         console.error(e)
         res.status(500).json({

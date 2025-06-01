@@ -28,26 +28,33 @@ export const createForumhandler = async(req: Request, res: Response) => {
             weaviateId: "temp"
         })
 
-        const vector = await embedtext(title + " " + description)
+        try {
+            const vector = await embedtext(title + " " + description)
 
-        const forumWeaviate = await weaviateClient.data.creator()
-            .withClassName("Forum")
-            .withProperties({
-                title,
-                description,
-                mongoId: forumMongo._id
+            const forumWeaviate = await weaviateClient.data.creator()
+                .withClassName("Forum")
+                .withProperties({
+                    title,
+                    description,
+                    mongoId: forumMongo._id
+                })
+                .withVector(vector)
+                .do()
+    
+            forumMongo.weaviateId = forumWeaviate.id as string;
+            await forumMongo.save()
+            res.json({
+                msg: "Forum created succssfully",
+                forumMongo,
+                forumWeaviate
             })
-            .withVector(vector)
-            .do()
-
-        forumMongo.weaviateId = forumWeaviate.id as string;
-        await forumMongo.save()
-
-        res.json({
-            msg: "Forum created succssfully",
-            forumMongo,
-            forumWeaviate
-        })
+        } catch (error) {
+            await forumModel.findByIdAndDelete(forumMongo)
+            console.error(error)
+            res.status(500).json({
+                msg: "Error while creating forum"
+            })
+        }        
     }catch(e) {
         console.log("error: ", e)
         res.status(500).json({msg: "Internal server error"})

@@ -49,26 +49,40 @@ export const editThreadForumHandler = async (req: Request, res: Response) => {
         title = title && title.trim() !== "" ? title : threadMongo.title
         description = description && description.trim() !== "" ? description : threadMongo.description
 
-        const vector = await embedtext(title + " " + description)
+        const initialTitle = threadMongo.title;
+        const initialDescription = threadMongo.description;
+
         threadMongo.title = title
         threadMongo.description = description
         await threadMongo.save()
 
-        const threadWeaviate = await weaviateClient.data.updater()
-            .withClassName("Thread")
-            .withId(weaviateId)
-            .withProperties({
-                title,
-                description
-            })
-            .withVector(vector)
-            .do()
+        try {
+            const vector = await embedtext(title + " " + description)
+        
+            const threadWeaviate = await weaviateClient.data.updater()
+                .withClassName("Thread")
+                .withId(weaviateId)
+                .withProperties({
+                    title,
+                    description
+                })
+                .withVector(vector)
+                .do()
 
-        res.json({
-            msg: "Updated successfully",
-            threadMongo,
-            threadWeaviate
-        })
+            res.json({
+                msg: "Updated successfully",
+                threadMongo,
+                threadWeaviate
+            })
+        } catch (error) {
+            console.error(error)
+            threadMongo.title = initialTitle;
+            threadMongo.description = initialDescription;
+            await threadMongo.save()
+            res.status(500).json({
+                msg: "Could not edit thread"
+            })            
+        }
     }catch(e){
         console.error(e)
         res.status(500).json({
