@@ -1,35 +1,43 @@
 import { Request, Response } from "express";
 import { z } from "zod";
-import { postForumModel, threadForumModel, userModel, watchNotificationModel } from "../../models/db";
+import { postForumModel, threadForumModel, watchNotificationModel } from "../../models/db";
 import { weaviateClient } from "../../models/weaviate";
 import { embedtext } from "../../lib/vectorizeText";
 import { calculatePostPage } from "./utils/pagination";
-
+import { validateWeaviateCreate } from './utils/validateWeaviateCreate';
 
 export const createPostForumshandler = async (req: Request, res: Response) => {
     const createPostSchema = z.object({
         content: z.string().min(2)
-    })
+    });
 
-    try{
+    try {
         const response = createPostSchema.safeParse(req.body);
-        if(!response.success){
+        if (!response.success) {
             res.status(411).json({
                 msg: "Enter correct details"
-            })
+            });
             return;
         }
 
-        const { content } = req.body
-        const {threadMongo, threadWeaviate} = req.params
-        
+        const { content } = req.body;
+        const { threadMongo, threadWeaviate } = req.params;
 
+        // First create the MongoDB document
         const postMongo = await postForumModel.create({
             content,
             thread: threadMongo,
             createdBy: req.user._id,
             weaviateId: "temp"
-        })
+        });
+
+        // Ensure we have a valid MongoDB ID
+        if (!postMongo?._id) {
+            res.status(500).json({
+                msg: "Failed to create post - no valid MongoDB ID generated"
+            });
+            return;
+        }
 
         try {
             const vector = await embedtext(content)
@@ -37,10 +45,8 @@ export const createPostForumshandler = async (req: Request, res: Response) => {
             .withClassName("Post")
             .withProperties({
                 content,
-                thread: [{ 
-                    beacon: `weaviate://localhost/Thread/${threadWeaviate}` 
-                }],
-                mongoId: postMongo._id
+                thread: [{ beacon: `weaviate://localhost/Thread/${threadWeaviate}` }],
+                mongoId: postMongo._id.toString() // Explicitly convert to string
             })
             .withVector(vector)
             .do()
@@ -80,7 +86,7 @@ export const createPostForumshandler = async (req: Request, res: Response) => {
         }catch(e){
         console.error(e)
         res.status(500).json({
-            msg: "INternal server error"
-        })
+            msg: "Internal server error"
+        });
     }
-}
+};

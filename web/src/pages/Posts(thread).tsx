@@ -228,8 +228,8 @@ export const Thread = () => {
   // Helper for description truncation
   const getTruncatedDescription = (desc: string) => {
     if (!desc) return "";
-    if (descExpanded || desc.length <= 100) return desc;
-    return desc.slice(0, 100);
+    if (descExpanded || desc.length <= 200) return desc;
+    return desc.slice(0, 200) + "...";
   };
 
   // Pagination handlers
@@ -325,15 +325,15 @@ export const Thread = () => {
           {getTruncatedDescription(threadDescription)}
           {threadDescription && threadDescription.length > 200 && !descExpanded && (
             <span
-              className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
+              className="text-blue-600 dark:text-blue-400 text-sm cursor-pointer ml-1 hover:underline"
               onClick={() => setDescExpanded(true)}
             >
-              ...See more
+              See more
             </span>
           )}
           {threadDescription && threadDescription.length > 200 && descExpanded && (
             <span
-              className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
+              className="text-blue-600 dark:text-blue-400 text-sm cursor-pointer ml-1 hover:underline"
               onClick={() => setDescExpanded(false)}
             >
               Show less
@@ -825,6 +825,12 @@ export const Thread = () => {
                       postId={post._id} 
                       postWeaviateId={post.weaviateId} 
                       focusOnLoad={replyingTo === post._id}
+                      onClose={() => {
+                          setExpandedComments(prev => ({
+                            ...prev,
+                            [post._id]: false
+                        }));
+                      }}
                     />
                   </div>
                 )}

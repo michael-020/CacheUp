@@ -139,7 +139,7 @@ adminRouter.get("/reported-content", adminGetReportedPostsCommentsThreadsHandler
 // unreport forum content
 adminRouter.put("/unreport-content/:id", adminUnreportContentHandler)
 
-// Add this new route
+// trigger weaviate backup
 adminRouter.post("/trigger-weaviate-backup", async (req, res) => {
   try {
     await backupWeaviateData();

@@ -2,18 +2,31 @@ import { Request, Response } from "express";
 import { forumModel, requestForumModel } from "../../models/db";
 import { weaviateClient } from "../../models/weaviate";
 import { embedtext } from "../../lib/vectorizeText";
-
+import { validateWeaviateCreate } from './utils/validateWeaviateCreate';
 
 export const adminApproveForumHandler = async (req: Request, res: Response) => {
-    try{
-        const {requestId} = req.params
-        const requestedForum = await requestForumModel.findById(requestId)
+    try {
+        const { requestId } = req.params;
+        const requestedForum = await requestForumModel.findById(requestId);
 
-        if(!requestedForum){
+        if (!requestedForum) {
             res.status(404).json({
                 msg: "Request not found"
-            })
-            return
+            });
+            return;
+        }
+        
+        // Check for duplicate title only among visible forums
+        const existingForum = await forumModel.findOne({ 
+            title: requestedForum.title,
+            visibility: true 
+        });
+
+        if (existingForum) {
+            res.status(409).json({ 
+                msg: "A forum with this title already exists" 
+            });
+            return;
         }
         
         const forumMongo = await forumModel.create({
@@ -61,10 +74,10 @@ export const adminApproveForumHandler = async (req: Request, res: Response) => {
             })
         }
 
-    }catch(e){
-        console.error(e)
+    } catch (e) {
+        console.error("Error approving forum request:", e);
         res.status(500).json({
-            msg: "Server error"
-        })
+            msg: "Server error while approving forum request"
+        });
     }
-}
+};

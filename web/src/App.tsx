@@ -275,6 +275,13 @@ function App() {
               />
             } 
           />
+          <Route path="/forums/get-forums/*" element={<NotFoundPage />} />
+          <Route path="/forums/thread/:id/:page/*" element={<NotFoundPage />} />
+          <Route path="/forums/:forumMongoId/:forumWeaviateId/*" element={<NotFoundPage />} />
+          <Route path="/forums/thread/*" element={<NotFoundPage />} />
+          <Route path="/forums/*" element={<NotFoundPage />} />
+          <Route path="/profile/:id/*" element={<NotFoundPage />} />
+          <Route path="/friends/:id/*" element={<NotFoundPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
        

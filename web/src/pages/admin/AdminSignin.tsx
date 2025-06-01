@@ -28,7 +28,7 @@ export const AdminSignin = () => {
                         type="email"
                         value={adminId}
                         onChange={(e) => setAdminId(e.target.value)}
-                        className="w-full px-4 py-3 bg-blue-50/50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        className="w-full px-4 py-3 bg-blue-50/50 dark:text-black dark:placeholder:text-neutral-300 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                         placeholder="Enter admin id"
                     />
                 </div>
@@ -41,7 +41,7 @@ export const AdminSignin = () => {
                             type={showPassword ? "text" : "password"}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full px-4 py-3 bg-blue-50/50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            className="w-full px-4 py-3 bg-blue-50/50 border dark:text-black dark:placeholder:text-neutral-300 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                             placeholder="••••••••"
                         />
                         <button

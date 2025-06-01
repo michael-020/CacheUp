@@ -161,7 +161,7 @@ export interface ForumActions {
     weaviateId: string,
     threadData: { title: string; description: string },
     isAdminRoute: boolean
-  ) => Promise<void>;
+  ) => Promise<void | boolean>;
   searchForums: (query: string) => Promise<void>;
   fetchPosts: (threadId: string, page: string, isAdmin?: boolean) => Promise<void>
   createPost: (threadMongo: string, threadWeaviate: string, content:string) => Promise<PostSchema>
@@ -179,7 +179,7 @@ export interface ForumActions {
   checkWatchStatus: (threadId: string) => Promise<void>
   fetchNotifications: () => Promise<void>
   markNotificationRead: (notificationId: string) => Promise<void>
-  createForumRequest: (title: string, description: string) => Promise<void>
+  createForumRequest: (title: string, description: string) => Promise<void | boolean>
   reportPost: (postId: string) => Promise<void>
   reportComment: (commentId: string) => Promise<void>
   checkIfPostReported: (post: PostSchema, userId: string) => boolean

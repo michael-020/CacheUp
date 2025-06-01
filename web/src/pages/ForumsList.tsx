@@ -3,6 +3,7 @@ import { AxiosError } from "axios";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { SearchBar } from "@/components/forums/search-bar";
 import { useForumStore } from "@/stores/ForumStore/useforumStore";
+import toast from "react-hot-toast";
 import { Notification } from "@/stores/ForumStore/types";
 import ForumListSkeleton from "@/components/skeletons/ForumListSkeleton";
 import type { Forum } from "@/stores/ForumStore/types";
@@ -11,7 +12,6 @@ import { routeVariants } from "@/lib/routeAnimation";
 import { DeleteModal } from "@/components/modals/DeleteModal"; 
 import ThreadModal from "@/components/forums/ThreadModal";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
-import toast from "react-hot-toast";
 import { createPortal } from "react-dom";
 import GuidelinesModal from '@/components/forums/GuidelinesModal';
 import { LoginPromptModal } from "@/components/modals/LoginPromptModal";
@@ -39,9 +39,16 @@ const ForumList: React.FC = () => {
   const [showGuidelines, setShowGuidelines] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
-  function requestSubmitHandler(data: {title: string, description: string}){
-    createForumRequest(data.title, data.description)
-    setShowRequestModal(false)
+  const requestSubmitHandler = async (data: {title: string, description: string}) => {
+    try {
+        const success = await createForumRequest(data.title, data.description);
+        if (success) {
+            setShowRequestModal(false);
+        }
+    } catch (error) {
+        console.error('Failed to create forum request:', error);
+        // Modal stays open on error
+    }
   }
 
   const handleClickOutsideEditModal = (e: MouseEvent) => {

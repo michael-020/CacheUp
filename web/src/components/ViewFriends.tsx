@@ -8,7 +8,8 @@ import { ArrowLeft, Users, UserCheck, UserPlus, UserX, Search, Mail } from 'luci
 import { useFriendsStore } from '@/stores/FriendsStore/useFriendsStore';
 import { useChatStore } from '@/stores/chatStore/useChatStore';
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
-import { Skeleton } from "@/components/ui/skeleton"; 
+import { Skeleton } from "@/components/ui/skeleton";
+import { NotFoundPage } from "@/pages/NotFoundPage"; 
 
 export const ViewFriends = () => {
   const { id } = useParams();
@@ -18,6 +19,7 @@ export const ViewFriends = () => {
   const [userInfo, setUserInfo] = useState<IUser | null>(null);
   const [friendsList, setFriendsList] = useState<IUser[]>([]);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
+  const [isValidUser, setIsValidUser] = useState<boolean | null>(null);
   const { authUser } = useAuthStore();
   const { setSelectedUser } = useChatStore();
   const userId = authUser?._id;
@@ -31,6 +33,34 @@ export const ViewFriends = () => {
     fetchFriends,
     fetchSentRequests
   } = useFriendsStore();
+  
+  useEffect(() => {
+    const validateUser = async () => {
+      if (!id) {
+        setIsValidUser(true); 
+        return;
+      }
+      
+      if (!/^[a-fA-F0-9]{24}$/.test(id)) {
+        setIsValidUser(false);
+        return;
+      }
+      
+      try {
+        const response = await axiosInstance.get(`/user/viewProfile/${id}`);
+        if (response.data.userInfo) {
+          setIsValidUser(true);
+        } else {
+          setIsValidUser(false);
+        }
+      } catch (error) {
+        console.error("User validation error:", error);
+        setIsValidUser(false);
+      }
+    };
+    
+    validateUser();
+  }, [id]);
   
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -61,14 +91,16 @@ export const ViewFriends = () => {
       }
     };
     
-    fetchUserInfo();
-    fetchUserFriends();
-    
-    if (!isOwnProfile) {
-      fetchFriends();
-      fetchSentRequests();
+    if (isValidUser === true) {
+      fetchUserInfo();
+      fetchUserFriends();
+      
+      if (!isOwnProfile) {
+        fetchFriends();
+        fetchSentRequests();
+      }
     }
-  }, [id, userId, isOwnProfile, fetchFriends, fetchSentRequests]);
+  }, [id, userId, isOwnProfile, fetchFriends, fetchSentRequests, isValidUser]);
   
   const filteredFriends = friendsList.filter(friend => 
     friend.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -157,6 +189,21 @@ export const ViewFriends = () => {
       ))}
     </>
   );
+  
+  if (isValidUser === null) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-neutral-950">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isValidUser === false) {
+    return <NotFoundPage />;
+  }
   
   return (
     <motion.div

@@ -15,9 +15,11 @@ const ChatSidebar = () => {
     getUsers();
   }, [getUsers, selectedUser]);
 
+  const safeUsers = Array.isArray(users) ? users : [];
+
   const filteredUsers = showOnlineOnly
-    ? users.filter((user) => onlineUsers.includes(user._id))
-    : users;
+    ? safeUsers.filter((user) => onlineUsers.includes(user._id))
+    : safeUsers;
 
   const getUnreadCount = (userId: string) => {
     return unReadMessages.filter(message => message.sender === userId).length;
