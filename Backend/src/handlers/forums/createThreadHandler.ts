@@ -30,7 +30,7 @@ export const createThreadHandler = async (req: Request, res: Response) => {
 
         if (existingThread) {
             res.status(409).json({ 
-                msg: "A thread with this title already exists" 
+                msg: "A thread with this title already exists in this forum" 
             });
             return;
         }
@@ -74,8 +74,15 @@ export const createThreadHandler = async (req: Request, res: Response) => {
             threadMongo,
             threadWeaviate
         });
-    } catch(e) {
-        console.error("Error creating thread:", e);
+    } catch (error) {
+        console.error("Error creating thread:", error);
+        // Handle other potential errors
+        if (error && typeof error === 'object' && 'code' in error && error.code === 11000) {
+            res.status(409).json({ 
+                msg: "A thread with this title already exists" 
+            });
+            return;
+        }
         res.status(500).json({ msg: "Internal server error" });
     }
 };

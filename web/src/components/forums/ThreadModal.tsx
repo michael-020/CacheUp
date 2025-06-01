@@ -34,17 +34,17 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit, forum }) => {
     e.preventDefault();
     
     if (!validate()) {
-      return;
+        return;
     }
     
     try {
-      setSubmitting(true);
-      await onSubmit(threadData);
-      setSubmitting(false); // Set submitting to false only after success
-      onClose(); // Close modal after successful submission
+        setSubmitting(true);
+        await onSubmit(threadData);
     } catch (error) {
-      console.error('Error creating:', error);
-      setSubmitting(false); // Set submitting to false if there's an error
+        console.error('Error creating:', error);
+        // Don't close modal, just set submitting to false
+    } finally {
+        setSubmitting(false);
     }
   };
 

@@ -56,15 +56,20 @@ const ForumPage: React.FC = () => {
   
   const handleCreateThread = async (threadData: { title: string; description: string }) => {
     try {
-      if (!forumMongoId || !forumWeaviateId) return;
-      if(threadData.title.length >= 50) {
-        toast.error("Title can be only 50 characters long");
-        return;
-      }
-      await createThread(forumMongoId, forumWeaviateId, threadData, isAdminRoute);
-      setShowModal(false);
-    } catch (err) {
-      console.error('Failed to create thread:', err);
+        if (!forumMongoId || !forumWeaviateId) return;
+        
+        if (threadData.title.length >= 50) {
+            toast.error("Title can be only 50 characters long");
+            return;
+        }
+        
+        const success = await createThread(forumMongoId, forumWeaviateId, threadData, isAdminRoute);
+        if (success) {
+            setShowModal(false); // Only close modal on success
+        }
+    } catch (error) {
+        console.error('Failed to create thread:', error);
+        // Modal stays open on error
     }
   };
 

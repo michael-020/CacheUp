@@ -161,7 +161,7 @@ export interface ForumActions {
     weaviateId: string,
     threadData: { title: string; description: string },
     isAdminRoute: boolean
-  ) => Promise<void>;
+  ) => Promise<void | boolean>;
   searchForums: (query: string) => Promise<void>;
   fetchPosts: (threadId: string, page: string, isAdmin?: boolean) => Promise<void>
   createPost: (threadMongo: string, threadWeaviate: string, content:string) => Promise<PostSchema>

@@ -134,15 +134,16 @@ export const useForumStore = create<ForumStore>((set, get) => ({
             : `/forums/create-thread/${forumId}/${weaviateId}`;
 
         await axiosInstance.post(endpoint, threadData);
-        get().fetchThreads(forumId, isAdminRoute);
-    } catch (err) {
-        const error = err as AxiosError<{ msg: string }>;
-        if (error.response?.status === 409) {
-            toast.error("A thread with this title already exists");
+        await get().fetchThreads(forumId, isAdminRoute);
+        toast.success("Thread created successfully");
+        return true; // Return true only on success
+    } catch (error) {
+        if (error instanceof AxiosError && (error.response?.data?.msg || error.response?.status === 409)) {
+            toast.error(error.response?.data?.msg || "A thread with this title already exists");
         } else {
-            toast.error(error.response?.data?.msg || "Failed to create thread");
+            toast.error("Failed to create thread");
         }
-        throw error;
+        throw error; // Re-throw the error to be caught in the component
     }
   },
 
