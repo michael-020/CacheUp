@@ -5,7 +5,7 @@ import { Loader2 } from 'lucide-react';
 
 interface ThreadModalProps {
   onClose: () => void;
-  onSubmit: (data: { title: string; description: string }) => void;
+  onSubmit: (data: { title: string; description: string }) => Promise<void>;
   forum?: boolean
 }
 
@@ -13,7 +13,7 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit, forum }) => {
   const [threadData, setThreadData] = useState({ title: '', description: '' });
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<{title?: string; description?: string}>({});
-  const modalRef = useRef<HTMLDivElement | null>(null)
+  const modalRef = useRef<HTMLDivElement | null>(null);
 
   const validate = (): boolean => {
     const newErrors: {title?: string; description?: string} = {};
@@ -37,29 +37,39 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit, forum }) => {
       return;
     }
     
-    setSubmitting(true);
-    onSubmit(threadData);
-    setSubmitting(false);
-    onClose()
+    try {
+      setSubmitting(true);
+      await onSubmit(threadData);
+      setSubmitting(false); // Set submitting to false only after success
+      onClose(); // Close modal after successful submission
+    } catch (error) {
+      console.error('Error creating:', error);
+      setSubmitting(false); // Set submitting to false if there's an error
+    }
   };
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
-        onClose()
+      if (!submitting && modalRef.current && !modalRef.current.contains(e.target as Node)) {
+        onClose();
       }
     };
     
     window.addEventListener('mousedown', handleClickOutside);
     return () => window.removeEventListener('mousedown', handleClickOutside);
-  }, [onClose]);
+  }, [onClose, submitting]);
 
   return createPortal(
     <div className="fixed inset-0 bg-black/50 backdrop-blur-[1.5px] dark:bg-neutral-900/80 flex items-center justify-center z-50">
       <div ref={modalRef} className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-full max-w-md relative">
         {submitting && (
           <div className="absolute inset-0 bg-white/50 dark:bg-neutral-800/50 backdrop-blur-[1px] flex items-center justify-center rounded-lg z-50">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+            <div className="flex flex-col items-center gap-2">
+              <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                {forum ? "Creating request..." : "Creating thread..."}
+              </p>
+            </div>
           </div>
         )}
         
@@ -110,11 +120,13 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit, forum }) => {
             <button
               type="submit"
               disabled={submitting}
-              className={`bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:bg-blue-400 flex items-center gap-2 ${submitting ? "bg-blue-700" : ""} `}
+              className={`bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:bg-blue-400 flex items-center justify-center min-w-[120px] ${submitting ? "bg-blue-700" : ""}`}
             >
-              {submitting ? <div className='px-10'>
+              {submitting ? (
                 <Loader2 className="size-5 animate-spin" />
-              </div> : "Create Thread" }
+              ) : (
+                forum ? "Create Request" : "Create Thread"
+              )}
             </button>
           </div>
         </form>
