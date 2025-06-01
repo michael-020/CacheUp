@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
-import { Loader } from "lucide-react";
+import { Loader, Loader2 } from "lucide-react";
 import { LoginPromptModal } from "@/components/modals/LoginPromptModal";
 
 interface CommentSectionProps {
@@ -219,7 +219,7 @@ const ForumComment: React.FC<CommentSectionProps> = memo(({ postId, postWeaviate
 
       {commentsLoading[postId] && (
         <div className="flex justify-center py-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+          <Loader2 className="animate-spin size-8" />
         </div>
       )}
 
