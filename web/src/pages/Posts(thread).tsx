@@ -825,6 +825,12 @@ export const Thread = () => {
                       postId={post._id} 
                       postWeaviateId={post.weaviateId} 
                       focusOnLoad={replyingTo === post._id}
+                      onClose={() => {
+                          setExpandedComments(prev => ({
+                            ...prev,
+                            [post._id]: false
+                        }));
+                      }}
                     />
                   </div>
                 )}
