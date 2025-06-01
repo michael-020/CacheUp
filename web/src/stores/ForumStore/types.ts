@@ -179,7 +179,7 @@ export interface ForumActions {
   checkWatchStatus: (threadId: string) => Promise<void>
   fetchNotifications: () => Promise<void>
   markNotificationRead: (notificationId: string) => Promise<void>
-  createForumRequest: (title: string, description: string) => Promise<void>
+  createForumRequest: (title: string, description: string) => Promise<void | boolean>
   reportPost: (postId: string) => Promise<void>
   reportComment: (commentId: string) => Promise<void>
   checkIfPostReported: (post: PostSchema, userId: string) => boolean

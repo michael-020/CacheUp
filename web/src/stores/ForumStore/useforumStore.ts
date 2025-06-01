@@ -619,15 +619,23 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   },
 
   createForumRequest: async (title, description) => {
-    set({ loading: true })
+    set({ loading: true });
     try {
-      const response = await axiosInstance.post(`/forums/request-forum`,{ title, description })
-      toast.success(response.data.msg)
-    }catch(error){
-      console.error(error)
-      toast.error("Request Unsuccessful")
-    }finally{
-      set({ loading: false })
+        const response = await axiosInstance.post(`/forums/request-forum`, { 
+            title, 
+            description 
+        });
+        toast.success(response.data.msg);
+        return true; // Return true for successful creation
+    } catch (error) {
+        if (error instanceof AxiosError && (error.response?.data?.msg || error.response?.status === 409)) {
+            toast.error(error.response?.data?.msg || "A forum with this title already exists");
+        } else {
+            toast.error("Request Unsuccessful");
+        }
+        throw error; // Re-throw error to be caught in component
+    } finally {
+        set({ loading: false });
     }
   },
 

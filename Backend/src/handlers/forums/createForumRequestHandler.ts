@@ -52,8 +52,8 @@ export const createForumRequestHandler = async(req: Request, res: Response) => {
             requestedBy: req.user._id
         });
 
-        res.json({
-            msg: "Request Successful",
+        res.status(201).json({
+            msg: "Forum request created successfully",
             requestForum
         });
     } catch(e) {

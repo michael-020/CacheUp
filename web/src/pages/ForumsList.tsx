@@ -40,7 +40,15 @@ const ForumList: React.FC = () => {
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   const requestSubmitHandler = async (data: {title: string, description: string}) => {
-    await createForumRequest(data.title, data.description);
+    try {
+        const success = await createForumRequest(data.title, data.description);
+        if (success) {
+            setShowRequestModal(false);
+        }
+    } catch (error) {
+        console.error('Failed to create forum request:', error);
+        // Modal stays open on error
+    }
   }
 
   const handleClickOutsideEditModal = (e: MouseEvent) => {
