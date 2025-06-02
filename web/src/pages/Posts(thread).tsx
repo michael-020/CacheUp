@@ -5,7 +5,7 @@ import CreatePostModal from "@/components/forums/CreatePostModalForums";
 import { Button } from "@/components/ui/button"; 
 import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
 import { axiosInstance } from "@/lib/axios";
-import { ArrowLeft, EllipsisVertical, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, MessageSquareText } from "lucide-react";
+import { ArrowLeft, EllipsisVertical, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, MessageSquareText, Plus } from "lucide-react";
 import { PostSchema } from "@/stores/ForumStore/types";
 import ForumComment from "@/components/forums/ForumComment";
 import { motion } from "framer-motion"
@@ -228,8 +228,8 @@ export const Thread = () => {
   // Helper for description truncation
   const getTruncatedDescription = (desc: string) => {
     if (!desc) return "";
-    if (descExpanded || desc.length <= 200) return desc;
-    return desc.slice(0, 200) + "...";
+    if (descExpanded || desc.length <= 170) return desc;
+    return desc.slice(0, 170) + "...";
   };
 
   // Pagination handlers
@@ -318,7 +318,7 @@ export const Thread = () => {
 
   if (posts.length === 0) {
     return (<>
-      <div className="p-8 lg:mx-auto max-w-6xl mx-6 translate-y-5 text-center mt-16">
+      <div className="p-4 px-0 lg:px-4 lg:mx-auto max-w-6xl mx-6 translate-y-1 lg:translate-y-6 text-center mt-14">
         <SearchBar />
         
         <div className="flex items-center">
@@ -328,13 +328,13 @@ export const Thread = () => {
           >
             <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
           </button>
-          <div className="text-gray-500 text-lg dark:text-white text-left"><span className="font-semibold text-xl">{threadTitle}</span></div>
+          <div className="text-neutral-800 dark:text-white text-left"><span className="font-semibold text-xl">{threadTitle}</span></div>
         </div>
-        <div className={`text-neutral-800 text-lg dark:text-gray-200 mb-2 ${threadDescription.length < 50 ? "text-center": "text-justify"} `}>
+        <div className={`text-neutral-800 text-base dark:text-neutral-200 mb-2 ${threadDescription.length < 50 ? "text-center": "text-justify"} `}>
           {getTruncatedDescription(threadDescription)}
           {threadDescription && threadDescription.length > 200 && !descExpanded && (
             <span
-               className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
+               className="dark:text-neutral-500 text-neutral-400 text-sm lg:text-base cursor-pointer ml-1 hover:underline"
               onClick={() => setDescExpanded(true)}
             >
               See more
@@ -342,7 +342,7 @@ export const Thread = () => {
           )}
           {threadDescription && threadDescription.length > 200 && descExpanded && (
             <span
-              className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
+              className="dark:text-neutral-500 text-neutral-400 text-sm lg:text-base cursor-pointer ml-1 hover:underline"
               onClick={() => setDescExpanded(false)}
             >
               See less
@@ -351,29 +351,29 @@ export const Thread = () => {
         </div>
         <div className="mt-4 text-sm dark:text-gray-400">No posts found in this Thread</div>
         <div className="mt-2 text-sm dark:text-gray-400">Be the first to post in this discussion</div>
-        <div className="flex gap-4 flex-wrap justify-center">
+        <div className="flex gap-4 justify-center">
         <Button
                 onClick={handleSubscribeClick}
                 className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border border-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 dark:border-blue-800 mt-3"
               >
                 {isWatched ? (
                   <>
+                    Unwatch
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a 1 1 0 001.414-1.414l-14-14zM10 18a8 8 0 100-16 8 8 0 000 16zm-2.293-7.707l-1-1A1 1 0 118.707 8.293l1 1a1 1 0 01-1.414 1.414z" clipRule="evenodd" />
                     </svg>
-                    Unwatch
                   </>
                 ) : (
                   <>
+                    Watch 
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm-2 8a2 2 0 114 0 2 2 0 01-4 0z" />
                     </svg>
-                    Watch Thread
                   </>
                 )}
               </Button>
         {!hasNextPage && <Button onClick={handleNewPostClick} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 mt-3">
-          + New Post
+          Share <Plus size={4} />
         </Button>}
 
         </div>
@@ -446,10 +446,10 @@ export const Thread = () => {
             >
               <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
             </button>
-            <h1 className="text-3xl font-bold mb-2">{threadTitle}</h1>       
+            <h1 className="text-xl lg:text-3xl font-bold mb-2">{threadTitle}</h1>       
           </div>
 
-          <div className={`text-neutral-900 dark:text-gray-200 mb-2 ${threadDescription.length < 50 ? "text-center": "text-justify"} `}>
+          <div className={`text-neutral-900 text-base dark:text-gray-200 mb-2 ${threadDescription.length < 50 ? "text-center": "text-justify"} `}>
           {getTruncatedDescription(threadDescription)}
           {threadDescription && threadDescription.length > 200 && !descExpanded && (
             <span
@@ -481,17 +481,17 @@ export const Thread = () => {
               >
                 {isWatched ? (
                   <>
+                    Un-Watch
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a 1 1 0 001.414-1.414l-14-14zM10 18a8 8 0 100-16 8 8 0 000 16zm-2.293-7.707l-1-1A1 1 0 118.707 8.293l1 1a1 1 0 01-1.414 1.414z" clipRule="evenodd" />
                     </svg>
-                    Un-Watch
                   </>
                 ) : (
                   <>
+                    Watch
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm-2 8a2 2 0 114 0 2 2 0 01-4 0z" />
                     </svg>
-                    Watch
                   </>
                 )}
               </Button>
@@ -500,7 +500,7 @@ export const Thread = () => {
                 onClick={handleNewPostClick}
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >
-                + New Post
+                Share <Plus size={4} />
               </Button>
             </div>
           </div>
