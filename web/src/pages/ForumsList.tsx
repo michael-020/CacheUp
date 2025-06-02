@@ -420,19 +420,19 @@ const ForumList: React.FC = () => {
                     }}
                     className="py-3 sm:py-4 hover:bg-gray-50 dark:hover:bg-neutral-700 px-2 rounded transition-colors duration-200 cursor-pointer"
                   >
-                    <div className="flex items-start notification-container">
-                      <Link to={`/forums/thread/${notification.threadId}/${notification.pageNumber}?post=${notification.postId}`}>
-                      <div className="flex-1">
-                        {formatNotificationMessage(notification)}
-                        <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                          {formatDate(notification.createdAt)}
-                        </p>
+                    <Link to={`/forums/thread/${notification.threadId}/${notification.pageNumber}?post=${notification.postId}`}>
+                      <div className="flex items-start notification-container justify-between">
+                        <div className="flex-1">
+                          {formatNotificationMessage(notification)}
+                          <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                            {formatDate(notification.createdAt)}
+                          </p>
+                        </div>
+                        {notification.seenBy && notification.seenBy.length === 0 && (
+                          <span className="inline-block w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+                        )}
                       </div>
-                      </Link>
-                      {notification.seenBy && notification.seenBy.length === 0 && (
-                        <span className="inline-block w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
-                      )}
-                    </div>
+                    </Link>
                   </div>
                 ))}
               </div>
