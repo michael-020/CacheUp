@@ -334,7 +334,7 @@ export const Thread = () => {
           >
             <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
           </button>
-          <div className="text-neutral-800 dark:text-white text-left"><span className="font-semibold text-xl">{threadTitle}</span></div>
+          <div className="text-neutral-800 dark:text-white text-left mb-2"><span className="font-semibold text-xl">{threadTitle}</span></div>
         </div>
         <div className={`text-neutral-800 text-base dark:text-neutral-200 mb-2 ${threadDescription.length < 50 ? "text-center": "text-justify"} `}>
           {getTruncatedDescription(threadDescription)}

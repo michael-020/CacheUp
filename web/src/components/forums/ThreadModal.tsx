@@ -60,7 +60,7 @@ const ThreadModal: FC<ThreadModalProps> = ({ onClose, onSubmit, forum }) => {
   }, [onClose, submitting]);
 
   return createPortal(
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-[1.5px] dark:bg-neutral-900/80 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/50 p-4 px-6  backdrop-blur-[1.5px] dark:bg-neutral-900/80 flex items-center justify-center z-50">
       <div ref={modalRef} className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-full max-w-md relative">
         {submitting && (
           <div className="absolute inset-0 bg-white/50 dark:bg-neutral-800/50 backdrop-blur-[1px] flex items-center justify-center rounded-lg z-50">
