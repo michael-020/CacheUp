@@ -1,26 +1,36 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { SearchBar } from '../forums/search-bar';
+import { useNavigate } from 'react-router-dom';
 
 const ForumPageSkeleton: React.FC = () => {
+  const navigate = useNavigate()
   return (
     <div>
-      <div className="max-w-6xl mx-auto p-6 translate-y-24 h-full">
-        <SearchBar />
-        <div className="flex justify-between items-center mb-6">
-          <button
-            className="mr-4 p-3 rounded-full hover:bg-gray-400 dark:hover:bg-neutral-700"
-          >
-            <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
-          </button>
-          
-          {/* Create thread button skeleton */}
-          <button
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            Create Thread
-          </button>
-        </div>
+      <div className="max-w-6xl mx-auto p-6 px-3 translate-y-14 lg:translate-y-24 h-full">
+       <SearchBar />
+               
+               <div className="flex justify-between items-start gap-3 mb-4 sm:mb-6">
+                 <div className='flex items-center min-w-0 flex-1'>
+                   <button
+                     onClick={() => navigate(-1)}
+                     className="mr-2 p-2 sm:p-3 rounded-full hover:bg-gray-400 dark:hover:bg-neutral-700 flex-shrink-0"
+                   >
+                     <ArrowLeft className="size-4 sm:size-5 text-gray-600 dark:text-gray-300" />
+                   </button>
+       
+                   <h1 className="text-lg sm:text-lg lg:text-2xl font-bold truncate">
+                   </h1>
+                 </div>
+       
+                 { (
+                   <button
+                     className="bg-blue-500 text-white px-3 sm:px-3 lg:px-4 py-2 sm:py-2 rounded hover:bg-blue-600 text-sm sm:text-sm lg:text-base whitespace-nowrap flex-shrink-0"
+                   >
+                     Create Thread
+                   </button>
+                 )}
+               </div>
 
         {/* Thread list skeletons */}
         <div className="space-y-4">
