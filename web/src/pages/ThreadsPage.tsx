@@ -106,7 +106,7 @@ const ForumPage: React.FC = () => {
   }
   
   return (
-    <div className='pb-24 sm:pb-32 lg:pb-24 dark:bg-neutral-950 min-h-screen'>
+    <div className='pb-32 sm:pb-36 lg:pb-24 dark:bg-neutral-950 min-h-screen'>
       <div className="max-w-6xl mx-auto p-3 sm:p-4 lg:p-6 translate-y-16 sm:translate-y-20 lg:translate-y-24 h-full">
         <SearchBar />
         
@@ -116,7 +116,7 @@ const ForumPage: React.FC = () => {
               onClick={() => navigate(-1)}
               className="mr-2 p-2 sm:p-3 rounded-full hover:bg-gray-400 dark:hover:bg-neutral-700 flex-shrink-0"
             >
-              <ArrowLeft className="size-4 sm:size-5 text-gray-600 dark:text-gray-300" />
+              <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
             </button>
 
             <h1 className="text-lg sm:text-lg lg:text-2xl font-bold truncate">

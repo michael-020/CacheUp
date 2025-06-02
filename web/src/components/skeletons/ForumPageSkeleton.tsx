@@ -7,7 +7,7 @@ const ForumPageSkeleton: React.FC = () => {
   const navigate = useNavigate()
   return (
     <div>
-      <div className="max-w-6xl mx-auto p-6 px-3 translate-y-14 lg:translate-y-24 h-full">
+      <div className="max-w-6xl mx-auto p-6 pt-4 px-4 translate-y-14 sm:translate-y-20 lg:translate-y-24 h-full">
        <SearchBar />
                
                <div className="flex justify-between items-start gap-3 mb-4 sm:mb-6">
@@ -16,7 +16,7 @@ const ForumPageSkeleton: React.FC = () => {
                      onClick={() => navigate(-1)}
                      className="mr-2 p-2 sm:p-3 rounded-full hover:bg-gray-400 dark:hover:bg-neutral-700 flex-shrink-0"
                    >
-                     <ArrowLeft className="size-4 sm:size-5 text-gray-600 dark:text-gray-300" />
+                     <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
                    </button>
        
                    <h1 className="text-lg sm:text-lg lg:text-2xl font-bold truncate">

@@ -11,7 +11,7 @@ export const ThreadSkeleton = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-neutral-950 pb-20">
-      <div className="container mx-auto p-4 px-5 max-w-6xl translate-y-14 lg:translate-y-24 pb-10">
+      <div className="container mx-auto p-4 px-5 max-w-6xl translate-y-16 sm:translate-y-20 lg:translate-y-20 pb-10">
       <SearchBar />
         <div className="flex flex-col gap-3">
           <div className="flex gap-3">
