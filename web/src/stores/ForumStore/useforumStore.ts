@@ -54,7 +54,6 @@ export const useForumStore = create<ForumStore>((set, get) => ({
       } else {
         endpoint = "/forums/view-forums"
       }
-      await new Promise(r => setTimeout(r, 2000))
       const { data } = await axiosInstance.get(endpoint);
   
       set((state) => ({
@@ -120,7 +119,6 @@ export const useForumStore = create<ForumStore>((set, get) => ({
       } else {
         endpoint = "/forums/view-threads/"
       }
-      await new Promise(r => setTimeout(r, 2000))
       const response = await axiosInstance.get(`${endpoint + forumId}`);
       set({ currentForum: { ...get().currentForum, title: response.data.forum.title,  threads: response.data.allThreads, loading: false } });
     } catch (err) {
@@ -188,7 +186,6 @@ export const useForumStore = create<ForumStore>((set, get) => ({
       } else {
         endpoint = "/forums/view-posts/"
       }
-      await new Promise(r => setTimeout(r, 2000))
       const { data } = await axiosInstance.get(`${endpoint}${threadId}/${page}`);
   
       const {

@@ -17,13 +17,13 @@ export const ThreadSkeleton = () => {
           <div className="flex gap-3">
             <button
               onClick={() => navigate(-1)}
-              className="mr-4 p-3 rounded-full hover:bg-gray-400 dark:hover:bg-neutral-700 "
+              className="mr-1 p-3 rounded-full hover:bg-gray-400 dark:hover:bg-neutral-700 "
             >
               <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
             </button>
             <div className="h-10 w-56 rounded-md bg-gray-200 dark:bg-neutral-700 animate-pulse"></div>
           </div>
-          <div className="h-8 w-96 rounded-md bg-gray-200 dark:bg-neutral-700 animate-pulse"></div>
+          <div className="h-8 max-w-96 rounded-md bg-gray-200 dark:bg-neutral-700 animate-pulse"></div>
         </div>
         <div className="h-6 w-20 mx-auto rounded-md bg-gray-200 dark:bg-neutral-700 animate-pulse mt-2"></div>
         <div className="flex gap-4 flex-wrap justify-center border-b pb-4">

@@ -15,6 +15,7 @@ import { DeleteModal } from "@/components/modals/DeleteModal";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { SearchBar } from "@/components/forums/search-bar";
 import { LoginPromptModal } from "@/components/modals/LoginPromptModal";
+import { useScreenSize } from "@/hooks/useScreenSize";
 
 export const Thread = () => {
   const { id } = useParams();
@@ -39,7 +40,7 @@ export const Thread = () => {
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [loginPromptAction, setLoginPromptAction] = useState<'post' | 'subscribe' | 'like' | 'dislike' | 'report'>('post');
   const [descExpanded, setDescExpanded] = useState(false);
-
+  const [isSmallScreen, isLargeScreen] = useScreenSize();
   const highlightTimeoutRef = useRef<number | null> (null)
 
   const toggleMenu = (postId: string) => {
@@ -228,8 +229,13 @@ export const Thread = () => {
   // Helper for description truncation
   const getTruncatedDescription = (desc: string) => {
     if (!desc) return "";
-    if (descExpanded || desc.length <= 170) return desc;
-    return desc.slice(0, 170) + "...";
+    if (descExpanded) return desc;
+    
+    let charLimit = isSmallScreen ? 90 : 170;
+    charLimit = isLargeScreen ? 250 : charLimit;
+
+    if (desc.length < charLimit) return desc;
+    return desc.slice(0, charLimit) + "...";
   };
 
   // Pagination handlers
@@ -332,7 +338,7 @@ export const Thread = () => {
         </div>
         <div className={`text-neutral-800 text-base dark:text-neutral-200 mb-2 ${threadDescription.length < 50 ? "text-center": "text-justify"} `}>
           {getTruncatedDescription(threadDescription)}
-          {threadDescription && threadDescription.length > 200 && !descExpanded && (
+          {threadDescription && threadDescription.length > 250 && !descExpanded && (
             <span
                className="dark:text-neutral-500 text-neutral-400 text-sm lg:text-base cursor-pointer ml-1 hover:underline"
               onClick={() => setDescExpanded(true)}
@@ -340,7 +346,7 @@ export const Thread = () => {
               See more
             </span>
           )}
-          {threadDescription && threadDescription.length > 200 && descExpanded && (
+          {threadDescription && threadDescription.length > 250 && descExpanded && (
             <span
               className="dark:text-neutral-500 text-neutral-400 text-sm lg:text-base cursor-pointer ml-1 hover:underline"
               onClick={() => setDescExpanded(false)}
@@ -451,7 +457,7 @@ export const Thread = () => {
 
           <div className={`text-neutral-900 text-base dark:text-gray-200 mb-2 ${threadDescription.length < 50 ? "text-center": "text-justify"} `}>
           {getTruncatedDescription(threadDescription)}
-          {threadDescription && threadDescription.length > 200 && !descExpanded && (
+          {threadDescription && threadDescription.length > 250 && !descExpanded && (
             <span
               className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
               onClick={() => setDescExpanded(true)}
@@ -459,7 +465,7 @@ export const Thread = () => {
               See more
             </span>
           )}
-          {threadDescription && threadDescription.length > 200 && descExpanded && (
+          {threadDescription && threadDescription.length > 250 && descExpanded && (
             <span
               className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
               onClick={() => setDescExpanded(false)}
@@ -754,7 +760,7 @@ export const Thread = () => {
                     {truncateContent(post.content, post._id)}
                     {contentIsTruncated && !isExpanded && (
                       <span 
-                         className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
+                        className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
                         onClick={() => toggleExpandPost(post._id)}
                       >
                         ...See more
@@ -762,7 +768,7 @@ export const Thread = () => {
                     )}
                     {contentIsTruncated && isExpanded && (
                       <span 
-                        className="text-blue-600 font-medium cursor-pointer block mt-2 hover:underline"
+                        className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
                         onClick={() => toggleExpandPost(post._id)}
                       >
                         See less
