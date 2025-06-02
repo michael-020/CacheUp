@@ -309,7 +309,7 @@ export const Thread = () => {
 
   if (error) {
     return (
-      <div className="p-6 mx-auto max-w-3xl bg-red-50 border border-red-200 rounded-lg text-center">
+      <div className="p-6 px-3 mx-auto max-w-6xl bg-red-50 border border-red-200 rounded-lg text-center">
         <div className="text-red-600 text-lg font-medium mb-2">Error Loading Posts</div>
         <div className="text-red-500">{error}</div>
       </div>
@@ -318,14 +318,23 @@ export const Thread = () => {
 
   if (posts.length === 0) {
     return (<>
-      <div className="p-8 lg:mx-auto max-w-3xl mx-6 bg-gray-50 dark:bg-neutral-800 translate-y-20 dark:border-neutral-600 border border-gray-200 rounded-lg text-center mt-16">
+      <div className="p-8 lg:mx-auto max-w-6xl mx-6 translate-y-5 text-center mt-16">
         <SearchBar />
-        <div className="text-gray-500 text-lg dark:text-white">No posts found in Thread: {threadTitle}</div>
-        <div className={`text-gray-600 dark:text-gray-200 mb-2 ${threadDescription.length < 50 ? "text-center": "text-justify"} `}>
+        
+        <div className="flex items-center">
+          <button
+            onClick={() => navigate(-1)}
+            className="mr-2 p-3 rounded-full hover:bg-gray-400 dark:hover:bg-neutral-700"
+          >
+            <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
+          </button>
+          <div className="text-gray-500 text-lg dark:text-white text-left"><span className="font-semibold text-xl">{threadTitle}</span></div>
+        </div>
+        <div className={`text-neutral-800 text-lg dark:text-gray-200 mb-2 ${threadDescription.length < 50 ? "text-center": "text-justify"} `}>
           {getTruncatedDescription(threadDescription)}
           {threadDescription && threadDescription.length > 200 && !descExpanded && (
             <span
-              className="text-blue-600 dark:text-blue-400 text-sm cursor-pointer ml-1 hover:underline"
+               className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
               onClick={() => setDescExpanded(true)}
             >
               See more
@@ -333,14 +342,15 @@ export const Thread = () => {
           )}
           {threadDescription && threadDescription.length > 200 && descExpanded && (
             <span
-              className="text-blue-600 dark:text-blue-400 text-sm cursor-pointer ml-1 hover:underline"
+              className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
               onClick={() => setDescExpanded(false)}
             >
-              Show less
+              See less
             </span>
           )}
         </div>
-        <div className="mt-4 text-sm text-gray-400">Be the first to post in this discussion</div>
+        <div className="mt-4 text-sm dark:text-gray-400">No posts found in this Thread</div>
+        <div className="mt-2 text-sm dark:text-gray-400">Be the first to post in this discussion</div>
         <div className="flex gap-4 flex-wrap justify-center">
         <Button
                 onClick={handleSubscribeClick}
@@ -395,7 +405,7 @@ export const Thread = () => {
 
     const colors = [
       "bg-blue-500",
-      "bg-green-500",
+      "bg-blue-500",
       "bg-purple-500",
       "bg-yellow-500",
       "bg-pink-500",
@@ -426,7 +436,7 @@ export const Thread = () => {
       animate="final"
       exit="exit"  
     >
-      <div className="container mx-auto p-4 max-w-4xl translate-y-20 pb-20 lg:pb-10">
+      <div className="container mx-auto p-4 max-w-6xl translate-y-16 md:translate-y-20 lg:translate-y-24 pb-20 lg:pb-10">
       <SearchBar />
         <div className="mb-4 border-b pb-4">
           <div className="flex items-center mb-2">
@@ -446,7 +456,7 @@ export const Thread = () => {
               className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
               onClick={() => setDescExpanded(true)}
             >
-              ...See more
+              See more
             </span>
           )}
           {threadDescription && threadDescription.length > 200 && descExpanded && (
@@ -454,7 +464,7 @@ export const Thread = () => {
               className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
               onClick={() => setDescExpanded(false)}
             >
-              Show less
+              See less
             </span>
           )}
         </div>
@@ -488,7 +498,7 @@ export const Thread = () => {
 
               <Button
                 onClick={handleNewPostClick}
-                className="bg-green-600 hover:bg-green-700 text-white"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 + New Post
               </Button>
@@ -744,10 +754,10 @@ export const Thread = () => {
                     {truncateContent(post.content, post._id)}
                     {contentIsTruncated && !isExpanded && (
                       <span 
-                        className="text-blue-600 font-medium cursor-pointer ml-1 hover:underline"
+                         className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
                         onClick={() => toggleExpandPost(post._id)}
                       >
-                        ... See more
+                        ...See more
                       </span>
                     )}
                     {contentIsTruncated && isExpanded && (
@@ -755,7 +765,7 @@ export const Thread = () => {
                         className="text-blue-600 font-medium cursor-pointer block mt-2 hover:underline"
                         onClick={() => toggleExpandPost(post._id)}
                       >
-                        Show less
+                        See less
                       </span>
                     )}
                   </div>
