@@ -33,23 +33,33 @@ export const editPostForumHandler = async(req: Request, res: Response) => {
             })
             return
         }
-        const vector = await embedtext(content)
+        const initialContent = postMongo.content
         postMongo.content = content
         await postMongo.save()
-        const postWeaviate = await weaviateClient.data.updater()
-            .withClassName("Post")
-            .withId(weaviateId)
-            .withProperties({
-                content
-            })
-            .withVector(vector)
-            .do()
-            
-        res.json({
-            msg: "Updated successfully",
-            postMongo,
-            postWeaviate
-        })
+
+        try {
+            const vector = await embedtext(content)
+       
+            const postWeaviate = await weaviateClient.data.updater()
+                .withClassName("Post")
+                .withId(weaviateId)
+                .withProperties({
+                    content
+                })
+                .withVector(vector)
+                .do()
+                
+            res.json({
+                msg: "Updated successfully",
+                postMongo,
+                postWeaviate
+            })    
+        } catch (error) {
+            console.error(error)
+            postMongo.content = initialContent
+            await postMongo.save();
+        }
+        
     }catch(e){
         console.error(e)
         res.status(500).json({

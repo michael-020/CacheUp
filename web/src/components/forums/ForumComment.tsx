@@ -23,9 +23,10 @@ interface CommentSectionProps {
   postId: string;
   postWeaviateId: string;
   focusOnLoad?: boolean;
+  onClose: () => void; // Add this prop
 }
 
-const ForumComment: React.FC<CommentSectionProps> = memo(({ postId, postWeaviateId, focusOnLoad = false }) => {
+const ForumComment: React.FC<CommentSectionProps> = memo(({ postId, postWeaviateId, focusOnLoad = false, onClose }) => {
   const [commentText, setCommentText] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [actionLoading, setActionLoading] = useState<{[key: string]: boolean}>({});
@@ -51,6 +52,25 @@ const ForumComment: React.FC<CommentSectionProps> = memo(({ postId, postWeaviate
   const currentUserId = authUser?._id || null;
   const commentInputRef = useRef<HTMLTextAreaElement>(null);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  // Add this near other refs
+  const commentSectionRef = useRef<HTMLDivElement>(null);
+
+  // Add this after other useEffects
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        commentSectionRef.current && 
+        !commentSectionRef.current.contains(event.target as Node)
+      ) {
+        // Call the parent component's handler to close the comment section
+        // You'll need to add onClose prop to the component
+        onClose();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [onClose]);
 
   useEffect(() => {
     fetchComments(postId, isAdmin);
@@ -192,7 +212,7 @@ const ForumComment: React.FC<CommentSectionProps> = memo(({ postId, postWeaviate
   );
 
   return (
-    <div className="px-5 py-4 dark:bg-neutral-800 rounded-b-2xl">
+    <div ref={commentSectionRef} className="px-5 py-4 dark:bg-neutral-800 rounded-b-2xl">
       <h3 className="text-lg font-semibold mb-4 flex items-center">
         Comments {sortedComments.length > 0 && `(${sortedComments.length})`}
       </h3>

@@ -28,51 +28,51 @@ export const adminApproveForumHandler = async (req: Request, res: Response) => {
             });
             return;
         }
-
-        const [forumMongo, vector] = await Promise.all([
-            forumModel.create({
-                title: requestedForum.title,
-                description: requestedForum.description,
-                createdBy: req.admin._id,
-                weaviateId: "temp"
-            }),
-            embedtext(requestedForum.title + " " + requestedForum.description)
-        ]);
-
-        const forumWeaviate = await weaviateClient.data.creator()
-            .withClassName("Forum")
-            .withProperties({
-                title: requestedForum.title,
-                description: requestedForum.description,
-                mongoId: forumMongo._id as string  // Ensure mongoId is a string
-            })
-            .withVector(vector)
-            .do();
-
-        const isValid = await validateWeaviateCreate(
-            forumMongo,
-            forumWeaviate,
-            res,
-            'forum',
-            async () => { await forumMongo.deleteOne(); }
-        );
-
-        if (!isValid) return;
         
-        forumMongo.weaviateId = forumWeaviate.id as string;
-        requestedForum.status = "approved";
+        const forumMongo = await forumModel.create({
+            title: requestedForum.title,
+            description: requestedForum.description,
+            createdBy: req.admin._id,
+            weaviateId: "temp"
+        })
+        
+        try {
+            const vector = await embedtext(requestedForum.title + " " + requestedForum.description)
 
-        await Promise.all([
-            forumMongo.save(),
-            requestedForum.save()
-        ]);
 
-        res.json({
-            msg: "Request approved",
-            forumMongo,
-            forumWeaviate,
-            requestedForum
-        });
+            const forumWeaviate = await weaviateClient.data.creator()
+                .withClassName("Forum")
+                .withProperties({
+                    title: requestedForum.title,
+                    description: requestedForum.description,
+                    mongoId: forumMongo._id
+                })
+                .withVector(vector)
+                .do()
+    
+            forumMongo.weaviateId = forumWeaviate.id as string
+            
+            requestedForum.status = "approved"
+    
+            await Promise.all([
+                forumMongo.save(),
+                requestedForum.save()
+            ])
+    
+            res.json({
+                msg: "Request approved",
+                forumMongo,
+                forumWeaviate,
+                requestedForum
+            })
+    
+        } catch (error) {
+            await forumModel.findByIdAndDelete(forumMongo)
+            console.error(error)
+            res.status(500).json({
+                msg: "Could not approve request"
+            })
+        }
 
     } catch (e) {
         console.error("Error approving forum request:", e);

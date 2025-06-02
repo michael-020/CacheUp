@@ -39,27 +39,38 @@ export const editForumAdminHandler = async(req: Request, res: Response) => {
         title = title && title.trim() !== "" ? title : forumMongo.title
         description = description && description.trim() !== "" ? description : forumMongo.description
 
-        const vector = await embedtext(title + " " + description)
-
+        const initialTitle = forumMongo.title;
+        const initialDescription = forumMongo.description;
         forumMongo.title = title
         forumMongo.description = description
         await forumMongo.save()
+        try {
+            const vector = await embedtext(title + " " + description)
+      
+            const forumWeaviate = await weaviateClient.data.updater()
+                .withClassName("Forum")
+                .withId(weaviateId)
+                .withProperties({
+                    title,
+                    description
+                })
+                .withVector(vector)
+                .do()
 
-        const forumWeaviate = await weaviateClient.data.updater()
-            .withClassName("Forum")
-            .withId(weaviateId)
-            .withProperties({
-                title,
-                description
+            res.json({
+                msg: "updated successfully",
+                forumMongo,
+                forumWeaviate
+            })    
+        } catch (error) {
+            forumMongo.title = initialTitle;
+            forumMongo.description = initialDescription
+            await forumMongo.save()
+            console.error(error)
+            res.status(500).json({
+                msg: "Could not Edit forum"
             })
-            .withVector(vector)
-            .do()
-
-        res.json({
-            msg: "updated successfully",
-            forumMongo,
-            forumWeaviate
-        })
+        }
     }catch(e){
         console.error(e)
         res.status(500).json({

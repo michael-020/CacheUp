@@ -50,18 +50,19 @@ export const createForumhandler = async(req: Request, res: Response) => {
             return;
         }
 
-        const vector = await embedtext(title + " " + description)
+        try {
+            const vector = await embedtext(title + " " + description)
 
-        const forumWeaviate = await weaviateClient.data.creator()
-            .withClassName("Forum")
-            .withProperties({
-                title,
-                description,
-                mongoId: forumMongo._id.toString() // Ensure it's a string
-            })
-            .withVector(vector)
-            .do()
-
+            const forumWeaviate = await weaviateClient.data.creator()
+                .withClassName("Forum")
+                .withProperties({
+                    title,
+                    description,
+                    mongoId: forumMongo._id.toString() // Ensure it's a string
+                })
+                .withVector(vector)
+                .do()
+    
         if (!forumWeaviate?.id) {
             // Rollback MongoDB creation if Weaviate fails
             await forumMongo.deleteOne();
@@ -71,14 +72,20 @@ export const createForumhandler = async(req: Request, res: Response) => {
             return;
         }
 
-        forumMongo.weaviateId = forumWeaviate.id;
-        await forumMongo.save();
-
-        res.json({
-            msg: "Forum created successfully",
-            forumMongo,
-            forumWeaviate
-        });
+            forumMongo.weaviateId = forumWeaviate.id;
+            await forumMongo.save();
+            res.json({
+                msg: "Forum created successfully",
+                forumMongo,
+                forumWeaviate
+            });
+        } catch (error) {
+            await forumModel.findByIdAndDelete(forumMongo)
+            console.error(error)
+            res.status(500).json({
+                msg: "Error while creating forum"
+            })
+        }        
     } catch(e) {
         console.error("Error creating forum:", e);
         res.status(500).json({msg: "Internal server error"});

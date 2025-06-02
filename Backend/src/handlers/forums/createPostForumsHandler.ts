@@ -39,10 +39,9 @@ export const createPostForumshandler = async (req: Request, res: Response) => {
             return;
         }
 
-        const vector = await embedtext(content);
-
-        // Create the Weaviate document with validated mongoId
-        const postWeaviate = await weaviateClient.data.creator()
+        try {
+            const vector = await embedtext(content)
+            const postWeaviate = await weaviateClient.data.creator()
             .withClassName("Post")
             .withProperties({
                 content,
@@ -50,54 +49,42 @@ export const createPostForumshandler = async (req: Request, res: Response) => {
                 mongoId: postMongo._id.toString() // Explicitly convert to string
             })
             .withVector(vector)
-            .do();
+            .do()
+        
+            postMongo.weaviateId = postWeaviate.id as string 
+            await postMongo.save()
 
-        // Validate both documents were created properly
-        const isValid = await validateWeaviateCreate(
-            postMongo,
-            postWeaviate,
-            res,
-            'post',
-            async () => { 
-                await postMongo.deleteOne();
-                console.log(`Rolled back MongoDB post creation for ID: ${postMongo._id}`);
+            const thread = await threadForumModel.findById(threadMongo)
+            const watchers = thread?.watchedBy?.filter((id) => id.toString() !== req.user._id.toString())
+            if(watchers && watchers.length > 0) {
+                await watchNotificationModel.create({
+                    userIds: watchers,
+                    message: `${req.user.username} created a new post in ${thread?.title}`,
+                    threadId: thread?._id,
+                    seenBy: [],
+                    postId: postMongo._id,
+                    createdBy: req.user._id
+                })
             }
-        );
 
-        if (!isValid) {
-            return;
+            const pageNumber = await calculatePostPage(threadMongo, String(postMongo._id))
+
+            res.json({
+                msg: "Post created successfully",
+                postMongo,
+                postWeaviate,
+                pageNumber
+            })
+        } catch (error) {
+            console.error(error)
+            await postForumModel.findByIdAndDelete(postMongo)
+            res.status(500).json({
+                msg: "INternal server error"
+            })
         }
-
-        // Update the MongoDB document with the Weaviate ID
-        postMongo.weaviateId = postWeaviate.id as string;
-        await postMongo.save();
-
-        // Handle notifications
-        const thread = await threadForumModel.findById(threadMongo);
-        const watchers = thread?.watchedBy?.filter(id => 
-            id.toString() !== req.user._id.toString()
-        );
-
-        if (watchers?.length) {
-            await watchNotificationModel.create({
-                userIds: watchers,
-                message: `${req.user.username} created a new post in ${thread?.title}`,
-                threadId: thread?._id,
-                seenBy: [],
-                postId: postMongo._id,
-                createdBy: req.user._id
-            });
-        }
-
-        const pageNumber = await calculatePostPage(threadMongo, String(postMongo._id))
-
-        res.json({
-            msg: "Post created successfully",
-            postMongo,
-            postWeaviate
-        });
-    } catch (e) {
-        console.error("Error creating post:", e);
+        
+        }catch(e){
+        console.error(e)
         res.status(500).json({
             msg: "Internal server error"
         });
