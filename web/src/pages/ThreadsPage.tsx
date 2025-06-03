@@ -182,8 +182,8 @@ const ForumPage: React.FC = () => {
                 ref={titleRef}
                 className={`text-lg sm:text-lg lg:text-2xl font-bold dark:text-white ${
                   isTitleExpanded ? 'whitespace-normal break-words' : 'truncate'
-                } ${isTitleTruncated ? 'cursor-pointer' : ''}`}
-                onClick={() => isTitleTruncated && setIsTitleExpanded(!isTitleExpanded)}
+                } cursor-pointer`}
+                onClick={() => setIsTitleExpanded(!isTitleExpanded)}
               >
                 {currentForum.title}'s Forum
               </h1>
