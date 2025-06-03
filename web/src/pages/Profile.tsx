@@ -9,7 +9,7 @@ import { useParams, useLocation } from "react-router-dom";
 import { Post, IUser } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { routeVariants } from "@/lib/routeAnimation";
-import { Users, Mail, UserPlus, UserCheck, UserX } from 'lucide-react';
+import { Users, Mail, UserPlus, UserCheck, UserX, Edit, Briefcase } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useChatStore } from '@/stores/chatStore/useChatStore';
 import { useFriendsStore } from '@/stores/FriendsStore/useFriendsStore';
@@ -162,7 +162,6 @@ if (isValidUser === null) {
     <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-neutral-950">
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500 mx-auto mb-4"></div>
-        <p className="text-gray-600 dark:text-gray-400">Loading...</p>
       </div>
     </div>
   );
@@ -214,30 +213,33 @@ if (isValidUser === false) {
     if (isFriend) {
       return (
         <button
-          className="flex items-center justify-center space-x-1 py-2 px-4 bg-green-500 text-white text-sm font-medium rounded-md hover:bg-green-600 transition-colors w-full"
+          className="flex items-center justify-center gap-2 py-2.5 px-6 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl shadow-lg shadow-emerald-600/25 transition-all duration-200 transform hover:scale-105 active:scale-95 flex-1"
           onClick={() => setShowRemoveModal(true)}
         >
-          <UserCheck className="size-4" /> <span>Friend</span>
+          <UserCheck className="w-4 h-4 flex-shrink-0" />
+          <span>Friend</span>
         </button>
       );
     } else if (isPendingRequest) {
       return (
         <button 
-          className="flex items-center justify-center space-x-1 py-2 px-4 bg-red-500 text-white text-sm font-medium rounded-md hover:bg-red-600 transition-colors w-full"
+          className={`flex items-center justify-center gap-2 py-2.5 px-6 bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold rounded-xl shadow-lg shadow-rose-600/25 transition-all duration-200 transform hover:scale-105 active:scale-95 flex-1 ${friendLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
           onClick={handleFriendRequest}
           disabled={friendLoading}
         >
-          <UserX className="size-4" /> <span>{friendLoading ? '...' : 'Cancel'}</span>
+          <UserX className="w-4 h-4 flex-shrink-0" />
+          <span>{friendLoading ? 'Canceling...' : 'Cancel'}</span>
         </button>
       );
     } else {
       return (
         <button 
-          className="flex items-center justify-center space-x-1 py-2 px-4 bg-indigo-500 text-white text-sm font-medium rounded-md hover:bg-indigo-600 transition-colors w-full"
+          className={`flex items-center justify-center gap-2 py-2.5 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-semibold rounded-xl shadow-lg shadow-blue-600/25 transition-all duration-200 transform hover:scale-105 active:scale-95 flex-1 ${friendLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
           onClick={handleFriendRequest}
           disabled={friendLoading}
         >
-          <UserPlus className="size-4" /> <span>{friendLoading ? '...' : 'Add Friend'}</span>
+          <UserPlus className="w-4 h-4 flex-shrink-0" />
+          <span>{friendLoading ? 'Adding...' : 'Add Friend'}</span>
         </button>
       );
     }
@@ -245,224 +247,177 @@ if (isValidUser === false) {
 
   return (
     <motion.div 
-      className="flex gap-6 p-4 w-full min-h-screen bg-gray-50 dark:bg-neutral-950 dark:border-neutral-900 dark:shadow-0 dark:shadow-sm"
+      className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950"
       variants={routeVariants}
       initial="initial"
       animate="final"
       exit="exit"  
     >
-      
-      <div className="hidden lg:block w-1/4 max-w-xs">
-        <div className="sticky top-20">
-          {isProfileLoading ? (
-            <ProfileCardSkeleton />
-          ) : userInfo && (
-            <ProfileCard
-              userInfo={userInfo}
-              isOwnProfile={isOwnProfile}
-              isAdmin={isAdminView}
-            />
-          )}
-        </div>
-      </div>
-      
-      <div className="flex-1 max-w-5xl mx-auto translate-y-20 lg:translate-y-20 pb-24 lg:pb-8">
-        {isProfileLoading ? (
-          <MobileProfileCardSkeleton />
-        ) : userInfo && (
-          <div className="lg:hidden">
-            {/* Mobile (sm) Layout */}
-            <div className="sm:hidden bg-white dark:bg-neutral-800 rounded-lg shadow-lg mb-4 overflow-hidden">
-              <div className="flex flex-col items-center py-4 px-3">
-                {/* Compact profile picture */}
-                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-gray-200 dark:border-neutral-700 mb-3">
-                  <img
-                    src={userInfo.profilePicture || '/avatar.jpeg'}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                
-                {/* Name and username - compact */}
-                <div className="text-center mb-3">
-                  <h3 className="text-base font-bold text-gray-800 dark:text-gray-300 leading-tight">{userInfo.name}</h3>
-                  <p className="text-xs text-gray-500">@{userInfo.username}</p>
-                </div>
-                
-                {/* Bio - shorter on mobile */}
-                {userInfo.bio && (
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-3 text-center px-2 line-clamp-2">
-                    {userInfo.bio}
-                  </p>
-                )}
-                
-                {/* Friends count - inline */}
-                <div className="mb-3">
-                  <Link
-                    to={isOwnProfile ? "/friends" : `/friends/${userInfo._id}`}
-                    className="focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
-                  >
-                    <div className="flex flex-col items-center cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors text-sm">
-                      <div className="flex items-center">
-                        <Users className="size-3 text-indigo-500 mr-1" />
-                        <span className="text-gray-600 dark:text-gray-400">
-                          {userInfo.friends?.length || 0} friends
-                        </span>
-                      </div>
-                      {!isOwnProfile && mutualFriendsCount > 0 && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          {mutualFriendsCount} {mutualFriendsCount === 1 ? 'mutual' : 'mutuals'}
-                        </p>
-                      )}
-                    </div>
-                  </Link>
-                </div>
-                
-                {/* Action buttons - stacked for very small screens */}
-                <div className="w-full px-2 space-y-2">
-                  {isOwnProfile ? (
-                    <Link to="/edit-profile" className="block">
-                      <button className="w-full py-2 px-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-sm font-medium rounded-md hover:from-blue-600 hover:to-indigo-600 transition-colors">
-                        Edit Profile
-                      </button>
-                    </Link>
-                  ) : (
-                    <>
-                      <Link to="/message" className="block">
-                        <button 
-                          className="w-full flex items-center justify-center space-x-1 py-2 px-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-sm font-medium rounded-md hover:from-blue-600 hover:to-indigo-600 transition-colors"
-                          onClick={() => setSelectedUser(userInfo)}
-                        >
-                          <Mail className="size-4" /> <span>Message</span>
-                        </button>
-                      </Link>
-                      <div className="w-full">
-                        {renderFriendButton()}
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
+      <div className="container mx-auto px-4 py-8 pt-20 lg:pt-24">
+        <div className="flex flex-col lg:flex-row gap-8 max-w-7xl mx-auto">
+          
+          <div className="hidden lg:block w-80 flex-shrink-0">
+            <div className="sticky top-24">
+              {isProfileLoading ? (
+                <ProfileCardSkeleton />
+              ) : userInfo && (
+                <ProfileCard
+                  userInfo={userInfo}
+                  isOwnProfile={isOwnProfile}
+                  isAdmin={isAdminView}
+                />
+              )}
             </div>
-
-            {/* Small Desktop/Large Tablet Layout */}
-            <div className="hidden sm:block bg-white dark:bg-neutral-800 rounded-lg shadow-lg mb-4 overflow-hidden">
-              <div className="p-6">
-                {/* Header section */}
-                <div className="flex items-start space-x-6 mb-4">
-                  {/* Profile picture - larger */}
-                  <div className="flex-shrink-0">
-                    <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-200 dark:border-neutral-700">
-                      <img
-                        src={userInfo.profilePicture || '/avatar.jpeg'}
-                        alt="Profile"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </div>
+          </div>
+          
+          <div className="flex-1 min-w-0">
+            {isProfileLoading ? (
+              <MobileProfileCardSkeleton />
+            ) : userInfo && (
+              <div className="lg:hidden mb-6">
+                <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-lg border border-gray-200/50 dark:border-neutral-800/50 overflow-hidden backdrop-blur-sm">
                   
-                  {/* Profile info and actions */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-300">{userInfo.name}</h3>
-                        <p className="text-sm text-gray-500 mb-2">@{userInfo.username}</p>
-                        
-                        {/* Friends count */}
-                        <Link
-                          to={isOwnProfile ? "/friends" : `/friends/${userInfo._id}`}
-                          className="inline-block focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
-                        >
-                          <div className="flex flex-col">
-                            <div className="flex items-center cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
-                              <Users className="size-4 text-indigo-500 mr-2" />
-                              <span className="text-gray-600 dark:text-gray-400 font-medium">
-                                {userInfo.friends?.length || 0} friends
-                              </span>
-                            </div>
-                            {!isOwnProfile && mutualFriendsCount > 0 && (
-                              <p className="text-xs text-gray-500 mt-1 ml-6">
-                                {mutualFriendsCount} {mutualFriendsCount === 1 ? 'mutual' : 'mutuals'}
-                              </p>
-                            )}
-                          </div>
-                        </Link>
+                  <div className="pt-8 pb-6 px-6">
+                    <div className="text-center mb-6">
+                      <div className="relative inline-block mb-4">
+                        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-3 border-white dark:border-neutral-900 shadow-lg mx-auto">
+                          <img
+                            src={userInfo.profilePicture || '/avatar.jpeg'}
+                            alt="Profile"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
                       </div>
                       
-                      {/* Action buttons - horizontal */}
-                      <div className="flex space-x-3">
-                        {isOwnProfile ? (
-                          <Link to="/edit-profile">
-                            <button className="py-2 px-6 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-medium rounded-md hover:from-blue-600 hover:to-indigo-600 transition-colors">
-                              Edit Profile
-                            </button>
-                          </Link>
-                        ) : (
-                          <>
-                            <Link to="/message">
-                              <button 
-                                className="flex items-center space-x-2 py-2 px-4 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-medium rounded-md hover:from-blue-600 hover:to-indigo-600 transition-colors"
-                                onClick={() => setSelectedUser(userInfo)}
-                              >
-                                <Mail className="size-4" /> <span>Message</span>
-                              </button>
-                            </Link>
-                            <div>
-                              {renderFriendButton()}
-                            </div>
-                          </>
+                      <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                        {userInfo.name}
+                      </h1>
+                      <p className="text-gray-600 dark:text-gray-400 text-sm">
+                        @{userInfo.username}
+                      </p>
+                      
+                      <div className="flex flex-wrap items-center justify-center gap-4 mt-3 text-xs text-gray-500 dark:text-gray-400">
+                        {userInfo.department && (
+                          <div className="flex items-center gap-1">
+                            <Briefcase className="w-3 h-3" />
+                            <span>{userInfo.department}</span>
+                          </div>
                         )}
                       </div>
                     </div>
+                    
+                    {userInfo.bio && (
+                      <div className="bg-gray-50 dark:bg-neutral-800/50 rounded-xl p-3 mb-5">
+                        <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed text-center">
+                          {userInfo.bio}
+                        </p>
+                      </div>
+                    )}
+                    
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-neutral-800/50 dark:to-neutral-700/50 rounded-xl p-4 mb-5">
+                      <Link
+                        to={isOwnProfile ? "/friends" : `/friends/${userInfo._id}`}
+                        className="block focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg"
+                      >
+                        <div className="text-center hover:scale-105 transition-transform duration-200">
+                          <div className="flex items-center justify-center gap-3">
+                            <div className="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/50 rounded-full flex items-center justify-center">
+                              <Users className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                            </div>
+                            <div className="text-left">
+                              <p className="text-xl font-bold text-gray-900 dark:text-white">
+                                {userInfo.friends?.length || 0}
+                              </p>
+                            </div>
+                          </div>
+                          {!isOwnProfile && mutualFriendsCount > 0 && (
+                            <p className="text-xs text-indigo-600 dark:text-indigo-400 font-medium mt-2">
+                              {mutualFriendsCount} {mutualFriendsCount === 1 ? 'mutual friend' : 'mutual friends'}
+                            </p>
+                          )}
+                        </div>
+                      </Link>
+                    </div>
+                    
+                    {isOwnProfile ? (
+                      <Link to="/edit-profile" className="block">
+                        <button className="w-full flex items-center justify-center gap-2 py-2.5 px-6 bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-900 hover:to-black text-white font-semibold rounded-xl shadow-lg shadow-gray-800/25 transition-all duration-200 transform hover:scale-105 active:scale-95">
+                          <Edit className="w-4 h-4" />
+                          <span>Edit Profile</span>
+                        </button>
+                      </Link>
+                    ) : (
+                      <div className="flex gap-3">
+                        <Link to="/message" className="flex-1">
+                          <button 
+                            className="w-full flex items-center justify-center gap-2 py-2.5 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-semibold rounded-xl shadow-lg shadow-blue-600/25 transition-all duration-200 transform hover:scale-105 active:scale-95"
+                            onClick={() => setSelectedUser(userInfo)}
+                          >
+                            <Mail className="w-4 h-4" />
+                            <span>Message</span>
+                          </button>
+                        </Link>
+                        {renderFriendButton()}
+                      </div>
+                    )}
                   </div>
                 </div>
-                
-                {/* Bio section */}
-                {userInfo.bio && (
-                  <div className="border-t border-gray-200 dark:border-neutral-700 pt-4">
-                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                      {userInfo.bio}
+              </div>
+            )}
+
+            <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-lg border border-gray-200/50 dark:border-neutral-800/50 overflow-hidden backdrop-blur-sm">
+              <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-neutral-800 dark:to-neutral-700 px-6 py-5 border-b border-gray-200 dark:border-neutral-700">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                  {isOwnProfile
+                    ? isAdminView
+                      ? "Admin Dashboard"
+                      : "My Posts"
+                    : userInfo
+                    ? `${userInfo.name}'s ${isAdminView ? "Profile (Admin)" : "Posts"}`
+                    : "Posts"}
+                </h2>
+                <p className="text-gray-600 dark:text-gray-400 mt-1 text-sm">
+                  {isLoading ? "Loading posts..." : `${userPosts.length} ${userPosts.length === 1 ? 'post' : 'posts'}`}
+                </p>
+              </div>
+              
+              <div className="p-6">
+                {isLoading ? (
+                  <PostCardSkeleton />
+                ) : userPosts.length > 0 ? (
+                  <div className="space-y-6">
+                    {userPosts.map((post) => (
+                      <PostCard 
+                        key={post._id} 
+                        post={post} 
+                        isAdmin={isAdminView} 
+                        onPostUpdate={handlePostUpdate}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <div className="w-20 h-20 bg-gray-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <div className="w-10 h-10 bg-gray-200 dark:bg-neutral-700 rounded-full"></div>
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                      No posts yet
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400 max-w-sm mx-auto text-sm">
+                      {isOwnProfile 
+                        ? "Share your first post to get started!" 
+                        : `${userInfo?.name} hasn't shared any posts yet.`}
                     </p>
                   </div>
                 )}
               </div>
             </div>
           </div>
-        )}
-
-        <div className="bg-white rounded-lg shadow-lg shadow-neutral-300 p-6 mb-6 dark:bg-neutral-900 dark:border-neutral-900 dark:shadow-md dark:shadow-neutral-600">
-          <h1 className="text-2xl font-bold mb-4">
-            {isOwnProfile
-              ? isAdminView
-                ? "My Admin Dashboard"
-                : "My Posts"
-              : userInfo
-              ? `${userInfo.name}'s ${
-                  isAdminView ? "Profile (Admin View)" : "Profile"
-                }`
-              : "Profile"}
-          </h1>
           
-          {isLoading ? (
-            <PostCardSkeleton />
-          ) : userPosts.length > 0 ? (
-            <div className="space-y-6 z-50">
-              {userPosts.map((post) => (
-                <PostCard 
-                  key={post._id} 
-                  post={post} 
-                  isAdmin={isAdminView} 
-                  onPostUpdate={handlePostUpdate}
-                />
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500 text-center py-8">No posts available.</p>
-          )}
+          <div className="hidden lg:block w-80 flex-shrink-0"></div>
         </div>
       </div>
       
-      <div className="hidden lg:block w-1/4 max-w-xs"></div>
       <RemoveFriendModal
         isOpen={showRemoveModal}
         onClose={() => setShowRemoveModal(false)}
