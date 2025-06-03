@@ -111,6 +111,15 @@ const ForumPage: React.FC = () => {
     if (desc.length <= charLimit) return desc;
     return desc.slice(0, charLimit) + "...";
   };
+
+  const shouldShowSeeMore = (desc: string) => {
+    if (!desc) return false;
+    
+    let charLimit = isSmallScreen ? 90 : 170;
+    charLimit = isLargeScreen ? 250 : charLimit;
+    
+    return desc.length > charLimit;
+  };
   
   const handleCreateThread = async (threadData: { title: string; description: string }) => {
     try {
@@ -237,7 +246,7 @@ const ForumPage: React.FC = () => {
           <div>
             <div className="pb-6">
               {getTruncatedDescription(currentForum.description)}
-              {currentForum.description && currentForum.description.length > 250 && !isDescExpanded && (
+              {shouldShowSeeMore(currentForum.description) && !isDescExpanded && (
                 <span
                   className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
                   onClick={(e) => {
@@ -248,7 +257,7 @@ const ForumPage: React.FC = () => {
                   See more
                 </span>
               )}
-              {currentForum.description && currentForum.description.length > 250 && isDescExpanded && (
+              {shouldShowSeeMore(currentForum.description) && isDescExpanded && (
                 <span
                   className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
                   onClick={(e) => {
@@ -260,16 +269,12 @@ const ForumPage: React.FC = () => {
                 </span>
               )}
             </div>
-            <div className="text-center py-6 sm:py-8 bg-white rounded dark:bg-neutral-800">
-              <p className="text-sm sm:text-base">No threads found in this forum.</p>
-              <p className="mt-2 text-sm sm:text-base">Be the first to create a thread!</p>
-            </div>
           </div>
         ) : (
           <div>
-         <div className="pb-6">
+          <div className="pb-6">
             {getTruncatedDescription(currentForum.description)}
-            {currentForum.description && currentForum.description.length > 250 && !isDescExpanded && (
+            {shouldShowSeeMore(currentForum.description) && !isDescExpanded && (
               <span
                 className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
                 onClick={(e) => {
@@ -280,7 +285,7 @@ const ForumPage: React.FC = () => {
                 See more
               </span>
             )}
-            {currentForum.description && currentForum.description.length > 250 && isDescExpanded && (
+            {shouldShowSeeMore(currentForum.description) && isDescExpanded && (
               <span
                 className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
                 onClick={(e) => {

@@ -229,6 +229,16 @@ export const Thread = () => {
     return desc.slice(0, charLimit) + "...";
   };
 
+  // Add this helper function next to getTruncatedDescription function
+  const shouldShowSeeMore = (desc: string) => {
+    if (!desc) return false;
+    
+    let charLimit = isSmallScreen ? 90 : 170;
+    charLimit = isLargeScreen ? 250 : charLimit;
+    
+    return desc.length > charLimit;
+  };
+
   // Pagination handlers
   const goToFirstPage = () => {
     isAdmin ? navigate(`/admin/forums/thread/${id}/1`) : navigate(`/forums/thread/${id}/1`);
@@ -319,15 +329,15 @@ export const Thread = () => {
         </div>
         <div className={`text-neutral-800 text-base dark:text-neutral-200 mb-2 ${threadDescription.length < 50 ? "text-center": "text-justify"} `}>
           {getTruncatedDescription(threadDescription)}
-          {threadDescription && threadDescription.length > 250 && !descExpanded && (
+          {shouldShowSeeMore(threadDescription) && !descExpanded && (
             <span
-               className="dark:text-neutral-500 text-neutral-400 text-sm lg:text-base cursor-pointer ml-1 hover:underline"
+              className="dark:text-neutral-500 text-neutral-400 text-sm lg:text-base cursor-pointer ml-1 hover:underline"
               onClick={() => setDescExpanded(true)}
             >
               See more
             </span>
           )}
-          {threadDescription && threadDescription.length > 250 && descExpanded && (
+          {shouldShowSeeMore(threadDescription) && descExpanded && (
             <span
               className="dark:text-neutral-500 text-neutral-400 text-sm lg:text-base cursor-pointer ml-1 hover:underline"
               onClick={() => setDescExpanded(false)}
@@ -438,7 +448,7 @@ export const Thread = () => {
 
           <div className={`text-neutral-900 text-base dark:text-gray-200 mb-2 ${threadDescription.length < 50 ? "text-center": "text-justify"} `}>
           {getTruncatedDescription(threadDescription)}
-          {threadDescription && threadDescription.length > 250 && !descExpanded && (
+          {shouldShowSeeMore(threadDescription) && !descExpanded && (
             <span
               className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
               onClick={() => setDescExpanded(true)}
@@ -446,7 +456,7 @@ export const Thread = () => {
               See more
             </span>
           )}
-          {threadDescription && threadDescription.length > 250 && descExpanded && (
+          {shouldShowSeeMore(threadDescription) && descExpanded && (
             <span
               className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
               onClick={() => setDescExpanded(false)}
