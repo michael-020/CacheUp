@@ -52,17 +52,42 @@ const ForumPage: React.FC = () => {
 
     const checkTruncation = () => {
       if (titleRef.current) {
+        // Force a reflow to ensure accurate measurements
+        titleRef.current.offsetHeight;
+        
         const isOverflowing = titleRef.current.scrollWidth > titleRef.current.clientWidth;
         setIsTitleTruncated(isOverflowing);
       }
     };
     
-    checkTruncation();
+    // Use setTimeout to ensure DOM is fully rendered
+    const timeoutId = setTimeout(checkTruncation, 100);
     
-    // Re-check on window resize
+    // Also check on window resize
     window.addEventListener('resize', checkTruncation);
-    return () => window.removeEventListener('resize', checkTruncation);
-  }, [currentForum.title]);
+    
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('resize', checkTruncation);
+    };
+  }, [currentForum.title, isLoading]);
+
+  useEffect(() => {
+    if (!currentForum.title || isLoading) return;
+    
+    const checkTruncation = () => {
+      if (titleRef.current) {
+        titleRef.current.offsetHeight; 
+        const isOverflowing = titleRef.current.scrollWidth > titleRef.current.clientWidth;
+        setIsTitleTruncated(isOverflowing);
+      }
+    };
+    
+    // Check after a short delay to ensure styles are applied
+    const timeoutId = setTimeout(checkTruncation, 200);
+    
+    return () => clearTimeout(timeoutId);
+  }, [currentForum.title, isLoading, isTitleExpanded]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -145,55 +170,39 @@ const ForumPage: React.FC = () => {
         
         <div className="flex justify-between items-start gap-3 mb-4 sm:mb-6">
           <div className='flex items-center min-w-0 flex-1'>
-  <button
-    onClick={() => navigate(-1)}
-    className="mr-2 p-2 sm:p-3 rounded-full hover:bg-gray-400 dark:hover:bg-neutral-700 flex-shrink-0"
-  >
-    <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
-  </button>
+            <button
+              onClick={() => navigate(-1)}
+              className="mr-2 p-2 sm:p-3 rounded-full hover:bg-gray-400 dark:hover:bg-neutral-700 flex-shrink-0"
+            >
+              <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
+            </button>
 
-  <div className="min-w-0 flex-1">
-    <h1 
-      ref={titleRef}
-      className={`text-lg sm:text-lg lg:text-2xl font-bold dark:text-white ${
-        isTitleExpanded ? 'whitespace-normal break-words' : 'truncate'
-      } ${isTitleTruncated ? 'cursor-pointer' : ''}`}
-      onClick={() => isTitleTruncated && setIsTitleExpanded(!isTitleExpanded)}
-    >
-      {currentForum.title}'s Forum
-    </h1>
-    
-    {/* Visual indicator that title is tappable */}
-    {isTitleTruncated && !isTitleExpanded && (
-      <button
-        onClick={() => setIsTitleExpanded(true)}
-        className="flex items-center mt-1"
-      >
-        <span className="text-xs text-blue-500 flex items-center">
-          View full title
-          <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </span>
-      </button>
-    )}
-    
-    {/* Collapse indicator when expanded */}
-    {isTitleExpanded && (
-      <button  
-        onClick={() => isTitleTruncated && setIsTitleExpanded(!isTitleExpanded)}
-        className="flex items-center mt-1"
-      >
-        <span className="text-xs text-blue-500 flex items-center">
-          Tap to collapse
-          <svg className="w-3 h-3 ml-1 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </span>
-      </button>
-    )}
-  </div>
-</div>
+            <div className="min-w-0 flex-1">
+              <h1 
+                ref={titleRef}
+                className={`text-lg sm:text-lg lg:text-2xl font-bold dark:text-white ${
+                  isTitleExpanded ? 'whitespace-normal break-words' : 'truncate'
+                } ${isTitleTruncated ? 'cursor-pointer' : ''}`}
+                onClick={() => isTitleTruncated && setIsTitleExpanded(!isTitleExpanded)}
+              >
+                {currentForum.title}'s Forum
+              </h1>
+              
+              {isTitleTruncated && !isTitleExpanded && (
+                <button
+                  onClick={() => setIsTitleExpanded(true)}
+                  className="flex items-center mt-1"
+                >
+                  <span className="text-xs text-blue-500 flex items-center">
+                    View full title
+                    <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </span>
+                </button>
+              )}
+            </div>
+          </div>
 
 
           {!authAdmin && (
