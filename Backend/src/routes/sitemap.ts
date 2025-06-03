@@ -35,7 +35,7 @@ router.get("/sitemap.xml", async (req: Request, res: Response) => {
         const [forums, profiles, threads] = await Promise.all([
             forumModel.find({ visibility: true }, "_id weaviateId"),
             threadForumModel.find({ visibility: true }, "_id"),
-            userModel.find({ visibility: true }, "_id"),
+            userModel.find({}),
           ]);
 
         const forumUrls = forums.map((forum) => {
