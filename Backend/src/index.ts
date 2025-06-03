@@ -19,10 +19,13 @@ import './lib/deleteCronJob'
 import { setupWeaviateSchema } from "./models/weaviate";
 import { setupWeaviateBackup } from './lib/weaviateBackupCron';
 import ServerhealthRouter from "./routes/ServerhealthRouter";
+import sitemapRoutes from './routes/sitemap';
 
 interface ApiError extends Error {
   statusCode?: number;
 }
+
+app.use('/', sitemapRoutes);
 
 app.set('trust proxy', 1);
 
