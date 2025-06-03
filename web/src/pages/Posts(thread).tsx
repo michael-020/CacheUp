@@ -281,16 +281,6 @@ export const Thread = () => {
     }
   };
 
-  // const generateMetaDescription = () => {
-  //   const description = threadDescription;
-  //   const canonicalUrl = `${window.location.origin}/forums/thread/${id}/${page}`
-  //   if(posts.length > 0){
-  //     return { posts, description, canonicalUrl }
-  //   }else{
-  //     return {description, canonicalUrl}
-  //   }
-  // }
-
   const handleNewPostClick = () => {
     if (!authUser) {
       setLoginPromptAction('post');
@@ -379,7 +369,7 @@ export const Thread = () => {
                 )}
               </Button>
         {!hasNextPage && <Button onClick={handleNewPostClick} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 mt-3">
-          Share <Plus size={4} />
+          Create <Plus size={4} />
         </Button>}
 
         </div>
@@ -506,7 +496,7 @@ export const Thread = () => {
                 onClick={handleNewPostClick}
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >
-                Share <Plus size={4} />
+                Create <Plus size={4} />
               </Button>
             </div>
           </div>

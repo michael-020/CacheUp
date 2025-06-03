@@ -115,6 +115,7 @@ export interface ForumState {
   forums: Forum[];
   currentForum: {
     title: string;
+    description: string;
     threads: Thread[];
     loading: boolean;
     error: string;

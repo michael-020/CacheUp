@@ -12,6 +12,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     threads: [],
     loading: false,
     error: '',
+    description:''
   },
   loadingForums: false,
   errorForums: '',
@@ -120,7 +121,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
         endpoint = "/forums/view-threads/"
       }
       const response = await axiosInstance.get(`${endpoint + forumId}`);
-      set({ currentForum: { ...get().currentForum, title: response.data.forum.title,  threads: response.data.allThreads, loading: false } });
+      set({ currentForum: { ...get().currentForum, title: response.data.forum.title, description: response.data.forum.description,  threads: response.data.allThreads, loading: false } });
     } catch (err) {
       const error = err as AxiosError<{ msg: string }>;
       set({ currentForum: { ...get().currentForum, error: error.response?.data?.msg || 'Failed to fetch threads', loading: false } });
