@@ -9,7 +9,7 @@ import { useParams, useLocation } from "react-router-dom";
 import { Post, IUser } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { routeVariants } from "@/lib/routeAnimation";
-import { Users, Mail, UserPlus, UserCheck, UserX } from 'lucide-react';
+import { Users, Mail, UserPlus, UserCheck, UserX, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useChatStore } from '@/stores/chatStore/useChatStore';
 import { useFriendsStore } from '@/stores/FriendsStore/useFriendsStore';
@@ -87,7 +87,6 @@ export const Profile = () => {
         } else {
           url = `/user/profile/${id}`;
         }
-        
         const response = await axiosInstance(url);
         const profileData = response.data.userInfo;
         
@@ -142,7 +141,7 @@ export const Profile = () => {
         setMutualFriendsCount(0);
       }
     };
-
+      
     validateAndFetchProfile();
     
     if (isValidUser === true && !isOwnProfile) {
@@ -161,8 +160,7 @@ if (isValidUser === null) {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-neutral-950">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500 mx-auto mb-4"></div>
-        <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+        <Loader2 className="animate-spin size-14 text-blue-500" />
       </div>
     </div>
   );
