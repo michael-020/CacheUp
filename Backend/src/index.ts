@@ -18,10 +18,13 @@ import MongoStore from "connect-mongo";
 import './lib/deleteCronJob'
 import { setupWeaviateSchema } from "./models/weaviate";
 import { setupWeaviateBackup } from './lib/weaviateBackupCron';
+import sitemapRoutes from './routes/sitemap';
 
 interface ApiError extends Error {
   statusCode?: number;
 }
+
+app.use('/', sitemapRoutes);
 
 app.set('trust proxy', 1);
 
