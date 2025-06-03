@@ -324,7 +324,7 @@ export const Thread = () => {
 
   if (posts.length === 0) {
     return (<>
-      <div className="p-4 mx-auto max-w-6xl translate-y-14 sm:translate-y-7 lg:translate-y-6 text-center ">
+      <div className="p-4 mx-auto max-w-6xl translate-y-14 sm:translate-y-20 lg:translate-y-20 text-center ">
         <SearchBar />
         
         <div className="flex items-center">
