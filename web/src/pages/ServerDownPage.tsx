@@ -6,10 +6,10 @@ export function ServerDownPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-orange-50 dark:from-black dark:to-neutral-900 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
-        <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-2xl p-8 text-center border border-red-100 dark:border-red-800">
+        <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-2xl p-8 text-center border border-red-100 dark:border-blue-800">
           <div className="mb-6">
-            <div className="mx-auto w-20 h-20 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center">
-              <WifiOff className="w-10 h-10 text-red-600 dark:text-red-400" />
+            <div className="mx-auto w-20 h-20 bg-red-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center">
+              <WifiOff className="w-10 h-10 text-blue-600 dark:text-blue-400" />
             </div>
           </div>
 
