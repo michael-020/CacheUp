@@ -8,6 +8,7 @@ import { ArrowLeft, Camera, Loader2} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion"
 import { routeVariants } from "@/lib/routeAnimation";
+import { Textarea } from "@/components/ui/textarea";
 
 export const EditProfile = () => {
     const navigate = useNavigate();
@@ -19,8 +20,8 @@ export const EditProfile = () => {
     }).strict({ message: "Extra fields not allowed" });
 
     type FormFields = z.infer<typeof updateSchema>;
-    const [text, setText] = useState("");
     const { isEditing, editProfile, authUser } = useAuthStore();
+    const [text, setText] = useState(authUser?.bio || "");
     const [imagePreview, setImagePreview] = useState<string | null>(null);
 
     const { register, handleSubmit, formState: { errors }, reset } = useForm<FormFields>({
@@ -197,7 +198,7 @@ export const EditProfile = () => {
                             <label className="inline-flex ml-1 items-center text-sm font-medium text-gray-700 mb-1">
                                 Bio
                             </label>
-                            <textarea
+                            <Textarea
                                 {...register("bio")}
                                 rows={2}
                                 value={text}
