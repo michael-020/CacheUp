@@ -77,23 +77,17 @@ export const EditProfile = () => {
         }
     };
 
-    const onSubmit: SubmitHandler<FormFields> = async (data) => {
-        try {
-            const { name, username, bio, profilePicture } = data;
+    const onSubmit: SubmitHandler<FormFields> = (data) => {
+        const { name, username, bio, profilePicture } = data;
 
-            const sanitizedData = {
-                name,
-                username,
-                bio,
-                profilePicture: profilePicture ?? undefined,  
-            };
+        const sanitizedData = {
+            name,
+            username,
+            bio,
+            profilePicture: profilePicture ?? undefined,  
+        };
 
-            await editProfile(sanitizedData);
-            
-        } catch (error) {
-            toast.error("Profile update failed");
-            console.error(error)
-        }
+        editProfile(sanitizedData);
     };
 
     const handleNavigateBack = () => {
