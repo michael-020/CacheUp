@@ -11,6 +11,7 @@ import { DeleteModal } from '@/components/modals/DeleteModal';
 import { SearchBar } from '@/components/forums/search-bar';
 import { LoginPromptModal } from "@/components/modals/LoginPromptModal";
 import toast from 'react-hot-toast';
+import { useScreenSize } from '@/hooks/useScreenSize';
 
 const ForumPage: React.FC = () => {
   const { forumMongoId, forumWeaviateId } = useParams<{
@@ -39,6 +40,8 @@ const ForumPage: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [threadToDelete, setThreadToDelete] = useState<{id: string, weaviateId: string} | null>(null);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [isDescExpanded, setIsDescExpanded] = useState(false);
+  const [isSmallScreen, isLargeScreen] = useScreenSize();
 
   useEffect(() => {
     const loadData = async () => {
@@ -51,6 +54,17 @@ const ForumPage: React.FC = () => {
     
     loadData();
   }, [forumMongoId, fetchThreads, isAdminRoute]);
+
+  const getTruncatedDescription = (desc: string) => {
+    if (!desc) return "";
+    if (isDescExpanded) return desc;
+    
+    let charLimit = isSmallScreen ? 90 : 170;
+    charLimit = isLargeScreen ? 250 : charLimit;
+
+    if (desc.length <= charLimit) return desc;
+    return desc.slice(0, charLimit) + "...";
+  };
   
   const handleCreateThread = async (threadData: { title: string; description: string }) => {
     try {
@@ -139,15 +153,63 @@ const ForumPage: React.FC = () => {
         
         {currentForum.threads.length === 0 ? (
           <div>
-          <h2 className='pb-6'>{currentForum.description}</h2>
-          <div className="text-center py-6 sm:py-8 bg-white rounded dark:bg-neutral-800">
-            <p className="text-sm sm:text-base">No threads found in this forum.</p>
-            <p className="mt-2 text-sm sm:text-base">Be the first to create a thread!</p>
-          </div>
+            <div className="pb-6">
+              {getTruncatedDescription(currentForum.description)}
+              {currentForum.description && currentForum.description.length > 250 && !isDescExpanded && (
+                <span
+                  className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsDescExpanded(true);
+                  }}
+                >
+                  See more
+                </span>
+              )}
+              {currentForum.description && currentForum.description.length > 250 && isDescExpanded && (
+                <span
+                  className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsDescExpanded(false);
+                  }}
+                >
+                  See less
+                </span>
+              )}
+            </div>
+            <div className="text-center py-6 sm:py-8 bg-white rounded dark:bg-neutral-800">
+              <p className="text-sm sm:text-base">No threads found in this forum.</p>
+              <p className="mt-2 text-sm sm:text-base">Be the first to create a thread!</p>
+            </div>
           </div>
         ) : (
           <div>
-          <h2 className='pb-6'>{currentForum.description}</h2>
+         <div className="pb-6">
+            {getTruncatedDescription(currentForum.description)}
+            {currentForum.description && currentForum.description.length > 250 && !isDescExpanded && (
+              <span
+                className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsDescExpanded(true);
+                }}
+              >
+                See more
+              </span>
+            )}
+            {currentForum.description && currentForum.description.length > 250 && isDescExpanded && (
+              <span
+                className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsDescExpanded(false);
+                }}
+              >
+                See less
+              </span>
+            )}
+          </div>
 
           <div className="space-y-3 sm:space-y-4">
             {currentForum.threads.map((thread) => (
