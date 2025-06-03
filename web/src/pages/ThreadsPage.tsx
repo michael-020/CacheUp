@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useLocation, Link, useNavigate } from 'react-router-dom';
 import { useForumStore } from '@/stores/ForumStore/useforumStore';
 import ThreadModal from '../components/forums/ThreadModal';
@@ -42,6 +42,27 @@ const ForumPage: React.FC = () => {
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [isDescExpanded, setIsDescExpanded] = useState(false);
   const [isSmallScreen, isLargeScreen] = useScreenSize();
+  const [isTitleExpanded, setIsTitleExpanded] = useState(false);
+  const [isTitleTruncated, setIsTitleTruncated] = useState(false);
+    const titleRef = useRef<HTMLDivElement>(null);
+
+  // Update the title truncation effect
+  useEffect(() => {
+    if (!currentForum.title) return;
+
+    const checkTruncation = () => {
+      if (titleRef.current) {
+        const isOverflowing = titleRef.current.scrollWidth > titleRef.current.clientWidth;
+        setIsTitleTruncated(isOverflowing);
+      }
+    };
+    
+    checkTruncation();
+    
+    // Re-check on window resize
+    window.addEventListener('resize', checkTruncation);
+    return () => window.removeEventListener('resize', checkTruncation);
+  }, [currentForum.title]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -70,7 +91,7 @@ const ForumPage: React.FC = () => {
     try {
         if (!forumMongoId || !forumWeaviateId) return;
         
-        if (threadData.title.length >= 50) {
+        if (threadData.title.length > 50) {
             toast.error("Title can be only 50 characters long");
             return;
         }
@@ -124,17 +145,55 @@ const ForumPage: React.FC = () => {
         
         <div className="flex justify-between items-start gap-3 mb-4 sm:mb-6">
           <div className='flex items-center min-w-0 flex-1'>
-            <button
-              onClick={() => navigate(-1)}
-              className="mr-2 p-2 sm:p-3 rounded-full hover:bg-gray-400 dark:hover:bg-neutral-700 flex-shrink-0"
-            >
-              <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
-            </button>
+  <button
+    onClick={() => navigate(-1)}
+    className="mr-2 p-2 sm:p-3 rounded-full hover:bg-gray-400 dark:hover:bg-neutral-700 flex-shrink-0"
+  >
+    <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
+  </button>
 
-            <h1 className="text-lg sm:text-lg lg:text-2xl font-bold truncate">
-              {currentForum.title}'s Forum
-            </h1>
-          </div>
+  <div className="min-w-0 flex-1">
+    <h1 
+      ref={titleRef}
+      className={`text-lg sm:text-lg lg:text-2xl font-bold dark:text-white ${
+        isTitleExpanded ? 'whitespace-normal break-words' : 'truncate'
+      } ${isTitleTruncated ? 'cursor-pointer' : ''}`}
+      onClick={() => isTitleTruncated && setIsTitleExpanded(!isTitleExpanded)}
+    >
+      {currentForum.title}'s Forum
+    </h1>
+    
+    {/* Visual indicator that title is tappable */}
+    {isTitleTruncated && !isTitleExpanded && (
+      <button
+        onClick={() => setIsTitleExpanded(true)}
+        className="flex items-center mt-1"
+      >
+        <span className="text-xs text-blue-500 flex items-center">
+          View full title
+          <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </span>
+      </button>
+    )}
+    
+    {/* Collapse indicator when expanded */}
+    {isTitleExpanded && (
+      <button  
+        onClick={() => isTitleTruncated && setIsTitleExpanded(!isTitleExpanded)}
+        className="flex items-center mt-1"
+      >
+        <span className="text-xs text-blue-500 flex items-center">
+          Tap to collapse
+          <svg className="w-3 h-3 ml-1 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </span>
+      </button>
+    )}
+  </div>
+</div>
 
 
           {!authAdmin && (
