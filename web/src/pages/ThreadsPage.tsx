@@ -201,6 +201,20 @@ const ForumPage: React.FC = () => {
                   </span>
                 </button>
               )}
+
+              {!isTitleTruncated && isTitleExpanded && (
+                <button
+                  onClick={() => setIsTitleExpanded(false)}
+                  className="flex items-center mt-1"
+                >
+                  <span className="text-xs text-blue-500 flex items-center">
+                    Hide full title
+                     <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 15l-7-7-7 7" />
+                    </svg>
+                  </span>
+                </button>
+              )}
             </div>
           </div>
 
