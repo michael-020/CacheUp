@@ -122,6 +122,7 @@ const ForumPage: React.FC = () => {
             </h1>
           </div>
 
+
           {!authAdmin && (
             <button
               onClick={handleCreateThreadClick}
@@ -142,6 +143,9 @@ const ForumPage: React.FC = () => {
             <p className="mt-2 text-sm sm:text-base">Be the first to create a thread!</p>
           </div>
         ) : (
+          <div>
+          <h2 className='pb-6'>{currentForum.description}</h2>
+
           <div className="space-y-3 sm:space-y-4">
             {currentForum.threads.map((thread) => (
               <div key={thread._id}>
@@ -233,6 +237,7 @@ const ForumPage: React.FC = () => {
                 </Link>
               </div>
             ))}
+          </div>
           </div>
         )}
 
