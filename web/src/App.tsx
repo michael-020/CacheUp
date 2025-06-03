@@ -39,7 +39,7 @@ import { TimeTracker } from './components/TimeTracker'
 import PageViews from "@/pages/admin/PageViews";
 import ReportedContentPage from './pages/ReportedContentForums'
 import { usePathStore } from '@/stores/PathStore/usePathStore';
-import { Loader } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { SetupAccount } from './pages/SetupAccount';
 import { Signup } from './pages/Signup'
 import { NotFoundPage } from './pages/NotFoundPage'
@@ -237,7 +237,7 @@ function App() {
   if ((isAdminRoute && isAdminCheckingAuth) || (!isAdminRoute && isCheckingAuth)) {
     return (
       <div className="h-screen max-w-screen flex items-center justify-center bg-gray-100 dark:bg-neutral-900">
-       <Loader className='animate-spin size-10' />
+       <Loader2 className='animate-spin size-14 text-blue-500' />
       </div>
     )
   }

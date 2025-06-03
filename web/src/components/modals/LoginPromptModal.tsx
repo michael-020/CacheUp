@@ -46,7 +46,7 @@ export const LoginPromptModal = ({ isOpen, onClose, title, content }: LoginPromp
   if (!isOpen) return null;
 
   return createPortal(
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-[1.5px] dark:bg-neutral-900/80 flex items-center justify-center z-50">
+    <div className="fixed px-6 inset-0 bg-black/50 backdrop-blur-[1.5px] dark:bg-neutral-900/80 flex items-center justify-center z-50">
       <div ref={modalRef} className="relative w-full max-w-md mx-auto">
         <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl p-6">
           <button

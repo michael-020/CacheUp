@@ -232,10 +232,10 @@ const ForumList: React.FC = () => {
       animate="final"
       exit="exit"
     >
-      <div className="max-w-6xl mx-auto p-3 sm:p-4 lg:p-6 translate-y-14 sm:translate-y-16 lg:translate-y-20 min-h-[calc(100vh-5.1rem)]">
+      <div className="max-w-6xl mx-auto p-6 translate-y-14 sm:translate-y-16 lg:translate-y-20 min-h-[calc(100vh-5.1rem)]">
         <div className="flex flex-col mb-4 sm:mb-6">
           <div className="flex justify-between sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0">
-            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold">
+            <h1 className="text-2xl font-bold">
               {isAdminRoute ? "Forums Section (Admin View)" : "Forums Section"}
             </h1>
             {!isAdminRoute &&   

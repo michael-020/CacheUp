@@ -7,7 +7,7 @@ const ForumPageSkeleton: React.FC = () => {
   const navigate = useNavigate()
   return (
     <div>
-      <div className="max-w-6xl mx-auto p-6 pt-4 px-4 translate-y-14 sm:translate-y-20 lg:translate-y-24 h-full">
+      <div className="max-w-6xl mx-auto p-3 sm:p-4 lg:p-6 translate-y-16 sm:translate-y-20 lg:translate-y-24 h-full">
        <SearchBar />
                
                <div className="flex justify-between items-start gap-3 mb-4 sm:mb-6">

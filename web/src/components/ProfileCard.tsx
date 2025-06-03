@@ -36,6 +36,7 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
   const [loginPromptAction, setLoginPromptAction] = useState<'message' | 'friend'>('message');
   const { authUser } = useAuthStore();
   const [showRemoveModal, setShowRemoveModal] = useState(false);
+  const [bioExpanded, setBioExpanded] = useState(false);
   
   useEffect(() => {
     if (!isOwnProfile) {
@@ -62,6 +63,15 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
       console.error('Error fetching mutual friends:', error);
       setMutualFriendsCount(0);
     }
+  };
+
+  const truncateBio = (bio: string) => {
+    if (!bio) return "";
+    if (bioExpanded) return bio;
+    
+    const charLimit = 75;
+    if (bio.length <= charLimit) return bio;
+    return bio.slice(0, charLimit) + "...";
   };
   
   if (!userInfo) {
@@ -205,7 +215,25 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
             </Link>
            
             <div className="p-2 mb-3 rounded-md text-xs text-gray-600 bg-gray-50 border border-gray-100 dark:bg-neutral-700 dark:text-gray-300 dark:border-neutral-800">
-              <p className="line-clamp-3">{bio || 'No bio available'}</p>
+              <p className="line-clamp-none">
+                {truncateBio(bio || 'No bio available')}
+                {bio && bio.length > 77 && !bioExpanded && (
+                  <span
+                    className="dark:text-neutral-500 text-neutral-400 text-xs cursor-pointer ml-1 hover:underline"
+                    onClick={() => setBioExpanded(true)}
+                  >
+                    See more
+                  </span>
+                )}
+                {bio && bio.length > 77 && bioExpanded && (
+                  <span
+                    className="dark:text-neutral-500 text-neutral-400 text-xs cursor-pointer ml-1 hover:underline"
+                    onClick={() => setBioExpanded(false)}
+                  >
+                    See less
+                  </span>
+                )}
+              </p>
             </div>
             
             <div className="flex gap-2 mb-3">
