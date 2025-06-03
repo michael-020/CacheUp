@@ -138,9 +138,12 @@ const ForumPage: React.FC = () => {
         )}
         
         {currentForum.threads.length === 0 ? (
+          <div>
+          <h2 className='pb-6'>{currentForum.description}</h2>
           <div className="text-center py-6 sm:py-8 bg-white rounded dark:bg-neutral-800">
             <p className="text-sm sm:text-base">No threads found in this forum.</p>
             <p className="mt-2 text-sm sm:text-base">Be the first to create a thread!</p>
+          </div>
           </div>
         ) : (
           <div>
