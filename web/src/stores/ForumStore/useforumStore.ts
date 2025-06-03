@@ -258,8 +258,6 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   toggleLike: async (postId: string) => {
     try {
       const isLiked = get().likedPosts.has(postId);
-      const res = await axiosInstance(`/forums/like-post/${postId}`);
-
       set((state) => {
         const updated = new Set(state.likedPosts);
         if (isLiked) {
@@ -269,6 +267,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
         }
         return { likedPosts: updated };
       });
+      const res = await axiosInstance(`/forums/like-post/${postId}`);
 
       return res.data.like;
     } catch (err) {
