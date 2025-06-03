@@ -46,9 +46,7 @@ const ForumPage: React.FC = () => {
       if (forumMongoId) {
         await fetchThreads(forumMongoId, isAdminRoute);
       }
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 100);
+      setIsLoading(false);
     };
     
     loadData();
