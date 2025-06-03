@@ -32,7 +32,6 @@ export const Profile = () => {
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [isValidUser, setIsValidUser] = useState<boolean | null>(null);
   const [mutualFriendsCount, setMutualFriendsCount] = useState(0);
-  
   const { 
     friends, 
     sentRequests, 
@@ -43,7 +42,8 @@ export const Profile = () => {
     fetchSentRequests,
     fetchMutualFriends 
   } = useFriendsStore();
-
+  // Add this near other state declarations
+  const [isBioExpanded, setIsBioExpanded] = useState(false);
   const isAdminView = location.pathname.includes("/admin");
 
   useEffect(() => {
@@ -156,33 +156,39 @@ export const Profile = () => {
     }
   }, [id, userId, isAdminView, authUser, isValidUser]);
 
-if (isValidUser === null) {
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-neutral-950">
-      <div className="text-center">
-        <Loader2 className="animate-spin size-14 text-blue-500" />
+  if (isValidUser === null) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-neutral-950">
+        <div className="text-center">
+          <Loader2 className="animate-spin size-14 text-blue-500" />
+        </div>
       </div>
-    </div>
-  );
-}
-
-if (isValidUser === false) {
-  return <NotFoundPage />;
-}
-  
-  const handlePostUpdate = (updatedPost: Post) => {
-  if (updatedPost._deleted) {
-    setUserPosts(prevPosts => 
-      prevPosts.filter(post => post._id !== updatedPost._id)
-    );
-  } else {
-    setUserPosts(prevPosts => 
-      prevPosts.map(post => 
-        post._id === updatedPost._id ? updatedPost : post
-      )
     );
   }
-};
+
+  if (isValidUser === false) {
+    return <NotFoundPage />;
+  }
+    
+    const handlePostUpdate = (updatedPost: Post) => {
+    if (updatedPost._deleted) {
+      setUserPosts(prevPosts => 
+        prevPosts.filter(post => post._id !== updatedPost._id)
+      );
+    } else {
+      setUserPosts(prevPosts => 
+        prevPosts.map(post => 
+          post._id === updatedPost._id ? updatedPost : post
+        )
+      );
+    }
+  };
+
+  const truncateBio = (bio: string) => {
+    if (!bio) return "";
+    if (isBioExpanded) return bio;
+    return bio.length > 80 ? bio.slice(0, 80) + "..." : bio;
+  };
 
   const isFriend = userInfo ? friends?.some(friend => friend._id === userInfo._id) : false;
   const isPendingRequest = userInfo ? sentRequests?.some(request => request._id === userInfo._id) : false;
@@ -289,8 +295,24 @@ if (isValidUser === false) {
                 
                 {/* Bio - shorter on mobile */}
                 {userInfo.bio && (
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-3 text-center px-2 line-clamp-2">
-                    {userInfo.bio}
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-3 text-center px-2 leading-relaxed">
+                    {truncateBio(userInfo.bio)}
+                    {userInfo.bio.length > 77 && !isBioExpanded && (
+                      <span
+                        className="dark:text-neutral-500 text-neutral-400 text-xs cursor-pointer ml-1 hover:underline"
+                        onClick={() => setIsBioExpanded(true)}
+                      >
+                        See more
+                      </span>
+                    )}
+                    {userInfo.bio.length > 77 && isBioExpanded && (
+                      <span
+                        className="dark:text-neutral-500 text-neutral-400 text-xs cursor-pointer ml-1 hover:underline"
+                        onClick={() => setIsBioExpanded(false)}
+                      >
+                        See less
+                      </span>
+                    )}
                   </p>
                 )}
                 
@@ -419,7 +441,23 @@ if (isValidUser === false) {
                 {userInfo.bio && (
                   <div className="border-t border-gray-200 dark:border-neutral-700 pt-4">
                     <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                      {userInfo.bio}
+                      {truncateBio(userInfo.bio)}
+                      {userInfo.bio.length > 77 && !isBioExpanded && (
+                        <span
+                          className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
+                          onClick={() => setIsBioExpanded(true)}
+                        >
+                          See more
+                        </span>
+                      )}
+                      {userInfo.bio.length > 77 && isBioExpanded && (
+                        <span
+                          className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
+                          onClick={() => setIsBioExpanded(false)}
+                        >
+                          See less
+                        </span>
+                      )}
                     </p>
                   </div>
                 )}
