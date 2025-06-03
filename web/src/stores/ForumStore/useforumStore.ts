@@ -54,6 +54,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
       } else {
         endpoint = "/forums/view-forums"
       }
+      await new Promise(r => setTimeout(r, 1000))
       const { data } = await axiosInstance.get(endpoint);
   
       set((state) => ({
@@ -186,6 +187,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
       } else {
         endpoint = "/forums/view-posts/"
       }
+      await new Promise(r => setTimeout(r, 1000))
       const { data } = await axiosInstance.get(`${endpoint}${threadId}/${page}`);
   
       const {

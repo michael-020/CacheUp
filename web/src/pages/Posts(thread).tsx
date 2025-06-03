@@ -10,7 +10,7 @@ import { PostSchema } from "@/stores/ForumStore/types";
 import ForumComment from "@/components/forums/ForumComment";
 import { motion } from "framer-motion"
 import { routeVariants } from "@/lib/routeAnimation";
-import {ThreadSkeleton} from "@/components/skeletons/ThreadSkeleton"
+import {ThreadSkeleton} from "@/components/skeletons/Posts(threads)Skeleton"
 import { DeleteModal } from "@/components/modals/DeleteModal";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { SearchBar } from "@/components/forums/search-bar";
@@ -324,7 +324,7 @@ export const Thread = () => {
 
   if (posts.length === 0) {
     return (<>
-      <div className="p-4 px-0 lg:px-4 lg:mx-auto max-w-6xl mx-6 translate-y-1 sm:translate-y-7 lg:translate-y-6 text-center mt-14">
+      <div className="p-4 mx-auto max-w-6xl translate-y-14 sm:translate-y-7 lg:translate-y-6 text-center ">
         <SearchBar />
         
         <div className="flex items-center">
@@ -334,7 +334,7 @@ export const Thread = () => {
           >
             <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
           </button>
-          <div className="text-neutral-800 dark:text-white text-left mb-2"><span className="font-semibold text-xl">{threadTitle}</span></div>
+          <div className="text-neutral-800 dark:text-white text-left mb-3"><span className="font-semibold text-xl">{threadTitle}</span></div>
         </div>
         <div className={`text-neutral-800 text-base dark:text-neutral-200 mb-2 ${threadDescription.length < 50 ? "text-center": "text-justify"} `}>
           {getTruncatedDescription(threadDescription)}
@@ -442,7 +442,7 @@ export const Thread = () => {
       animate="final"
       exit="exit"  
     >
-      <div className="container mx-auto p-4 max-w-6xl translate-y-16 md:translate-y-20 lg:translate-y-24 pb-20 lg:pb-10">
+      <div className="container mx-auto p-4 max-w-6xl translate-y-14 md:translate-y-20 lg:translate-y-24 pb-20 lg:pb-10">
       <SearchBar />
         <div className="mb-4 border-b pb-4">
           <div className="flex items-center mb-2">

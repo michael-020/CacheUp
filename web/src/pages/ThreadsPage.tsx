@@ -3,7 +3,7 @@ import { useParams, useLocation, Link, useNavigate } from 'react-router-dom';
 import { useForumStore } from '@/stores/ForumStore/useforumStore';
 import ThreadModal from '../components/forums/ThreadModal';
 import { ArrowLeft } from 'lucide-react';
-import ForumPageSkeleton from '../components/skeletons/ForumPageSkeleton';
+import ForumPageSkeleton from '../components/skeletons/ThreadsPageSkeleton';
 import { useAuthStore } from '@/stores/AuthStore/useAuthStore'; 
 import { MoreVertical } from 'lucide-react';
 import { useAdminStore } from '@/stores/AdminStore/useAdminStore';
