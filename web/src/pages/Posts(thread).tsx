@@ -23,7 +23,6 @@ export const Thread = () => {
   const { fetchPosts, posts, loading, error, threadTitle, threadDescription, threadWeaviate, isWatched, watchThread, checkWatchStatus, deletePost, totalPages, totalPosts, hasNextPage } = useForumStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { authAdmin } = useAdminStore();
-  const [likeLoading, setLikeLoading] = useState<{[key: string]: boolean}>({});
   const postRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
   const [highlightedPostId, setHighlightedPostId] = useState<string | null>(null);
   const [expandedPosts, setExpandedPosts] = useState<{[key: string]: boolean}>({});
@@ -140,35 +139,31 @@ export const Thread = () => {
     }
   
     try {
-      setLikeLoading(prev => ({ ...prev, [postId]: true }));
-      const response = await axiosInstance.put(`/forums/like-post/${postId}`);
-      if (response.status === 200) {
-        const userId = authUser?._id;
-        if (!userId) return;
-        
-        const updatedPosts = posts.map(post => {
-          if (post._id === postId) {
-            const isAlreadyLiked = post.likedBy?.includes(userId);
-            
-            return {
-              ...post,
-              likedBy: isAlreadyLiked 
-                ? post.likedBy?.filter(id => id !== userId)
-                : [...(post.likedBy || []), userId],
-              disLikedBy: post.disLikedBy?.filter(id => id !== userId)
-            };
-          }
-          return post;
-        });
-        
-        useForumStore.getState().setPosts(updatedPosts);
-      }
+      const userId = authUser?._id;
+      if (!userId) return;
+
+      const updatedPosts = posts.map(post => {
+        if (post._id === postId) {
+          const isAlreadyLiked = post.likedBy?.includes(userId);
+          return {
+            ...post,
+            likedBy: isAlreadyLiked 
+              ? post.likedBy?.filter(id => id !== userId)
+              : [...(post.likedBy || []), userId],
+            disLikedBy: post.disLikedBy?.filter(id => id !== userId)
+          };
+        }
+        return post;
+      });
+      
+      useForumStore.getState().setPosts(updatedPosts);
+      await axiosInstance.put(`/forums/like-post/${postId}`);
     } catch (error) {
       console.error("Error liking post:", error);
-    } finally {
-      setLikeLoading(prev => ({ ...prev, [postId]: false }));
-    }
-  }, [posts, authUser, setLikeLoading]);
+      const originalPosts = posts.map(post => ({ ...post }));
+      useForumStore.getState().setPosts(originalPosts);
+    } 
+  }, [posts, authUser]);
   
   const handleDislikePost = useCallback(async (postId: string) => {
     if (!authUser) {
@@ -176,15 +171,11 @@ export const Thread = () => {
       setShowLoginPrompt(true);
       return;
     }
-  
     try {
-      setLikeLoading(prev => ({ ...prev, [postId]: true }));
       await useForumStore.getState().toggleDislike(postId);
     } catch (error) {
       console.error("Error disliking post:", error);
-    } finally {
-      setLikeLoading(prev => ({ ...prev, [postId]: false }));
-    }
+    } 
   }, [authUser]);
   
   const handleReportPost = (postId: string) => {
@@ -776,10 +767,8 @@ export const Thread = () => {
                         : 'text-gray-500 fill-gray-500 hover:text-blue-600 hover:fill-blue-600'
                     }`}
                     onClick={() => {
-                      if (likeLoading[post._id]) return;
                       handleLikePost(post._id);
                     }}
-                    disabled={likeLoading[post._id]}
                   >
                     <svg 
                       xmlns="http://www.w3.org/2000/svg" 
@@ -797,10 +786,8 @@ export const Thread = () => {
                             : 'text-gray-500 fill-gray-500 hover:text-red-600 hover:fill-red-600'
                         }`}
                         onClick={() => {
-                          if (likeLoading[post._id]) return;
                           handleDislikePost(post._id);
                         }}
-                        disabled={likeLoading[post._id]}
                       >
                         <svg 
                           xmlns="http://www.w3.org/2000/svg" 
