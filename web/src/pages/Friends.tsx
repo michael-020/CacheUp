@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useFriendsStore } from "@/stores/FriendsStore/useFriendsStore";
 import { Users, Bell, UserPlus, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -22,6 +22,12 @@ const FriendsPage = () => {
     requests
   } = useFriendsStore();
 
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+  const contentRef = useRef(null);
+
+  const tabs = ['users', 'friends', 'requests'];
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -36,6 +42,33 @@ const FriendsPage = () => {
     };
     loadData();
   }, [fetchFriends, fetchRequests, fetchSentRequests]);
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (window.innerWidth > 1024) return;
+    touchStartX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (window.innerWidth > 1024) return;
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (window.innerWidth > 1024) return;
+    
+    const swipeDistance = touchStartX.current - touchEndX.current;
+    const minSwipeDistance = 50; 
+
+    if (Math.abs(swipeDistance) > minSwipeDistance) {
+      const currentIndex = tabs.indexOf(activeTab);
+      
+      if (swipeDistance > 0 && currentIndex < tabs.length - 1) {
+        setActiveTab(tabs[currentIndex + 1]);
+      } else if (swipeDistance < 0 && currentIndex > 0) {
+        setActiveTab(tabs[currentIndex - 1]);
+      }
+    }
+  };
 
   const renderActiveTab = () => {
     switch(activeTab) {
@@ -106,11 +139,14 @@ const FriendsPage = () => {
             </div>
           </div>
 
-          {/* Scrollable Content Container */}
           <div className="relative max-w-5xl mx-auto px-6">
             <div 
+              ref={contentRef}
               className={`absolute inset-x-0 top-32 bottom-0 overflow-y-auto custom-scrollbar ${activeTab === "users" ? "px-5" : ""}`}
               style={{ height: 'calc(100vh - 17rem)' }}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
             >
               {renderActiveTab()}
             </div>

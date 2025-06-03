@@ -36,7 +36,19 @@ export const editProfileHandler = async (req: Request, res: Response) => {
         }
         
         if(updates.username && updates.username != "") {
-            user.username = updates.username;
+            const existingUser= await userModel.findOne({username: updates.username})
+            if (existingUser) {
+              if (existingUser._id.equals(userId)) {
+                user.username = updates.username;
+              } else {
+                res.status(409).json({
+                  msg: "Username already exists"
+                });
+                return;
+              }
+            } else {
+              user.username = updates.username;
+            }
         }
 
         if (updates.profilePicture) {
@@ -99,6 +111,12 @@ export const editProfileHandler = async (req: Request, res: Response) => {
           }
           
           if (updates.bio && updates.bio !== "") {
+            if(updates.bio.length > 200){
+              res.status(409).json({
+                msg: "Bio should not exceed 200 characters"
+              })
+              return
+            }
             user.bio = updates.bio;
           }
           

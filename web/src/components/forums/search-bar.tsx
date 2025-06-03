@@ -29,7 +29,7 @@ export function SearchBar() {
       </div>
       <button
         type="submit"
-        className="bg-blue-500 hover:bg-blue-600 text-white py-1.5 px-4 rounded transition-colors duration-200"
+          className="bg-blue-500 text-white px-3 sm:px-3 lg:px-4 py-2 sm:py-2 rounded hover:bg-blue-600 text-sm sm:text-sm lg:text-base whitespace-nowrap"
       >
         Search
       </button>

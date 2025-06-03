@@ -8,7 +8,8 @@ import { ArrowLeft, Users, UserCheck, UserPlus, UserX, Search, Mail } from 'luci
 import { useFriendsStore } from '@/stores/FriendsStore/useFriendsStore';
 import { useChatStore } from '@/stores/chatStore/useChatStore';
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
-import { Skeleton } from "@/components/ui/skeleton"; 
+import { Skeleton } from "@/components/ui/skeleton";
+import { NotFoundPage } from "@/pages/NotFoundPage"; 
 
 export const ViewFriends = () => {
   const { id } = useParams();
@@ -18,6 +19,7 @@ export const ViewFriends = () => {
   const [userInfo, setUserInfo] = useState<IUser | null>(null);
   const [friendsList, setFriendsList] = useState<IUser[]>([]);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
+  const [isValidUser, setIsValidUser] = useState<boolean | null>(null);
   const { authUser } = useAuthStore();
   const { setSelectedUser } = useChatStore();
   const userId = authUser?._id;
@@ -31,6 +33,34 @@ export const ViewFriends = () => {
     fetchFriends,
     fetchSentRequests
   } = useFriendsStore();
+  
+  useEffect(() => {
+    const validateUser = async () => {
+      if (!id) {
+        setIsValidUser(true); 
+        return;
+      }
+      
+      if (!/^[a-fA-F0-9]{24}$/.test(id)) {
+        setIsValidUser(false);
+        return;
+      }
+      
+      try {
+        const response = await axiosInstance.get(`/user/viewProfile/${id}`);
+        if (response.data.userInfo) {
+          setIsValidUser(true);
+        } else {
+          setIsValidUser(false);
+        }
+      } catch (error) {
+        console.error("User validation error:", error);
+        setIsValidUser(false);
+      }
+    };
+    
+    validateUser();
+  }, [id]);
   
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -61,14 +91,16 @@ export const ViewFriends = () => {
       }
     };
     
-    fetchUserInfo();
-    fetchUserFriends();
-    
-    if (!isOwnProfile) {
-      fetchFriends();
-      fetchSentRequests();
+    if (isValidUser === true) {
+      fetchUserInfo();
+      fetchUserFriends();
+      
+      if (!isOwnProfile) {
+        fetchFriends();
+        fetchSentRequests();
+      }
     }
-  }, [id, userId, isOwnProfile, fetchFriends, fetchSentRequests]);
+  }, [id, userId, isOwnProfile, fetchFriends, fetchSentRequests, isValidUser]);
   
   const filteredFriends = friendsList.filter(friend => 
     friend.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -105,28 +137,31 @@ export const ViewFriends = () => {
     if (isFriend(targetUserId)) {
       return (
         <button 
-          className="flex items-center justify-center space-x-1 py-1 px-2 bg-green-500 text-white text-xs font-medium rounded-md cursor-default"
+          className="flex items-center justify-center gap-1 py-1.5 px-3 bg-green-500 text-white text-xs font-medium rounded-md cursor-default min-w-[70px]"
           disabled
         >
-          <UserCheck className="size-3" /> <span>Friend</span>
+          <UserCheck className="w-3 h-3 flex-shrink-0" /> 
+          <span>Friend</span>
         </button>
       );
     } else if (isPendingRequest(targetUserId)) {
       return (
         <button 
-          className="flex items-center justify-center space-x-1 py-1 px-2 bg-red-500 text-white text-xs font-medium rounded-md hover:bg-red-600 transition-colors"
+          className="flex items-center justify-center gap-1 py-1.5 px-3 bg-red-500 text-white text-xs font-medium rounded-md hover:bg-red-600 transition-colors min-w-[70px]"
           onClick={() => handleFriendAction(targetUserId)}
         >
-          <UserX className="size-3" /> <span>Cancel</span>
+          <UserX className="w-3 h-3 flex-shrink-0" /> 
+          <span>Cancel</span>
         </button>
       );
     } else {
       return (
         <button 
-          className="flex items-center justify-center space-x-1 py-1 px-2 bg-indigo-500 text-white text-xs font-medium rounded-md hover:bg-indigo-600 transition-colors"
+          className="flex items-center justify-center gap-1 py-1.5 px-3 bg-indigo-500 text-white text-xs font-medium rounded-md hover:bg-indigo-600 transition-colors min-w-[70px]"
           onClick={() => handleFriendAction(targetUserId)}
         >
-          <UserPlus className="size-3" /> <span>Add</span>
+          <UserPlus className="w-3 h-3 flex-shrink-0" /> 
+          <span>Add</span>
         </button>
       );
     }
@@ -149,7 +184,7 @@ export const ViewFriends = () => {
             <Skeleton className="h-3 w-1/3" />
           </div>
           
-          <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0 ml-2 flex-shrink-0">
+          <div className="flex items-center gap-2 ml-2 flex-shrink-0">
             <Skeleton className="h-8 w-8 rounded-full" />
             <Skeleton className="h-8 w-16 rounded-md" />
           </div>
@@ -157,6 +192,20 @@ export const ViewFriends = () => {
       ))}
     </>
   );
+  
+  if (isValidUser === null) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-neutral-950">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500 mx-auto mb-4"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isValidUser === false) {
+    return <NotFoundPage />;
+  }
   
   return (
     <motion.div
@@ -241,7 +290,7 @@ export const ViewFriends = () => {
                     )}
                   </div>
                   
-                  <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0 ml-2 flex-shrink-0">
+                  <div className="flex items-center gap-2 ml-2 flex-shrink-0">
                     {friend._id !== userId && (
                       <>
                         <Link to="/message">
@@ -249,10 +298,10 @@ export const ViewFriends = () => {
                             className="flex items-center justify-center p-2 rounded-full bg-gray-200 dark:bg-neutral-700 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors"
                             onClick={() => setSelectedUser(friend)}
                           >
-                            <Mail className="size-4" />
+                            <Mail className="w-4 h-4" />
                           </button>
                         </Link>
-                        <div>{renderFriendButton(friend._id)}</div>
+                        {renderFriendButton(friend._id)}
                       </>
                     )}
                   </div>

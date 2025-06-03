@@ -18,6 +18,7 @@ import MongoStore from "connect-mongo";
 import './lib/deleteCronJob'
 import { setupWeaviateSchema } from "./models/weaviate";
 import { setupWeaviateBackup } from './lib/weaviateBackupCron';
+import ServerhealthRouter from "./routes/ServerhealthRouter";
 import sitemapRoutes from './routes/sitemap';
 
 interface ApiError extends Error {
@@ -68,6 +69,7 @@ app.use(cors({
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 app.use(cookieParser());
+app.use('/api/v1/health', ServerhealthRouter)
 
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/admin", adminRouter);

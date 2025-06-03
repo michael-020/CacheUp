@@ -9,12 +9,13 @@ import { useParams, useLocation } from "react-router-dom";
 import { Post, IUser } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { routeVariants } from "@/lib/routeAnimation";
-import { Users, Mail, UserPlus, UserCheck, UserX } from 'lucide-react';
+import { Users, Mail, UserPlus, UserCheck, UserX, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useChatStore } from '@/stores/chatStore/useChatStore';
 import { useFriendsStore } from '@/stores/FriendsStore/useFriendsStore';
 import PostCardSkeleton from "@/components/skeletons/PostCardSkeleton";
 import { RemoveFriendModal } from "@/components/modals/RemoveFriendModal";
+import { NotFoundPage } from "@/pages/NotFoundPage";
 
 export const Profile = () => {
   const { id } = useParams();
@@ -29,7 +30,8 @@ export const Profile = () => {
   const [friendLoading, setFriendLoading] = useState(false);
   const [isProfileLoading, setIsProfileLoading] = useState(true);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
-
+  const [isValidUser, setIsValidUser] = useState<boolean | null>(null);
+  const [mutualFriendsCount, setMutualFriendsCount] = useState(0);
   const { 
     friends, 
     sentRequests, 
@@ -37,39 +39,77 @@ export const Profile = () => {
     cancelRequest, 
     removeFriend, 
     fetchFriends, 
-    fetchSentRequests 
+    fetchSentRequests,
+    fetchMutualFriends 
   } = useFriendsStore();
-
+  // Add this near other state declarations
+  const [isBioExpanded, setIsBioExpanded] = useState(false);
   const isAdminView = location.pathname.includes("/admin");
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const validateAndFetchProfile = async () => {
+      if (!id) {
+        setIsValidUser(true); 
+        setIsProfileLoading(true);
+        try {
+          let url;
+          if (isAdminView) {
+            url = "/admin/view-profile";
+          } else if(authUser) {
+            url = "/user/viewProfile";
+          }
+          if (url) {
+            const response = await axiosInstance(url);
+            const profileData = response.data.userInfo;
+            setUserInfo(profileData);
+            setIsOwnProfile(true);
+          }
+        } catch (e) {
+          console.error("Error fetching profile", e);
+        } finally {
+          setIsProfileLoading(false);
+        }
+        return;
+      }
+      
+      if (!/^[a-fA-F0-9]{24}$/.test(id)) {
+        setIsValidUser(false);
+        return;
+      }
+      
       setIsProfileLoading(true);
       try {
         let url;
         if (isAdminView) {
-          url = id ? `/admin/view-profile/${id}` : "/admin/view-profile";
+          url = `/admin/view-profile/${id}`;
         } else if(authUser) {
-          url = id ? `/user/viewProfile/${id}` : "/user/viewProfile";
+          url = `/user/viewProfile/${id}`;
         } else {
-          url = `/user/profile/${id}`
+          url = `/user/profile/${id}`;
         }
         const response = await axiosInstance(url);
         const profileData = response.data.userInfo;
-        setUserInfo(profileData);
-
-        const isOwn =
-          response.data.isOwnProfile ||
-          (profileData && userId && profileData._id === userId);
-        setIsOwnProfile(isOwn);
+        
+        if (profileData) {
+          setUserInfo(profileData);
+          setIsValidUser(true);
+          const isOwn = response.data.isOwnProfile || 
+            (profileData && userId && profileData._id === userId);
+          setIsOwnProfile(isOwn);
+        } else {
+          setIsValidUser(false);
+        }
       } catch (e) {
         console.error("Error fetching profile", e);
+        setIsValidUser(false);
       } finally {
         setIsProfileLoading(false);
       }
     };
 
     const fetchUserPosts = async () => {
+      if (isValidUser === false) return;
+      
       setIsLoading(true);
       try {
         let url;
@@ -78,7 +118,7 @@ export const Profile = () => {
         } else if(authUser) {
           url = id ? `/post/viewPosts/${id}` : "/post/viewPosts/myPosts";
         } else {
-          url = `/post/get-posts/${id}`
+          url = `/post/get-posts/${id}`;
         }
     
         const postResponse = await axiosInstance(url);
@@ -90,28 +130,65 @@ export const Profile = () => {
       }
     };
 
-    fetchProfile();
-    fetchUserPosts();
-
-    if (!isOwnProfile) {
+    const fetchMutualFriendsData = async (userId: string) => {
+      try {
+        await fetchMutualFriends(userId);
+        const { mutualFriends } = useFriendsStore.getState();
+        const count = mutualFriends && mutualFriends[userId] ? mutualFriends[userId] : 0;
+        setMutualFriendsCount(count);
+      } catch (error) {
+        console.error('Error fetching mutual friends:', error);
+        setMutualFriendsCount(0);
+      }
+    };
+      
+    validateAndFetchProfile();
+    
+    if (isValidUser === true && !isOwnProfile) {
       fetchFriends();
       fetchSentRequests();
+      fetchUserPosts();
+      if (userInfo?._id) {
+        fetchMutualFriendsData(userInfo._id);
+      }
+    } else if (isValidUser === true && isOwnProfile) {
+      fetchUserPosts();
     }
-  }, [id, userId, isAdminView, isOwnProfile, fetchFriends, fetchSentRequests]);
-  
-  const handlePostUpdate = (updatedPost: Post) => {
-  if (updatedPost._deleted) {
-    setUserPosts(prevPosts => 
-      prevPosts.filter(post => post._id !== updatedPost._id)
-    );
-  } else {
-    setUserPosts(prevPosts => 
-      prevPosts.map(post => 
-        post._id === updatedPost._id ? updatedPost : post
-      )
+  }, [id, userId, isAdminView, authUser, isValidUser]);
+
+  if (isValidUser === null) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-neutral-950">
+        <div className="text-center">
+          <Loader2 className="animate-spin size-14 text-blue-500" />
+        </div>
+      </div>
     );
   }
-};
+
+  if (isValidUser === false) {
+    return <NotFoundPage />;
+  }
+    
+    const handlePostUpdate = (updatedPost: Post) => {
+    if (updatedPost._deleted) {
+      setUserPosts(prevPosts => 
+        prevPosts.filter(post => post._id !== updatedPost._id)
+      );
+    } else {
+      setUserPosts(prevPosts => 
+        prevPosts.map(post => 
+          post._id === updatedPost._id ? updatedPost : post
+        )
+      );
+    }
+  };
+
+  const truncateBio = (bio: string) => {
+    if (!bio) return "";
+    if (isBioExpanded) return bio;
+    return bio.length > 80 ? bio.slice(0, 80) + "..." : bio;
+  };
 
   const isFriend = userInfo ? friends?.some(friend => friend._id === userInfo._id) : false;
   const isPendingRequest = userInfo ? sentRequests?.some(request => request._id === userInfo._id) : false;
@@ -180,7 +257,7 @@ export const Profile = () => {
     >
       
       <div className="hidden lg:block w-1/4 max-w-xs">
-        <div className="sticky top-20">
+        <div className="sticky top-8">
           {isProfileLoading ? (
             <ProfileCardSkeleton />
           ) : userInfo && (
@@ -193,7 +270,7 @@ export const Profile = () => {
         </div>
       </div>
       
-      <div className="flex-1 max-w-5xl mx-auto translate-y-20 lg:translate-y-20 pb-24 lg:pb-8">
+      <div className="flex-1 max-w-5xl mx-auto translate-y-14 sm:translate-y-[4.5rem] lg:translate-y-20 pb-16 sm:pb-16 lg:pb-8">
         {isProfileLoading ? (
           <MobileProfileCardSkeleton />
         ) : userInfo && (
@@ -218,8 +295,24 @@ export const Profile = () => {
                 
                 {/* Bio - shorter on mobile */}
                 {userInfo.bio && (
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-3 text-center px-2 line-clamp-2">
-                    {userInfo.bio}
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-3 text-center px-2 leading-relaxed">
+                    {truncateBio(userInfo.bio)}
+                    {userInfo.bio.length > 77 && !isBioExpanded && (
+                      <span
+                        className="dark:text-neutral-500 text-neutral-400 text-xs cursor-pointer ml-1 hover:underline"
+                        onClick={() => setIsBioExpanded(true)}
+                      >
+                        See more
+                      </span>
+                    )}
+                    {userInfo.bio.length > 77 && isBioExpanded && (
+                      <span
+                        className="dark:text-neutral-500 text-neutral-400 text-xs cursor-pointer ml-1 hover:underline"
+                        onClick={() => setIsBioExpanded(false)}
+                      >
+                        See less
+                      </span>
+                    )}
                   </p>
                 )}
                 
@@ -229,9 +322,18 @@ export const Profile = () => {
                     to={isOwnProfile ? "/friends" : `/friends/${userInfo._id}`}
                     className="focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
                   >
-                    <div className="flex items-center cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors text-sm">
-                      <Users className="size-3 text-indigo-500 mr-1" />
-                      <span className="text-gray-600 dark:text-gray-400">{userInfo.friends?.length || 0} friends</span>
+                    <div className="flex flex-col items-center cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors text-sm">
+                      <div className="flex items-center">
+                        <Users className="size-3 text-indigo-500 mr-1" />
+                        <span className="text-gray-600 dark:text-gray-400">
+                          {userInfo.friends?.length || 0} friends
+                        </span>
+                      </div>
+                      {!isOwnProfile && mutualFriendsCount > 0 && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {mutualFriendsCount} {mutualFriendsCount === 1 ? 'mutual' : 'mutuals'}
+                        </p>
+                      )}
                     </div>
                   </Link>
                 </div>
@@ -291,9 +393,18 @@ export const Profile = () => {
                           to={isOwnProfile ? "/friends" : `/friends/${userInfo._id}`}
                           className="inline-block focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
                         >
-                          <div className="flex items-center cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
-                            <Users className="size-4 text-indigo-500 mr-2" />
-                            <span className="text-gray-600 dark:text-gray-400 font-medium">{userInfo.friends?.length || 0} friends</span>
+                          <div className="flex flex-col">
+                            <div className="flex items-center cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                              <Users className="size-4 text-indigo-500 mr-2" />
+                              <span className="text-gray-600 dark:text-gray-400 font-medium">
+                                {userInfo.friends?.length || 0} friends
+                              </span>
+                            </div>
+                            {!isOwnProfile && mutualFriendsCount > 0 && (
+                              <p className="text-xs text-gray-500 mt-1 ml-6">
+                                {mutualFriendsCount} {mutualFriendsCount === 1 ? 'mutual' : 'mutuals'}
+                              </p>
+                            )}
                           </div>
                         </Link>
                       </div>
@@ -330,7 +441,23 @@ export const Profile = () => {
                 {userInfo.bio && (
                   <div className="border-t border-gray-200 dark:border-neutral-700 pt-4">
                     <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                      {userInfo.bio}
+                      {truncateBio(userInfo.bio)}
+                      {userInfo.bio.length > 77 && !isBioExpanded && (
+                        <span
+                          className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
+                          onClick={() => setIsBioExpanded(true)}
+                        >
+                          See more
+                        </span>
+                      )}
+                      {userInfo.bio.length > 77 && isBioExpanded && (
+                        <span
+                          className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
+                          onClick={() => setIsBioExpanded(false)}
+                        >
+                          See less
+                        </span>
+                      )}
                     </p>
                   </div>
                 )}

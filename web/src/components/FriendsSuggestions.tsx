@@ -54,9 +54,7 @@ const FriendSuggestions = () => {
     try {
       await refreshSuggestions();
     } finally {
-      setTimeout(() => {
-        setIsRefreshing(false);
-      }, 500); // Small delay to ensure UI consistency
+      setIsRefreshing(false);
     }
   };
 

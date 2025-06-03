@@ -25,59 +25,65 @@ export const createCommentForumHandler = async (req: Request, res: Response) => 
             post: postMongo,
             createdBy: req.user._id
         })
+  
+        try {
+            const vector = await embedtext(content)
 
-        // Populate the created comment with user data
+            const commentWeaviate = await weaviateClient.data.creator()
+                .withClassName("Comment")
+                .withProperties({
+                    content,
+                    posts: [{ 
+                        beacon: `weaviate://localhost/Post/${postWeaviate}` 
+                    }],
+                    mongoId: commentMongo._id as string
+                })
+                .withVector(vector)
+                .do()
+
+            commentMongo.weaviateId = commentWeaviate.id as string
+            await commentMongo.save()
+
+            commentMongo.populate('createdBy', '_id username profilePicture');
+            
+            const post = await postForumModel.findById(postMongo)
+            const thread = await threadForumModel.findById(post?.thread)
         
-        
+            const watchers = thread?.watchedBy?.filter((id) => id.toString() !== req.user._id.toString())
+            
+            if(watchers && watchers.length > 0){
+                await watchNotificationModel.create({
+                    userIds: watchers,
+                    message: `${req.user.username} created a comment in ${thread?.title}`,
+                    threadId: thread?._id,
+                    seenBy: [],
+                    postId: post?._id,
+                    createdBy: req.user._id
+                })
+            }
 
-        const vector = await embedtext(content)
-
-        const commentWeaviate = await weaviateClient.data.creator()
-            .withClassName("Comment")
-            .withProperties({
-                content,
-                posts: [{ 
-                    beacon: `weaviate://localhost/Post/${postWeaviate}` 
-                }],
-                mongoId: commentMongo._id as string
+            // Update post's comment count
+            if (post) {
+                const commentCount = await commentForumModel.countDocuments({ post: postMongo });
+                post.commentsCount = commentCount;
+                await post.save();
+            }
+            res.json({
+                msg: "Comment Uploaded Successfully",
+                commentMongo,
+                commentWeaviate,
+                commentCount: post?.commentsCount || 0
             })
-            .withVector(vector)
-            .do()
-
-        commentMongo.weaviateId = commentWeaviate.id as string
-        await commentMongo.save()
-
-        commentMongo.populate('createdBy', '_id username profilePicture');
-        
-        const post = await postForumModel.findById(postMongo)
-        const thread = await threadForumModel.findById(post?.thread)
-       
-        const watchers = thread?.watchedBy?.filter((id) => id.toString() !== req.user._id.toString())
-        
-        if(watchers && watchers.length > 0){
-            await watchNotificationModel.create({
-                userIds: watchers,
-                message: `${req.user.username} created a comment in ${thread?.title}`,
-                threadId: thread?._id,
-                seenBy: [],
-                postId: post?._id,
-                createdBy: req.user._id
+        } catch (error) {
+            await commentForumModel.findByIdAndDelete(commentMongo)
+            console.error(error)
+            res.status(500).json({
+                msg: "Could not create comment"
             })
         }
-
-        // Update post's comment count
-        if (post) {
-            const commentCount = await commentForumModel.countDocuments({ post: postMongo });
-            post.commentsCount = commentCount;
-            await post.save();
-        }
         
-        res.json({
-            msg: "Comment Uploaded Successfully",
-            commentMongo,
-            commentWeaviate,
-            commentCount: post?.commentsCount || 0
-        })
+        
+        
     }catch(e){
         console.error(e)
         res.status(500).json({

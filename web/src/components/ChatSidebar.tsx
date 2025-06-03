@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
-import { Users } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { useChatStore } from "@/stores/chatStore/useChatStore";
@@ -15,9 +14,11 @@ const ChatSidebar = () => {
     getUsers();
   }, [getUsers, selectedUser]);
 
+  const safeUsers = Array.isArray(users) ? users : [];
+
   const filteredUsers = showOnlineOnly
-    ? users.filter((user) => onlineUsers.includes(user._id))
-    : users;
+    ? safeUsers.filter((user) => onlineUsers.includes(user._id))
+    : safeUsers;
 
   const getUnreadCount = (userId: string) => {
     return unReadMessages.filter(message => message.sender === userId).length;
@@ -29,8 +30,7 @@ const ChatSidebar = () => {
     <aside className="h-full -translate-y-1 sm:translate-y-0 w-full md:w-60 lg:w-72 md:border-r bg-white dark:bg-neutral-900 border-gray-300 flex flex-col transition-all duration-200">
       <div className="border-b border-gray-300 lg:w-72 w-full p-5">
         <div className="flex items-center gap-2">
-          <Users className="w-6 h-6" />
-          <span className="font-medium block">Contacts</span>
+          <span className="font-medium block lg:text-xl">Messages</span>
         </div>
         <div className="mt-3 flex items-center gap-2">
           <label className="cursor-pointer flex items-center gap-2">
