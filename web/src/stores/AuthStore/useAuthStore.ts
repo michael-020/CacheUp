@@ -101,6 +101,7 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
     logout: async () => {
         set({isLoggingOut: true})
         try {
+            await new Promise(r => setTimeout(r, 3000))
             await axiosInstance.post("/user/logout")
             // Disconnect socket before clearing auth user
             get().disconnectSocket()
