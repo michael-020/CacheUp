@@ -7,7 +7,7 @@ import { validateWeaviateCreate } from './utils/validateWeaviateCreate';
 
 export const createThreadHandler = async (req: Request, res: Response) => {
     const createThreadSchema = z.object({
-        title: z.string(),
+        title: z.string().max(50),
         description: z.string()
     })
     
