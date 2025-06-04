@@ -7,6 +7,14 @@
     {
       "source": "/sitemap.xml",
       "destination": "https://api.cacheupp.com/sitemap.xml"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/sitemap.xml"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "/robots.txt"
     }
   ],
   "headers": [
