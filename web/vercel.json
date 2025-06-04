@@ -3,6 +3,10 @@
     {
       "source": "/(.*)",
       "destination": "/index.html"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "https://api.cacheupp.com/sitemap.xml"
     }
   ],
   "headers": [
