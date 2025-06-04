@@ -317,7 +317,6 @@ function App() {
           <Route path="/forums/*" element={<NotFoundPage />} />
           <Route path="/profile/:id/*" element={<NotFoundPage />} />
           <Route path="/friends/:id/*" element={<NotFoundPage />} />
-          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </AnimatePresence>
       
