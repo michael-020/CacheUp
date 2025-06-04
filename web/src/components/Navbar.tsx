@@ -309,7 +309,7 @@ export const BottomNavigationBar = () => {
   const isForumPath = 
     currentPath === "/forums/get-forums" || 
     /^\/forums\/[^/]+\/[^/]+$/.test(currentPath) ||
-    currentPath.startsWith("/forums/search");
+    currentPath.startsWith("/forums/");
   const [shareOpen, setShareOpen] = useState(false);
   const navigate = useNavigate()
   const { fetchPosts } = usePostStore()

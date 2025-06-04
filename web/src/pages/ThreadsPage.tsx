@@ -269,6 +269,10 @@ const ForumPage: React.FC = () => {
                 </span>
               )}
             </div>
+            <div className="text-center py-6 sm:py-8 bg-white rounded dark:bg-neutral-800">
+              <p className="text-sm sm:text-base">No threads found in this forum.</p>
+              <p className="mt-2 text-sm sm:text-base">Be the first to create a thread!</p>
+            </div>
           </div>
         ) : (
           <div>
