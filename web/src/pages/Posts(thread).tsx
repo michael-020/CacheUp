@@ -388,31 +388,6 @@ export const Thread = () => {
     );
   }
 
-  const getInitials = (name: string) => {
-    if (!name) return "??";
-    return name.split(" ")
-      .map(part => part[0] || '')
-      .join("")
-      .toUpperCase()
-      .substring(0, 2);
-  }
-
-  const getUserColor = (username?: string) => {
-    if (!username) return "bg-gray-400"; 
-
-    const colors = [
-      "bg-blue-500",
-      "bg-blue-500",
-      "bg-purple-500",
-      "bg-yellow-500",
-      "bg-pink-500",
-      "bg-indigo-500",
-    ];
-
-    const hash = username.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return colors[hash % colors.length];
-  };
-
   const formatDate = (dateString: Date) => {
     const options: Intl.DateTimeFormatOptions = {
       year: "numeric",
@@ -584,7 +559,7 @@ export const Thread = () => {
         <div className="space-y-6">
           {posts.map((post, index) => {
             const author = post.createdBy.username;
-              const profileImage = post.createdBy.profilePicture;
+            const profileImage = post.createdBy.profilePicture;
             const isLiked = checkIfLiked(post)
             const isDisliked = checkIfDisliked(post)
             const isHighlighted = highlightedPostId === post._id;
@@ -616,9 +591,16 @@ export const Thread = () => {
                     <Link 
                       to={authAdmin ? `/admin/profile/${post.createdBy?._id}` : `/profile/${post.createdBy?._id}`}
                     >
-                      <div className={`w-10 h-10 rounded-full cursor-pointer items-center justify-center text-white flex ${getUserColor(author)}`}>
-                        <h3>{getInitials(author)}</h3>
+                      <div
+                        className={`w-10 h-10 rounded-full cursor-pointer items-center justify-center text-white flex overflow-hidden`}
+                      >
+                        <img
+                          src="/avatar.jpeg"
+                          alt={`${author}'s profile`}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
+
                     </Link>
                   )}
                   <div className="flex-1">

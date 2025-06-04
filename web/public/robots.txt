@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://api.cacheupp.com/sitemap.xml
+Sitemap: https://www.cacheupp.com/sitemap.xml
+
