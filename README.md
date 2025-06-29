@@ -1,6 +1,6 @@
 # 📚 CacheUp
 
-CacheUp is a social platform with a full-stack architecture: a backend built on **Node.js + WebSockets**, an **ML service in Python**, and a **React frontend**. This guide will help you set up the project locally and in a Dockerized environment.
+CacheUp is a social platform with a full-stack architecture: a backend built on **Node.js + WebSockets**, an **ML service in Python**, and a **React frontend**. This guide will help you set up the project locally and in a Dockerized environment. Live on cacheupp.com
 
 ---
 

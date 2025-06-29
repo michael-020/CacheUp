@@ -16,6 +16,14 @@ import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { SearchBar } from "@/components/forums/search-bar";
 import { LoginPromptModal } from "@/components/modals/LoginPromptModal";
 import { useScreenSize } from "@/hooks/useScreenSize";
+import axios from "axios";
+
+interface linkPreview {
+  title: string;
+  description: string;
+  image: string;
+  url: string;
+}
 
 export const Thread = () => {
   const { id } = useParams();
@@ -41,6 +49,49 @@ export const Thread = () => {
   const [descExpanded, setDescExpanded] = useState(false);
   const [isSmallScreen, isLargeScreen] = useScreenSize();
   const highlightTimeoutRef = useRef<number | null> (null)
+
+  const extractUrls = (text: string) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return text.match(urlRegex) || []
+  }
+
+  const fetchMetaData = async (url: string) => {
+    try {
+      const response = await axios.get(`https://api.microlink.io/?url=${encodeURIComponent(url)}`);
+      const data = response.data;
+      if(response.status == 200 && data.data.image) {
+        return {
+          title: data.data.title || "No Title",
+          description: data.data.description || "No Description",
+          image: data.data.image.url || "",
+          url: data.data.url || url
+        }
+      }
+      return null
+    } catch (error) {
+      console.error("Couldn't get metadata of the url: ",error);
+      return null;
+    }
+  }
+
+  const LinkPreview = ({ url }: { url: string }) => {
+    const [meta, setMeta] = useState<linkPreview | null>(null);
+
+    useEffect(() => {
+      fetchMetaData(url).then(setMeta)
+    },[url])
+
+    if(!meta) return null;
+
+    return <div className="border p-2 rounded-md bg-gray-100 mt-2">
+        <a href={meta.url} target="_blank" rel="noopener noreferrer">
+            <img src={meta.image} alt={meta.title} className="w-full h-fit object-cover rounded-md" />
+            <div className="text-lg font-bold">{meta.title}</div>
+            <div className="text-sm text-gray-700">{meta.description}</div>
+        </a>
+    </div>
+  }
+
 
   const toggleMenu = (postId: string) => {
     setMenuOpen(prev => {
@@ -558,6 +609,7 @@ export const Thread = () => {
           
         <div className="space-y-6">
           {posts.map((post, index) => {
+            const urls = extractUrls(post.content)
             const author = post.createdBy.username;
             const profileImage = post.createdBy.profilePicture;
             const isLiked = checkIfLiked(post)
@@ -730,7 +782,9 @@ export const Thread = () => {
 
                 <div className="p-5">
                   <div className="prose max-w-none whitespace-pre-wrap text-gray-800 dark:text-white">
-                    {truncateContent(post.content, post._id)}
+                   
+                    {truncateContent(post.content.replace(/https?:\/\/[^\s]+/g, "").trim(), post._id)}
+                                     
                     {contentIsTruncated && !isExpanded && (
                       <span 
                         className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
@@ -747,6 +801,11 @@ export const Thread = () => {
                         See less
                       </span>
                     )}
+                     <div>
+                    {urls?.map((url, i) => (
+                      <LinkPreview key={i} url={url} />
+                    ))}
+                  </div> 
                   </div>
                 </div>
                 
