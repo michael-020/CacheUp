@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import HomeIcont from "../icons/HomeIcon";
-import MessageIcon from "../icons/SettingsIcon";
+import MessageIcon from "../icons/MessageIcon";
 import SettingsIcon from "../icons/SettingsIcon";
 import { useAuthStore } from "../stores/AuthStore/useAuthStore";
 import { Moon, Menu, PlusSquare, Sun} from "lucide-react";
