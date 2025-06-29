@@ -169,7 +169,7 @@ export function SearchResults() {
       exit="exit"
     >      
       <div className="md:px-24">
-        <h1 className="text-2xl font-bold mb-4 pt-10">
+        <h1 className="text-2xl font-bold mb-4 pt-10 sm:pt-14">
           Search Results {searchQuery ? `for "${searchQuery}"` : ""}
         </h1>
         <SearchBar />
