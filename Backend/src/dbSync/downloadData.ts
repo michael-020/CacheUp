@@ -1,5 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
+import { v4 as uuidv4, validate as isUUID, validate } from "uuid";
+
 
 import { writeFile, mkdir } from "fs/promises";
 import mongoose from "mongoose";
@@ -52,6 +54,11 @@ async function downloadData() {
 		const forumsWeaviate = await Promise.all(
 			forums.map((forum) =>
 				limit(async () => {
+					if(!isUUID(forum.weaviateId)){
+						const weaviateId = uuidv4()
+						await forumModel.findByIdAndUpdate(forum._id, { weaviateId })
+						forum.weaviateId = weaviateId;
+					}
 					const vector = await embedtext(forum.title + " " + forum.description);
 					const done = ++forumCount;
 					if (done % 25 === 0 || done === forums.length)
@@ -72,6 +79,11 @@ async function downloadData() {
 		const threadsWeaviate = await Promise.all(
 			threads.map((thread) =>
 				limit(async () => {
+					if(!isUUID(thread.weaviateId)) {
+						const weaviateId = uuidv4()
+						await threadForumModel.findByIdAndUpdate(thread.weaviateId, { weaviateId })
+						thread.weaviateId = weaviateId
+					}
 					const vector = await embedtext(thread.title + " " + thread.description);
 					const done = ++threadCount;
 					if (done % 50 === 0 || done === threads.length)
@@ -96,6 +108,11 @@ async function downloadData() {
 		const postsWeaviate = await Promise.all(
 			posts.map((post) =>
 				limit(async () => {
+					if(!isUUID(post.weaviateId)) {
+						const weaviateId = uuidv4()
+						await postForumModel.findByIdAndUpdate(post._id, { weaviateId })
+						post.weaviateId = weaviateId
+					}
 					const vector = await embedtext(post.content);
 					const done = ++postCount;
 					if (done % 100 === 0 || done === posts.length)
@@ -119,6 +136,11 @@ async function downloadData() {
 		const commentsWeaviate = await Promise.all(
 			comments.map((comment) =>
 				limit(async () => {
+					if(!isUUID(comment.weaviateId)){
+						const weaviateId = uuidv4()
+						await commentForumModel.findByIdAndUpdate(comment._id, { weaviateId })
+						comment.weaviateId = weaviateId
+					}
 					const vector = await embedtext(comment.content);
 					const done = ++commentCount;
 					if (done % 200 === 0 || done === comments.length)
