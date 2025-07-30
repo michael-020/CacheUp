@@ -79,15 +79,17 @@ export const Thread = () => {
 
     useEffect(() => {
       fetchMetaData(url).then(setMeta)
-    },[url])
+    },[])
 
     if(!meta) return null;
 
-    return <div className="border p-2 rounded-md bg-gray-100 mt-2">
-        <a href={meta.url} target="_blank" rel="noopener noreferrer">
-            <img src={meta.image} alt={meta.title} className="w-full h-fit object-cover rounded-md" />
-            <div className="text-lg font-bold">{meta.title}</div>
-            <div className="text-sm text-gray-700">{meta.description}</div>
+    return <div className="border p-2 rounded-md bg-gray-100 dark:bg-neutral-700 mt-2 ">
+        <a href={meta.url} target="_blank" rel="noopener noreferrer" className="flex gap-3 items-center">
+            <img src={meta.image} alt={meta.title} className="size-12 sm:size-28 max-w-48 rounded-md" />
+            <div>
+              <div className="text-sm sm:text-lg font-bold">{meta.title}</div>
+              <div className="text-xs sm:text-sm text-gray-700">{meta.description}</div>
+            </div>
         </a>
     </div>
   }
@@ -781,7 +783,7 @@ export const Thread = () => {
                 </div>
 
                 <div className="p-5">
-                  <div className="prose max-w-none whitespace-pre-wrap text-gray-800 dark:text-white">
+                  <div className="whitespace-pre-wrap text-gray-800 dark:text-white">
                    
                     {truncateContent(post.content.replace(/https?:\/\/[^\s]+/g, "").trim(), post._id)}
                                      
