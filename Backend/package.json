@@ -6,7 +6,10 @@
     "build": "tsc -b",
     "start": "node dist/index.js",
     "dev": "npm run build && npm run start",
-    "nodemon": "nodemon --watch src --ext ts --exec ts-node ./src/index.ts"
+    "nodemon": "nodemon --watch src --ext ts --exec ts-node ./src/index.ts",
+    "download:mongo": "tsx src/dbSync/downloadData",
+    "upload:weaviate": "tsx src/dbSync/uploadToWeaviate",
+    "download:weaviate": "tsx src/dbSync/downloadWeaviate"
   },
   "keywords": [],
   "author": "",
@@ -31,9 +34,11 @@
     "mongoose": "^8.14.1",
     "multer": "^1.4.5-lts.1",
     "node-cron": "^4.0.7",
+    "p-limit": "^6.2.0",
     "path": "^0.12.7",
     "redis": "^4.6.13",
     "sharp": "^0.34.1",
+    "uuid": "^11.1.0",
     "weaviate-ts-client": "^2.2.0",
     "zod": "^3.23.8"
   },
