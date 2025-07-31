@@ -44,4 +44,10 @@ sudo usermod -aG docker $USER
 echo "🔌 Creating Docker network: backend-network..."
 sudo docker network create backend-network || echo "⚠️ Network already exists or Docker not restarted yet"
 
+echo "📝 Writing current shell env variables to /Backend/.env..."
+# Pick only your relevant env variables and dump them
+env | grep -E '^(MONGO_URL|JWT_SECRET|SESSION_SECRET|EMAIL_USER|EMAIL_PASS|CLOUDINARY_CLOUD_NAME|CLOUDINARY_API_KEY|CLOUDINARY_API_SECRET|GOOGLE_CLIENT_ID|GOOGLE_CLIENT_SECRET|WEAVIATE_HOST|TRANSFORMER_API|NODE_ENV|BACKEND_URL|FRONTEND_URL|WEB_URL|CREATE_ADMIN_PASS)=' > /Backend/.env
+
+echo "✅ /Backend/.env created from shell environment variables."
+
 echo "🚀 Done. You may need to log out and back in for group changes to take effect."
