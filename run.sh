@@ -41,4 +41,7 @@ docker --version
 echo "👤 Adding current user to the docker group..."
 sudo usermod -aG docker $USER
 
-echo "🚀 You may need to log out and back in for group changes to take effect."
+echo "🔌 Creating Docker network: backend-network..."
+sudo docker network create backend-network || echo "⚠️ Network already exists or Docker not restarted yet"
+
+echo "🚀 Done. You may need to log out and back in for group changes to take effect."
