@@ -15,5 +15,20 @@ export async function embedtext(input: string): Promise<number[]> {
   } as any);
 
   const vector = (await extractor([input])).tolist()[0];
-  return vector as number[];
+  const result = meanPool(vector)
+  return result
+}
+
+function meanPool(vectors: number[][]): number[] {
+  const numVectors = vectors.length;
+  const dim = vectors[0].length;
+  const sum = new Array(dim).fill(0);
+
+  for (const vec of vectors) {
+    for (let i = 0; i < dim; i++) {
+      sum[i] += vec[i];
+    }
+  }
+
+  return sum.map(x => x / numVectors);
 }
