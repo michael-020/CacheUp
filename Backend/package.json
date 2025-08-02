@@ -9,12 +9,14 @@
     "nodemon": "nodemon --watch src --ext ts --exec ts-node ./src/index.ts",
     "download:mongo": "tsx src/dbSync/downloadData",
     "upload:weaviate": "tsx src/dbSync/uploadToWeaviate",
-    "download:weaviate": "tsx src/dbSync/downloadWeaviate"
+    "download:weaviate": "tsx src/dbSync/downloadWeaviate",
+    "download:model": "tsx src/downloadModel"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@huggingface/hub": "^2.4.0",
     "@types/connect-redis": "^0.0.23",
     "@types/cookie-parser": "^1.4.8",
     "axios": "^1.8.4",
