@@ -167,8 +167,8 @@ viewPostHandler.get("/:id", async (req: Request, res: Response) => {
         }
 
         const processedPosts = posts.map(post => {
-            const isLiked = post.likes.map(id => id).includes(currentUserId);
-            const isSaved = post.savedBy.map(id => id).includes(currentUserId);
+            const isLiked = post.likes.some(id => String(id) === String(currentUserId));
+            const isSaved = post.savedBy.some(id => String(id) === String(currentUserId));
             
             return {
                 ...post,

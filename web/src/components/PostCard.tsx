@@ -437,7 +437,7 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
           }`}
         >
           {showLikes && (
-            <div className="mt-3 bg-gray-50 p-4 rounded-lg border border-gray-200 relative dark:bg-neutral-800">
+            <div className="mt-3 bg-gray-50 p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 relative dark:bg-neutral-800">
               <div className="flex justify-between items-center mb-2">
                 <h3 className="font-medium text-gray-800 dark:text-gray-50">Liked by</h3>
                 <button
@@ -458,7 +458,7 @@ export default function PostCard({ post, isAdmin, onPostUpdate }: PostCardProps)
                     likedUsers.map(user => (
                       <div 
                         key={user._id} 
-                        className="flex items-center py-2 hover:bg-gray-100 px-2 rounded-md transition-colors cursor-pointer"
+                        className="flex items-center py-2 dark:hover:bg-neutral-700 hover:bg-neutral-200 px-2 rounded-md transition-colors cursor-pointer"
                         onClick={(e: React.MouseEvent) => handleLikedUserProfileClick(user._id, e)}
                       >
                         <img 
