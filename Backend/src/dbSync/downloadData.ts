@@ -67,8 +67,6 @@ async function downloadData() {
 						id: forum.weaviateId,
 						mongoId: forum._id,
 						vector,
-						title: forum.title,
-						description: forum.description,
 					};
 				})
 			)
@@ -93,11 +91,7 @@ async function downloadData() {
 						id: thread.weaviateId,
 						mongoId: thread._id,
 						vector,
-						title: thread.title,
-						description: thread.description,
-						forum: forum
-							? [{ beacon: `weaviate://localhost/Forum/${forum.weaviateId}` }]
-							: [],
+						forum: forum!.weaviateId
 					};
 				})
 			)
@@ -122,10 +116,7 @@ async function downloadData() {
 						id: post.weaviateId,
 						mongoId: post._id,
 						vector,
-						content: post.content,
-						thread: thread
-							? [{ beacon: `weaviate://localhost/Thread/${thread.weaviateId}` }]
-							: [],
+						thread: thread!.weaviateId
 					};
 				})
 			)
@@ -150,10 +141,7 @@ async function downloadData() {
 						id: comment.weaviateId,
 						mongoId: comment._id,
 						vector,
-						content: comment.content,
-						post: post
-							? [{ beacon: `weaviate://localhost/Post/${post.weaviateId}` }]
-							: [],
+						post: post!.weaviateId
 					};
 				})
 			)

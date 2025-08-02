@@ -8,8 +8,6 @@
     "dev": "npm run build && npm run start",
     "nodemon": "nodemon --watch src --ext ts --exec ts-node ./src/index.ts",
     "download:mongo": "tsx src/dbSync/downloadData",
-    "upload:weaviate": "tsx src/dbSync/uploadToWeaviate",
-    "download:weaviate": "tsx src/dbSync/downloadWeaviate",
     "download:model": "tsx src/downloadModel"
   },
   "keywords": [],
