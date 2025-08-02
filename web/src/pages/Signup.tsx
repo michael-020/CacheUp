@@ -92,7 +92,7 @@ export const Signup = () => {
                     type="text"
                     {...register("name")}
                     placeholder="Enter your name"
-                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 mt-1 text-sm bg-blue-50/50 dark:bg-gray-600/60 dark:placeholder:text-gray-400/40 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 mt-1 text-sm bg-blue-50/50 dark:bg-gray-600/60 dark:placeholder:text-gray-400/40 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name.message}</p>}
                 </div>
@@ -104,7 +104,7 @@ export const Signup = () => {
                     type="text"
                     {...register("username")}
                     placeholder="Choose a username"
-                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 mt-1 text-sm bg-blue-50/50 dark:bg-gray-600/60 dark:placeholder:text-gray-400/40 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 mt-1 text-sm bg-blue-50/50 dark:bg-gray-600/60 dark:placeholder:text-gray-400/40 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     {errors.username && <p className="text-red-400 text-xs mt-1">{errors.username.message}</p>}
                 </div>
@@ -117,7 +117,7 @@ export const Signup = () => {
                     {...register("email")}
                     readOnly
                     placeholder="xyz@gmail.com"
-                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 mt-1 text-sm bg-blue-50/50 dark:bg-gray-600/60 dark:placeholder:text-gray-400/40 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 mt-1 text-sm bg-blue-50/50 dark:bg-gray-600/60 dark:placeholder:text-gray-400/40 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
                 </div>
@@ -130,7 +130,7 @@ export const Signup = () => {
                         type={showPassword ? "text" : "password"}
                         {...register("password")}
                         placeholder="Create password"
-                        className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-blue-50/50 dark:bg-gray-600/60 dark:placeholder:text-gray-400/40 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-blue-50/50 dark:bg-gray-600/60 dark:placeholder:text-gray-400/40 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <button
                         type="button"
@@ -151,7 +151,7 @@ export const Signup = () => {
                         type={showConfirmPassword ? "text" : "password"}
                         {...register("confirmPassword")}
                         placeholder="Confirm password"
-                        className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-blue-50/50 dark:bg-gray-600/60 dark:placeholder:text-gray-400/40 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-blue-50/50 dark:bg-gray-600/60 dark:placeholder:text-gray-400/40 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <button
                         type="button"
@@ -169,7 +169,7 @@ export const Signup = () => {
                 <button
                     type="submit"
                     disabled={isSigningUp}
-                    className={`w-full py-2 sm:py-3 ${isSigningUp ? "bg-blue-800": " bg-blue-600 hover:bg-blue-700"} dark:text-gray-200 text-white text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all shadow-md`}
+                    className={`w-full py-2 sm:py-3 ${isSigningUp ? "bg-blue-800": " bg-blue-600 hover:bg-blue-700"} dark:text-gray-200 text-white text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all shadow-md`}
                 >
                     {isSigningUp ? <div className="flex items-center justify-center"> <Loader className="animate-spin self-center w-4 h-4 sm:w-5 sm:h-5" /> </div>: 'Submit'}
                 </button>

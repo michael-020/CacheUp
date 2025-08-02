@@ -162,14 +162,14 @@ export function SearchResults() {
 
   return (
     <motion.div 
-      className="dark:bg-neutral-950 mx-auto p-10 min-h-screen"
+      className="dark:bg-neutral-950 mx-auto p-6 min-h-screen"
       variants={routeVariants}
       initial="initial"
       animate="final"
       exit="exit"
     >      
       <div className="md:px-24">
-        <h1 className="text-2xl font-bold mb-4 pt-10">
+        <h1 className="text-2xl font-bold mb-4 pt-10 sm:pt-14">
           Search Results {searchQuery ? `for "${searchQuery}"` : ""}
         </h1>
         <SearchBar />

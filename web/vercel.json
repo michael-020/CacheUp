@@ -3,6 +3,10 @@
     {
       "source": "/(.*)",
       "destination": "/index.html"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "/robots.txt"
     }
   ],
   "headers": [
@@ -23,6 +27,13 @@
           "value": "public, max-age=31536000, immutable"
         }
       ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/sitemap.xml",
+      "destination": "https://api.cacheupp.com/sitemap.xml",
+      "permanent": true
     }
   ]
 }

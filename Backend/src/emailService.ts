@@ -19,7 +19,7 @@ export function generateOTP(): string {
 // Function to send OTP via email
 export async function sendOTP(email: string, otp: string): Promise<boolean> {
   const mailOptions = {
-    from: `"VPPCOE" <${process.env.EMAIL_USER}>`,
+    from: ` <${process.env.EMAIL_USER}>`,
     to: email,
     subject: 'Email Verification OTP',
     text: `Your OTP for email verification is: ${otp}`,

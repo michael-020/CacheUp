@@ -12,6 +12,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     threads: [],
     loading: false,
     error: '',
+    description:''
   },
   loadingForums: false,
   errorForums: '',
@@ -120,7 +121,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
         endpoint = "/forums/view-threads/"
       }
       const response = await axiosInstance.get(`${endpoint + forumId}`);
-      set({ currentForum: { ...get().currentForum, title: response.data.forum.title,  threads: response.data.allThreads, loading: false } });
+      set({ currentForum: { ...get().currentForum, title: response.data.forum.title, description: response.data.forum.description,  threads: response.data.allThreads, loading: false } });
     } catch (err) {
       const error = err as AxiosError<{ msg: string }>;
       set({ currentForum: { ...get().currentForum, error: error.response?.data?.msg || 'Failed to fetch threads', loading: false } });
@@ -129,15 +130,21 @@ export const useForumStore = create<ForumStore>((set, get) => ({
 
   createThread: async (forumId, weaviateId, threadData, isAdminRoute) => {
     try {
-      const endpoint = isAdminRoute 
-        ? `/admin/forums/${forumId}/${weaviateId}`
-        : `/forums/create-thread/${forumId}/${weaviateId}`;
+        const endpoint = isAdminRoute 
+            ? `/admin/forums/${forumId}/${weaviateId}`
+            : `/forums/create-thread/${forumId}/${weaviateId}`;
 
-      await axiosInstance.post(endpoint, threadData);
-      get().fetchThreads(forumId, isAdminRoute);
-    } catch (err) {
-      const error = err as AxiosError<{ msg: string }>;
-      throw error;
+        await axiosInstance.post(endpoint, threadData);
+        await get().fetchThreads(forumId, isAdminRoute);
+        toast.success("Thread created successfully");
+        return true; // Return true only on success
+    } catch (error) {
+        if (error instanceof AxiosError && (error.response?.data?.msg || error.response?.status === 409)) {
+            toast.error(error.response?.data?.msg || "A thread with this title already exists");
+        } else {
+            toast.error("Failed to create thread");
+        }
+        throw error; // Re-throw the error to be caught in the component
     }
   },
 
@@ -216,6 +223,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
     try {
       const response = await axiosInstance.post(`/forums/create-post/${threadMongo}/${threadWeaviate}`, {content}, {withCredentials: true});
       const newPost = response.data.postMongo;
+      newPost.pageNumber = response.data.pageNumber;
       
       const currentUser = useAuthStore.getState().authUser;
       
@@ -233,10 +241,9 @@ export const useForumStore = create<ForumStore>((set, get) => ({
         threadDescription: state.threadDescription,
         threadMongo: state.threadMongo,
         threadWeaviate: state.threadWeaviate,
-        posts: [populatedPost, ...state.posts],
+        posts: [...state.posts, populatedPost],
         loading: false
       }));
-  
       toast.success("Post Created Successfully")
       return populatedPost;
     } catch (error) {
@@ -251,8 +258,6 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   toggleLike: async (postId: string) => {
     try {
       const isLiked = get().likedPosts.has(postId);
-      const res = await axiosInstance(`/forums/like-post/${postId}`);
-
       set((state) => {
         const updated = new Set(state.likedPosts);
         if (isLiked) {
@@ -262,6 +267,7 @@ export const useForumStore = create<ForumStore>((set, get) => ({
         }
         return { likedPosts: updated };
       });
+      const res = await axiosInstance(`/forums/like-post/${postId}`);
 
       return res.data.like;
     } catch (err) {
@@ -613,15 +619,23 @@ export const useForumStore = create<ForumStore>((set, get) => ({
   },
 
   createForumRequest: async (title, description) => {
-    set({ loading: true })
+    set({ loading: true });
     try {
-      const response = await axiosInstance.post(`/forums/request-forum`,{ title, description })
-      toast.success(response.data.msg)
-    }catch(error){
-      console.error(error)
-      toast.error("Request Unsuccessful")
-    }finally{
-      set({ loading: false })
+        const response = await axiosInstance.post(`/forums/request-forum`, { 
+            title, 
+            description 
+        });
+        toast.success(response.data.msg);
+        return true; // Return true for successful creation
+    } catch (error) {
+        if (error instanceof AxiosError && (error.response?.data?.msg || error.response?.status === 409)) {
+            toast.error(error.response?.data?.msg || "A forum with this title already exists");
+        } else {
+            toast.error("Request Unsuccessful");
+        }
+        throw error; // Re-throw error to be caught in component
+    } finally {
+        set({ loading: false });
     }
   },
 
@@ -886,4 +900,3 @@ reportThread: async (id: string, userId: string) => {
 
 
 }));
-  

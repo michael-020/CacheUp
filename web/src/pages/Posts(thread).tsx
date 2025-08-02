@@ -1,20 +1,29 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useForumStore } from "@/stores/ForumStore/useforumStore";
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import CreatePostModal from "@/components/forums/CreatePostModalForums"; 
 import { Button } from "@/components/ui/button"; 
 import { useAdminStore } from "@/stores/AdminStore/useAdminStore";
 import { axiosInstance } from "@/lib/axios";
-import { ArrowLeft, EllipsisVertical, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, MessageSquareText } from "lucide-react";
+import { ArrowLeft, EllipsisVertical, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, MessageSquareText, Plus } from "lucide-react";
 import { PostSchema } from "@/stores/ForumStore/types";
 import ForumComment from "@/components/forums/ForumComment";
 import { motion } from "framer-motion"
 import { routeVariants } from "@/lib/routeAnimation";
-import {ThreadSkeleton} from "@/components/skeletons/ThreadSkeleton"
+import {ThreadSkeleton} from "@/components/skeletons/Posts(threads)Skeleton"
 import { DeleteModal } from "@/components/modals/DeleteModal";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
 import { SearchBar } from "@/components/forums/search-bar";
 import { LoginPromptModal } from "@/components/modals/LoginPromptModal";
+import { useScreenSize } from "@/hooks/useScreenSize";
+import axios from "axios";
+
+interface linkPreview {
+  title: string;
+  description: string;
+  image: string;
+  url: string;
+}
 
 export const Thread = () => {
   const { id } = useParams();
@@ -22,7 +31,6 @@ export const Thread = () => {
   const { fetchPosts, posts, loading, error, threadTitle, threadDescription, threadWeaviate, isWatched, watchThread, checkWatchStatus, deletePost, totalPages, totalPosts, hasNextPage } = useForumStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { authAdmin } = useAdminStore();
-  const [likeLoading, setLikeLoading] = useState<{[key: string]: boolean}>({});
   const postRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
   const [highlightedPostId, setHighlightedPostId] = useState<string | null>(null);
   const [expandedPosts, setExpandedPosts] = useState<{[key: string]: boolean}>({});
@@ -38,8 +46,54 @@ export const Thread = () => {
   const [paginationInput, setPaginationInput] = useState(page?.toString());
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [loginPromptAction, setLoginPromptAction] = useState<'post' | 'subscribe' | 'like' | 'dislike' | 'report'>('post');
-
+  const [descExpanded, setDescExpanded] = useState(false);
+  const [isSmallScreen, isLargeScreen] = useScreenSize();
   const highlightTimeoutRef = useRef<number | null> (null)
+
+  const extractUrls = (text: string) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return text.match(urlRegex) || []
+  }
+
+  const fetchMetaData = async (url: string) => {
+    try {
+      const response = await axios.get(`https://api.microlink.io/?url=${encodeURIComponent(url)}`);
+      const data = response.data;
+      if(response.status == 200 && data.data.image) {
+        return {
+          title: data.data.title || "No Title",
+          description: data.data.description || "No Description",
+          image: data.data.image.url || "",
+          url: data.data.url || url
+        }
+      }
+      return null
+    } catch (error) {
+      console.error("Couldn't get metadata of the url: ",error);
+      return null;
+    }
+  }
+
+  const LinkPreview = ({ url }: { url: string }) => {
+    const [meta, setMeta] = useState<linkPreview | null>(null);
+
+    useEffect(() => {
+      fetchMetaData(url).then(setMeta)
+    },[])
+
+    if(!meta) return null;
+
+    return <div className="border p-2 rounded-md bg-gray-100 dark:bg-neutral-700 mt-2 ">
+        <a href={meta.url} target="_blank" rel="noopener noreferrer" className="flex gap-3 items-center">
+            <img src={meta.image} alt={meta.title} className="size-12 sm:size-28 max-w-48 rounded-md" />
+            <div>
+              <div className="text-sm sm:text-lg font-bold">{meta.title}</div>
+              <div className="text-xs sm:text-sm text-gray-700">{meta.description}</div>
+            </div>
+        </a>
+    </div>
+  }
+
 
   const toggleMenu = (postId: string) => {
     setMenuOpen(prev => {
@@ -91,7 +145,7 @@ export const Thread = () => {
     if(postQuery){
       setTimeout(() => {
         scrollToPost(postQuery)
-      }, 300)
+      }, 1000)
     }    
     return () => {
       if(highlightTimeoutRef.current){
@@ -138,35 +192,31 @@ export const Thread = () => {
     }
   
     try {
-      setLikeLoading(prev => ({ ...prev, [postId]: true }));
-      const response = await axiosInstance.put(`/forums/like-post/${postId}`);
-      if (response.status === 200) {
-        const userId = authUser?._id;
-        if (!userId) return;
-        
-        const updatedPosts = posts.map(post => {
-          if (post._id === postId) {
-            const isAlreadyLiked = post.likedBy?.includes(userId);
-            
-            return {
-              ...post,
-              likedBy: isAlreadyLiked 
-                ? post.likedBy?.filter(id => id !== userId)
-                : [...(post.likedBy || []), userId],
-              disLikedBy: post.disLikedBy?.filter(id => id !== userId)
-            };
-          }
-          return post;
-        });
-        
-        useForumStore.getState().setPosts(updatedPosts);
-      }
+      const userId = authUser?._id;
+      if (!userId) return;
+
+      const updatedPosts = posts.map(post => {
+        if (post._id === postId) {
+          const isAlreadyLiked = post.likedBy?.includes(userId);
+          return {
+            ...post,
+            likedBy: isAlreadyLiked 
+              ? post.likedBy?.filter(id => id !== userId)
+              : [...(post.likedBy || []), userId],
+            disLikedBy: post.disLikedBy?.filter(id => id !== userId)
+          };
+        }
+        return post;
+      });
+      
+      useForumStore.getState().setPosts(updatedPosts);
+      await axiosInstance.put(`/forums/like-post/${postId}`);
     } catch (error) {
       console.error("Error liking post:", error);
-    } finally {
-      setLikeLoading(prev => ({ ...prev, [postId]: false }));
-    }
-  }, [posts, authUser, setLikeLoading]);
+      const originalPosts = posts.map(post => ({ ...post }));
+      useForumStore.getState().setPosts(originalPosts);
+    } 
+  }, [posts, authUser]);
   
   const handleDislikePost = useCallback(async (postId: string) => {
     if (!authUser) {
@@ -174,15 +224,11 @@ export const Thread = () => {
       setShowLoginPrompt(true);
       return;
     }
-  
     try {
-      setLikeLoading(prev => ({ ...prev, [postId]: true }));
       await useForumStore.getState().toggleDislike(postId);
     } catch (error) {
       console.error("Error disliking post:", error);
-    } finally {
-      setLikeLoading(prev => ({ ...prev, [postId]: false }));
-    }
+    } 
   }, [authUser]);
   
   const handleReportPost = (postId: string) => {
@@ -222,6 +268,28 @@ export const Thread = () => {
       return content;
     }
     return content.substring(0, 500);
+  };
+
+  // Helper for description truncation
+  const getTruncatedDescription = (desc: string) => {
+    if (!desc) return "";
+    if (descExpanded) return desc;
+    
+    let charLimit = isSmallScreen ? 90 : 170;
+    charLimit = isLargeScreen ? 250 : charLimit;
+
+    if (desc.length < charLimit) return desc;
+    return desc.slice(0, charLimit) + "...";
+  };
+
+  // Add this helper function next to getTruncatedDescription function
+  const shouldShowSeeMore = (desc: string) => {
+    if (!desc) return false;
+    
+    let charLimit = isSmallScreen ? 90 : 170;
+    charLimit = isLargeScreen ? 250 : charLimit;
+    
+    return desc.length > charLimit;
   };
 
   // Pagination handlers
@@ -267,16 +335,6 @@ export const Thread = () => {
     }
   };
 
-  // const generateMetaDescription = () => {
-  //   const description = threadDescription;
-  //   const canonicalUrl = `${window.location.origin}/forums/thread/${id}/${page}`
-  //   if(posts.length > 0){
-  //     return { posts, description, canonicalUrl }
-  //   }else{
-  //     return {description, canonicalUrl}
-  //   }
-  // }
-
   const handleNewPostClick = () => {
     if (!authUser) {
       setLoginPromptAction('post');
@@ -301,7 +359,7 @@ export const Thread = () => {
 
   if (error) {
     return (
-      <div className="p-6 mx-auto max-w-3xl bg-red-50 border border-red-200 rounded-lg text-center">
+      <div className="p-6 px-3 mx-auto max-w-6xl bg-red-50 border border-red-200 rounded-lg text-center">
         <div className="text-red-600 text-lg font-medium mb-2">Error Loading Posts</div>
         <div className="text-red-500">{error}</div>
       </div>
@@ -310,34 +368,62 @@ export const Thread = () => {
 
   if (posts.length === 0) {
     return (<>
-      <div className="p-8 mx-auto max-w-3xl bg-gray-50 dark:bg-neutral-800 translate-y-20 dark:border-neutral-600 border border-gray-200 rounded-lg text-center mt-16">
+      <div className="p-4 mx-auto max-w-6xl translate-y-14 sm:translate-y-20 lg:translate-y-20 text-center ">
         <SearchBar />
-        <div className="text-gray-500 text-lg dark:text-white">No posts found in Thread {threadTitle}</div>
-        <div className="text-gray-600 dark:text-gray-200 mb-2">{threadDescription}</div>
-        <div className="mt-4 text-sm text-gray-400">Be the first to post in this discussion</div>
-        <div className="flex gap-4 flex-wrap justify-center">
+        
+        <div className="flex items-center">
+          <button
+            onClick={() => navigate(-1)}
+            className="mr-2 p-3 rounded-full hover:bg-gray-400 dark:hover:bg-neutral-700"
+          >
+            <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
+          </button>
+          <div className="text-neutral-800 dark:text-white text-left mb-3"><span className="font-semibold text-xl">{threadTitle}</span></div>
+        </div>
+        <div className={`text-neutral-800 text-base dark:text-neutral-200 mb-2 ${threadDescription.length < 50 ? "text-center": "text-justify"} `}>
+          {getTruncatedDescription(threadDescription)}
+          {shouldShowSeeMore(threadDescription) && !descExpanded && (
+            <span
+              className="dark:text-neutral-500 text-neutral-400 text-sm lg:text-base cursor-pointer ml-1 hover:underline"
+              onClick={() => setDescExpanded(true)}
+            >
+              See more
+            </span>
+          )}
+          {shouldShowSeeMore(threadDescription) && descExpanded && (
+            <span
+              className="dark:text-neutral-500 text-neutral-400 text-sm lg:text-base cursor-pointer ml-1 hover:underline"
+              onClick={() => setDescExpanded(false)}
+            >
+              See less
+            </span>
+          )}
+        </div>
+        <div className="mt-4 text-sm dark:text-gray-400">No posts found in this Thread</div>
+        <div className="mt-2 text-sm dark:text-gray-400">Be the first to post in this discussion</div>
+        <div className="flex gap-4 justify-center">
         <Button
                 onClick={handleSubscribeClick}
                 className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border border-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 dark:border-blue-800 mt-3"
               >
                 {isWatched ? (
                   <>
+                    Unwatch
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a 1 1 0 001.414-1.414l-14-14zM10 18a8 8 0 100-16 8 8 0 000 16zm-2.293-7.707l-1-1A1 1 0 118.707 8.293l1 1a1 1 0 01-1.414 1.414z" clipRule="evenodd" />
                     </svg>
-                    Unwatch
                   </>
                 ) : (
                   <>
+                    Watch 
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm-2 8a2 2 0 114 0 2 2 0 01-4 0z" />
                     </svg>
-                    Watch Thread
                   </>
                 )}
               </Button>
         {!hasNextPage && <Button onClick={handleNewPostClick} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 mt-3">
-          + New Post
+          Create <Plus size={4} />
         </Button>}
 
         </div>
@@ -354,31 +440,6 @@ export const Thread = () => {
       </>
     );
   }
-
-  const getInitials = (name: string) => {
-    if (!name) return "??";
-    return name.split(" ")
-      .map(part => part[0] || '')
-      .join("")
-      .toUpperCase()
-      .substring(0, 2);
-  }
-
-  const getUserColor = (username?: string) => {
-    if (!username) return "bg-gray-400"; 
-
-    const colors = [
-      "bg-blue-500",
-      "bg-green-500",
-      "bg-purple-500",
-      "bg-yellow-500",
-      "bg-pink-500",
-      "bg-indigo-500",
-    ];
-
-    const hash = username.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return colors[hash % colors.length];
-  };
 
   const formatDate = (dateString: Date) => {
     const options: Intl.DateTimeFormatOptions = {
@@ -400,7 +461,7 @@ export const Thread = () => {
       animate="final"
       exit="exit"  
     >
-      <div className="container mx-auto p-4 max-w-4xl translate-y-20 pb-20 lg:pb-10">
+      <div className="container mx-auto p-4 max-w-6xl translate-y-14 md:translate-y-20 lg:translate-y-24 pb-20 lg:pb-10">
       <SearchBar />
         <div className="mb-4 border-b pb-4">
           <div className="flex items-center mb-2">
@@ -410,10 +471,28 @@ export const Thread = () => {
             >
               <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
             </button>
-            <h1 className="text-3xl font-bold mb-2">{threadTitle}</h1>       
+            <h1 className="text-xl lg:text-3xl font-bold mb-2">{threadTitle}</h1>       
           </div>
 
-          <p className="text-gray-600 mb-2">{threadDescription}</p>  
+          <div className={`text-neutral-900 text-base dark:text-gray-200 mb-2 ${threadDescription.length < 50 ? "text-center": "text-justify"} `}>
+          {getTruncatedDescription(threadDescription)}
+          {shouldShowSeeMore(threadDescription) && !descExpanded && (
+            <span
+              className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
+              onClick={() => setDescExpanded(true)}
+            >
+              See more
+            </span>
+          )}
+          {shouldShowSeeMore(threadDescription) && descExpanded && (
+            <span
+              className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
+              onClick={() => setDescExpanded(false)}
+            >
+              See less
+            </span>
+          )}
+        </div>
 
           {/* Post count + Centered Button Row */}
           <div className="flex flex-col items-center gap-3 mt-2">
@@ -427,27 +506,27 @@ export const Thread = () => {
               >
                 {isWatched ? (
                   <>
+                    Un-Watch
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a 1 1 0 001.414-1.414l-14-14zM10 18a8 8 0 100-16 8 8 0 000 16zm-2.293-7.707l-1-1A1 1 0 118.707 8.293l1 1a1 1 0 01-1.414 1.414z" clipRule="evenodd" />
                     </svg>
-                    Un-Watch
                   </>
                 ) : (
                   <>
+                    Watch
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm-2 8a2 2 0 114 0 2 2 0 01-4 0z" />
                     </svg>
-                    Watch
                   </>
                 )}
               </Button>
 
-              {!hasNextPage && <Button
+              <Button
                 onClick={handleNewPostClick}
-                className="bg-green-600 hover:bg-green-700 text-white"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
               >
-                + New Post
-              </Button>}
+                Create <Plus size={4} />
+              </Button>
             </div>
           </div>
         </div>
@@ -532,8 +611,9 @@ export const Thread = () => {
           
         <div className="space-y-6">
           {posts.map((post, index) => {
+            const urls = extractUrls(post.content)
             const author = post.createdBy.username;
-              const profileImage = post.createdBy.profilePicture;
+            const profileImage = post.createdBy.profilePicture;
             const isLiked = checkIfLiked(post)
             const isDisliked = checkIfDisliked(post)
             const isHighlighted = highlightedPostId === post._id;
@@ -565,9 +645,16 @@ export const Thread = () => {
                     <Link 
                       to={authAdmin ? `/admin/profile/${post.createdBy?._id}` : `/profile/${post.createdBy?._id}`}
                     >
-                      <div className={`w-10 h-10 rounded-full cursor-pointer items-center justify-center text-white flex ${getUserColor(author)}`}>
-                        <h3>{getInitials(author)}</h3>
+                      <div
+                        className={`w-10 h-10 rounded-full cursor-pointer items-center justify-center text-white flex overflow-hidden`}
+                      >
+                        <img
+                          src="/avatar.jpeg"
+                          alt={`${author}'s profile`}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
+
                     </Link>
                   )}
                   <div className="flex-1">
@@ -659,12 +746,34 @@ export const Thread = () => {
                         )}
                         {/* Report/Unreport for others - Only show if user is NOT the post owner and NOT an admin */}
                         {(post.createdBy._id !== currentUserId) && !authAdmin && (
+                          <>
+                          <button
+                          onClick={() => {
+                            const url = `${window.location.origin}${window.location.pathname}?post=${post._id}`;
+                            navigator.clipboard.writeText(url);
+                            setMenuOpen(prev => ({ ...prev, [post._id]: false }));
+                            
+                            setHighlightedPostId(post._id);
+                            
+                            if (highlightTimeoutRef.current) {
+                              clearTimeout(highlightTimeoutRef.current);
+                            }
+                            
+                            highlightTimeoutRef.current = window.setTimeout(() => {
+                              setHighlightedPostId(null);
+                            }, 3000);
+                          }}
+                          className="block w-full text-left border-b dark:border-neutral-700 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700"
+                        >
+                          Copy link to post
+                        </button>
                           <button
                             onClick={() => handleReportPost(post._id)}
                             className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700"
                           >
                             {post.reportedBy?.includes(currentUserId as string) ? 'Unreport Post' : 'Report Post'}
                           </button>
+                          </>
                         )}
                       </div>
                     </div>
@@ -674,24 +783,31 @@ export const Thread = () => {
                 </div>
 
                 <div className="p-5">
-                  <div className="prose max-w-none whitespace-pre-wrap text-gray-800 dark:text-white">
-                    {truncateContent(post.content, post._id)}
+                  <div className="whitespace-pre-wrap text-gray-800 dark:text-white">
+                   
+                    {truncateContent(post.content.replace(/https?:\/\/[^\s]+/g, "").trim(), post._id)}
+                                     
                     {contentIsTruncated && !isExpanded && (
                       <span 
-                        className="text-blue-600 font-medium cursor-pointer ml-1 hover:underline"
+                        className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
                         onClick={() => toggleExpandPost(post._id)}
                       >
-                        ... See more
+                        ...See more
                       </span>
                     )}
                     {contentIsTruncated && isExpanded && (
                       <span 
-                        className="text-blue-600 font-medium cursor-pointer block mt-2 hover:underline"
+                        className="dark:text-neutral-500 text-neutral-400 text-sm cursor-pointer ml-1 hover:underline"
                         onClick={() => toggleExpandPost(post._id)}
                       >
-                        Show less
+                        See less
                       </span>
                     )}
+                     <div>
+                    {urls?.map((url, i) => (
+                      <LinkPreview key={i} url={url} />
+                    ))}
+                  </div> 
                   </div>
                 </div>
                 
@@ -704,10 +820,8 @@ export const Thread = () => {
                         : 'text-gray-500 fill-gray-500 hover:text-blue-600 hover:fill-blue-600'
                     }`}
                     onClick={() => {
-                      if (likeLoading[post._id]) return;
                       handleLikePost(post._id);
                     }}
-                    disabled={likeLoading[post._id]}
                   >
                     <svg 
                       xmlns="http://www.w3.org/2000/svg" 
@@ -725,10 +839,8 @@ export const Thread = () => {
                             : 'text-gray-500 fill-gray-500 hover:text-red-600 hover:fill-red-600'
                         }`}
                         onClick={() => {
-                          if (likeLoading[post._id]) return;
                           handleDislikePost(post._id);
                         }}
-                        disabled={likeLoading[post._id]}
                       >
                         <svg 
                           xmlns="http://www.w3.org/2000/svg" 
@@ -759,6 +871,12 @@ export const Thread = () => {
                       postId={post._id} 
                       postWeaviateId={post.weaviateId} 
                       focusOnLoad={replyingTo === post._id}
+                      onClose={() => {
+                          setExpandedComments(prev => ({
+                            ...prev,
+                            [post._id]: false
+                        }));
+                      }}
                     />
                   </div>
                 )}

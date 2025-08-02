@@ -8,6 +8,7 @@ import { ArrowLeft, Camera, Loader2} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion"
 import { routeVariants } from "@/lib/routeAnimation";
+import { Textarea } from "@/components/ui/textarea";
 
 export const EditProfile = () => {
     const navigate = useNavigate();
@@ -19,8 +20,8 @@ export const EditProfile = () => {
     }).strict({ message: "Extra fields not allowed" });
 
     type FormFields = z.infer<typeof updateSchema>;
-    const [text, setText] = useState("");
     const { isEditing, editProfile, authUser } = useAuthStore();
+    const [text, setText] = useState(authUser?.bio || "");
     const [imagePreview, setImagePreview] = useState<string | null>(null);
 
     const { register, handleSubmit, formState: { errors }, reset } = useForm<FormFields>({
@@ -77,23 +78,17 @@ export const EditProfile = () => {
         }
     };
 
-    const onSubmit: SubmitHandler<FormFields> = async (data) => {
-        try {
-            const { name, username, bio, profilePicture } = data;
+    const onSubmit: SubmitHandler<FormFields> = (data) => {
+        const { name, username, bio, profilePicture } = data;
 
-            const sanitizedData = {
-                name,
-                username,
-                bio,
-                profilePicture: profilePicture ?? undefined,  
-            };
+        const sanitizedData = {
+            name,
+            username,
+            bio,
+            profilePicture: profilePicture ?? undefined,  
+        };
 
-            await editProfile(sanitizedData);
-            
-        } catch (error) {
-            toast.error("Profile update failed");
-            console.error(error)
-        }
+        editProfile(sanitizedData);
     };
 
     const handleNavigateBack = () => {
@@ -113,7 +108,7 @@ export const EditProfile = () => {
             animate="final"
             exit="exit"
         >
-            <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md overflow-hidden translate-y-16 md:translate-y-[4.5rem] lg:translate-y-28">
+            <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md overflow-hidden translate-y-20 md:translate-y-20 lg:translate-y-28">
                 {/* Header */}
                 <div className="bg-blue-600 py-3 px-4">
                     <div className="flex items-center">
@@ -203,7 +198,7 @@ export const EditProfile = () => {
                             <label className="inline-flex ml-1 items-center text-sm font-medium text-gray-700 mb-1">
                                 Bio
                             </label>
-                            <textarea
+                            <Textarea
                                 {...register("bio")}
                                 rows={2}
                                 value={text}

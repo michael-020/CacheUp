@@ -22,27 +22,13 @@ export default function Share({ onPostSuccess }: ShareProps) {
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   
   const isLoading = isUploadingPost || isProcessingImage;
+  const isSubmitDisabled = isLoading || (!text.trim() && !image);
 
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // Define allowed image MIME types
-    const allowedTypes = [
-      'image/jpeg',
-      'image/png',
-      'image/webp',
-      'image/jpg'
-    ];
-
-    if (!allowedTypes.includes(file.type)) {
-      toast.error("Please upload a valid image file (JPEG, PNG, GIF, WEBP, JPG)");
-      return;
-    }
-
-    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
-    if (file.size > MAX_FILE_SIZE) {
-      toast.error("File size should not exceed 10MB");
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload a valid image file");
       return;
     }
 
@@ -66,21 +52,22 @@ export default function Share({ onPostSuccess }: ShareProps) {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!text.trim() && !image) return;
-
-    // Check if user is authenticated
     if (!authUser) {
       setShowLoginPrompt(true);
       return;
     }
     
+    if (text.length > 200) {
+      toast.error("Text cannot exceed 200 characters");
+      return; 
+    }
+    
     try {
       await createPost({ text, image });
-
       setText("");
       setImage("");
       setImagePreview("");
       
-      // Call success callback if provided
       onPostSuccess?.();
     } catch (error) {
       console.error("Error creating post:", error);
@@ -98,7 +85,6 @@ export default function Share({ onPostSuccess }: ShareProps) {
     setText(e.target.value);
   };
 
-
   return (
     <>
       <div className="w-full lg:max-w-[500px] xl:max-w-[675px]  mx-auto mb-6">
@@ -113,7 +99,7 @@ export default function Share({ onPostSuccess }: ShareProps) {
                     placeholder="What's on your mind?"
                     className="w-full px-3 border dark:bg-neutral-700 rounded-md resize-none overflow-y-auto min-h-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              <div className="text-right text-xs pt-1 text-gray-500 ">
+              <div className={`text-right text-xs pt-1 ${text.length > 200 ? 'text-red-500 font-semibold' : 'text-gray-500'}`}>
                 {text.length}/200
               </div>
             </div>
@@ -143,7 +129,7 @@ export default function Share({ onPostSuccess }: ShareProps) {
                   <GrGallery size={20} className="text-gray-600 hover:scale-105" />
                   <input
                     type="file"
-                    accept="image/png, image/jpeg, image/gif, image/jpg, image/webp"
+                    accept="image/*"
                     onChange={handleImageUpload}
                     className="hidden"
                   />
@@ -159,7 +145,7 @@ export default function Share({ onPostSuccess }: ShareProps) {
               <button
                 type="submit"
                 className="px-4 py-1 bg-gradient-to-r from-blue-400 to-indigo-400 hover:bg-gradient-to-r hover:from-indigo-400 hover:to-blue-400 hover:scale-105 text-black rounded-md font-semibold flex items-center space-x-2 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={isLoading || (!text.trim() && !image)}
+                disabled={isSubmitDisabled}
               >
                 {isUploadingPost ? (
                   <div className="flex items-center gap-2">

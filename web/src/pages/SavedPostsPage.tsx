@@ -19,6 +19,12 @@ export default function SavedPostsPage() {
     };
   }, [fetchSavedPosts]);
 
+    const handlePostUpdate = (updatedPost: any) => {
+    if (!updatedPost.isSaved) {
+      usePostStore.getState().unsavePost(updatedPost._id);
+    }
+  };
+
   const SkeletonPost = () => { 
     return (
       <div className="xl:max-w-[700px] md:max-w-[550px] mx-auto rounded-xl bg-white dark:bg-neutral-800 p-4 shadow-lg border border-gray-200 dark:border-neutral-900">
@@ -57,7 +63,7 @@ export default function SavedPostsPage() {
 
   return (
     <motion.div
-      className="pt-16 min-h-screen bg-gray-100 dark:bg-neutral-950"
+      className="pt-16 min-h-screen pb-20 lg:pb-3 bg-gray-100 dark:bg-neutral-950"
       variants={routeVariants}
       initial="initial"
       animate="final"
@@ -95,7 +101,11 @@ export default function SavedPostsPage() {
         ) : (
           <div className="space-y-4">
             {savedPosts.map((post) => (
-              <PostCard key={post._id} post={post} />
+              <PostCard 
+                key={post._id} 
+                post={post} 
+                onPostUpdate={handlePostUpdate} 
+              />
             ))}
           </div>
         )}

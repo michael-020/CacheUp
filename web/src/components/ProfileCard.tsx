@@ -7,6 +7,7 @@ import { useFriendsStore } from '@/stores/FriendsStore/useFriendsStore';
 import { useAdminStore } from '@/stores/AdminStore/useAdminStore';
 import { LoginPromptModal } from "@/components/modals/LoginPromptModal";
 import { useAuthStore } from "@/stores/AuthStore/useAuthStore";
+import { RemoveFriendModal } from "@/components/modals/RemoveFriendModal";
 
 interface ProfileCardProps {
   isOwnProfile: boolean;
@@ -34,6 +35,8 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [loginPromptAction, setLoginPromptAction] = useState<'message' | 'friend'>('message');
   const { authUser } = useAuthStore();
+  const [showRemoveModal, setShowRemoveModal] = useState(false);
+  const [bioExpanded, setBioExpanded] = useState(false);
   
   useEffect(() => {
     if (!isOwnProfile) {
@@ -60,6 +63,15 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
       console.error('Error fetching mutual friends:', error);
       setMutualFriendsCount(0);
     }
+  };
+
+  const truncateBio = (bio: string) => {
+    if (!bio) return "";
+    if (bioExpanded) return bio;
+    
+    const charLimit = 75;
+    if (bio.length <= charLimit) return bio;
+    return bio.slice(0, charLimit) + "...";
   };
   
   if (!userInfo) {
@@ -139,9 +151,9 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
     
     if (isFriend) {
       return (
-        <button 
-          className="w-full flex items-center justify-center space-x-2 py-2 px-3 bg-green-500 text-white text-xs font-medium rounded-md cursor-default"
-          disabled
+        <button
+          className="w-full flex items-center justify-center space-x-2 py-2 px-3 bg-green-500 text-white text-xs font-medium rounded-md hover:bg-green-600 transition-colors"
+          onClick={() => setShowRemoveModal(true)}
         >
           <UserCheck className="size-4" /> <span>Friend</span>
         </button>
@@ -182,7 +194,7 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
           
           <div className="text-center">
             <div className="relative w-16 h-16 mx-auto mb-3">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 to-indigo-400 p-0.5  hover:scale-105 cursor-pointer ">
+              <div className="absolute inset-0 rounded-full bg-neutral-200 dark:bg-neutral-600 p-0.5  hover:scale-105 cursor-pointer ">
                 <div className="w-full h-full rounded-full overflow-hidden bg-whitetransition-transform duration-300">
                   <Link to="/profile" >
                     <img
@@ -203,7 +215,25 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
             </Link>
            
             <div className="p-2 mb-3 rounded-md text-xs text-gray-600 bg-gray-50 border border-gray-100 dark:bg-neutral-700 dark:text-gray-300 dark:border-neutral-800">
-              <p className="line-clamp-3">{bio || 'No bio available'}</p>
+              <p className="line-clamp-none">
+                {truncateBio(bio || 'No bio available')}
+                {bio && bio.length > 77 && !bioExpanded && (
+                  <span
+                    className="dark:text-neutral-500 text-neutral-400 text-xs cursor-pointer ml-1 hover:underline"
+                    onClick={() => setBioExpanded(true)}
+                  >
+                    See more
+                  </span>
+                )}
+                {bio && bio.length > 77 && bioExpanded && (
+                  <span
+                    className="dark:text-neutral-500 text-neutral-400 text-xs cursor-pointer ml-1 hover:underline"
+                    onClick={() => setBioExpanded(false)}
+                  >
+                    See less
+                  </span>
+                )}
+              </p>
             </div>
             
             <div className="flex gap-2 mb-3">
@@ -280,6 +310,15 @@ export const ProfileCard = ({ isOwnProfile, className, userInfo, isAdmin }: Prof
             ? "Please sign in to send messages."
             : "Please sign in to add friends."
         }
+      />
+      <RemoveFriendModal
+        isOpen={showRemoveModal}
+        onClose={() => setShowRemoveModal(false)}
+        onRemove={async () => {
+          await removeFriend(userId);
+          // No toast here
+        }}
+        friendName={name}
       />
     </div>
   );

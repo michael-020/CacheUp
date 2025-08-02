@@ -6,7 +6,7 @@ import { Messages } from './pages/Messages'
 import { Signin } from './pages/Signin'
 import { Landing } from './pages/Landing'
 import { useAuthStore } from './stores/AuthStore/useAuthStore'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { EmailVerify } from './pages/EmailVerify'
 import { BottomNavigationBar, Navbar } from './components/Navbar'
@@ -39,9 +39,11 @@ import { TimeTracker } from './components/TimeTracker'
 import PageViews from "@/pages/admin/PageViews";
 import ReportedContentPage from './pages/ReportedContentForums'
 import { usePathStore } from '@/stores/PathStore/usePathStore';
-import { Loader } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { SetupAccount } from './pages/SetupAccount';
 import { Signup } from './pages/Signup'
+import { NotFoundPage } from './pages/NotFoundPage'
+import { ServerDownPage } from './pages/ServerDownPage'
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth, inputEmail } = useAuthStore();
@@ -52,15 +54,94 @@ function App() {
   const { fetchRequests } = useFriendsStore();
   const { userLastPath, adminLastPath, setUserLastPath, setAdminLastPath } = usePathStore();
   const { fetchSavedPosts } = usePostStore();
-  const isAdminRoute = location.pathname.startsWith('/admin')
+  
+  // State for server status
+  const [showServerDown, setShowServerDown] = useState(false);
+  
+  // Refs for tracking initialization
   const initialized = useRef(false)
   const authenticated = useRef(false)
   const adminInitialized = useRef(false)
   const adminAuthenticated = useRef(false)
+  
+  // Constants
+  const isAdminRoute = location.pathname.startsWith('/admin')
   const noNavbarPaths = ['/', '/signin', '/signup', '/verify-email', '/set-up-account'];
   const shouldShowNavbar = !noNavbarPaths.includes(location.pathname);
-  
-  // Save current path before navigating to auth pages
+
+  // Server status monitoring - MOVED BEFORE EARLY RETURNS
+  useEffect(() => {
+    const checkServerStatus = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/health/server-health`, {
+          method: 'HEAD',
+          cache: 'no-cache'
+        });
+        
+        if (response.ok) {
+          setShowServerDown(false);
+        } else {
+          setShowServerDown(true);
+        }
+      } catch (error) {
+        console.log('Server check failed:', error);
+        setShowServerDown(true);
+      }
+    };
+
+    const handleOnline = () => {
+      console.log('Network back online, checking server...');
+      checkServerStatus();
+    };
+
+    const handleOffline = () => {
+      console.log('Network offline');
+      setShowServerDown(true);
+    };
+
+    const handleFocus = () => {
+      if (showServerDown) {
+        checkServerStatus();
+      }
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    window.addEventListener('focus', handleFocus);
+
+    checkServerStatus();
+
+    const interval = setInterval(() => {
+      if (showServerDown) {
+        checkServerStatus();
+      }
+    }, 30000);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('focus', handleFocus);
+      clearInterval(interval);
+    };
+  }, [showServerDown]);
+
+  // Initialize auth check - CONSOLIDATED
+  useEffect(() => {
+    if (!initialized.current) {
+      checkAuth();
+      initialized.current = true;
+    }
+  }, [checkAuth]);
+
+  // Handle admin routes initialization
+  useEffect(() => {
+    if (isAdminRoute && !adminInitialized.current) {
+      checkAdminAuth();
+      adminInitialized.current = true;
+    }
+  }, [isAdminRoute, checkAdminAuth]);
+
+  // Path management - CONSOLIDATED
   useEffect(() => {
     const currentPath = location.pathname;
     const authPaths = ['/', '/signin', '/signup', '/verify-email', '/admin/signin'];
@@ -74,18 +155,9 @@ function App() {
         sessionStorage.setItem('lastPath', currentPath);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname, setUserLastPath, setAdminLastPath]);
+  }, [location.pathname, isAdminRoute, setUserLastPath, setAdminLastPath]);
 
-  // Load saved paths on initial load
-  useEffect(() => {
-    if (!initialized.current) {
-      checkAuth();
-      initialized.current = true;
-    }
-  }, [checkAuth]);
-
-  // Handle user auth redirects
+  // Handle user auth redirects - CONSOLIDATED
   useEffect(() => {
     if (authUser && !authenticated.current) {
       const params = new URLSearchParams(location.search);
@@ -106,8 +178,7 @@ function App() {
         authenticated.current = true;
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authUser, location.search, navigate, setUserLastPath]);
+  }, [authUser, location.search, location.pathname, navigate, setUserLastPath]);
 
   // Handle admin auth redirects
   useEffect(() => {
@@ -119,37 +190,6 @@ function App() {
       }
     }
   }, [authAdmin, isAdminRoute, adminLastPath, navigate, setAdminLastPath]);
-
-  // Save path only when navigating to auth pages
-  useEffect(() => {
-    const currentPath = location.pathname;
-    const authPaths = ['/', '/signin', '/signup', '/verify-email', '/admin/signin'];
-    
-    if (authPaths.includes(currentPath) && !authenticated.current) {
-      const existingLastPath = sessionStorage.getItem('lastPath');
-      const previousPath = location.state?.from || existingLastPath || '/home';
-      if (!authPaths.includes(previousPath)) {
-        sessionStorage.setItem('lastPath', previousPath);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname]);
-
-  // Initialize auth check only once
-  useEffect(() => {
-    if (!initialized.current) {
-      checkAuth();
-      initialized.current = true;
-    }
-  }, [checkAuth]);
-
-  // Handle admin routes initialization
-  useEffect(() => {
-    if (isAdminRoute && !adminInitialized.current) {
-      checkAdminAuth();
-      adminInitialized.current = true;
-    }
-  }, [isAdminRoute, checkAdminAuth]);
 
   // Initialize user data after authentication
   useEffect(() => {
@@ -164,18 +204,9 @@ function App() {
 
       return () => clearInterval(interval);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authUser, isAdminRoute]);
+  }, [authUser, isAdminRoute, getUsers, getAllMessages, fetchRequests]);
 
-  useEffect(() => {
-    if (authAdmin && isAdminRoute) {
-      if (adminLastPath && !adminAuthenticated.current) {
-        navigate(adminLastPath)
-        adminAuthenticated.current = true
-      }
-    }
-  }, [authAdmin, isAdminRoute, adminLastPath, navigate, setAdminLastPath])
-
+  // Handle saved posts
   useEffect(() => {
     if (authUser) {
       fetchSavedPosts();
@@ -185,11 +216,11 @@ function App() {
     }
   }, [authUser, fetchSavedPosts]);
 
+  // Theme initialization
   useEffect(() => {
     const theme = localStorage.getItem('theme')
     const isDark = theme === 'dark'
   
-    // Ensure Zustand theme state syncs
     useThemeStore.getState().setTheme(isDark)
   
     if (isDark) {
@@ -198,17 +229,20 @@ function App() {
       document.documentElement.classList.remove('dark')
     }
   }, [])
-
+  
+  if (showServerDown) {
+    return <ServerDownPage />;
+  }
+  
   if ((isAdminRoute && isAdminCheckingAuth) || (!isAdminRoute && isCheckingAuth)) {
     return (
       <div className="h-screen max-w-screen flex items-center justify-center bg-gray-100 dark:bg-neutral-900">
-       <Loader className='animate-spin size-10' />
+       <Loader2 className='animate-spin size-14 text-blue-500' />
       </div>
     )
   }
 
   return (
-    
     <div className='bg-gray-100 dark:bg-neutral-950 min-h-screen custom-scrollbar'>
       {authUser && <TimeTracker />}
       <ScrollToTop />
@@ -219,14 +253,13 @@ function App() {
         </div>
       )}
       
-      {/* Admin navbar remains the same */}
       {authAdmin && isAdminRoute && (
         <div className='fixed top-0 w-screen z-40'>
           <AdminNavbar />
         </div>
       )}
-      <AnimatePresence mode="wait" >
       
+      <AnimatePresence mode="wait">
         <Routes>
           {/* User Routes */}
           <Route path="/signup" element={inputEmail ? <Signup /> : <Navigate to="/verify-email"/>} />
@@ -248,6 +281,7 @@ function App() {
           <Route path="/change-password" element={<ChangePassword /> } />
           <Route path="/saved-posts" element={<SavedPostsPage />} />
           <Route path="/friends/:id" element={<ViewFriends /> }/>
+          
           {/* Admin Routes */}
           <Route path="/admin/signin" element={!authAdmin ? <AdminSignin /> : <Navigate to={adminLastPath || "/admin/home"} /> } />
           <Route path="/admin/home" element={authAdmin ? <AdminHome /> : <Navigate to="/admin/signin" />} />
@@ -264,7 +298,7 @@ function App() {
           <Route path='/admin/page-views' element={authAdmin ? <PageViews /> : <Navigate to="/admin/signin" />} />
           <Route path='/admin/reported-content' element={authAdmin ? <ReportedContentPage /> : <Navigate to="/admin/signin" />} />
 
-          {/* Add OAuth route */}
+          {/* OAuth route */}
           <Route 
             path="/auth/google" 
             element={
@@ -274,12 +308,21 @@ function App() {
               />
             } 
           />
+          
+          {/* 404 Routes */}
+          <Route path="/forums/get-forums/*" element={<NotFoundPage />} />
+          <Route path="/forums/thread/:id/:page/*" element={<NotFoundPage />} />
+          <Route path="/forums/:forumMongoId/:forumWeaviateId/*" element={<NotFoundPage />} />
+          <Route path="/forums/thread/*" element={<NotFoundPage />} />
+          <Route path="/forums/*" element={<NotFoundPage />} />
+          <Route path="/profile/:id/*" element={<NotFoundPage />} />
+          <Route path="/friends/:id/*" element={<NotFoundPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
-       
       </AnimatePresence>
+      
       <Toaster />  
     </div>
-    
   )
 }
 

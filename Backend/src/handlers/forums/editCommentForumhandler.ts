@@ -39,24 +39,36 @@ export const editCommentForumHandler = async (req: Request, res: Response)=> {
             })
             return
         }
-        const vector = await embedtext(content)
+       
         
+        const initialContent = commentMongo.content
         commentMongo.content = content;
         await commentMongo.save()
 
-        const commentWeaviate = await weaviateClient.data.updater()
-            .withClassName("Comment")
-            .withId(weaviateId)
-            .withProperties({
-                content
+        try {
+            const vector = await embedtext(content)
+            const commentWeaviate = await weaviateClient.data.updater()
+                .withClassName("Comment")
+                .withId(weaviateId)
+                .withProperties({
+                    content
+                })
+                .withVector(vector)
+                .do()
+            res.json({
+                msg: "Comment Updated",
+                commentMongo,
+                commentWeaviate
             })
-            .withVector(vector)
-            .do()
-        res.json({
-            msg: "Comment Updated",
-            commentMongo,
-            commentWeaviate
-        })
+        } catch (error) {
+            commentMongo.content = initialContent
+            await commentMongo.save()
+            console.error(error)
+            res.status(500).json({
+                msg: "Error while editing comment"
+            })
+        }
+        
     }catch(e){
         console.error(e)
         res.status(500).json({

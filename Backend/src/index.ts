@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import "./types/override";
@@ -15,11 +15,20 @@ import forumsRouter from "./routes/forums";
 import authRouter from "./routes/auth";
 import session from "express-session";
 import MongoStore from "connect-mongo";
+import './lib/deleteCronJob'
+import { setupWeaviateSchema } from "./models/weaviate";
+import { setupWeaviateBackup } from './lib/weaviateBackupCron';
+import ServerhealthRouter from "./routes/ServerhealthRouter";
+import sitemapRoutes from './routes/sitemap';
 
-// Add before session middleware
+interface ApiError extends Error {
+  statusCode?: number;
+}
+
+app.use('/', sitemapRoutes);
+
 app.set('trust proxy', 1);
 
-// Initialize session middleware before other middleware
 app.use(session({
     secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
@@ -60,6 +69,7 @@ app.use(cors({
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 app.use(cookieParser());
+app.use('/api/v1/health', ServerhealthRouter)
 
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/admin", adminRouter);
@@ -71,12 +81,37 @@ app.use("/api/v1/auth", authRouter);
 // // Remove duplicate mounting of routes
 app.use("/auth", authRouter);
 
+app.use((req: Request, res: Response) => {
+    res.status(404).json({
+        success: false,
+        message: "Route not found",
+        error: {
+            statusCode: 404,
+            message: `Cannot ${req.method} ${req.originalUrl}`
+        }
+    });
+});
+
+app.use((err: ApiError, req: Request, res: Response, next: NextFunction) => {
+    console.error(err.stack);
+    const statusCode = err.statusCode || 500;
+    res.status(statusCode).json({
+        success: false,
+        message: err.message || "Internal Server Error",
+        error: {
+            statusCode: statusCode,
+            stack: process.env.NODE_ENV === 'production' ? null : err.stack
+        }
+    });
+});
+
 async function main() {
     try {
         const mongoUrl = process.env.MONGO_URL || "";
         await mongoose.connect(mongoUrl);
         console.log("Connected to DB");
-
+        await setupWeaviateSchema();
+        setupWeaviateBackup(); // Add this line
         // Start server and store reference to close it properly
         const PORT = process.env.PORT || 3000;
         server.listen(PORT, () => {

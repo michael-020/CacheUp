@@ -122,10 +122,12 @@ viewPostHandler.get("/myPosts", async (req: Request, res: Response) => {
 
         const processedPosts = posts.map(post => {
             const isLiked = post.likes.map(id => id).includes(userId);
+            const isSaved = post.savedBy.map(id => id).includes(userId);
             
             return {
                 ...post,
-                isLiked
+                isLiked,
+                isSaved
             };
         });
 
@@ -166,10 +168,12 @@ viewPostHandler.get("/:id", async (req: Request, res: Response) => {
 
         const processedPosts = posts.map(post => {
             const isLiked = post.likes.map(id => id).includes(currentUserId);
+            const isSaved = post.savedBy.map(id => id).includes(currentUserId);
             
             return {
                 ...post,
-                isLiked
+                isLiked,
+                isSaved
             };
         });
 

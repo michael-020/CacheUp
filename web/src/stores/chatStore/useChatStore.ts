@@ -34,6 +34,7 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
     unReadMessages: [],
     messagesInitialized: false, 
     activeToasts: new Map(),
+    isSendingMessage: false,
 
     getUsers: async () => {
         // Skip if users are already loaded
@@ -117,6 +118,7 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
         if (!selectedUser) {
             return;
         }
+        set({isSendingMessage: true})
         try {
             const res = await axiosInstance.post(`/messages/chat/${selectedUser._id}`, messageData);
             const newMessage = res.data.message;
@@ -130,6 +132,8 @@ export const useChatStore = create<chatState & chatAction>((set, get) => ({
             } else {
                 toast.error("An unexpected error occurred.");
             }
+        } finally {
+            set({isSendingMessage: false})
         }
     },
 

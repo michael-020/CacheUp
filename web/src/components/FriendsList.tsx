@@ -114,7 +114,7 @@ const FriendsList = ({ searchTerm }: FriendsListProps) => {
           <p className="text-gray-500 mt-1">Try a different search term</p>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 pb-16 lg:pb-4">
           {sortedFriends.map((friend: IUser) => (
             <div 
               key={friend._id} 

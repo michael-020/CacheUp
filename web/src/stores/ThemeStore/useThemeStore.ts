@@ -9,7 +9,9 @@ type ThemeState = {
 const isClient = typeof window !== 'undefined';
 const getInitialTheme = () => {
   if (!isClient) return false; // Default to light theme on server
-  return localStorage.getItem('theme') === 'dark';
+  const storedTheme = localStorage.getItem('theme');
+  // If no theme is stored, return true for dark theme
+  return storedTheme === null ? true : storedTheme === 'dark';
 };
 
 export const useThemeStore = create<ThemeState>((set) => ({
@@ -42,10 +44,9 @@ export const useThemeStore = create<ThemeState>((set) => ({
 
 // Only run this on the client
 if (isClient) {
-  const initialTheme = localStorage.getItem('theme') === 'dark';
-  if (initialTheme) {
+  const storedTheme = localStorage.getItem('theme');
+  if (!storedTheme) {
+    localStorage.setItem('theme', 'dark');
     document.documentElement.classList.add('dark');
-  } else {
-    document.documentElement.classList.remove('dark');
   }
 }
