@@ -36,14 +36,17 @@
     "node-cron": "^4.0.7",
     "p-limit": "^6.2.0",
     "path": "^0.12.7",
+    "pgvector": "^0.2.1",
     "redis": "^4.6.13",
     "sharp": "^0.34.1",
     "uuid": "^11.1.0",
+    "uuidv4": "^6.2.13",
     "weaviate-ts-client": "^2.2.0",
     "zod": "^3.23.8"
   },
   "description": "",
   "devDependencies": {
+    "@prisma/client": "^6.13.0",
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
@@ -58,6 +61,7 @@
     "@types/ws": "^8.18.0",
     "nodemailer": "^6.9.16",
     "nodemon": "^3.1.7",
+    "prisma": "^6.13.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2",
     "ws": "^8.18.1"
