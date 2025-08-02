@@ -4,6 +4,7 @@ import { commentForumModel, forumModel, postForumModel, threadForumModel } from 
 import { z } from "zod";
 import { embedtext } from "../../lib/vectorizeText";
 import { calculatePostPage } from "./utils/pagination"; 
+import { getSimilarVectors, TableNames } from "../../lib/vectorQueries";
 
 const queryWeaviate = async (query: number[]) => {
     const limits = {
@@ -135,43 +136,79 @@ const queryMongo = async(searchAlgoResult: Array<{ type: string; mongoId: string
     }
 }
 
-export const searchForumHandler = async (req: Request, res: Response) => {
-    const searchSchema = z.object({
-        query: z.string().min(3)
-    })
 
+const queryVectorTables = async (query: number[]) => {
+  const limits = {
+    [TableNames.Forum]: 3,
+    [TableNames.Thread]: 7,
+    [TableNames.Post]: 15,
+    [TableNames.Comment]: 20
+  };
+
+  const results: Array<{ type: string; mongoId: string, certainty: 1 }> = [];
+
+  const tableMappings = [
+    [TableNames.Forum, "Forum"],
+    [TableNames.Thread, "Thread"],
+    [TableNames.Post, "Post"],
+    [TableNames.Comment, "Comment"]
+  ] as const;
+
+  for (const [table, label] of tableMappings) {
     try {
-        const response = searchSchema.safeParse(req.params)
-        if(!response.success){
-            res.status(411).json({
-                msg: "Atleast 3 charachters needed for the search"
-            })
-            return
+      const matches = await getSimilarVectors(query, limits[table], table) as Array<{ id: string; mongoId: string }>;
+      matches?.forEach((match: any) => {
+        if (match.mongoId && match.mongoId !== "null") {
+          results.push({
+            type: label,
+            mongoId: match.mongoId,
+            certainty: 1
+          });
         }
-        
-        const { query } = req.params
-
-        const queryVector = await embedtext(query)
-
-        const searchAlgoResults = await queryWeaviate(queryVector);
-
-        if(!searchAlgoResults.length){
-            res.status(404).json({
-                msg: "No results found"
-            })
-            return
-        }
-
-        const results = await queryMongo(searchAlgoResults)
-        res.json({
-            msg: "Search Successfull",
-            searchResults: results
-        })
-
-    } catch (error) {
-        console.error(error)
-        res.status(500).json({
-            msg: "Server error"
-        })
+      });
+    } catch (err) {
+      console.error(`Error fetching ${label} results:`, err);
     }
-}
+  }
+
+  return results;
+};
+
+export const searchForumHandler = async (req: Request, res: Response) => {
+  const searchSchema = z.object({
+    query: z.string().min(3)
+  });
+
+  try {
+    const validation = searchSchema.safeParse(req.params);
+    if (!validation.success) {
+      res.status(411).json({
+        msg: "At least 3 characters needed for the search"
+      });
+      return
+    }
+
+    const { query } = validation.data;
+    const queryVector = await embedtext(query);
+
+    const searchAlgoResults = await queryVectorTables(queryVector);
+    if (!searchAlgoResults.length) {
+      res.status(404).json({
+        msg: "No results found"
+      });
+      return
+    }
+
+    const results = await queryMongo(searchAlgoResults);
+
+    res.json({
+      msg: "Search Successful",
+      searchResults: results
+    });
+  } catch (error) {
+    console.error("Search error:", error);
+    res.status(500).json({
+      msg: "Server error"
+    });
+  }
+};

@@ -1,69 +1,65 @@
 import { Request, Response } from "express";
 import { z } from "zod";
 import { postForumModel } from "../../models/db";
-import { weaviateClient } from "../../models/weaviate";
 import { embedtext } from "../../lib/vectorizeText";
+import { insertVector, TableNames } from "../../lib/vectorQueries";
 
+export const editPostForumHandler = async (req: Request, res: Response) => {
+  const postSchema = z.object({
+    content: z.string().min(2)
+  });
 
-export const editPostForumHandler = async(req: Request, res: Response) => {
-    const postSchema = z.object({
-        content: z.string().min(2)
-    })
-    try{
-        const userId = req.user._id;
-        const { mongoId, weaviateId } = req.params;
-        if(!(mongoId || weaviateId)){
-            res.status(411).json({
-                msg: "Enter ids"
-            })
-            return
-        }
-        const response = postSchema.safeParse(req.body)
-        if(!response.success){
-            res.status(411).json({
-                msg: "Please enter some content"
-            })
-            return
-        }
-        const { content } = req.body
-        const postMongo = await postForumModel.findById(mongoId)
-        if(postMongo?.createdBy.toString() !== userId.toString()){
-            res.status(401).json({
-                msg: "You are not authorizd to edit this post"
-            })
-            return
-        }
-        const initialContent = postMongo.content
-        postMongo.content = content
-        await postMongo.save()
+  const validation = postSchema.safeParse(req.body);
+  if (!validation.success) {
+    res.status(411).json({ msg: "Please enter some content" });
+    return
+  }
 
-        try {
-            const vector = await embedtext(content)
-       
-            const postWeaviate = await weaviateClient.data.updater()
-                .withClassName("Post")
-                .withId(weaviateId)
-                .withProperties({
-                    content
-                })
-                .withVector(vector)
-                .do()
-                
-            res.json({
-                msg: "Updated successfully",
-                postMongo,
-                postWeaviate
-            })    
-        } catch (error) {
-            console.error(error)
-            postMongo.content = initialContent
-            await postMongo.save();
-        }
-        
-    }catch(e){
-        console.error(e)
-        res.status(500).json({
-            msg: "server error"
-        })
+  const userId = req.user._id;
+  const { mongoId, weaviateId } = req.params;
+  const { content } = validation.data;
+
+  if (!mongoId || !weaviateId) {
+    res.status(411).json({ msg: "Enter both IDs" });
+    return
+  }
+
+  try {
+    const postMongo = await postForumModel.findById(mongoId);
+    if (!postMongo) {
+      res.status(404).json({ msg: "Post not found" });
+      return
     }
-}
+
+    if (postMongo.createdBy.toString() !== userId.toString()) {
+      res.status(401).json({ msg: "You are not authorized to edit this post" });
+      return
+    }
+
+    const originalContent = postMongo.content;
+    postMongo.content = content;
+    await postMongo.save();
+
+    try {
+      const vector = await embedtext(content);
+      await insertVector(weaviateId, vector, TableNames.Post);
+
+      res.status(200).json({
+        msg: "Post updated successfully",
+        postMongo
+      });
+
+    } catch (error) {
+      console.error("Vector update error:", error);
+
+      postMongo.content = originalContent;
+      await postMongo.save();
+
+      res.status(500).json({ msg: "Error while updating vector" });
+    }
+
+  } catch (e) {
+    console.error("Edit post error:", e);
+    res.status(500).json({ msg: "Server error" });
+  }
+};

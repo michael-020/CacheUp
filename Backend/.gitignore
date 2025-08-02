@@ -3,4 +3,7 @@ node_modules/
 /uploads/
 dist/
 export/
-models/
+/src/generated/prisma
+
+vectorModel/
+.cache/

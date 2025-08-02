@@ -45,16 +45,16 @@ forumsRouter.use(authMiddleware)
 forumsRouter.get("/get-forums", getAllForumsHandler)
 
 // create threads
-forumsRouter.post("/create-thread/:forumMongoId/:forumWeaviateId", createThreadHandler)
+forumsRouter.post("/create-thread/:forumMongoId/:forumVectorId", createThreadHandler)
 
 // get all threads from a forum
 forumsRouter.get("/get-threads/:forumId", getAllThreadsFromAForumHandler)
 
 // create Posts
-forumsRouter.post("/create-post/:threadMongo/:threadWeaviate", createPostForumshandler)
+forumsRouter.post("/create-post/:threadMongo/:threadVectorId", createPostForumshandler)
 
 // create comments
-forumsRouter.post("/create-comment/:postMongo/:postWeaviate", createCommentForumHandler)
+forumsRouter.post("/create-comment/:postMongo/:postVectorId", createCommentForumHandler)
 
 // search forums
 forumsRouter.get("/search-forums/:query", searchForumHandler)

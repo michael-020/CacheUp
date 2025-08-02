@@ -3,91 +3,87 @@ import { z } from "zod";
 import { forumModel } from "../../models/db";
 import { embedtext } from "../../lib/vectorizeText";
 import { weaviateClient } from "../../models/weaviate";
+import { v4 as uuid } from "uuid";
+import mongoose from "mongoose";
+import { insertVector, TableNames } from "../../lib/vectorQueries";
+import { prisma } from "../../lib/prisma";
 
+export const createForumhandler = async (req: Request, res: Response) => {
+  const forumSchema = z.object({
+    title: z.string().min(1),
+    description: z.string().min(10),
+  });
 
-export const createForumhandler = async(req: Request, res: Response) => {
-    const forumSchema = z.object({
-        title: z.string().min(1),
-        description: z.string().min(10)
+  const validation = forumSchema.safeParse(req.body);
+  if (!validation.success) {
+    res.status(411).json({
+      msg: "Invalid Details",
+      error: validation.error.errors,
     });
+    return
+  }
 
-    const response = forumSchema.safeParse(req.body);
-    if(!response.success){
-        res.status(411).json({
-            msg: "Incorrect Format",
-            error: response.error.errors
-        });
-        return;
-    }
+  const { title, description } = validation.data;
 
-    try {
-        const {title, description} = req.body;
+  const existingForum = await forumModel.findOne({
+    title,
+    visibility: true,
+  });
 
-        // Add visibility check
-        const existingForum = await forumModel.findOne({ 
-            title,
-            visibility: true 
-        });
+  if (existingForum) {
+    res.status(409).json({
+      msg: "A forum with this title already exists",
+    });
+    return
+  }
 
-        if (existingForum) {
-            res.status(409).json({ 
-                msg: "A forum with this title already exists" 
-            });
-            return;
-        }
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-        const forumMongo = await forumModel.create({
+  try {
+    const id = uuid();
+
+    const forumMongoArr = await forumModel.create(
+        [{
             title,
             description,
             createdBy: req.admin._id,
-            weaviateId: "temp"
+            weaviateId: id,
+        }],
+        { session }
+    );
+
+    const forumMongo = forumMongoArr[0]; 
+    try {
+        await prisma.forum.create({
+            data: {
+                id,
+                mongoId: forumMongo._id as string
+            }
         })
 
-        if (!forumMongo?._id) {
-            res.status(500).json({
-                msg: "Failed to create forum"
-            });
-            return;
-        }
+        const vector = await embedtext(`${title} ${description}`);
 
-        try {
-            const vector = await embedtext(title + " " + description)
-
-            const forumWeaviate = await weaviateClient.data.creator()
-                .withClassName("Forum")
-                .withProperties({
-                    title,
-                    description,
-                    mongoId: forumMongo._id.toString() // Ensure it's a string
-                })
-                .withVector(vector)
-                .do()
-    
-        if (!forumWeaviate?.id) {
-            // Rollback MongoDB creation if Weaviate fails
-            await forumMongo.deleteOne();
-            res.status(500).json({
-                msg: "Failed to create forum"
-            });
-            return;
-        }
-
-            forumMongo.weaviateId = forumWeaviate.id;
-            await forumMongo.save();
-            res.json({
-                msg: "Forum created successfully",
-                forumMongo,
-                forumWeaviate
-            });
-        } catch (error) {
-            await forumModel.findByIdAndDelete(forumMongo)
-            console.error(error)
-            res.status(500).json({
-                msg: "Error while creating forum"
-            })
-        }        
-    } catch(e) {
-        console.error("Error creating forum:", e);
-        res.status(500).json({msg: "Internal server error"});
+        insertVector(id, vector, TableNames.Forum)
+    } catch (error) {
+        throw new Error("Error while creating forum")
     }
-}
+
+
+    await session.commitTransaction();
+    session.endSession();
+
+    res.status(201).json({
+        msg: "Forum created successfully",
+        forumMongo,
+    });
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
+    console.error("Error creating forum:", error);
+    res.status(500).json({
+      msg: "Error while creating forum",
+    });
+  }
+};

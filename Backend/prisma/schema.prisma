@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+model Forum {
+  id        String @id @default(uuid())
+  mongoId   String @unique
+  embedding Unsupported("vector(384)")?
+  threads   Thread[]
+}
+
+model Thread {
+  id        String @id @default(uuid())
+  mongoId   String @unique
+  embedding Unsupported("vector(384)")?
+  forumId   String
+  forum     Forum   @relation(fields: [forumId], references: [id])
+  posts     Post[]
+}
+
+model Post {
+  id        String @id @default(uuid())
+  mongoId   String @unique
+  embedding Unsupported("vector(384)")?
+  threadId   String
+  thread     Thread   @relation(fields: [threadId], references: [id])
+  comments  Comment[]
+}
+
+model Comment {
+  id        String @id @default(uuid())
+  mongoId   String @unique
+  embedding Unsupported("vector(384)")?
+  postId   String
+  post     Post   @relation(fields: [postId], references: [id])
+}

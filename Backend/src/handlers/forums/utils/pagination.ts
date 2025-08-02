@@ -4,8 +4,7 @@ const postsPerPage = 10;
 export const calculatePostPage = async (threadId: string, postId: string) => {  
     try {
         const posts = await postForumModel.find({thread: threadId, visibility: true}).sort({ createdAt: 1 }).select("_id").lean()
-
-        const index = posts.findIndex((post) => post._id.toString() === postId.toString())
+        const index = posts.findIndex((post) => post._id === postId)
         if(index === -1) return null;
 
         const pageNumber = Math.floor(index / postsPerPage) + 1

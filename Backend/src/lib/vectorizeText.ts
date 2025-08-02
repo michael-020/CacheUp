@@ -1,8 +1,19 @@
-import axios from "axios";
-axios.defaults.family = 4
+import { pipeline, env } from "@huggingface/transformers";
+import path from "path";
 
-export const embedtext = async (text: string) => {
-    const url = process.env.TRANSFORMER_API
-    const res = await axios.get(`${url}/vectorize?text=${text}`)
-    return res.data.vector
+export async function embedtext(input: string): Promise<number[]> {
+  env.allowRemoteModels = false;
+
+  const modelPath = path.resolve(
+    __dirname,
+    "../vectorModel/Xenova/multi-qa-MiniLM-L6-cos-v1/flat"
+  );
+
+  const extractor = await pipeline("feature-extraction", modelPath, {
+    pooling: "mean",       
+    normalize: true        
+  } as any);
+
+  const vector = (await extractor([input])).tolist()[0];
+  return vector as number[];
 }
