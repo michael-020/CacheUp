@@ -25,14 +25,18 @@ export const insertVector = async (id: string, vector: number[], tableName: Tabl
 export const getSimilarVectors = async (vector: number[], limit: number, tableName: TableNames) => {
 
   try {
-    const items = await prisma.$queryRaw`
-        SELECT id, mongoId
-        FROM ${TableNames[tableName]}
-        ORDER BY embedding <-> ${vector}::vector
-        LIMIT ${limit}
-    `
+    const table = TableNames[tableName];
+    const embedding = toSql(vector); 
 
-    return items
+    const query = `
+      SELECT id, "mongoId"
+      FROM "${table}"
+      ORDER BY embedding <-> '${embedding}'::vector
+      LIMIT ${limit}
+    `;
+
+    const results = await prisma.$queryRawUnsafe(query, vector);
+    return results;
   } catch (error) {
     console.error("Error while getting vectors", error)
   }

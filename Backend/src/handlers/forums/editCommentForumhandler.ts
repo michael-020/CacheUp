@@ -1,78 +1,65 @@
 import { Request, Response } from "express";
 import { z } from "zod";
 import { commentForumModel } from "../../models/db";
-import { weaviateClient } from "../../models/weaviate";
 import { embedtext } from "../../lib/vectorizeText";
+import { insertVector, TableNames } from "../../lib/vectorQueries";
 
+export const editCommentForumHandler = async (req: Request, res: Response) => {
+  const commentSchema = z.object({
+    content: z.string().min(1)
+  });
 
-export const editCommentForumHandler = async (req: Request, res: Response)=> {
-    const commentSchema = z.object({
-        content: z.string().min(1)
-    })
-    try{
-        const userId = req.user._id
-        const { mongoId, weaviateId } = req.params;
-        if(!(mongoId || weaviateId)){
-            res.status(411).json({
-                msg: "Please provide ids"
-            })
-            return
-        }
-        const response = commentSchema.safeParse(req.body)
-        if(!response.success){
-            res.status(411).json({
-                msg: "Please enter some text"
-            })
-            return
-        }
-        const { content } = req.body;
-        const commentMongo = await commentForumModel.findById(mongoId)
-        if(!commentMongo){
-            res.status(404).json({
-                msg: "Comment not found"
-            })
-            return
-        }
-        if(commentMongo.createdBy._id.toString() !== userId.toString()){
-            res.status(401).json({
-                msg: "You are not the one who created the comment"
-            })
-            return
-        }
-       
-        
-        const initialContent = commentMongo.content
-        commentMongo.content = content;
-        await commentMongo.save()
+  const validation = commentSchema.safeParse(req.body);
+  if (!validation.success) {
+    res.status(411).json({ msg: "Please enter some text" });
+    return
+  }
 
-        try {
-            const vector = await embedtext(content)
-            const commentWeaviate = await weaviateClient.data.updater()
-                .withClassName("Comment")
-                .withId(weaviateId)
-                .withProperties({
-                    content
-                })
-                .withVector(vector)
-                .do()
-            res.json({
-                msg: "Comment Updated",
-                commentMongo,
-                commentWeaviate
-            })
-        } catch (error) {
-            commentMongo.content = initialContent
-            await commentMongo.save()
-            console.error(error)
-            res.status(500).json({
-                msg: "Error while editing comment"
-            })
-        }
-        
-    }catch(e){
-        console.error(e)
-        res.status(500).json({
-            msg: "Server error"
-        })
+  const userId = req.user._id;
+  const { mongoId, weaviateId } = req.params;
+  const { content } = validation.data;
+
+  if (!mongoId || !weaviateId) {
+    res.status(411).json({ msg: "Please provide both IDs" });
+    return
+  }
+
+  try {
+    const commentMongo = await commentForumModel.findById(mongoId);
+
+    if (!commentMongo) {
+      res.status(404).json({ msg: "Comment not found" });
+      return
     }
-}
+
+    if (commentMongo.createdBy.toString() !== userId.toString()) {
+      res.status(401).json({ msg: "You are not authorized to edit this comment" });
+      return
+    }
+
+    const originalContent = commentMongo.content;
+    commentMongo.content = content;
+    await commentMongo.save();
+
+    try {
+      const vector = await embedtext(content);
+      await insertVector(weaviateId, vector, TableNames.Comment);
+
+      res.status(200).json({
+        msg: "Comment updated successfully",
+        commentMongo
+      });
+
+    } catch (error) {
+      commentMongo.content = originalContent;
+      await commentMongo.save();
+
+      console.error("Vector update error:", error);
+      res.status(500).json({ msg: "Error while updating vector" });
+    }
+
+  } catch (e) {
+    console.error("Edit comment error:", e);
+    res.status(500).json({ msg: "Server error" });
+  }
+};
