@@ -11,7 +11,7 @@
     "seed:pg": "npx tsx src/dbSync/seedPg",
     "download:model": "npx tsx src/downloadModel",
     "prisma:migrate": "npx prisma migrate deploy",
-    "prod:build": "npm install && npm run prisma:migrate && npm run seed:pg && npm run build"
+    "prod:build": "npm install && npm run prisma:migrate && npm run build && npm run seed:pg "
   },
   "keywords": [],
   "author": "",
