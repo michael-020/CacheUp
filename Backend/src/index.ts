@@ -110,8 +110,8 @@ async function main() {
         const mongoUrl = process.env.MONGO_URL || "";
         await mongoose.connect(mongoUrl);
         console.log("Connected to DB");
-        await setupWeaviateSchema();
-        setupWeaviateBackup(); // Add this line
+        // await setupWeaviateSchema();
+        // setupWeaviateBackup(); // Add this line
         // Start server and store reference to close it properly
         const PORT = process.env.PORT || 3000;
         server.listen(PORT, () => {

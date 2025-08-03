@@ -4,14 +4,14 @@ import { deleteThread } from "./utils/deleteThread";
 
 export const adminDeleteThreadHandler = async (req: Request, res: Response) => {
     try{
-        const { mongoId, weaviateId } = req.params;
-    if(!(mongoId || weaviateId)){
+        const { mongoId, vectorId } = req.params;
+    if(!(mongoId || vectorId)){
         res.status(411).json({
             msg: "Please provide both the ids"
         })
         return;
     }
-    const result = await deleteThread(mongoId, weaviateId)
+    const result = await deleteThread(mongoId, vectorId)
     if(!result.success){
         res.status(500).json({
             msg: result.msg

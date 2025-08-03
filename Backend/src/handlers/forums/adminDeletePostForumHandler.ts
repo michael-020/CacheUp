@@ -4,15 +4,15 @@ import { deletePost } from "./utils/deletePost";
 
 export const adminDeletePostForumHandler = async (req: Request, res: Response) => {
     try{
-        const { mongoId, weaviateId } = req.params;
-        if(!mongoId || !weaviateId){
+        const { mongoId, vectorId } = req.params;
+        if(!mongoId || !vectorId){
             res.status(411).json({
                 msg: "Please provide ids"
             })
             return
         }
 
-        const result = await deletePost(mongoId, weaviateId)
+        const result = await deletePost(mongoId, vectorId)
         if(!result.success){
             res.status(500).json({
                 msg: result.msg,

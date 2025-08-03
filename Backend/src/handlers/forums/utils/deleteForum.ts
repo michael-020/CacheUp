@@ -1,26 +1,27 @@
 import { forumModel, threadForumModel } from "../../../models/db"
-import { weaviateClient } from "../../../models/weaviate"
 import { deleteThread } from "./deleteThread"
+import { prisma } from "../../../lib/prisma"
 
 
-export const deleteForum = async(mongoId: string, weaviateId: string) => {
+export const deleteForum = async(mongoId: string, vectorId: string) => {
     try{
         const threads = await threadForumModel.find({forum: mongoId})
         const threadIdsMongo = threads.map((thread) => thread._id)
         const threadIdsWeaviate = threads.map((thread) => thread.weaviateId)
 
-        if (!weaviateId || !/^[0-9a-fA-F-]{36}$/.test(weaviateId)) {
-            throw new Error(`Invalid Weaviate ID: ${weaviateId}`);
+        if (!vectorId || !/^[0-9a-fA-F-]{36}$/.test(vectorId)) {
+            throw new Error(`Invalid Weaviate ID: ${vectorId}`);
         }
 
         await Promise.all(threadIdsMongo.map((id, index) => deleteThread(id as string, threadIdsWeaviate[index] as string)))
 
         await Promise.all([
             forumModel.findByIdAndUpdate(mongoId, {visibility: false}),
-            weaviateClient.data.deleter()
-                .withClassName("Forum")
-                .withId(weaviateId)
-                .do()
+            prisma.forum.delete({
+                where: {
+                    id: vectorId
+                }
+            })
         ])
         return {
             success: true,

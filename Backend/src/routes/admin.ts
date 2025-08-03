@@ -93,27 +93,28 @@ adminRouter.get("/get-thread-posts/:threadId/:page", getAllPostsFromAThreadHandl
 adminRouter.get("/get-comments/:postId", getAllCommentsFromAPostHandler)
 
 // delete post
-adminRouter.delete("/delete-post/:mongoId/:weaviateId", adminDeletePostForumHandler)
+adminRouter.delete("/delete-post/:mongoId/:vectorId", adminDeletePostForumHandler)
 
 // search forums
 adminRouter.get("/search-forums/:query", searchForumHandler)
 
 // delete comments
-adminRouter.delete("/delete-comment/:mongoId/:weaviateId", adminDeleteCommentForumHandler)
+adminRouter.delete("/delete-comment/:mongoId/:vectorId", adminDeleteCommentForumHandler)
 
 // delete thread
-adminRouter.delete("/delete-thread/:mongoId/:weaviateId", adminDeleteThreadHandler)
+adminRouter.delete("/delete-thread/:mongoId/:vectorId", adminDeleteThreadHandler)
 
 // delete forum
-adminRouter.delete("/delete-forum/:mongoId/:weaviateId", adminDeleteForumHandler)
+adminRouter.delete("/delete-forum/:mongoId/:vectorId", adminDeleteForumHandler)
 
 // edit forum
-adminRouter.put("/edit-forum/:mongoId/:weaviateId", editForumAdminHandler)
+adminRouter.put("/edit-forum/:mongoId/:vectorId", editForumAdminHandler)
 
 // get requested forums
 adminRouter.get("/requested-forums", adminGetForumRequestHandler)
 
 // approve requested forums
+// REMOVE WEAVIATE FROM HERE I DON"T REMEMBER THE SYNTAX OF TRANSACTIONS IN MONGODB
 adminRouter.post("/approve-forum/:requestId", adminApproveForumHandler)
 
 // reject requested forums

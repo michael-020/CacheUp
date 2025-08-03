@@ -16,10 +16,10 @@ export const editPostForumHandler = async (req: Request, res: Response) => {
   }
 
   const userId = req.user._id;
-  const { mongoId, weaviateId } = req.params;
+  const { mongoId, vectorId } = req.params;
   const { content } = validation.data;
 
-  if (!mongoId || !weaviateId) {
+  if (!mongoId || !vectorId) {
     res.status(411).json({ msg: "Enter both IDs" });
     return
   }
@@ -42,7 +42,7 @@ export const editPostForumHandler = async (req: Request, res: Response) => {
 
     try {
       const vector = await embedtext(content);
-      await insertVector(weaviateId, vector, TableNames.Post);
+      await insertVector(vectorId, vector, TableNames.Post);
 
       res.status(200).json({
         msg: "Post updated successfully",

@@ -3,27 +3,12 @@ import path from "path";
 import dotenv from "dotenv";
 dotenv.config();
 
-import { weaviateClient as client } from "../models/weaviate";
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 
 async function loadJSON<T>(file: string): Promise<T[]> {
   const content = await fs.readFile(file, "utf-8");
   return JSON.parse(content);
-}
-
-async function uploadBatch(className: string, objects: any[]) {
-  const batch = objects.map(({ id, vector, ...props }) => ({
-    class: className,
-    id,
-    vector,
-    properties: props,
-  }));
-
-  try {
-    await client.batch.objectsBatcher().withObjects(...batch).do();
-    console.log(`✅ Uploaded ${batch.length} ${className} objects`);
-  } catch (err) {
-    console.error(`❌ Failed to upload ${className}:`, err);
-  }
 }
 
 function prepareData(data: any[], removeFields: string[] = []) {
@@ -32,6 +17,15 @@ function prepareData(data: any[], removeFields: string[] = []) {
     for (const field of removeFields) delete clean[field];
     return clean;
   });
+}
+
+async function uploadToPrisma(model: any, data: any[]) {
+  try {
+    await model.createMany({ data, skipDuplicates: true });
+    console.log(`✅ Uploaded ${data.length} entries to ${model._dmmf.name}`);
+  } catch (err) {
+    console.error(`❌ Failed to upload to ${model._dmmf.name}:`, err);
+  }
 }
 
 async function main() {
@@ -52,25 +46,27 @@ async function main() {
       loadJSON(path.join(basePath, files.Comment)),
     ]);
 
-    await Promise.all([
-      uploadBatch("Forum", prepareData(forums, ["vector"])),
-      uploadBatch(
-        "Thread",
-        threads.map(({ forum, ...rest }: any) => ({ ...rest, forum }))
-      ),
-      uploadBatch(
-        "Post",
-        posts.map(({ thread, ...rest }: any) => ({ ...rest, thread }))
-      ),
-      uploadBatch(
-        "Comment",
-        comments.map(({ post, ...rest }: any) => ({ ...rest, post }))
-      ),
-    ]);
+    await uploadToPrisma(prisma.forum, prepareData(forums));
+    await uploadToPrisma(prisma.thread, threads.map(({ forum, forumId, ...rest }: any) => ({
+      ...rest,
+      forumId: forumId || forum?.id,
+    })));
 
-    console.log("🎉 All data uploaded to Weaviate!");
+    await uploadToPrisma(prisma.post, posts.map(({ thread, threadId, ...rest }: any) => ({
+      ...rest,
+      threadId: threadId || thread?.id,
+    })));
+
+    await uploadToPrisma(prisma.comment, comments.map(({ post, postId, ...rest }: any) => ({
+      ...rest,
+      postId: postId || post?.id,
+    })));
+
+    console.log("🎉 All data uploaded to PostgreSQL with Prisma + pgvector!");
   } catch (err) {
     console.error("❌ Top-level failure:", err);
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
