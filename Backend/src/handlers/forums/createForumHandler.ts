@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { z } from "zod";
 import { forumModel } from "../../models/db";
 import { embedtext } from "../../lib/vectorizeText";
-import { weaviateClient } from "../../models/weaviate";
 import { v4 as uuid } from "uuid";
 import mongoose from "mongoose";
 import { insertVector, TableNames } from "../../lib/vectorQueries";

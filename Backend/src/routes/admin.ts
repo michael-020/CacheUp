@@ -27,13 +27,11 @@ import { adminGetRejectedForumRequestHandler } from "../handlers/forums/adminGet
 import { getAllCommentsFromAPostHandler } from "../handlers/forums/getAllCommentsFromAPostHandler";
 import { getAllUsersStatsHandler, getUserStatsHandler } from "../handlers/userStatsHandler";
 import { getDailyTimeSpentHandler } from '../handlers/timeTrackingHandler';
-import { timeTrackingService } from "../services/timeTrackingService";
 import viewProfileHanler from "../handlers/viewProfileHandler";
 import { adminGetReportedPostsCommentsThreadsHandler } from "../handlers/forums/adminGetReportedPostsCommentsThreadsHandler";
 import { getAllPostsFromAThreadHandler } from "../handlers/forums/getAllPostsFromAThreadHandler";
 import { pageViewHandler } from "../handlers/admin/pageViewsHandler";
 import { adminUnreportContentHandler } from "../handlers/forums/adminUnreportContentHandler";
-import { backupWeaviateData } from "../lib/weaviateBackupCron";
 
 const adminRouter: Router = Router();
 
@@ -139,15 +137,5 @@ adminRouter.get("/reported-content", adminGetReportedPostsCommentsThreadsHandler
 
 // unreport forum content
 adminRouter.put("/unreport-content/:id", adminUnreportContentHandler)
-
-// trigger weaviate backup
-adminRouter.post("/trigger-weaviate-backup", async (req, res) => {
-  try {
-    await backupWeaviateData();
-    res.json({ message: "Backup completed successfully" });
-  } catch (error) {
-    res.status(500).json({ error: "Backup failed" });
-  }
-});
 
 export default adminRouter;

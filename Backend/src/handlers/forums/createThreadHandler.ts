@@ -1,9 +1,7 @@
 import { Request, Response } from "express";
 import { z } from "zod";
 import { threadForumModel } from "../../models/db";
-import { weaviateClient } from "../../models/weaviate";
 import { embedtext } from "../../lib/vectorizeText";
-import { validateWeaviateCreate } from './utils/validateWeaviateCreate';
 import { insertVector, TableNames } from "../../lib/vectorQueries";
 import { v4 as uuid } from "uuid";
 import mongoose from "mongoose";

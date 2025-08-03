@@ -11,7 +11,8 @@ export async function embedtext(input: string): Promise<number[]> {
 
   const extractor = await pipeline("feature-extraction", modelPath, {
     pooling: "mean",       
-    normalize: true        
+    normalize: true,
+    dtype: 'fp32'      
   } as any);
 
   const vector = (await extractor([input])).tolist()[0];
@@ -32,3 +33,4 @@ function meanPool(vectors: number[][]): number[] {
 
   return sum.map(x => x / numVectors);
 }
+

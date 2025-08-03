@@ -1,5 +1,4 @@
 import { postForumModel, threadForumModel } from "../../../models/db"
-import { weaviateClient } from "../../../models/weaviate"
 import { deletePost } from "./deletePost"
 import { prisma } from "../../../lib/prisma"
 

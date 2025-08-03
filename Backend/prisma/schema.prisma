@@ -15,6 +15,9 @@ model Forum {
   mongoId   String @unique
   embedding Unsupported("vector(384)")?
   threads   Thread[]
+  
+  // Indexes
+  @@index([mongoId], name: "idx_forum_mongo_id")
 }
 
 model Thread {
@@ -24,6 +27,11 @@ model Thread {
   forumId   String
   forum     Forum   @relation(fields: [forumId], references: [id])
   posts     Post[]
+  
+  // Indexes
+  @@index([mongoId], name: "idx_thread_mongo_id")
+  @@index([forumId], name: "idx_thread_forum_id")
+  @@index([forumId, mongoId], name: "idx_thread_forum_mongo")
 }
 
 model Post {
@@ -33,6 +41,11 @@ model Post {
   threadId   String
   thread     Thread   @relation(fields: [threadId], references: [id])
   comments  Comment[]
+  
+  // Indexes
+  @@index([mongoId], name: "idx_post_mongo_id")
+  @@index([threadId], name: "idx_post_thread_id")
+  @@index([threadId, mongoId], name: "idx_post_thread_mongo")
 }
 
 model Comment {
@@ -41,4 +54,9 @@ model Comment {
   embedding Unsupported("vector(384)")?
   postId   String
   post     Post   @relation(fields: [postId], references: [id])
+  
+  // Indexes
+  @@index([mongoId], name: "idx_comment_mongo_id")
+  @@index([postId], name: "idx_comment_post_id")
+  @@index([postId, mongoId], name: "idx_comment_post_mongo")
 }
