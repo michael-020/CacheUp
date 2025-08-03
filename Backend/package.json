@@ -10,7 +10,7 @@
     "postinstall": "npx prisma generate",
     "seed:pg": "npx tsx src/dbSync/seedPg",
     "download:model": "npx tsx src/downloadModel",
-    "prisma:migrate": "npx prisma migrate deploy --generate",
+    "prisma:migrate": "npx prisma migrate deploy",
     "prod:build": "npm run prisma:migrate && npm run seed:pg && npm run build"
   },
   "keywords": [],
