@@ -97,7 +97,7 @@ const queryVectorTables = async (query: number[]) => {
     [TableNames.Comment]: 20
   };
 
-  const results: Array<{ type: string; mongoId: string, certainty: 1 }> = [];
+  const results: Array<{ type: string; mongoId: string, certainty: number }> = [];
 
   const tableMappings = [
     [TableNames.Forum, "Forum"],
@@ -111,10 +111,14 @@ const queryVectorTables = async (query: number[]) => {
       const matches = await getSimilarVectors(query, limits[table], table) as Array<{ id: string; mongoId: string }>;
       matches?.forEach((match: any) => {
         if (match.mongoId && match.mongoId !== "null") {
+          // const maxPossibleDistance = 2; // for cosine, or use empirically determined max
+          // const similarity = (match.certainty / maxPossibleDistance);
+          // const similarityPercent = similarity * 100;
+
           results.push({
             type: label,
             mongoId: match.mongoId,
-            certainty: 1
+            certainty: match.certainty
           });
         }
       });

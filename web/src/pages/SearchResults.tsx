@@ -78,7 +78,7 @@ export function SearchResults() {
 
   const truncateText = (text: string) => {
     if (!text) return "";
-    return text.length > 50 ? `${text.substring(0, 50)}...` : text;
+    return text.length > 150 ? `${text.substring(0, 150)}...` : text;
   };
 
   // Function to get a display title for each result type
@@ -117,6 +117,7 @@ export function SearchResults() {
 
     // Ensure searchResult has the expected data
     const results = searchResult?.searchResults as SearchResultItem[];
+    const sortedResponse = results.sort((a, b) => b.certainty - a.certainty)
 
     if (!results || results.length === 0) {
       return (
@@ -128,7 +129,7 @@ export function SearchResults() {
 
     return (<div>
       <div className="space-y-4">
-        {results.map((item, index) => (
+        {sortedResponse.map((item, index) => (
           <Card 
             key={`${item.type}-${item.data._id || index}`} 
             className="dark:hover:bg-neutral-800 hover:bg-accent/50 dark:bg-neutral-900 transition-colors cursor-pointer"
@@ -150,7 +151,7 @@ export function SearchResults() {
                 item.data.description && <CardDescription>{truncateText(item.data.description)}</CardDescription>
               )}
               <div className="text-xs text-muted-foreground mt-2">
-                {formatDate(item.data.createdAt)} • Match confidence: {(item.certainty * 100).toFixed(1)}%
+                {formatDate(item.data.createdAt)} • Match confidence: {(item.certainty+10).toFixed(2)}%
               </div>
             </CardContent>
           </Card>

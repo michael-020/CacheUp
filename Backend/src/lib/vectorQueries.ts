@@ -27,13 +27,16 @@ export const getSimilarVectors = async (vector: number[], limit: number, tableNa
   try {
     const table = TableNames[tableName];
     const embedding = toSql(vector); 
+    const normalizedVector = normalizeVector(vector);
 
     const query = `
-      SELECT id, "mongoId"
+      SELECT id, "mongoId",
+        1 - (embedding <#> '${embedding}'::vector) AS certainty
       FROM "${table}"
-      ORDER BY embedding <-> '${embedding}'::vector
+      ORDER BY embedding <#> '${embedding}'::vector
       LIMIT ${limit}
     `;
+
 
     const results = await prisma.$queryRawUnsafe(query, vector);
     return results;
@@ -42,3 +45,10 @@ export const getSimilarVectors = async (vector: number[], limit: number, tableNa
   }
   
 }
+
+// Normalize your input vector before querying
+const normalizeVector = (vec: number[]): number[] => {
+  const magnitude = Math.sqrt(vec.reduce((sum, val) => sum + val * val, 0));
+  return magnitude > 0 ? vec.map(val => val / magnitude) : vec;
+};
+

@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "tsc -b",
+    "build": "tsc -b && cp -R src/vectorModel dist/",
     "start": "node dist/index.js",
     "dev": "npm run build && npm run start",
     "nodemon": "nodemon --watch src --ext ts --exec ts-node ./src/index.ts",
-    "seed:pg": "tsx src/dbSync/seedPg",
-    "download:model": "tsx src/downloadModel"
+    "seed:pg": "npx tsx src/dbSync/seedPg",
+    "download:model": "npx tsx src/downloadModel"
   },
   "keywords": [],
   "author": "",
