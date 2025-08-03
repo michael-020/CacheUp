@@ -1,58 +1,10 @@
 import { Request, Response } from "express";
-import { weaviateClient } from "../../models/weaviate";
 import { commentForumModel, forumModel, postForumModel, threadForumModel } from "../../models/db";
 import { z } from "zod";
 import { embedtext } from "../../lib/vectorizeText";
 import { calculatePostPage } from "./utils/pagination"; 
 import { getSimilarVectors, TableNames } from "../../lib/vectorQueries";
 
-const queryWeaviate = async (query: number[]) => {
-    const limits = {
-        Forum: 3,
-        Thread: 7,
-        Post: 15,
-        Comment: 20
-    };
-
-    const classTypes = ["Forum", "Thread", "Post", "Comment"]
-
-    try {
-        const fetchPromises = classTypes.map((type) => 
-            weaviateClient.graphql.get()
-                .withClassName(type)
-                .withFields("mongoId _additional { certainty }")
-                .withNearVector({vector: query})
-                .withLimit(limits[type as keyof typeof limits])
-                .do()
-        )
-        
-        const fetchIds = await Promise.all(fetchPromises)
-        const results: Array<{type: string; mongoId: string; certainty: number}> = []
-
-        fetchIds.forEach((res, index) => {
-            const type = classTypes[index]
-            const items = res.data.Get?.[type]
-
-            if(items){
-                items.forEach((item: any) => {
-                    if(item.mongoId && item.mongoId !== "null"){
-                        results.push({
-                            type,
-                            mongoId: item.mongoId,
-                            certainty: item._additional.certainty
-                        })
-                    }
-                })
-            }
-        })
-
-        results.sort((a, b) => b.certainty - a.certainty)
-        return results
-    } catch (error) {
-        console.error(error)
-        return []
-    }
-}
 
 const queryMongo = async(searchAlgoResult: Array<{ type: string; mongoId: string, certainty: number }>) => {
     try {

@@ -27,13 +27,11 @@ import { adminGetRejectedForumRequestHandler } from "../handlers/forums/adminGet
 import { getAllCommentsFromAPostHandler } from "../handlers/forums/getAllCommentsFromAPostHandler";
 import { getAllUsersStatsHandler, getUserStatsHandler } from "../handlers/userStatsHandler";
 import { getDailyTimeSpentHandler } from '../handlers/timeTrackingHandler';
-import { timeTrackingService } from "../services/timeTrackingService";
 import viewProfileHanler from "../handlers/viewProfileHandler";
 import { adminGetReportedPostsCommentsThreadsHandler } from "../handlers/forums/adminGetReportedPostsCommentsThreadsHandler";
 import { getAllPostsFromAThreadHandler } from "../handlers/forums/getAllPostsFromAThreadHandler";
 import { pageViewHandler } from "../handlers/admin/pageViewsHandler";
 import { adminUnreportContentHandler } from "../handlers/forums/adminUnreportContentHandler";
-import { backupWeaviateData } from "../lib/weaviateBackupCron";
 
 const adminRouter: Router = Router();
 
@@ -93,27 +91,28 @@ adminRouter.get("/get-thread-posts/:threadId/:page", getAllPostsFromAThreadHandl
 adminRouter.get("/get-comments/:postId", getAllCommentsFromAPostHandler)
 
 // delete post
-adminRouter.delete("/delete-post/:mongoId/:weaviateId", adminDeletePostForumHandler)
+adminRouter.delete("/delete-post/:mongoId/:vectorId", adminDeletePostForumHandler)
 
 // search forums
 adminRouter.get("/search-forums/:query", searchForumHandler)
 
 // delete comments
-adminRouter.delete("/delete-comment/:mongoId/:weaviateId", adminDeleteCommentForumHandler)
+adminRouter.delete("/delete-comment/:mongoId/:vectorId", adminDeleteCommentForumHandler)
 
 // delete thread
-adminRouter.delete("/delete-thread/:mongoId/:weaviateId", adminDeleteThreadHandler)
+adminRouter.delete("/delete-thread/:mongoId/:vectorId", adminDeleteThreadHandler)
 
 // delete forum
-adminRouter.delete("/delete-forum/:mongoId/:weaviateId", adminDeleteForumHandler)
+adminRouter.delete("/delete-forum/:mongoId/:vectorId", adminDeleteForumHandler)
 
 // edit forum
-adminRouter.put("/edit-forum/:mongoId/:weaviateId", editForumAdminHandler)
+adminRouter.put("/edit-forum/:mongoId/:vectorId", editForumAdminHandler)
 
 // get requested forums
 adminRouter.get("/requested-forums", adminGetForumRequestHandler)
 
 // approve requested forums
+// REMOVE WEAVIATE FROM HERE I DON"T REMEMBER THE SYNTAX OF TRANSACTIONS IN MONGODB
 adminRouter.post("/approve-forum/:requestId", adminApproveForumHandler)
 
 // reject requested forums
@@ -138,15 +137,5 @@ adminRouter.get("/reported-content", adminGetReportedPostsCommentsThreadsHandler
 
 // unreport forum content
 adminRouter.put("/unreport-content/:id", adminUnreportContentHandler)
-
-// trigger weaviate backup
-adminRouter.post("/trigger-weaviate-backup", async (req, res) => {
-  try {
-    await backupWeaviateData();
-    res.json({ message: "Backup completed successfully" });
-  } catch (error) {
-    res.status(500).json({ error: "Backup failed" });
-  }
-});
 
 export default adminRouter;

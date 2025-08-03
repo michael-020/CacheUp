@@ -6,8 +6,8 @@ import { deleteComment } from "./utils/deleteComment";
 export const userCommentForumDeleteHandler = async(req: Request, res: Response) => {
     try{
         const userId = req.user._id
-        const { mongoId, weaviateId } = req.params;
-        if(!(mongoId || weaviateId)){
+        const { mongoId, vectorId } = req.params;
+        if(!(mongoId || vectorId)){
             res.status(411).json({
                 msg:"Please send the ids"
             })
@@ -22,7 +22,7 @@ export const userCommentForumDeleteHandler = async(req: Request, res: Response) 
             return;
         }
     
-        const results = await deleteComment(mongoId, weaviateId);
+        const results = await deleteComment(mongoId, vectorId);
         if(!results.success){
             res.status(500).json({
                 msg: "Comment was not deleted successfully"

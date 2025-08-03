@@ -1,8 +1,10 @@
 import { Request, Response } from "express";
 import { forumModel, requestForumModel } from "../../models/db";
-import { weaviateClient } from "../../models/weaviate";
 import { embedtext } from "../../lib/vectorizeText";
-import { validateWeaviateCreate } from './utils/validateWeaviateCreate';
+import mongoose from "mongoose";
+import { v4 as uuid } from "uuid";
+import { prisma } from "../../lib/prisma";
+import { insertVector, TableNames } from "../../lib/vectorQueries";
 
 export const adminApproveForumHandler = async (req: Request, res: Response) => {
     try {
@@ -28,56 +30,59 @@ export const adminApproveForumHandler = async (req: Request, res: Response) => {
             });
             return;
         }
-        
-        const forumMongo = await forumModel.create({
-            title: requestedForum.title,
-            description: requestedForum.description,
-            createdBy: req.admin._id,
-            weaviateId: "temp"
-        })
-        
+
+        const session = await mongoose.startSession();
+        session.startTransaction()
+
         try {
-            const vector = await embedtext(requestedForum.title + " " + requestedForum.description)
+            const id = uuid()
+            const forumMongoArr = await forumModel.create(
+                [{
+                title: requestedForum.title,
+                description: requestedForum.description,
+                createdBy: req.admin._id,
+                weaviateId: id
+            }], { session })    
 
+            const forumMongo = forumMongoArr[0]
+            try {
 
-            const forumWeaviate = await weaviateClient.data.creator()
-                .withClassName("Forum")
-                .withProperties({
-                    title: requestedForum.title,
-                    description: requestedForum.description,
-                    mongoId: forumMongo._id
-                })
-                .withVector(vector)
-                .do()
-    
-            forumMongo.weaviateId = forumWeaviate.id as string
-            
-            requestedForum.status = "approved"
-    
-            await Promise.all([
-                forumMongo.save(),
-                requestedForum.save()
-            ])
-    
+                const [prismaEntry, vector] = await Promise.all([
+                    prisma.forum.create({
+                        data: {
+                            id,
+                            mongoId: forumMongo._id as string
+                        }
+                    }),
+                    embedtext(requestedForum.title + " " + requestedForum.description)
+                ])
+
+                insertVector(id, vector, TableNames.Forum)
+            } catch (error) {
+                throw new Error("COuld not create vector entry")
+            }
+            await session.commitTransaction()
+            session.endSession()
             res.json({
-                msg: "Request approved",
-                forumMongo,
-                forumWeaviate,
-                requestedForum
+                msg:"accepted the forum req",
+                forumMongo
             })
-    
+
         } catch (error) {
-            await forumModel.findByIdAndDelete(forumMongo)
-            console.error(error)
+            await session.abortTransaction();
+            session.endSession();
+
+            console.error("Error creating forum:", error);
             res.status(500).json({
-                msg: "Could not approve request"
-            })
+            msg: "Error while creating forum",
+            });
         }
+        
 
     } catch (e) {
-        console.error("Error approving forum request:", e);
+        console.error("Error creating forum:",e);
         res.status(500).json({
-            msg: "Server error while approving forum request"
+        msg: "Error while creating forum",
         });
     }
 };

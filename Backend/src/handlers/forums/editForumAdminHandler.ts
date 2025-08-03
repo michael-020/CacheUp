@@ -11,8 +11,8 @@ export const editForumAdminHandler = async (req: Request, res: Response) => {
   });
 
   try {
-    const { mongoId, weaviateId } = req.params;
-    if (!mongoId || !weaviateId) {
+    const { mongoId, vectorId } = req.params;
+    if (!mongoId || !vectorId) {
       res.status(411).json({ msg: "Please provide ids" });
       return
     }
@@ -42,7 +42,7 @@ export const editForumAdminHandler = async (req: Request, res: Response) => {
 
     try {
       const vector = await embedtext(`${title} ${description}`);
-      await insertVector(weaviateId, vector, TableNames.Forum);
+      await insertVector(vectorId, vector, TableNames.Forum);
 
       res.status(200).json({
         msg: "Forum updated successfully",

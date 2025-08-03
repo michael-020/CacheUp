@@ -4,14 +4,14 @@ import { deleteForum } from "./utils/deleteForum";
 
 export const adminDeleteForumHandler = async (req: Request, res: Response) => {
     try{
-        const { mongoId, weaviateId } = req.params;
-        if(!(mongoId || weaviateId)) {
+        const { mongoId, vectorId } = req.params;
+        if(!(mongoId || vectorId)) {
             res.status(411).json({
                 msg: "Please provide correct ids"
             })
             return;
         }
-        const results = await deleteForum(mongoId, weaviateId)
+        const results = await deleteForum(mongoId, vectorId)
         if(!results.success){
             res.status(500).json({
                 msg: results.msg

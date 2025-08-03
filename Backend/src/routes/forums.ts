@@ -66,10 +66,10 @@ forumsRouter.get("/get-posts/:threadId/:page", getAllPostsFromAThreadHandler)
 forumsRouter.get("/get-comments/:postId", getAllCommentsFromAPostHandler)
 
 // delete comment 
-forumsRouter.delete("/delete-comment/:mongoId/:weaviateId", userCommentForumDeleteHandler)
+forumsRouter.delete("/delete-comment/:mongoId/:vectorId", userCommentForumDeleteHandler)
 
 // delete post
-forumsRouter.delete("/delete-post/:mongoId/:weaviateId", userPostForumdeleteHandler)
+forumsRouter.delete("/delete-post/:mongoId/:vectorId", userPostForumdeleteHandler)
 
 // report comment
 forumsRouter.put("/report-comment/:mongoId", reportCommentForumHandler)
@@ -87,13 +87,13 @@ forumsRouter.put("/like-comment/:mongoId", likeCommentForumHandler)
 forumsRouter.put("/dislike-comment/:mongoId", dislikeCommentForumHandler)
 
 // edit comment
-forumsRouter.put("/edit-comment/:mongoId/:weaviateId", editCommentForumHandler)
+forumsRouter.put("/edit-comment/:mongoId/:vectorId", editCommentForumHandler)
 
 // edit Post
-forumsRouter.put("/edit-post/:mongoId/:weaviateId", editPostForumHandler)
+forumsRouter.put("/edit-post/:mongoId/:vectorId", editPostForumHandler)
 
 // edit thread
-forumsRouter.put("/edit-thread/:mongoId/:weaviateId", editThreadForumHandler)
+forumsRouter.put("/edit-thread/:mongoId/:vectorId", editThreadForumHandler)
 
 // watch thread 
 forumsRouter.put("/watch-thread/:mongoId", watchThreadHandler)

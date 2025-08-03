@@ -1,10 +1,8 @@
 import { Request, Response } from "express";
 import { z } from "zod";
 import { postForumModel, threadForumModel, watchNotificationModel } from "../../models/db";
-import { weaviateClient } from "../../models/weaviate";
 import { embedtext } from "../../lib/vectorizeText";
 import { calculatePostPage } from "./utils/pagination";
-import { validateWeaviateCreate } from './utils/validateWeaviateCreate';
 import { prisma } from "../../lib/prisma";
 import { v4 as uuid } from "uuid";
 import mongoose from "mongoose";

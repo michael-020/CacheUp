@@ -1,9 +1,9 @@
 import { postForumModel, threadForumModel } from "../../../models/db"
-import { weaviateClient } from "../../../models/weaviate"
 import { deletePost } from "./deletePost"
+import { prisma } from "../../../lib/prisma"
 
 
-export const deleteThread = async(mongoId: string, weaviateId: string) => {
+export const deleteThread = async(mongoId: string, vectorId: string) => {
     try{
         const posts = await postForumModel.find({ thread: mongoId })
 
@@ -14,10 +14,9 @@ export const deleteThread = async(mongoId: string, weaviateId: string) => {
 
         await Promise.all([
             threadForumModel.findByIdAndUpdate(mongoId, {visibility: false}),
-            weaviateClient.data.deleter()
-                .withClassName("Thread")
-                .withId(weaviateId)
-                .do()
+            prisma.thread.delete({
+                where: { id: vectorId }
+            })
         ])
         return {
             success: true,

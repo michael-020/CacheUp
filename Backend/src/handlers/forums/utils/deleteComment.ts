@@ -1,15 +1,13 @@
 import { commentForumModel } from "../../../models/db"
-import { weaviateClient } from "../../../models/weaviate"
+import { prisma } from "../../../lib/prisma"
 
-
-export const deleteComment = async (mongoId: string, weaviateId: string) => {
+export const deleteComment = async (mongoId: string, vectorId: string) => {
     try{
         await Promise.all([
             commentForumModel.findByIdAndUpdate(mongoId, {visibility: false}),
-            weaviateClient.data.deleter()
-                .withClassName("Comment")
-                .withId(weaviateId)
-                .do()
+            prisma.comment.delete({
+                where: { id: vectorId }
+            })
         ])
         return {success: true, msg: "Comment deleted successfully"}
     }catch(e){

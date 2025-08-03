@@ -1,38 +1,5 @@
 services:
-  weaviate:
-    command:
-      - --host
-      - 0.0.0.0
-      - --port
-      - '8080'
-      - --scheme
-      - http
-    image: cr.weaviate.io/semitechnologies/weaviate:1.28.2
-    ports:
-      - 8080:8080
-      - 50051:50051
-    volumes:
-      - weaviate_data:/var/lib/weaviate
-    restart: on-failure:0
-    environment:
-      QUERY_DEFAULTS_LIMIT: 25
-      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
-      PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
-      DEFAULT_VECTORIZER_MODULE: 'none'
-      ENABLE_MODULES: ''
-      CLUSTER_HOSTNAME: 'node1'
-
-  python-service:
-    build:
-      context: ./python_server
-      dockerfile: Dockerfile
-    ports:
-      - 8081:8081
-    volumes:
-      - ./python_server:/app
-    command: sh -c "python transformer_api.py"
-    restart: unless-stopped
-
+  
   backend:
     build:
       context: ./Backend
@@ -60,6 +27,3 @@ services:
     working_dir: /app
     command: npm run dev
     restart: unless-stopped
-
-volumes:
-  weaviate_data:

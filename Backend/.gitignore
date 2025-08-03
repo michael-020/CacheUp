@@ -4,3 +4,6 @@ node_modules/
 dist/
 export/
 /src/generated/prisma
+
+vectorModel/
+.cache/

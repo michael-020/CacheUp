@@ -10,9 +10,9 @@ export const editThreadForumHandler = async (req: Request, res: Response) => {
     description: z.string().optional()
   });
 
-  const { mongoId, weaviateId } = req.params;
+  const { mongoId, vectorId } = req.params;
 
-  if (!mongoId || !weaviateId) {
+  if (!mongoId || !vectorId) {
     res.status(411).json({ msg: "Please provide both IDs" });
     return
   }
@@ -49,7 +49,7 @@ export const editThreadForumHandler = async (req: Request, res: Response) => {
 
     try {
       const vector = await embedtext(`${title} ${description}`);
-      await insertVector(weaviateId, vector, TableNames.Thread);
+      await insertVector(vectorId, vector, TableNames.Thread);
 
       res.status(200).json({
         msg: "Thread updated successfully",

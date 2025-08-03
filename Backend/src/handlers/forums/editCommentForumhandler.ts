@@ -16,10 +16,10 @@ export const editCommentForumHandler = async (req: Request, res: Response) => {
   }
 
   const userId = req.user._id;
-  const { mongoId, weaviateId } = req.params;
+  const { mongoId, vectorId } = req.params;
   const { content } = validation.data;
 
-  if (!mongoId || !weaviateId) {
+  if (!mongoId || !vectorId) {
     res.status(411).json({ msg: "Please provide both IDs" });
     return
   }
@@ -43,7 +43,7 @@ export const editCommentForumHandler = async (req: Request, res: Response) => {
 
     try {
       const vector = await embedtext(content);
-      await insertVector(weaviateId, vector, TableNames.Comment);
+      await insertVector(vectorId, vector, TableNames.Comment);
 
       res.status(200).json({
         msg: "Comment updated successfully",
