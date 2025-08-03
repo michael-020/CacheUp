@@ -9,7 +9,7 @@
     "nodemon": "nodemon --watch src --ext ts --exec ts-node ./src/index.ts",
     "seed:pg": "npx tsx src/dbSync/seedPg",
     "download:model": "npx tsx src/downloadModel",
-    "prisma:migrate": "npx prisma migrate deploy",
+    "prisma:migrate": "npx prisma migrate deploy --generate",
     "prod:build": "npm run prisma:migrate && npx prisma generate && npm run seed:pg && npm run build"
   },
   "keywords": [],
@@ -46,11 +46,11 @@
     "uuid": "^11.1.0",
     "uuidv4": "^6.2.13",
     "weaviate-ts-client": "^2.2.0",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "@prisma/client": "^6.13.0"
   },
   "description": "",
   "devDependencies": {
-    "@prisma/client": "^6.13.0",
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
