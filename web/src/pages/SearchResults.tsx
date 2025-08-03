@@ -151,7 +151,7 @@ export function SearchResults() {
                 item.data.description && <CardDescription>{truncateText(item.data.description)}</CardDescription>
               )}
               <div className="text-xs text-muted-foreground mt-2">
-                {formatDate(item.data.createdAt)} • Match confidence: {(item.certainty+10).toFixed(2)}%
+                {formatDate(item.data.createdAt)} • Match confidence: {(item.certainty+5).toFixed(2)}%
               </div>
             </CardContent>
           </Card>

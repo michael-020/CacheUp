@@ -10,6 +10,7 @@ export async function embedtext(input: string): Promise<number[]> {
   );
 
   const extractor = await pipeline("feature-extraction", modelPath, {     
+    pooling: "mean",
     normalize: true,
     dtype: 'fp32'      
   } as any);
