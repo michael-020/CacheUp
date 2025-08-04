@@ -7,11 +7,10 @@
     "start": "npx pm2-runtime start ecosystem.config.js",
     "dev": "npm run build && npm run start",
     "nodemon": "nodemon --watch src --ext ts --exec ts-node ./src/index.ts",
-    "postinstall": "npx prisma generate",
     "seed:pg": "npx tsx src/dbSync/seedPg",
     "download:model": "npx tsx src/downloadModel",
     "prisma:migrate": "npx prisma migrate deploy",
-    "prod:build": "npm install && npm run prisma:migrate && npm run seed:pg && npm run build"
+    "prod:build": "npm run download:model && npm run prisma:migrate && npx prisma generate && npm run build && npm run seed:pg "
   },
   "keywords": [],
   "author": "",
