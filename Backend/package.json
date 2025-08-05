@@ -3,14 +3,15 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "tsc -b && cp -R src/vectorModel dist/",
+    "build": "tsc -b",
+    "copy:model": "cp -R src/vectorModel dist/",
     "start": "npx pm2-runtime start ecosystem.config.js",
     "dev": "npm run build && npm run start",
     "nodemon": "nodemon --watch src --ext ts --exec ts-node ./src/index.ts",
     "seed:pg": "npx tsx src/dbSync/seedPg",
     "download:model": "npx tsx src/downloadModel",
     "prisma:migrate": "npx prisma migrate deploy",
-    "prod:build": "npm run download:model && npm run prisma:migrate && npx prisma generate && npm run build && npm run seed:pg "
+    "prod:build": "npm run download:model && npm run prisma:migrate && npx prisma generate && npm run build && copy:model && npm run seed:pg "
   },
   "keywords": [],
   "author": "",
